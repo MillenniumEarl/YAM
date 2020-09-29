@@ -1,0 +1,31 @@
+/* THIS FILE CONTAINS ALL GLOBABLE ELEMENTS TO THE APPLICATION WITH REGARD TO STYLES */
+/* MUST BE IMPORTED IN ALL CSS FILES */
+
+/*### Manages the link to the local icons of the material-design-icons package ###*/
+@import '../node_modules/material-design-icons/iconfont/material-icons.css';
+
+/*### Set the fonts to be used in the application ###*/
+@font-face {
+    font-family: OpenSans;
+    src: url(../font/OpenSans-Light.ttf);
+}
+
+@font-face {
+    font-family: OpenSans;
+    src: url(../font/OpenSans-Bold.ttf);
+    font-weight: bold;
+}
+
+/*### Global Variables ###*/
+:root {
+    --main-bg-color: #2E2C29; /* Black Magic */
+    --main-text-color: White;
+    --secondary-text-color: Black;
+    --secondary-app-color: #990000; /* Crimson */
+    --navbar-bg-color: #0F0E0E; /* Shades of Black */
+    --navbar-light-color: #181615; /* Bokara Grey */
+    --button-accept-color: #15A532; /* Dark Pastel Green */
+    --button-negative-color: #C11313; /* Fire Brick */
+    --button-neutral-color: #0A66BB; /* Denim */
+    --gamecard-background-color: #131211; /* Bokara Grey */
+}

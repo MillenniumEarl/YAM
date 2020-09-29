@@ -1,0 +1,16 @@
+/* Import base styles */
+@import "base-styles.css";
+
+/*### Handles colors for buttons generated with materialize-css ###*/
+a.btn, a.btn:hover {
+    background-color: var(--secondary-app-color);
+    color: var(--main-text-color);
+}
+
+/*### Handle position for floating button ###*/
+a.fab{
+    position: absolute;
+    bottom: 25px; 
+    right: 25px;
+    background-color: var(--secondary-app-color);
+}

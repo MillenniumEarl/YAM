@@ -1,0 +1,49 @@
+/* Import base styles */
+@import "base-styles.css";
+
+/*### Manage size for the 'tabs' component generated with materialize-css ###*/
+div.row, .row .col.s12, ul.tabs{
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+/*### Manage colors for the 'tabs' component generated with materialize-css ###*/
+ul.tabs {
+    background-color: var(--navbar-bg-color);
+}
+/* Background color of the entire component */
+
+li.tab {
+    background-color: var(--navbar-bg-color);
+    color: var(--main-text-color);
+}
+/* Colors of the single "tab" */
+
+.tabs .tab a {
+    color: var(--main-text-color);
+}
+/* Text color when not selected*/
+
+li.tab:active, .tabs .tab a.active {
+    background-color: var(--navbar-light-color);
+    color: var(--secondary-app-color);
+}
+/* Colors of the single "tab" selected */
+
+li.tab:hover, .tabs .tab a:hover {
+    background-color: var(--navbar-light-color);
+    color: var(--secondary-app-color);
+}
+/* Colors of the single "tab" on mouseover */
+
+.tabs .indicator {
+    background-color: var(--secondary-app-color);
+}
+/* Background color of the navigator tab indicator (lower bar) */
+
+.tabs .tab a:focus, .tabs .tab a:focus.active {
+    background-color: var(--navbar-light-color);
+    color: var(--secondary-app-color);
+}
+/* Color of the single "tab" (of the internal link) when selected */

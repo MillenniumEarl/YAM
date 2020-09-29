@@ -1,0 +1,98 @@
+/* Import base styles */
+@import "base-styles.css";
+
+body {
+    font-family: OpenSans;
+    background-color: var(--navbar-light-color);
+    color: var(--main-text-color);
+}
+
+#inner {
+    display: table;
+    margin: 0 auto;
+}
+
+#outer {
+    padding-left: 10px;
+    padding-right: 10px;
+    width: 100%
+}
+
+a.btn{
+    margin: 10px;
+}
+
+div.input-field{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#errorMessage{
+    padding-left: 10px;
+    padding-right: 10px;
+    color: var(--main-text-color);
+}
+
+/*### Handles colors for buttons generated with materialize-css ###*/
+#btnLogin, #btnLogin:hover {
+    background-color: var(--button-accept-color);
+    color: var(--main-text-color);
+}
+
+#btnCancel, #btnCancel:hover {
+    background-color: var(--button-neutral-color);
+    color: var(--main-text-color);
+}
+
+/*### Input textbox ###*/
+/* label focus color */
+.input-field input:focus+label {
+    color: var(--secondary-app-color) !important;
+}
+
+/* label underline focus color */
+.input-field input:focus {
+    border-bottom: 1px solid var(--secondary-app-color) !important;
+    box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
+    color: var(--main-text-color);
+}
+
+/* valid color */
+.input-field input.valid {
+    border-bottom: 1px solid var(--secondary-app-color) !important;
+    box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
+    color: var(--main-text-color);
+}
+
+/* invalid color */
+.input-field input.invalid {
+    border-bottom: 1px solid var(--secondary-app-color) !important;
+    box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
+    color: var(--main-text-color);
+}
+
+/* icon prefix focus color */
+.input-field .prefix.active {
+    color: var(--secondary-app-color) !important;
+}
+
+input:not(.browser-default):focus:not([readonly]) {
+    border-bottom: 1px solid var(--secondary-app-color) !important;
+    box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
+    color: var(--main-text-color);
+}
+
+input:not(.browser-default):focus:not([readonly])+label {
+    color: var(--secondary-app-color) !important;
+}
+
+/*### Manage the style for the preload bar ###*/
+div.progress {
+    margin: 0;
+    display: none;
+    background-color: var(--gamecard-background-color);
+}
+
+.progress .indeterminate {
+    background-color: var(--secondary-app-color);
+}
