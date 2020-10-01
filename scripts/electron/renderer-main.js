@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // This function runs when the DOM is ready, i.e. when the document has been parsed
 
   // Initialize the tabNavigator
-  var tabNavigator = document.getElementById("tabNavigator");
+  let tabNavigator = document.getElementById("tabNavigator");
   M.Tabs.init(tabNavigator, {});
 
   // Get the element with id="defaultOpen" and click on it
@@ -19,15 +19,15 @@ document.addEventListener("DOMContentLoaded", function () {
 /*### Text changed events ###*/
 document.querySelector('#searchGameName').addEventListener('input', () => {
   // Obtain the text
-  var searchText = document.getElementById("searchGameName").value.toUpperCase();
+  let searchText = document.getElementById("searchGameName").value.toUpperCase();
 
   // Obtain all the available GameCard
-  var gameCards = document.querySelectorAll('game-card');
+  let gameCards = document.querySelectorAll('game-card');
 
   // Hide the column which the cardgame belong 
   // if it's games with a title that not match the search query
-  for (var i = 0; i < gameCards.length; i++) {
-    var gameName = gameCards[i].info.name.toUpperCase();
+  for (let i = 0; i < gameCards.length; i++) {
+    let gameName = gameCards[i].info.name.toUpperCase();
     if (!gameName.startsWith(searchText)) {
       gameCards[i].parentNode.style.display = "none";
     } else {
@@ -52,32 +52,32 @@ document.querySelector('#btnAddGame').addEventListener('click', () => {
 
       // Parse the game dir name
       const path = data.filePaths[0];
-      var name = path.split('\\').pop();
+      let name = path.split('\\').pop();
       name = removeSpecials(name, ['-', '[', ']', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
 
       const MOD_VERSION = '[MOD]';
-      var includeMods = name.toUpperCase().includes(MOD_VERSION) ? true : false;
+      let includeMods = name.toUpperCase().includes(MOD_VERSION) ? true : false;
 
-      var version = 'Unknown';
+      let version = 'Unknown';
       const PREFIX_VERSION = '[V.'; // i.e. namegame [v.1.2.3.4]
       if (name.toUpperCase().includes(PREFIX_VERSION)) {
-        var startIndex = name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
-        var endIndex = name.indexOf(']', startIndex);
+        let startIndex = name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
+        let endIndex = name.indexOf(']', startIndex);
         version = name.substr(startIndex, endIndex - startIndex);
       }
 
       // Clean name (remove mod tag and version)
-      var rx = /\[(.*?)\]/g;
+      let rx = /\[(.*?)\]/g;
       name = name.replaceAll(rx, '').trim();
 
       // Search and add the game
-      window.gameScraper
+      window.F95API
         .getGameData(name, includeMods)
         .then((result) => {
 
           if (result === null) return;
           // Add the game
-          var card = addGameCard();
+          let card = addGameCard();
           result.gameDir = path;
           card.info = result;
 
@@ -89,8 +89,8 @@ document.querySelector('#btnAddGame').addEventListener('click', () => {
 
 /*### Private methods ###*/
 function openPage(pageName) {
-  // Local variables
-  var i, tabcontent;
+  // Local letiables
+  let i, tabcontent;
 
   // Hide all elements with class="tabcontent" by default
   tabcontent = document.getElementsByClassName("tabcontent");
@@ -104,11 +104,11 @@ function openPage(pageName) {
 
 function createNewGridRowInDOM() {
   // Create a new div 'row'
-  var row = document.createElement('div');
+  let row = document.createElement('div');
   row.setAttribute('class', 'row');
 
   // Select the container div
-  var container = document.getElementById('gamesTab');
+  let container = document.getElementById('gamesTab');
 
   // Add the row to the div
   container.appendChild(row);
@@ -121,20 +121,20 @@ function addGameCard() {
   // 1 - First we create the element
   // 2 - When connect the element to DOM
   // 3 - Lastly. we can change the 'gamedata' property
-  var gameCard = document.createElement('game-card');
+  let gameCard = document.createElement('game-card');
 
   // Create a simil-table layout wit materialize-css
   // 's4' means that the element occupies 4 of 12 columns
   // The 12 columns are the base layout provided by materialize-css
-  var column = document.createElement('div');
+  let column = document.createElement('div');
   column.setAttribute('class', 'col s4');
   column.appendChild(gameCard);
 
   // Check if is needed to create a new 'row' in the grid
-  var cardGamesNumber = document.querySelectorAll('game-card').length;
-  var rowsInDOM = document.querySelectorAll('#gamesTab > div.row');
+  let cardGamesNumber = document.querySelectorAll('game-card').length;
+  let rowsInDOM = document.querySelectorAll('#gamesTab > div.row');
   const gamesPerRow = 3; // s4 -> 12 / 4 = 3
-  var row;
+  let row;
   if (rowsInDOM.length == 0) {
     // We need a new row!
     row = createNewGridRowInDOM();
@@ -153,11 +153,11 @@ function addGameCard() {
 }
 
 function removeSpecials(str, allowedChars) {
-  var lower = str.toLowerCase();
-  var upper = str.toUpperCase();
+  let lower = str.toLowerCase();
+  let upper = str.toUpperCase();
 
-  var res = "";
-  for (var i = 0; i < lower.length; ++i) {
+  let res = "";
+  for (let i = 0; i < lower.length; ++i) {
     if (lower[i] != upper[i] || lower[i].trim() === '' || allowedChars.includes(lower[i]))
       res += str[i];
   }
@@ -167,12 +167,12 @@ function removeSpecials(str, allowedChars) {
 function loadCachedGames() {
   console.log('Load cached games...');
 
-  var files = window.glob.sync('*.json', {
+  let files = window.glob.sync('*.json', {
     cwd: window.AppCostant.GAME_DATA_DIR
   });
 
   for (const filename of files) {
-    var card = addGameCard();
+    let card = addGameCard();
     card.datapath = window.join(window.AppCostant.GAME_DATA_DIR, filename);
   }
 
@@ -202,11 +202,11 @@ function login() {
 }
 
 // Called when the window is being closed
-window.ipc.on('app-close', _ => {
+window.ipc.on('app-close', function() {
 
   // Remove all the GameCards to allow saving data
-  var cardGames = document.querySelectorAll('game-card');
-  for (var card of cardGames) {
+  let cardGames = document.querySelectorAll('game-card');
+  for (let card of cardGames) {
     // Remove the <div> containing the card
     card.parentNode.removeChild(card);
   }
@@ -218,10 +218,10 @@ window.ipc.on('app-close', _ => {
 // Called when the user log in to F95Zone correctly
 window.ipc.on('auth-successful', (event, json) => {
   // Load data
-  var credentials = JSON.parse(json);
-  window.gameScraper.login(credentials['username'], credentials['password'])
+  let credentials = JSON.parse(json);
+  window.F95API.login(credentials['username'], credentials['password'])
     .then(
-      window.gameScraper.loadF95BaseData()
+      window.F95API.loadF95BaseData()
       .then(function () {
         // Show 'add game' button
         document.getElementById('btnAddGame').style.display = 'block';
@@ -230,8 +230,8 @@ window.ipc.on('auth-successful', (event, json) => {
         document.getElementById('btnLogin').style.display = 'none';
 
         // Check update for all the listed games
-        var cardGames = document.querySelectorAll('game-card');
-        for (var card of cardGames) {
+        let cardGames = document.querySelectorAll('game-card');
+        for (let card of cardGames) {
           card.checkUpdates();
         }
       }));

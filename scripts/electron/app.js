@@ -21,7 +21,7 @@ function createMainWindow() {
       contextIsolation: false,
       webSecurity: true,
       nodeIntegration: false,
-      preload: path.join(app.getAppPath(), 'scripts', 'preload-main.js')
+      preload: path.join(app.getAppPath(), 'scripts', 'electron', 'preload-main.js')
     }
   });
 
@@ -43,40 +43,42 @@ function createMainWindow() {
   //mainWindow.setMenu(null)
 
   // Load the index.html of the app.
-  mainWindow.loadFile('index.html');
+  let htmlPath = path.join(app.getAppPath(), 'html', 'index.html');
+  mainWindow.loadFile(htmlPath);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 }
 
-function createLoginWindow(mainWindow) {
+function createLoginWindow() {
   console.log('window creation');
   // Create the login window.
   var loginWindow = new BrowserWindow({
     width: 400,
     height: 250,
     backgroundColor: '#252321', // Used to simulate loading and not make the user wait
-    frame: false,
+    frame: true,
     webPreferences: {
       worldSafeExecuteJavaScript: true,
       enableRemoteModule: true,
       contextIsolation: false,
       webSecurity: true,
       nodeIntegration: false,
-      preload: path.join(app.getAppPath(), 'scripts', 'preload-login.js')
+      preload: path.join(app.getAppPath(), 'scripts', 'electron', 'preload-login.js')
     }
   });
 
   // Disable default menu
-  loginWindow.setMenu(null)
+  //loginWindow.setMenu(null)
 
-  // Load the index.html of the app.
-  loginWindow.loadFile('login.html');
+  // Load the html file
+  let htmlPath = path.join(app.getAppPath(), 'html', 'login.html');
+  loginWindow.loadFile(htmlPath);
 }
 
 // This will be called when a BrowserWindows 
 // respond via ip with the message 'closed'
-ipc.on('closed', _ => {
+ipc.on('closed', function() {
   mainWindow = null;
   if (process.platform !== 'darwin') {
     app.quit();
@@ -84,20 +86,20 @@ ipc.on('closed', _ => {
 });
 
 // This will be called when the main window require credentials
-ipc.on('login-required', _ => {
+ipc.on('login-required', function() {
   console.log('login required');
-  createLoginWindow(mainWindow);
+  createLoginWindow();
 });
 
 // Used to return credentials
-ipc.on('auth-successful', (event, credentials) => {
+ipc.on('auth-successful', function(event, credentials) {
   mainWindow.webContents.send('auth-successful', credentials);
 });
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then(function() {
   createMainWindow();
 
   app.on('activate', function () {

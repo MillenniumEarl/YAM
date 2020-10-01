@@ -7,12 +7,12 @@
 /*### Set the fonts to be used in the application ###*/
 @font-face {
     font-family: OpenSans;
-    src: url(../font/OpenSans-Light.ttf);
+    src: url(../bin/font/OpenSans-Light.ttf);
 }
 
 @font-face {
     font-family: OpenSans;
-    src: url(../font/OpenSans-Bold.ttf);
+    src: url(../bin/font/OpenSans-Bold.ttf);
     font-weight: bold;
 }
 

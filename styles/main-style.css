@@ -5,7 +5,7 @@ body {
     font-family: OpenSans;
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
-    background-image: url('../images/background.png');
+    background-image: url('../bin/images/background.png');
 }
 
 #btnAddGame {
@@ -30,7 +30,7 @@ body {
   box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
 }
 
-  /* valid color */
+/* valid color */
 .input-field input[type=text].valid {
  border-bottom: 1px solid var(--secondary-app-color) !important;
   box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;

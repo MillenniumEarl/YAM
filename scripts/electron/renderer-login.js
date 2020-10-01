@@ -4,8 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Load credentials if saved on disk
     if (window.fexists(window.AppCostants.CREDENTIALS_PATH)) {
-        var json = window.fread(window.AppCostants.CREDENTIALS_PATH);
-        var credentials = JSON.parse(json);
+        let json = window.fread(window.AppCostants.CREDENTIALS_PATH);
+        let credentials = JSON.parse(json);
 
         document.getElementById('username').value = credentials['username'];
         document.getElementById('password').value = credentials['password'];
@@ -24,8 +24,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /*### Click events ###*/
 document.querySelector('#btnLogin').addEventListener('click', () => {
-    var username = document.getElementById('username').value;
-    var password = document.getElementById('password').value;
+    let username = document.getElementById('username').value;
+    let password = document.getElementById('password').value;
 
     // Block elements and show a progress bar
     document.getElementById('btnLogin').classList.add('disabled');
@@ -46,15 +46,15 @@ document.querySelector('#btnCancel').addEventListener('click', () => {
 /*### Private methods ###*/
 function manageLoginResult(result) {
     if (result.success) {
-        var username = document.getElementById('username').value;
-        var password = document.getElementById('password').value;
+        let username = document.getElementById('username').value;
+        let password = document.getElementById('password').value;
 
         // Valid auth, save and send credentials to main process
-        var credentials = {
+        let credentials = {
             'username': username,
             'password': password
         };
-        var json = JSON.stringify(credentials);
+        let json = JSON.stringify(credentials);
         window.fwrite(window.AppCostants.CREDENTIALS_PATH, json);
 
         window.ipc.send('auth-successful', json);

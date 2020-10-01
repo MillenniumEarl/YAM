@@ -2,7 +2,7 @@
   "name": "f95-game-updater",
   "version": "1.0.0",
   "description": "F95GameUpdater",
-  "main": "./scripts/app.js",
+  "main": "./scripts/electron/app.js",
   "author": {
     "name": "Millennium Earl"
   },
@@ -13,9 +13,10 @@
     "electron": "^10.1.1",
     "electron-json-storage": "^4.2.0",
     "electron-online": "^1.0.0",
+    "f95api": "file:/./bin/f95api-1.0.0.tgz",
     "jquery": "^3.5.1",
     "material-design-icons": "^3.0.1",
     "materialize-css": "^1.0.0",
-    "F95API": "file:/./f95api-1.0.0.tgz"
+    "request": "^2.88.2"
   }
 }

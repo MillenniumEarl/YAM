@@ -1,6 +1,6 @@
 //### IN ORDER TO USE window.[function[] CONTEXT_ISOLATION IN APP.JS MUST BE FALSE!!! ###
-const AppCostants = require('./AppCostants.js').AppCostants;
-const login = require('./retrieve-game-data.js').login;
+const AppCostants = require('../AppCostants.js').AppCostants;
+const login = require('f95api').login;
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
 const {
