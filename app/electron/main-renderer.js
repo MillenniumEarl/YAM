@@ -1,7 +1,7 @@
 /*### Generic events ###*/
 document.addEventListener("DOMContentLoaded", function () {
   // This function runs when the DOM is ready, i.e. when the document has been parsed
-
+  
   // Initialize the tabNavigator
   let tabNavigator = document.getElementById("tabNavigator");
   M.Tabs.init(tabNavigator, {});
@@ -46,6 +46,7 @@ document.querySelector('#btnAddGame').addEventListener('click', () => {
     title: 'Select game directory',
     properties: ['openDirectory']
   }
+
   window.dialog.showOpenDialog(null, options)
     .then((data) => {
       if (data.filePaths.length === 0) return;
@@ -202,7 +203,7 @@ function login() {
 }
 
 // Called when the window is being closed
-window.ipc.on('app-close', function() {
+window.ipc.on('app-closing', function() {
 
   // Remove all the GameCards to allow saving data
   let cardGames = document.querySelectorAll('game-card');
@@ -212,7 +213,7 @@ window.ipc.on('app-close', function() {
   }
 
   // Tell the main process to close this BrowserWindow
-  window.ipc.send('closed');
+  window.ipc.send('window-closing');
 });
 
 // Called when the user log in to F95Zone correctly

@@ -12,6 +12,13 @@ body {
   display: none;
 }
 
+/*### Set size of avatar image ###*/
+.avatar {
+  object-fit: scale-down;
+  width: 40px;
+  height: 40px;
+}
+
 /*### Set the size and center the game/settings div ###*/
 .tabcontent{
   margin: auto;
@@ -19,6 +26,10 @@ body {
 }
 
 /*### Search bar styles ###*/
+#searchGameName:focus {
+  color: var(--main-text-color);
+}
+
 /* label focus color */
 .input-field input[type=text]:focus + label {
   color: var(--secondary-app-color) !important;

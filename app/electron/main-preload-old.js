@@ -56,6 +56,10 @@ window.isOnline = function() {
 var costants = new AppCostants();
 costants.init();
 
+F95API.debug(true);
+// Set the cache path for the F95API
+F95API.setCacheDir(costants.BROWSER_DATA_DIR);
+
 window.AppCostant = costants;
 window.osPlatform = process.platform;
 window.glob = glob;

@@ -18,9 +18,9 @@ class GameCard extends HTMLElement {
   }
 
   async checkUpdates() {
-    if (!window.gameScraper.isLogged()) return;
+    if (!window.F95API.isLogged()) return;
 
-    var onlineVersion = await window.gameScraper.getGameVersion(this.info);
+    var onlineVersion = await window.F95API.getGameVersion(this.info);
     
     if (onlineVersion.toString() !== this.info.version.toString()) {
       console.log('Update ' + onlineVersion + ' available for ' + this.info.name);

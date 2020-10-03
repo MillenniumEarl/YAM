@@ -1,6 +1,6 @@
 //### IN ORDER TO USE window.[function[] CONTEXT_ISOLATION IN APP.JS MUST BE FALSE!!! ###
 const AppCostants = require('../AppCostants.js').AppCostants;
-const login = require('f95api').login;
+const { login, setCacheDir } = require('f95api');
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
 const {
@@ -12,6 +12,9 @@ const {
 // Initialize the folders
 var constants = new AppCostants();
 constants.init();
+
+
+setCacheDir(costants.BROWSER_DATA_DIR);
 
 // Assing the global variables
 window.fread = readFileSync;

@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /*### Click events ###*/
-document.querySelector('#btnLogin').addEventListener('click', () => {
+document.querySelector('#btnLogin').addEventListener('click', function () {
     let username = document.getElementById('username').value;
     let password = document.getElementById('password').value;
 
@@ -38,7 +38,7 @@ document.querySelector('#btnLogin').addEventListener('click', () => {
         .then((result) => manageLoginResult(result));
 });
 
-document.querySelector('#btnCancel').addEventListener('click', () => {
+document.querySelector('#btnCancel').addEventListener('click', function () {
     // Close the current window witouth authentication
     window.getCurrentWindow().close();
 });
