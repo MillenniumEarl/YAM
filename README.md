@@ -3,6 +3,8 @@
 Unoffical Game Updater for the F95Zone platform
 
 # Project Structure
+
+```
 project
 \app
 ..\app.js # Main electron process
@@ -14,6 +16,7 @@ project
 ..\..\scripts
 \docs
 \resources
+```
 
 # Naming Convention
 All files must be singular with kebab-case style. All electron JS files must be in the format namefile-renderer/preload.js Es. mainpage-preload.js
