@@ -7,7 +7,7 @@
     "name": "Millennium Earl"
   },
   "scripts": {
-    "start": "electron ."
+    "start": "electron -r esm ."
   },
   "dependencies": {
     "electron": "^10.1.1",

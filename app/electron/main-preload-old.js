@@ -19,20 +19,6 @@ const AppCostants = require('../AppCostants').AppCostants;
 const request = require('request');
 
 /**
- * Run a file from disk.
- * @param {String} path Path of the application to run
- */
-window.runApplication = function (path) {
-  console.log('Executing ' + path);
-  electron.shell
-    .openPath(path)
-    .then((err) => {
-      if (err)
-        console.error('Failed to start subprocess: ' + err);
-    });
-}
-
-/**
  * Download an image from Internet.
  * @param {URL} url URL of the image to download
  * @param {String} savePath Path for saving the image to disk

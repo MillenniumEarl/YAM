@@ -12,6 +12,14 @@ const {
   ipcMain
 } = require('electron');
 const Store = require("secure-electron-store").default;
+const F95API = require("f95api");
+
+// Modules from file
+const {
+  deleteFolderRecursive,
+  runApplication,
+  readFile
+} = require("./src/scripts/io-operations.js");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -19,18 +27,10 @@ let mainWindow;
 
 //#region Windows creation methods
 async function createMainWindow() {
-  // Use saved config values for configuring your
-  // BrowserWindow, for instance.
-  // NOTE - this config is not passcode protected
-  // and stores plaintext values
-  // NOTE - be sure to _ensure_ values exist before
-  // referencing them below!
-  let savedConfig = store.mainInitialStore(fs);
-
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: savedConfig.width ? savedConfig.width : 1024,
-    height: savedConfig.height ? savedConfig.height : 600,
+    width: 1024,
+    height: 600,
     backgroundColor: '#252321', // Used to simulate loading and not make the user wait
     webPreferences: {
       allowRunningInsecureContent: false,
@@ -39,7 +39,7 @@ async function createMainWindow() {
       contextIsolation: true,
       webSecurity: true,
       nodeIntegration: false,
-      preload: path.join(app.getAppPath(), 'electron', 'main-preload.js'),
+      preload: path.join(app.getAppPath(), 'app', 'electron', 'main-preload.js'),
       additionalArguments: [`storePath:${app.getPath("userData")}`], // Needed for using the IPC-base JSON storage
     }
   });
@@ -62,7 +62,7 @@ async function createMainWindow() {
   mainWindow.on('close', function (e) {
     if (mainWindow) {
       e.preventDefault();
-      mainWindow.webContents.send('app-closing');
+      mainWindow.webContents.send('window-closing');
     }
   });
 
@@ -70,7 +70,7 @@ async function createMainWindow() {
   //mainWindow.setMenu(null)
 
   // Load the index.html of the app.
-  let htmlPath = path.join(app.getAppPath(), 'src', 'index.html');
+  let htmlPath = path.join(app.getAppPath(), 'app', 'src', 'test-lit-element.html');
   mainWindow.loadFile(htmlPath);
 
   // Open the DevTools.
@@ -86,11 +86,11 @@ async function createLoginWindow() {
     frame: false,
     webPreferences: {
       allowRunningInsecureContent: false,
-        worldSafeExecuteJavaScript: true,
-        enableRemoteModule: false,
-        contextIsolation: true,
-        webSecurity: true,
-        nodeIntegration: false,
+      worldSafeExecuteJavaScript: true,
+      enableRemoteModule: false,
+      contextIsolation: true,
+      webSecurity: true,
+      nodeIntegration: false,
       preload: path.join(app.getAppPath(), 'electron', 'login-preload.js')
     }
   });
@@ -105,29 +105,86 @@ async function createLoginWindow() {
 //#endregion Windows creation methods
 
 //#region IPC Communication
-// This will be called when the main window require credentials
-ipcMain.on('login-required', function() {
-  console.log('Login required');
+// This will be called when the main window 
+// require credentials, open the login windows
+ipcMain.on('login-required', function () {
+  console.log('Login required from main window');
   createLoginWindow();
 });
 
-// Called when the main window has saved all the data and is ready to be definitely closed
+// Called when the main window has saved all 
+// the data and is ready to be definitely closed
 ipcMain.on('main-window-closing', function () {
   mainWindow = null;
   if (process.platform !== 'darwin') app.quit();
 });
 
-// Used to return credentials
-ipcMain.on('auth-successful', function(event, credentials) {
+// Receive a valid pair of credentials and 
+// redirect them to the main window
+ipcMain.on('auth-successful', function (event, credentials) {
   mainWindow.webContents.send('auth-successful', credentials);
 });
+
+// Execute the file passed as parameter
+ipcMain.on("exec", function (event, filename) {
+  runApplication(filename);
+});
+
+// Delete the folder passed as parameter
+ipcMain.on("delete-folder", function (event, dirpath) {
+  deleteFolderRecursive(dirpath)
+    .then(function () {
+      e.sender.send("delete-folder-reply", true)
+    })
+    .catch(function () {
+      e.sender.send("delete-folder-reply", false)
+    })
+});
+
+// Download the game in the specified path
+ipcMain.on("download-game", function (event, downloadGameData, savepath) {
+  // TODO, maybe not necessary
+});
+
+// Retrieve the data of the specified game and return them
+ipcMain.on("get-game-data", function (event, name, includeMods) {
+  F95API.getGameData(name, includeMods)
+    .then(function (gameData) {
+      event.sender.send("get-game-data-reply", gameData);
+    });
+});
+
+// Retrieve the data of the logged user
+ipcMain.on("get-user-data", function (event) {
+  F95API.getUserData()
+    .then(function (userData) {
+      event.sender.send("get-user-data-reply", userData);
+    });
+});
+
+// Retrieve the game version
+ipcMain.on("get-game-version", function (event, info) {
+  F95API.getGameVersion(info)
+    .then(function (version) {
+      event.sender.send("get-game-version-reply", version);
+    });
+});
+
+// Read a file from disk
+ipcMain.on("read-file", function (event, filename) {
+  readFile(filename)
+  .then(function(text) { 
+    event.sender.send("read-file-reply", text);
+  });
+});
+
 //#endregion IPC Communication
 
 //#region App-related events
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(function() {
+app.whenReady().then(function () {
   createMainWindow();
 
   app.on('activate', function () {
