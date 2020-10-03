@@ -45,6 +45,10 @@ div.input-field{
 }
 
 /*### Input textbox ###*/
+#username, #password {
+    color: var(--main-text-color);
+}
+
 /* label focus color */
 .input-field input:focus+label {
     color: var(--secondary-app-color) !important;

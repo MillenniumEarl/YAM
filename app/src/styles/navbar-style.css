@@ -2,14 +2,14 @@
 @import "base-styles.css";
 
 /*### Manage size for the 'tabs' component generated with materialize-css ###*/
-div.row, .row .col.s12, ul.tabs{
+div.row, .row, ul.tabs{
     width: 100%;
     margin: 0px;
     padding: 0px;
 }
 
 /*### Manage colors for the 'tabs' component generated with materialize-css ###*/
-ul.tabs {
+div.row, .row, ul.tabs {
     background-color: var(--navbar-bg-color);
 }
 /* Background color of the entire component */
@@ -47,3 +47,9 @@ li.tab:hover, .tabs .tab a:hover {
     color: var(--secondary-app-color);
 }
 /* Color of the single "tab" (of the internal link) when selected */
+
+/*### Size and alignment of the user data in the last column ###*/
+.user-name {
+    text-align: center;
+    float: right;
+}

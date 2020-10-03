@@ -2,7 +2,7 @@
 const template = document.createElement('template');
 
 /* Synchronous read of the HTML template */
-template.innerHTML = window.readFileSync('./game-card.html');
+template.innerHTML = window.readFileSync('html/game-card.html');
 
 /**
  * This element allows you to view and interact with a specific game
@@ -18,9 +18,9 @@ class GameCard extends HTMLElement {
   }
 
   async checkUpdates() {
-    if (!window.gameScraper.isLogged()) return;
+    if (!window.F95API.isLogged()) return;
 
-    var onlineVersion = await window.gameScraper.getGameVersion(this.info);
+    var onlineVersion = await window.F95API.getGameVersion(this.info);
     
     if (onlineVersion.toString() !== this.info.version.toString()) {
       console.log('Update ' + onlineVersion + ' available for ' + this.info.name);
@@ -45,7 +45,7 @@ class GameCard extends HTMLElement {
     this.deleteBtn.addEventListener('click', this.deleteGame);
 
     /* It must be defined here because it requires elements of the DOM */
-    this.info = new window.GameInfo();
+    this.info = new window.F95API.GameInfo();
   }
 
   /* Triggered once the element is removed from the DOM */
@@ -92,7 +92,7 @@ class GameCard extends HTMLElement {
       this.querySelector('#gameOverview').innerText = propertyValue.overview;
       this.querySelector('#gameEngine').innerText = propertyValue.engine;
       this.querySelector('#gameStatus').innerText = propertyValue.status;
-      const source = propertyValue.previewSource ? propertyValue.previewSource : './images/f95CompactLogo.jpg';
+      const source = propertyValue.previewSource ? propertyValue.previewSource : '../bin/images/f95CompactLogo.jpg';
       this.querySelector('#gameImage').setAttribute('src', source);
       this.querySelector('#gameInstalledVersion').innerText = propertyValue.version;
       this.querySelector('#gameLastUpdate').innerText = propertyValue.lastUpdate;

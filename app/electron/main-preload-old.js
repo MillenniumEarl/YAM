@@ -11,13 +11,11 @@ const {
   unlinkSync
 } = require('fs');
 const {join} = require('path');
-const dns = require('dns');
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
 const glob = require('glob').glob;
-const gameScraper = require('./retrieve-game-data.js');
-const AppCostants = require('./AppCostants.js').AppCostants;
-const GameInfo = require('./game-info.js').GameInfo;
+const F95API = require('f95api');
+const AppCostants = require('../AppCostants').AppCostants;
 const request = require('request');
 
 /**
@@ -58,6 +56,10 @@ window.isOnline = function() {
 var costants = new AppCostants();
 costants.init();
 
+F95API.debug(true);
+// Set the cache path for the F95API
+F95API.setCacheDir(costants.BROWSER_DATA_DIR);
+
 window.AppCostant = costants;
 window.osPlatform = process.platform;
 window.glob = glob;
@@ -65,10 +67,9 @@ window.rmdir = rmdir;
 window.existsSync = existsSync;
 window.readFileSync = readFileSync;
 window.dialog = electron.remote.dialog; // Need enableRemoteModule: true in app.js
-window.gameScraper = gameScraper;
+window.F95API = F95API;
 window.join = join;
 window.writeFileSync = writeFileSync;
-window.GameInfo = GameInfo;
 window.unlinkSync = unlinkSync;
 window.ipc = ipc;
 window.isOnline = isOnline;

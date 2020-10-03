@@ -5,11 +5,18 @@ body {
     font-family: OpenSans;
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
-    background-image: url('../images/background.png');
+    background-image: url('../bin/images/background.png');
 }
 
 #btnAddGame {
   display: none;
+}
+
+/*### Set size of avatar image ###*/
+.avatar {
+  object-fit: scale-down;
+  width: 40px;
+  height: 40px;
 }
 
 /*### Set the size and center the game/settings div ###*/
@@ -19,6 +26,10 @@ body {
 }
 
 /*### Search bar styles ###*/
+#searchGameName:focus {
+  color: var(--main-text-color);
+}
+
 /* label focus color */
 .input-field input[type=text]:focus + label {
   color: var(--secondary-app-color) !important;
@@ -30,7 +41,7 @@ body {
   box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
 }
 
-  /* valid color */
+/* valid color */
 .input-field input[type=text].valid {
  border-bottom: 1px solid var(--secondary-app-color) !important;
   box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;

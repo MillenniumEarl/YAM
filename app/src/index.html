@@ -8,15 +8,15 @@
 
   <!-- Local resources link -->
   <!-- Material icons loaded in ./main_win.css -->
-  <link href="./node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" type="text/css" />
-  <link href="./styles/main-style.css" rel="stylesheet" type="text/css" />
-  <link href="./styles/button-style.css" rel="stylesheet" type="text/css" />
-  <link href="./styles/navbar-style.css" rel="stylesheet" type="text/css" />
+  <link href="../node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" type="text/css" />
+  <link href="../styles/main-style.css" rel="stylesheet" type="text/css" />
+  <link href="../styles/button-style.css" rel="stylesheet" type="text/css" />
+  <link href="../styles/navbar-style.css" rel="stylesheet" type="text/css" />
 
   <!-- Load local script -->
-  <script type="text/javascript" src="./scripts/renderer-main.js" defer></script>
-  <script type="text/javascript" src="./node_modules/materialize-css/dist/js/materialize.min.js" defer></script>
-  <script type="text/javascript" src="./scripts/game-card.js" defer></script>
+  <script type="text/javascript" src="../scripts/electron/renderer-main.js" defer></script>
+  <script type="text/javascript" src="../node_modules/materialize-css/dist/js/materialize.min.js" defer></script>
+  <script type="text/javascript" src="../scripts/game-card.js" defer></script>
 </head>
 
 <body>
@@ -28,6 +28,13 @@
         <li class="tab col s3 tablinks"><a href="#" onclick="openPage('settingsTab')"> Settings </a></li>
       </ul>
     </div>
+    <!-- <div class="col s3">
+
+    </div>
+    <div class="col s3 user-data">
+      <div class="col s2 user-name">USERNAME</div>
+      <div class="col s1"><img class="avatar" src="../bin/images/not_logged.png"></div>
+    </div> -->
   </div>
 
   <!-- Tab content -->

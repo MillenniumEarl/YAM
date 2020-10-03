@@ -2,43 +2,49 @@
 @import "base-styles.css";
 
 /*### Handles properties for the entire body ###*/
-.card{
+.card {
     width: 300px;
     height: 300px;
 }
 
 /*### Handles colors for buttons generated with materialize-css ###*/
-#playGame, #playGame:hover{
+#playGame,
+#playGame:hover {
     color: var(--main-text-color);
     background-color: var(--button-accept-color);
 }
 
-#updateGame, #updateGame:hover{
+#updateGame,
+#updateGame:hover {
     color: var(--main-text-color);
     background-color: var(--button-neutral-color);
 }
 
-#deleteGame, #deleteGame:hover{
+#deleteGame,
+#deleteGame:hover {
     color: var(--main-text-color);
     background-color: var(--button-negative-color);
 }
 
 /*### Handles color for the various part of the card ###*/
-.card-description{
+.card-description {
     color: var(--main-text-color);
 }
-.card-content{
+
+.card-content {
     background-color: var(--gamecard-background-color);
 }
-.card-reveal{
+
+.card-reveal {
     color: var(--secondary-text-color);
 }
-pre{
+
+pre {
     font-family: OpenSans;
 }
 
 /*### Manage the attributes for the preview image ###*/
-#gameImage{
+#gameImage {
     background-color: black;
     alt: '';
     object-fit: cover;
@@ -47,12 +53,12 @@ pre{
 }
 
 /*### Manage the style for the preload bar ###*/
-div.progress{
+div.progress {
     margin: 0;
     display: none;
     background-color: var(--gamecard-background-color);
 }
 
-.progress .indeterminate{
+.progress .indeterminate {
     background-color: var(--secondary-app-color);
 }
