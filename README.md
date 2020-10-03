@@ -1,6 +1,6 @@
-# F95GameUpdater
 [![DeepSource](https://deepsource.io/gh/MillenniumEarl/F95GameUpdater.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/MillenniumEarl/F95GameUpdater/?ref=repository-badge)
- Unoffical Game Updater for the F95Zone platform
+# F95GameUpdater
+Unoffical Game Updater for the F95Zone platform
 
 # Project Structure
 project
