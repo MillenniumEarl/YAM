@@ -1,8 +1,8 @@
 /* Import base styles */
-@import "base-styles.css";
+@import "global.css";
 
 body {
-    font-family: OpenSans;
+    font-family: Roboto;
     background-color: var(--navbar-light-color);
     color: var(--main-text-color);
 }

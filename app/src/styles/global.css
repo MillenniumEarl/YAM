@@ -2,7 +2,7 @@
 /* MUST BE IMPORTED IN ALL CSS FILES */
 
 /*### Manages the link to the local icons of the material-design-icons package ###*/
-@import '../node_modules/material-design-icons/iconfont/material-icons.css';
+@import '../../../node_modules/material-design-icons/iconfont/material-icons.css';
 
 /*### Set the fonts to be used in the application ###*/
 @font-face {

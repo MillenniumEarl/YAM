@@ -2,7 +2,7 @@
 @import "global.css";
 
 body {
-    font-family: OpenSans;
+    font-family: Roboto;
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
     background-image: url('../../../resources/images/background.png');
