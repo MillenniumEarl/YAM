@@ -3,22 +3,19 @@
 
 "use strict";
 
-// Core modules
-const fs = require("fs");
-
 // Public modules from npm
 const {
   contextBridge,
   ipcRenderer
 } = require("electron");
-const Store = require("secure-electron-store").default;
 const { GameInfo, UserData } = require("f95api");
 
 // Modules from file
 const AppConstant = require("../src/scripts/app-constant.js");
 
-// Create the electron store to be made available in the renderer process
-const store = new Store();
+// Set the global constants
+var _constants = new AppConstant();
+_constants.init();
 
 // Array of valid main-to-render channels
 let validReceiveChannels = ["window-closing", "delete-folder-reply", "auth-successful", "get-game-data-reply", "get-user-data-reply", "get-game-version-reply", "read-file-reply"];
@@ -29,7 +26,12 @@ let validSendChannels = ["main-window-closing", "login-required", "exec", "delet
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("api", {
-  store: store.preloadBindings(ipcRenderer, fs), // Acces to the IPC-based JSON store
+  constants: _constants,
+  invoke: (channel, data) => { // Send a custom message
+    if (validSendChannels.includes(channel)) {
+      ipcRenderer.invoke(channel, data);
+    }
+  },
   send: (channel, data) => { // Send a custom message
     if (validSendChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
@@ -45,4 +47,3 @@ contextBridge.exposeInMainWorld("api", {
 
 window.UserData = UserData;
 window.GameInfo = GameInfo;
-window.AppConstant = AppConstant;

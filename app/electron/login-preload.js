@@ -1,26 +1,46 @@
-//### IN ORDER TO USE window.[function[] CONTEXT_ISOLATION IN APP.JS MUST BE FALSE!!! ###
-const AppCostants = require('../AppCostants.js').AppCostants;
-const { login, setCacheDir } = require('f95api');
-const electron = require('electron');
-const ipc = electron.ipcRenderer;
+// For more information about secure use of IPC see:
+// https://github.com/reZach/secure-electron-template/blob/master/docs/newtoelectron.md
+
+"use strict";
+
+// Public modules from npm
 const {
-    readFileSync,
-    existsSync,
-    writeFileSync,
-} = require('fs');
+    contextBridge,
+    ipcRenderer
+} = require("electron");
 
-// Initialize the folders
-var constants = new AppCostants();
-constants.init();
+// Modules from file
+const AppConstant = require("../src/scripts/app-constant.js");
 
+// Set the global constants
+var _constants = new AppConstant();
+_constants.init();
 
-setCacheDir(costants.BROWSER_DATA_DIR);
+// Array of valid main-to-render channels
+let validReceiveChannels = ["login-reply"];
 
-// Assing the global variables
-window.fread = readFileSync;
-window.fexists = existsSync;
-window.fwrite = writeFileSync;
-window.ipc = ipc;
-window.f95login = login;
-window.AppCostants = constants;
-window.getCurrentWindow = electron.remote.getCurrentWindow;
+// Array of valid render-to-main channels
+let validSendChannels = ["read-file", "write-file", "file-exists", "auth-successful", "try-login"];
+
+// Expose protected methods that allow the renderer process to use
+// the ipcRenderer without exposing the entire object
+contextBridge.exposeInMainWorld("api", {
+    constants: _constants,
+    invoke: (channel, data) => { // Send a custom message
+        if (validSendChannels.includes(channel)) {
+            ipcRenderer.invoke(channel, data);
+        }
+    },
+    send: (channel, data) => { // Send a custom message
+        if (validSendChannels.includes(channel)) {
+            ipcRenderer.send(channel, data);
+        }
+    },
+    receive: (channel, func) => { // Receive a custom message
+        if (validReceiveChannels.includes(channel)) {
+            // Deliberately strip event as it includes `sender` 
+            ipcRenderer.on(channel, (event, ...args) => func(...args));
+        }
+    },
+    currentWindow: Electron.remote.getCurrentWindow()
+});

@@ -55,3 +55,11 @@ module.exports.readFile = async function(filename) {
     if(!fs.existsSync(filename)) return null;
     else return fs.readFileSync(filename);
 }
+
+/**
+ * Check if a file exists on disk.
+ * @param {String} filename Path to the file
+ */
+module.exports.fileExists = async function(filename) {
+    return fs.existsSync(filename);
+}

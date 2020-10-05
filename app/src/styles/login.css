@@ -27,19 +27,21 @@ div.input-field{
     padding-right: 10px;
 }
 
-#errorMessage{
+#error-message{
     padding-left: 10px;
     padding-right: 10px;
     color: var(--main-text-color);
 }
 
 /*### Handles colors for buttons generated with materialize-css ###*/
-#btnLogin, #btnLogin:hover {
+#login-btn,
+#login-btn:hover {
     background-color: var(--button-accept-color);
     color: var(--main-text-color);
 }
 
-#btnCancel, #btnCancel:hover {
+#cancel-btn,
+#cancel-btn:hover {
     background-color: var(--button-neutral-color);
     color: var(--main-text-color);
 }

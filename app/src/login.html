@@ -7,9 +7,9 @@
 
     <!-- Local resources link -->
     <!-- Material icons loaded in ./login.css -->
-    <link href="../node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" type="text/css" />
-    <link href="../styles/login.css" rel="stylesheet" type="text/css" />
-    <link href="../styles/button-style.css" rel="stylesheet" type="text/css" />
+    <link type="text/css" href="../node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" />
+    <link type="text/css" href="../styles/login.css" rel="stylesheet" />
+    <link type="text/css" href="../styles/button-style.css" rel="stylesheet" />
 
     <!-- Load local script -->
     <script type="text/javascript" src="../node_modules/materialize-css/dist/js/materialize.min.js" defer></script>
@@ -30,14 +30,14 @@
         <input id="password" type="password">
         <label for="password">Password</label>
     </div>
-    <p id="errorMessage">Authentication on F95Zone</p>
+    <p id="error-message">Authentication on F95Zone</p>
     <div id="outer">
         <div id="inner">
-            <a class="waves-effect waves-light btn" id="btnLogin">
+            <a class="waves-effect waves-light btn" id="login-btn">
                 <i class="material-icons left">exit_to_app</i>
                 Login F95
             </a>
-            <a class="waves-effect waves-light btn" id="btnCancel">
+            <a class="waves-effect waves-light btn" id="cancel-btn">
                 <i class="material-icons left">cancel</i>
                 Cancel
             </a>
