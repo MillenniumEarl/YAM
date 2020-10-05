@@ -6,26 +6,45 @@
 
 /*### Set the fonts to be used in the application ###*/
 @font-face {
-    font-family: OpenSans;
-    src: url(../bin/font/OpenSans-Light.ttf);
+    font-family: Roboto;
+    src: url(../../../resources/font/Roboto-Light.ttf);
 }
 
 @font-face {
-    font-family: OpenSans;
-    src: url(../bin/font/OpenSans-Bold.ttf);
+    font-family: Roboto;
+    src: url(../../../resources/font/Roboto-Bold.ttf);
     font-weight: bold;
 }
 
 /*### Global Variables ###*/
 :root {
-    --main-bg-color: #2E2C29; /* Black Magic */
+    --primary-app: #181a1d;
+    --primary-light: #3E4044;
+    --primary-dark: #000000;
+
+    --secondary-app:#990000;
+    --secondary-light: #D1432B;
+    --secondary-dark: #650000;
+
+    --text-on-primary: #FFFFFF;
+    --text-on-secondary: #FFFFFF;
+
+    --primary-gc: #252529;
+    --primary-gc-light: #4C4C50;
+    --primary-gc-dark: #000000;
+
+    --text-on-primary-gc: #FFFFFF;
+
+    --main-bg-color: #181a1d;
     --main-text-color: White;
     --secondary-text-color: Black;
     --secondary-app-color: #990000; /* Crimson */
     --navbar-bg-color: #0F0E0E; /* Shades of Black */
     --navbar-light-color: #181615; /* Bokara Grey */
+    
     --button-accept-color: #15A532; /* Dark Pastel Green */
     --button-negative-color: #C11313; /* Fire Brick */
     --button-neutral-color: #0A66BB; /* Denim */
+
     --gamecard-background-color: #131211; /* Bokara Grey */
 }

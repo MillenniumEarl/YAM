@@ -37,9 +37,9 @@ document.querySelector('#searchGameName').addEventListener('input', () => {
 })
 
 /*### Click events ###*/
-document.querySelector('#btnLogin').addEventListener('click', () => {
+document.querySelector('#user-info').addEventListener('login', () => {
   login();
-})
+});
 
 document.querySelector('#btnAddGame').addEventListener('click', () => {
   const options = {
@@ -86,7 +86,7 @@ document.querySelector('#btnAddGame').addEventListener('click', () => {
           if (result.version !== version) card.checkUpdates();
         });
     });
-})
+});
 
 /*### Private methods ###*/
 function openPage(pageName) {
@@ -198,12 +198,12 @@ function login() {
   }
 
   // Request user input
-  console.log('Send ipc to main process for auth request')
-  window.ipc.send('login-required');
+  console.log('Send api to main process for auth request')
+  window.api.send('login-required');
 }
 
 // Called when the window is being closed
-window.ipc.on('app-closing', function() {
+window.api.receive('app-closing', function() {
 
   // Remove all the GameCards to allow saving data
   let cardGames = document.querySelectorAll('game-card');
@@ -213,11 +213,11 @@ window.ipc.on('app-closing', function() {
   }
 
   // Tell the main process to close this BrowserWindow
-  window.ipc.send('window-closing');
+  window.api.send('window-closing');
 });
 
 // Called when the user log in to F95Zone correctly
-window.ipc.on('auth-successful', (event, json) => {
+window.api.receive('auth-successful', (event, json) => {
   // Load data
   let credentials = JSON.parse(json);
   window.F95API.login(credentials['username'], credentials['password'])

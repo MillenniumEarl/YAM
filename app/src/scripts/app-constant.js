@@ -1,7 +1,10 @@
+"use strict";
+
+// Core modules
 const fs = require('fs');
 const path = require('path');
 
-class AppCostants {
+class AppCostant {
     constructor() {
         this.CACHE_DIR = 'cache';
         this.GAME_DATA_DIR = path.join(this.CACHE_DIR, 'gamedata');
@@ -28,4 +31,4 @@ class AppCostants {
 }
 
 // Export the class
-module.exports.AppCostants = AppCostants;
+module.exports = AppCostant;

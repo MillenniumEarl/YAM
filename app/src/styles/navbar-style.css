@@ -1,5 +1,5 @@
 /* Import base styles */
-@import "base-styles.css";
+@import "global.css";
 
 /*### Manage size for the 'tabs' component generated with materialize-css ###*/
 div.row, .row, ul.tabs{

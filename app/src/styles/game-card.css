@@ -1,0 +1,82 @@
+/*### Import base styles ###*/
+@import "global.css";
+
+/*### ID elements ###*/
+/* Handles colors for buttons generated with materialize-css */
+#play-game-btn,
+#play-game-btn:hover {
+    color: var(--text-on-primary-gc);
+    background-color: var(--button-accept-color);
+}
+
+#update-game-btn,
+#update-game-btn:hover {
+    color: var(--text-on-primary-gc);
+    background-color: var(--button-neutral-color);
+}
+
+#delete-game-btn,
+#delete-game-btn:hover {
+    color: var(--text-on-primary-gc);
+    background-color: var(--button-negative-color);
+}
+
+/* Manage the attributes for the preview image */
+#preview {
+    background-color: var(--primary-gc);
+    object-fit: cover;
+    width: 300px;
+    height: 200px;
+}
+
+/* Handles colors for the texts */
+#name {
+    color: var(--text-on-primary-gc);
+}
+
+/*### Class elements ###*/
+.action-p {
+    padding-top: 5px;
+}
+
+.update-p {
+    padding-top: 5px;
+    display: none;
+}
+
+/* Handles properties for the entire body */
+.card {
+    width: 300px;
+    height: 300px;
+    font-family: Roboto;
+}
+
+/*### Generic elements ###*/
+/*Manage the style for the preload bar*/
+div.progress {
+    margin: 0;
+    display: none;
+    background-color: var(--primary-gc);
+}
+
+.progress .indeterminate {
+    background-color: var(--secondary-app);
+}
+
+/* Handles color for the various part of the card */
+.card-description {
+    color: var(--text-on-primary-gc);
+}
+
+.card-content {
+    background-color: var(--primary-gc);
+}
+
+.card-reveal {
+    color: black;
+}
+
+/* Set font family for <pre> tag*/
+pre {
+    font-family: Roboto;
+}

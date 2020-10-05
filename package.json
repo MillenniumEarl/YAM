@@ -7,14 +7,15 @@
     "name": "Millennium Earl"
   },
   "scripts": {
-    "start": "electron -r esm ."
+    "start": "electron ."
   },
   "dependencies": {
     "electron": "^10.1.1",
     "electron-online": "^1.0.0",
     "f95api": "MillenniumEarl/F95API#master",
     "material-design-icons": "^3.0.1",
-    "materialize-css": "^1.0.0",
-    "secure-electron-store": "^1.3.1"
+    "materialize-css": "materializecss/materialize#v1-dev",
+    "secure-electron-store": "^1.3.1",
+    "xel": "0.0.230"
   }
 }

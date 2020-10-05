@@ -12,6 +12,10 @@ const {
   ipcRenderer
 } = require("electron");
 const Store = require("secure-electron-store").default;
+const { GameInfo, UserData } = require("f95api");
+
+// Modules from file
+const AppConstant = require("../src/scripts/app-constant.js");
 
 // Create the electron store to be made available in the renderer process
 const store = new Store();
@@ -36,6 +40,9 @@ contextBridge.exposeInMainWorld("api", {
       // Deliberately strip event as it includes `sender` 
       ipcRenderer.on(channel, (event, ...args) => func(...args));
     }
-  },
-  LitElement: LitElement // Expose LitElement class
+  }
 });
+
+window.UserData = UserData;
+window.GameInfo = GameInfo;
+window.AppConstant = AppConstant;

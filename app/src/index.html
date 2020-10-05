@@ -7,16 +7,17 @@
   <title>F95 Game Updater</title>
 
   <!-- Local resources link -->
-  <!-- Material icons loaded in ./main_win.css -->
-  <link href="../node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" type="text/css" />
-  <link href="../styles/main-style.css" rel="stylesheet" type="text/css" />
-  <link href="../styles/button-style.css" rel="stylesheet" type="text/css" />
-  <link href="../styles/navbar-style.css" rel="stylesheet" type="text/css" />
+  <!-- Material icons loaded in ./main-style.css -->
+  <link type="text/css" href="../../node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" />
+  <link type="text/css" href="../src/styles/main-style.css" rel="stylesheet" />
+  <link type="text/css" href="../src/styles/button-style.css" rel="stylesheet" />
+  <link type="text/css" href="../src/styles/navbar-style.css" rel="stylesheet" />
 
   <!-- Load local script -->
-  <script type="text/javascript" src="../scripts/electron/renderer-main.js" defer></script>
-  <script type="text/javascript" src="../node_modules/materialize-css/dist/js/materialize.min.js" defer></script>
-  <script type="text/javascript" src="../scripts/game-card.js" defer></script>
+  <script type="text/javascript" src="../electron/main-renderer.js" defer></script>
+  <script type="text/javascript" src="../../node_modules/materialize-css/dist/js/materialize.min.js" defer></script>
+  <script type="text/javascript" src="../src/scripts/game-card.js" defer></script>
+  <script type="text/javascript" src="../src/scripts/user-info.js"></script>
 </head>
 
 <body>
@@ -28,13 +29,9 @@
         <li class="tab col s3 tablinks"><a href="#" onclick="openPage('settingsTab')"> Settings </a></li>
       </ul>
     </div>
-    <!-- <div class="col s3">
-
+    <div class="col s3">
+      <user-info id="user-info"></user-info>
     </div>
-    <div class="col s3 user-data">
-      <div class="col s2 user-name">USERNAME</div>
-      <div class="col s1"><img class="avatar" src="../bin/images/not_logged.png"></div>
-    </div> -->
   </div>
 
   <!-- Tab content -->
@@ -55,10 +52,10 @@
     <i class="material-icons">add</i>
   </a>
 
-  <!-- Floating button (FAB) for log in -->
+  <!-- Floating button (FAB) for log in
   <a class="btn-floating btn-large waves-effect waves-light fab" id="btnLogin">
     <i class="material-icons">exit_to_app</i>
-  </a>
+  </a> -->
 </body>
 
 </html>

@@ -1,5 +1,5 @@
 /* Import base styles */
-@import "base-styles.css";
+@import "global.css";
 
 /*### Handles colors for buttons generated with materialize-css ###*/
 a.btn, a.btn:hover {

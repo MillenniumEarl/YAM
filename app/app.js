@@ -70,11 +70,11 @@ async function createMainWindow() {
   //mainWindow.setMenu(null)
 
   // Load the index.html of the app.
-  let htmlPath = path.join(app.getAppPath(), 'app', 'src', 'test-lit-element.html');
+  let htmlPath = path.join(app.getAppPath(), 'app', 'src', 'index.html');
   mainWindow.loadFile(htmlPath);
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 }
 
 async function createLoginWindow() {

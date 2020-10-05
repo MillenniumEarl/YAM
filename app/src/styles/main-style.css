@@ -1,11 +1,11 @@
 /* Import base styles */
-@import "base-styles.css";
+@import "global.css";
 
 body {
     font-family: OpenSans;
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
-    background-image: url('../bin/images/background.png');
+    background-image: url('../../../resources/images/background.png');
 }
 
 #btnAddGame {
