@@ -11,11 +11,7 @@ const {
 const { GameInfo, UserData } = require("f95api");
 
 // Modules from file
-const AppConstant = require("../src/scripts/app-constant.js");
-
-// Set the global constants
-var _constants = new AppConstant();
-_constants.init();
+const Shared = require("../src/scripts/shared.js");
 
 // Array of valid main-to-render channels
 let validReceiveChannels = ["window-closing", "delete-folder-reply", "auth-successful", "get-game-data-reply", "get-user-data-reply", "get-game-version-reply", "read-file-reply"];
@@ -26,7 +22,7 @@ let validSendChannels = ["main-window-closing", "login-required", "exec", "delet
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("api", {
-  constants: _constants,
+  shared: Shared,
   invoke: (channel, data) => { // Send a custom message
     if (validSendChannels.includes(channel)) {
       ipcRenderer.invoke(channel, data);

@@ -10,11 +10,7 @@ const {
 } = require("electron");
 
 // Modules from file
-const AppConstant = require("../src/scripts/app-constant.js");
-
-// Set the global constants
-var _constants = new AppConstant();
-_constants.init();
+const Shared = require("../src/scripts/shared.js");
 
 // Array of valid main-to-render channels
 let validReceiveChannels = ["login-reply"];
@@ -25,7 +21,7 @@ let validSendChannels = ["read-file", "write-file", "file-exists", "auth-success
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("api", {
-    constants: _constants,
+    shared: Shared,
     invoke: (channel, data) => { // Send a custom message
         if (validSendChannels.includes(channel)) {
             ipcRenderer.invoke(channel, data);

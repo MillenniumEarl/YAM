@@ -3,12 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // This function runs when the DOM is ready, i.e. when the document has been parsed
 
     // Load credentials if saved on disk
-    window.api.invoke("file-exists", window.api.constants.CREDENTIALS_PATH)
+    window.api.invoke("file-exists", window.api.shared.credentialsPath)
         .then(function (exists) {
             if (!exists) return;
 
             // Read and parse credentials
-            window.api.invoke("read-file", window.api.constants.CREDENTIALS_PATH)
+            window.api.invoke("read-file", window.api.shared.credentialsPath)
                 .then(function (json) {
                     let credentials = JSON.parse(json);
 
@@ -80,7 +80,7 @@ function manageLoginResult(result, username, password) {
             'password': password
         };
         let json = JSON.stringify(credentials);
-        window.api.send("file-write", [window.api.constants.CREDENTIALS_PATH, json]);
+        window.api.send("file-write", [window.api.shared.credentialsPath, json]);
         window.api.send('auth-successful', json);
 
         // Close the window
