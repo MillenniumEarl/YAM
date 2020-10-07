@@ -19,12 +19,14 @@ document.addEventListener("DOMContentLoaded", function () {
 /*### Text changed events ###*/
 document.querySelector("#search-game-name").addEventListener("input", () => {
   // Obtain the text
-  let searchText = document.getElementById("search-game-name").value.toUpperCase();
+  let searchText = document
+    .getElementById("search-game-name")
+    .value.toUpperCase();
 
   // Obtain all the available GameCard
   let gameCards = document.querySelectorAll("game-card");
 
-  // Hide the column which the game-card belong 
+  // Hide the column which the game-card belong
   // if it"s games with a title that not match the search query
   for (let gameCard of gameCards) {
     if (!gameCards.info.name.startsWith(searchText)) {
@@ -42,7 +44,7 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
   //     gameCards[i].parentNode.style.display = "block";
   //   }
   // }
-})
+});
 
 /*### Click events ###*/
 document.querySelector("#user-info").addEventListener("login", login());
@@ -50,35 +52,34 @@ document.querySelector("#user-info").addEventListener("login", login());
 document.querySelector("#add-game-btn").addEventListener("click", () => {
   let openDialogOptions = {
     title: "Select game directory",
-    properties: ["openDirectory"]
-  }
+    properties: ["openDirectory"],
+  };
 
-  window.API.invoke("open-dialog", this, openDialogOptions)
-    .then((data) => {
-      // No folder selected
-      if (data.filePaths.length === 0) return;
+  window.API.invoke("open-dialog", this, openDialogOptions).then((data) => {
+    // No folder selected
+    if (data.filePaths.length === 0) return;
 
-      // Parse the game dir name(s)
-      for (let path of data.filePaths) {
-        getGameFromPath(path)
-          .then(function (result) {
-            if (!result["result"]) {
-              // Send the error message to the user if the game is not found
-              let warningDialogOptions = {
-                type: "warning",
-                buttons: ["OK"],
-                defaultId: 0,
-                title: "Game not detected",
-                message: result["message"],
-                detail: "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
-              };
+    // Parse the game dir name(s)
+    for (let path of data.filePaths) {
+      getGameFromPath(path).then(function (result) {
+        if (!result["result"]) {
+          // Send the error message to the user if the game is not found
+          let warningDialogOptions = {
+            type: "warning",
+            buttons: ["OK"],
+            defaultId: 0,
+            title: "Game not detected",
+            message: result["message"],
+            detail:
+              "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
+          };
 
-              // Send a message to the user
-              window.API.send("message-dialog", this, warningDialogOptions);
-            }
-          });
-      }
-    });
+          // Send a message to the user
+          window.API.send("message-dialog", this, warningDialogOptions);
+        }
+      });
+    }
+  });
 });
 
 //#region Private methods
@@ -158,7 +159,7 @@ function addGameCard() {
 
 /**
  * @private
- * Remove all the special characters from a string. 
+ * Remove all the special characters from a string.
  * It remove all the characters (spaced excluded) that have the same "value" in upper and lower case.
  * @param {String} str String to parse
  * @param {String[]} allowedChars List of allowed special chars
@@ -170,7 +171,11 @@ function removeSpecials(str, allowedChars) {
 
   let res = "";
   for (let i = 0; i < lower.length; ++i) {
-    if (lower[i] != upper[i] || lower[i].trim() === "" || allowedChars.includes(lower[i]))
+    if (
+      lower[i] != upper[i] ||
+      lower[i].trim() === "" ||
+      allowedChars.includes(lower[i])
+    )
       res += str[i];
   }
   return res;
@@ -184,23 +189,21 @@ function loadCachedGames() {
   console.log("Load cached games...");
 
   // Get all the .json files in the game dir and create a <game-card> for each of them
-  window.API.invoke("games-data-dir")
-    .then(function (dir) {
-      window.IO.filter("*.json", dir)
-        .then(function (files) {
-          for (const filename of files) {
-            let card = addGameCard();
-            // TODO card.datapath = window.API.join(window.API.gameDataDir, filename);
-          }
-          console.log("Loading completed");
-        });
+  window.API.invoke("games-data-dir").then(function (dir) {
+    window.IO.filter("*.json", dir).then(function (files) {
+      for (const filename of files) {
+        let card = addGameCard();
+        // TODO card.datapath = window.API.join(window.API.gameDataDir, filename);
+      }
+      console.log("Loading completed");
     });
+  });
 }
 
 /**
  * @private
- * It checks if a network connection is available 
- * and notifies the main process to perform 
+ * It checks if a network connection is available
+ * and notifies the main process to perform
  * the login procedure.
  */
 function login() {
@@ -212,7 +215,8 @@ function login() {
       defaultId: 0,
       title: "No connection",
       message: "No network connection detected, unable to login to F95Zone",
-      detail: "The lack of connection prevents you from logging in and updating the games but still allows you to play them",
+      detail:
+        "The lack of connection prevents you from logging in and updating the games but still allows you to play them",
     };
 
     // Send a message to the user
@@ -222,14 +226,14 @@ function login() {
   }
 
   // Request user input
-  console.log("Send API to main process for auth request")
+  console.log("Send API to main process for auth request");
   window.API.send("login-required");
 }
 
 /**
  * @async
  * @private
- * Given a directory path, parse the dirname, get the 
+ * Given a directory path, parse the dirname, get the
  * game (if exists) info and add a *game-card* in the DOM.
  * @param {String} path Game directory path
  * @returns {Promise<Object>} Dictionary containing the result of the operation: {result, message}
@@ -252,10 +256,11 @@ async function getGameFromPath(path) {
   let resultInfo = await window.F95.getGameData(name, includeMods);
 
   // No game found
-  if (resultInfo === null) return {
-    result: false,
-    message: "Cannot retrieve information for " + unparsedName
-  };
+  if (resultInfo === null)
+    return {
+      result: false,
+      message: "Cannot retrieve information for " + unparsedName,
+    };
 
   // Add the game
   let card = addGameCard();
@@ -265,19 +270,34 @@ async function getGameFromPath(path) {
   // TODO: Search for updates
   return {
     result: true,
-    message: name + " addedd correctly"
+    message: name + " addedd correctly",
   };
 }
 
 /**
  * @private
  * Given a game name, remove all the special characters and various tag (*[tag]*).
- * @param {String} name 
+ * @param {String} name
  * @returns {String}
  */
 function cleanGameName(name) {
   // Remove special chars except for version and specific tag chars
-  name = removeSpecials(name, ["-", "[", "]", ".", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
+  name = removeSpecials(name, [
+    "-",
+    "[",
+    "]",
+    ".",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+  ]);
 
   // Remove mod tag and version
   let rx = /\[(.*?)\]/g;
@@ -290,7 +310,7 @@ function cleanGameName(name) {
  * @private
  * Given a non-parsed game name, extract the version if a tag **[v.version]** is specified.
  * @example [v.1.2.3.4], [V.somevalue]
- * @param {String} name 
+ * @param {String} name
  */
 function getGameVersionFromName(name) {
   // Local variables
@@ -299,19 +319,19 @@ function getGameVersionFromName(name) {
 
   // Search the version tag, if any
   if (name.toUpperCase().includes(PREFIX_VERSION)) {
-    let startIndex = name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
+    let startIndex =
+      name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
     let endIndex = name.indexOf("]", startIndex);
     version = name.substr(startIndex, endIndex - startIndex);
   }
 
-  return version
+  return version;
 }
 //#endregion Private methods
 
 //#region IPC receive
 // Called when the window is being closed
 window.API.receive("window-closing", function () {
-
   // Remove all the GameCards to allow saving data
   let cardGames = document.querySelectorAll("game-card");
   for (let card of cardGames) {
@@ -333,21 +353,19 @@ window.API.receive("auth-result", (args) => {
   if (result !== "AUTHENTICATED") return;
 
   // Load data (session not shared between windows)
-  window.F95.login(username, password)
-    .then(window.F95.loadF95BaseData()
-      .then(function () {
-        // TODO: Use new component
-        // // Show "add game" button
-        // document.getElementById("add-game-btn").style.display = "block";
-
-        // // Hide "login" button
-        // document.getElementById("login-btn").style.display = "none";
-
-        // // Check update for all the listed games
-        // let cardGames = document.querySelectorAll("game-card");
-        // for (let card of cardGames) {
-        //   card.checkUpdates();
-        // }
-      }));
+  window.F95.login(username, password).then(
+    window.F95.loadF95BaseData().then(function () {
+      // TODO: Use new component
+      // // Show "add game" button
+      // document.getElementById("add-game-btn").style.display = "block";
+      // // Hide "login" button
+      // document.getElementById("login-btn").style.display = "none";
+      // // Check update for all the listed games
+      // let cardGames = document.querySelectorAll("game-card");
+      // for (let card of cardGames) {
+      //   card.checkUpdates();
+      // }
+    })
+  );
 });
 //#endregion IPC receive

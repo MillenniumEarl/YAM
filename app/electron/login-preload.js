@@ -8,61 +8,60 @@ const fs = require("fs");
 const { join } = require("path");
 
 // Public modules from npm
-const {
-    contextBridge,
-    ipcRenderer
-} = require("electron");
+const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
 
 // Set F95 cache
-ipcRenderer.invoke("cawd")
-.then(function(cawd) {
-    let cacheDir = join(cawd, "cache");
-    F95API.setCacheDir(cacheDir);
-    if (!fs.existsSync(cacheDir)) fs.mkdir(cacheDir);
+ipcRenderer.invoke("cawd").then(function (cawd) {
+  let cacheDir = join(cawd, "cache");
+  F95API.setCacheDir(cacheDir);
+  if (!fs.existsSync(cacheDir)) fs.mkdir(cacheDir);
 });
 
 // Modules from file
-const {
-    readFileSync,
-    fileExists
-} = require("../src/scripts/io-operations.js");
+const { readFileSync, fileExists } = require("../src/scripts/io-operations.js");
 
 // Array of valid main-to-render channels
 let validReceiveChannels = ["auth-result", "credentials-path"];
 
 // Array of valid render-to-main channels
-let validSendChannels = ["auth-result", "login-window-closing", "credentials-path"];
+let validSendChannels = [
+  "auth-result",
+  "login-window-closing",
+  "credentials-path",
+];
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
-    invoke: (channel, ...data) => { // Send a custom message
-        if (validSendChannels.includes(channel)) {
-            return ipcRenderer.invoke(channel, data);
-        }
-    },
-    send: (channel, ...data) => { // Send a custom message
-        if (validSendChannels.includes(channel)) {
-            ipcRenderer.send(channel, data);
-        }
+  invoke: (channel, ...data) => {
+    // Send a custom message
+    if (validSendChannels.includes(channel)) {
+      return ipcRenderer.invoke(channel, data);
     }
+  },
+  send: (channel, ...data) => {
+    // Send a custom message
+    if (validSendChannels.includes(channel)) {
+      ipcRenderer.send(channel, data);
+    }
+  },
 });
 
 // Expose the I/O operations
 contextBridge.exposeInMainWorld("IO", {
-    read: async function (path) {
-        return readFileSync(path);
-    },
-    write: async function (path, value) {
-        fs.writeFileSync(path, value);
-    },
-    fileExists: async function (filename) {
-        return fileExists(filename);
-    }
+  read: async function (path) {
+    return readFileSync(path);
+  },
+  write: async function (path, value) {
+    fs.writeFileSync(path, value);
+  },
+  fileExists: async function (filename) {
+    return fileExists(filename);
+  },
 });
 
 // Expose the F95API
 contextBridge.exposeInMainWorld("F95", {
-    login: (username, password) => F95API.login(username, password)
+  login: (username, password) => F95API.login(username, password),
 });

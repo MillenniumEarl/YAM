@@ -1,22 +1,14 @@
 "use strict";
 
 // Core modules
-const path = require('path');
+const path = require("path");
 const fs = require("fs");
 
 // Public modules from npm
-const {
-  app,
-  BrowserWindow,
-  shell,
-  ipcMain,
-  dialog
-} = require('electron');
+const { app, BrowserWindow, shell, ipcMain, dialog } = require("electron");
 
 // Modules from file
-const {
-  runApplication
-} = require("./src/scripts/io-operations.js");
+const { runApplication } = require("./src/scripts/io-operations.js");
 const Shared = require("./src/scripts/shared.js");
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -33,7 +25,7 @@ async function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 600,
-    backgroundColor: '#252321', // Used to simulate loading and not make the user wait
+    backgroundColor: "#252321", // Used to simulate loading and not make the user wait
     webPreferences: {
       allowRunningInsecureContent: false,
       worldSafeExecuteJavaScript: true,
@@ -41,23 +33,28 @@ async function createMainWindow() {
       contextIsolation: true,
       webSecurity: true,
       nodeIntegration: false,
-      preload: path.join(app.getAppPath(), 'app', 'electron', 'main-preload.js')
-    }
+      preload: path.join(
+        app.getAppPath(),
+        "app",
+        "electron",
+        "main-preload.js"
+      ),
+    },
   });
   // Whatever URL the user clicks will open the default browser for viewing
-  mainWindow.webContents.on('new-window', function (e, url) {
+  mainWindow.webContents.on("new-window", function (e, url) {
     e.preventDefault();
     shell.openExternal(url);
   });
 
-  // When the user try to close the main window, 
+  // When the user try to close the main window,
   // this method intercept the default behaviour
   // Used to save the game data in the GameCards
-  mainWindow.on('close', function (e) {
+  mainWindow.on("close", function (e) {
     if (mainWindow && !closeMainWindow) {
       e.preventDefault();
       closeMainWindow = true;
-      mainWindow.webContents.send('window-closing');
+      mainWindow.webContents.send("window-closing");
     }
   });
 
@@ -65,11 +62,11 @@ async function createMainWindow() {
   //mainWindow.setMenu(null)
 
   // Load the index.html of the app.
-  let htmlPath = path.join(app.getAppPath(), 'app', 'src', 'index.html');
+  let htmlPath = path.join(app.getAppPath(), "app", "src", "index.html");
   mainWindow.loadFile(htmlPath);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools();
 }
 
 async function createLoginWindow() {
@@ -77,7 +74,7 @@ async function createLoginWindow() {
   loginWindow = new BrowserWindow({
     width: 400,
     height: 250,
-    backgroundColor: '#252321', // Used to simulate loading and not make the user wait
+    backgroundColor: "#252321", // Used to simulate loading and not make the user wait
     frame: false,
     webPreferences: {
       allowRunningInsecureContent: false,
@@ -86,43 +83,48 @@ async function createLoginWindow() {
       contextIsolation: true,
       webSecurity: true,
       nodeIntegration: false,
-      preload: path.join(app.getAppPath(), "app", 'electron', 'login-preload.js')
-    }
+      preload: path.join(
+        app.getAppPath(),
+        "app",
+        "electron",
+        "login-preload.js"
+      ),
+    },
   });
-  
+
   // Disable default menu
-  loginWindow.setMenu(null)
+  loginWindow.setMenu(null);
 
   // Load the html file
-  let htmlPath = path.join(app.getAppPath(), "app", 'src', 'login.html');
+  let htmlPath = path.join(app.getAppPath(), "app", "src", "login.html");
   loginWindow.loadFile(htmlPath);
 }
 //#endregion Windows creation methods
 
 //#region IPC Communication
-// This will be called when the main window 
+// This will be called when the main window
 // require credentials, open the login windows
-ipcMain.on('login-required', function (e) {
-  console.log('Login required from main window');
+ipcMain.on("login-required", function (e) {
+  console.log("Login required from main window");
   createLoginWindow();
 });
 
-// Called when the main window has saved all 
+// Called when the main window has saved all
 // the data and is ready to be definitely closed
-ipcMain.on('main-window-closing', function (e) {
+ipcMain.on("main-window-closing", function (e) {
   mainWindow.close();
   mainWindow = null;
 });
 
 // Called when the login widnow want to be closed
-ipcMain.on('login-window-closing', function (e) {
-      loginWindow.close();
-      loginWindow = null;
+ipcMain.on("login-window-closing", function (e) {
+  loginWindow.close();
+  loginWindow = null;
 });
 
 // Receive the result of the login operation
-ipcMain.on('auth-result', function (e, result, username, password) {
-  mainWindow.webContents.send('auth-result', result, username, password);
+ipcMain.on("auth-result", function (e, result, username, password) {
+  mainWindow.webContents.send("auth-result", result, username, password);
 });
 
 // Execute the file passed as parameter
@@ -176,17 +178,17 @@ ipcMain.handle("save-dialog", function (e, window, options) {
 app.whenReady().then(function () {
   createMainWindow();
 
-  app.on('activate', function () {
+  app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
-  })
+  });
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit();
+app.on("window-all-closed", function () {
+  if (process.platform !== "darwin") app.quit();
 });
 //#endregion App-related events
