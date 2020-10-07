@@ -8,6 +8,10 @@ body {
     background-image: url('../../../resources/images/background.png');
 }
 
+.user-info-col {
+  text-align: right;
+}
+
 #add-game-btn {
   display: none;
 }

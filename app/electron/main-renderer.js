@@ -1,8 +1,8 @@
 /*### Generic events ###*/
 document.addEventListener("DOMContentLoaded", function () {
   // This function runs when the DOM is ready, i.e. when the document has been parsed
-  
-  // Initialize the tabNavigator
+
+  // Initialize the navigator-tab
   let tabNavigator = document.getElementById("navigator-tab");
   M.Tabs.init(tabNavigator, {});
 
@@ -24,68 +24,66 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
   // Obtain all the available GameCard
   let gameCards = document.querySelectorAll("game-card");
 
-  // Hide the column which the cardgame belong 
+  // Hide the column which the game-card belong 
   // if it"s games with a title that not match the search query
-  for (let i = 0; i < gameCards.length; i++) {
-    let gameName = gameCards[i].info.name.toUpperCase();
-    if (!gameName.startsWith(searchText)) {
-      gameCards[i].parentNode.style.display = "none";
+  for (let gameCard of gameCards) {
+    if (!gameCards.info.name.startsWith(searchText)) {
+      gameCard.parentNode.style.display = "none";
     } else {
-      gameCards[i].parentNode.style.display = "block";
+      gameCard.parentNode.style.display = "block";
     }
   }
+  // TODO: Check if works
+  // for (let i = 0; i < gameCards.length; i++) {
+  //   let gameName = gameCards[i].info.name.toUpperCase();
+  //   if (!gameName.startsWith(searchText)) {
+  //     gameCards[i].parentNode.style.display = "none";
+  //   } else {
+  //     gameCards[i].parentNode.style.display = "block";
+  //   }
+  // }
 })
 
 /*### Click events ###*/
 document.querySelector("#user-info").addEventListener("login", login());
 
 document.querySelector("#add-game-btn").addEventListener("click", () => {
-  const options = {
+  let openDialogOptions = {
     title: "Select game directory",
     properties: ["openDirectory"]
   }
 
-  window.api.dialogOpen(options)
+  window.API.invoke("open-dialog", this, openDialogOptions)
     .then((data) => {
+      // No folder selected
       if (data.filePaths.length === 0) return;
 
-      // Parse the game dir name
-      const path = data.filePaths[0];
-      let name = path.split("\\").pop();
-      name = removeSpecials(name, ["-", "[", "]", ".", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
+      // Parse the game dir name(s)
+      for (let path of data.filePaths) {
+        getGameFromPath(path)
+          .then(function (result) {
+            if (!result["result"]) {
+              // Send the error message to the user if the game is not found
+              let warningDialogOptions = {
+                type: "warning",
+                buttons: ["OK"],
+                defaultId: 0,
+                title: "Game not detected",
+                message: result["message"],
+                detail: "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
+              };
 
-      const MOD_VERSION = "[MOD]";
-      let includeMods = name.toUpperCase().includes(MOD_VERSION) ? true : false;
-
-      let version = "Unknown";
-      const PREFIX_VERSION = "[V."; // i.e. namegame [v.1.2.3.4]
-      if (name.toUpperCase().includes(PREFIX_VERSION)) {
-        let startIndex = name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
-        let endIndex = name.indexOf("]", startIndex);
-        version = name.substr(startIndex, endIndex - startIndex);
+              // Send a message to the user
+              window.API.send("message-dialog", this, warningDialogOptions);
+            }
+          });
       }
-
-      // Clean name (remove mod tag and version)
-      let rx = /\[(.*?)\]/g;
-      name = name.replaceAll(rx, "").trim();
-
-      // Search and add the game
-      window.F95
-        .getGameData(name, includeMods)
-        .then((result) => {
-
-          if (result === null) return;
-          // Add the game
-          let card = addGameCard();
-          result.gameDir = path;
-          card.info = result;
-        });
     });
 });
 
-/*### Private methods ###*/
+//#region Private methods
 function openPage(pageName) {
-  // Local letiables
+  // Local variables
   let i, tabcontent;
 
   // Hide all elements with class="tabcontent" by default
@@ -98,13 +96,18 @@ function openPage(pageName) {
   document.getElementById(pageName).style.display = "block";
 }
 
+/**
+ * @private
+ * Create a new <div> in the DOM with the materialize-css's "row" class.
+ * @returns {HTMLDivElement} Created div
+ */
 function createNewGridRowInDOM() {
   // Create a new div "row"
   let row = document.createElement("div");
   row.setAttribute("class", "row");
 
   // Select the container div
-  let container = document.getElementById("gamesTab");
+  let container = document.getElementById("games-tab");
 
   // Add the row to the div
   container.appendChild(row);
@@ -112,6 +115,11 @@ function createNewGridRowInDOM() {
   return row;
 }
 
+/**
+ * @private
+ * Create an empty *game-card* and add it in the DOM.
+ * @returns {HTMLElement} Created game-card element
+ */
 function addGameCard() {
   // Create a GameCard. The HTML is loaded when the custom element is connected to DOM, so:
   // 1 - First we create the element
@@ -128,8 +136,8 @@ function addGameCard() {
 
   // Check if is needed to create a new "row" in the grid
   let cardGamesNumber = document.querySelectorAll("game-card").length;
-  let rowsInDOM = document.querySelectorAll("#gamesTab > div.row");
-  const gamesPerRow = 3; // s4 -> 12 / 4 = 3
+  let rowsInDOM = document.querySelectorAll("#games-tab > div.row");
+  let gamesPerRow = 3; // s4 -> 12 / 4 = 3
   let row;
   if (rowsInDOM.length == 0) {
     // We need a new row!
@@ -148,6 +156,14 @@ function addGameCard() {
   return gameCard;
 }
 
+/**
+ * @private
+ * Remove all the special characters from a string. 
+ * It remove all the characters (spaced excluded) that have the same "value" in upper and lower case.
+ * @param {String} str String to parse
+ * @param {String[]} allowedChars List of allowed special chars
+ * @returns {String} Parsed string
+ */
 function removeSpecials(str, allowedChars) {
   let lower = str.toLowerCase();
   let upper = str.toUpperCase();
@@ -160,43 +176,141 @@ function removeSpecials(str, allowedChars) {
   return res;
 }
 
+/**
+ * @private
+ * Load the data of the cached game and display them in the main window.
+ */
 function loadCachedGames() {
   console.log("Load cached games...");
 
-  window.api.filter("*.json", window.api.shared.gameDataDir).then(function(files) {
-    for (const filename of files) {
-      let card = addGameCard();
-      card.datapath = window.api.join(window.api.shared.gameDataDir, filename);
-    }
-
-    console.log("Loading completed");
-  });
+  // Get all the .json files in the game dir and create a <game-card> for each of them
+  window.API.invoke("games-data-dir")
+    .then(function (dir) {
+      window.IO.filter("*.json", dir)
+        .then(function (files) {
+          for (const filename of files) {
+            let card = addGameCard();
+            // TODO card.datapath = window.API.join(window.API.gameDataDir, filename);
+          }
+          console.log("Loading completed");
+        });
+    });
 }
 
+/**
+ * @private
+ * It checks if a network connection is available 
+ * and notifies the main process to perform 
+ * the login procedure.
+ */
 function login() {
   // Check network connection
-  if (!window.isOnline()) {
-    const options = {
+  if (!window.API.isOnline) {
+    let options = {
       type: "warning",
       buttons: ["OK"],
       defaultId: 0,
-      title: "Nessuna connessione",
-      message: "Nessuna connessione alla rete rilevata, impossibile eseguire il login a F95Zone",
-      detail: "La mancanza di connessione impedisce il login e l'aggiornamento dei giochi ma ti permette comunque di giocarci",
+      title: "No connection",
+      message: "No network connection detected, unable to login to F95Zone",
+      detail: "The lack of connection prevents you from logging in and updating the games but still allows you to play them",
     };
 
-    window.dialog.showMessageBox(this, options);
+    // Send a message to the user
+    window.API.send("message-dialog", this, options);
     console.warn("No network connection, cannot login");
     return;
   }
 
   // Request user input
-  console.log("Send api to main process for auth request")
-  window.api.send("login-required");
+  console.log("Send API to main process for auth request")
+  window.API.send("login-required");
 }
 
+/**
+ * @async
+ * @private
+ * Given a directory path, parse the dirname, get the 
+ * game (if exists) info and add a *game-card* in the DOM.
+ * @param {String} path Game directory path
+ * @returns {Promise<Object>} Dictionary containing the result of the operation: {result, message}
+ */
+async function getGameFromPath(path) {
+  // After the splitting, the last name is the directory name
+  let unparsedName = path.split("\\").pop();
+
+  // Check if it is a mod
+  const MOD_TAG = "[MOD]";
+  let includeMods = unparsedName.toUpperCase().includes(MOD_TAG) ? true : false;
+
+  // Find game version
+  let version = getGameVersionFromName(unparsedName);
+
+  // Get only the game title
+  name = cleanGameName(unparsedName);
+
+  // Search and add the game
+  let resultInfo = await window.F95.getGameData(name, includeMods);
+
+  // No game found
+  if (resultInfo === null) return {
+    result: false,
+    message: "Cannot retrieve information for " + unparsedName
+  };
+
+  // Add the game
+  let card = addGameCard();
+  resultInfo.gameDir = path;
+  card.info = resultInfo;
+
+  // TODO: Search for updates
+  return {
+    result: true,
+    message: name + " addedd correctly"
+  };
+}
+
+/**
+ * @private
+ * Given a game name, remove all the special characters and various tag (*[tag]*).
+ * @param {String} name 
+ * @returns {String}
+ */
+function cleanGameName(name) {
+  // Remove special chars except for version and specific tag chars
+  name = removeSpecials(name, ["-", "[", "]", ".", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
+
+  // Remove mod tag and version
+  let rx = /\[(.*?)\]/g;
+  name = name.replaceAll(rx, "").trim();
+
+  return name;
+}
+
+/**
+ * @private
+ * Given a non-parsed game name, extract the version if a tag **[v.version]** is specified.
+ * @example [v.1.2.3.4], [V.somevalue]
+ * @param {String} name 
+ */
+function getGameVersionFromName(name) {
+  // Local variables
+  let version = "Unknown";
+  const PREFIX_VERSION = "[V."; // i.e. namegame [v.1.2.3.4]
+
+  // Search the version tag, if any
+  if (name.toUpperCase().includes(PREFIX_VERSION)) {
+    let startIndex = name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
+    let endIndex = name.indexOf("]", startIndex);
+    version = name.substr(startIndex, endIndex - startIndex);
+  }
+
+  return version
+}
+//#endregion Private methods
+
+//#region IPC receive
 // Called when the window is being closed
-window.api.receive("app-closing", function() {
+window.API.receive("window-closing", function () {
 
   // Remove all the GameCards to allow saving data
   let cardGames = document.querySelectorAll("game-card");
@@ -206,27 +320,34 @@ window.api.receive("app-closing", function() {
   }
 
   // Tell the main process to close this BrowserWindow
-  window.api.send("window-closing");
+  window.API.send("main-window-closing");
 });
 
-// Called when the user log in to F95Zone correctly
-window.api.receive("auth-successful", (event, json) => {
-  // Load data
-  let credentials = JSON.parse(json);
-  window.F95API.login(credentials["username"], credentials["password"])
-    .then(
-      window.F95API.loadF95BaseData()
+// Called when the result of the authentication are ready
+window.API.receive("auth-result", (args) => {
+  let result = args[0];
+  let username = args[1];
+  let password = args[2];
+
+  console.log("Authentication result: " + result);
+  if (result !== "AUTHENTICATED") return;
+
+  // Load data (session not shared between windows)
+  window.F95.login(username, password)
+    .then(window.F95.loadF95BaseData()
       .then(function () {
-        // Show "add game" button
-        document.getElementById("btnAddGame").style.display = "block";
+        // TODO: Use new component
+        // // Show "add game" button
+        // document.getElementById("add-game-btn").style.display = "block";
 
-        // Hide "login" button
-        document.getElementById("btnLogin").style.display = "none";
+        // // Hide "login" button
+        // document.getElementById("login-btn").style.display = "none";
 
-        // Check update for all the listed games
-        let cardGames = document.querySelectorAll("game-card");
-        for (let card of cardGames) {
-          card.checkUpdates();
-        }
+        // // Check update for all the listed games
+        // let cardGames = document.querySelectorAll("game-card");
+        // for (let card of cardGames) {
+        //   card.checkUpdates();
+        // }
       }));
 });
+//#endregion IPC receive

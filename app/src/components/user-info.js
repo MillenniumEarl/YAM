@@ -1,22 +1,19 @@
 "use strict";
 
-/* Defines the HTML code of the custom element */
-const template = document.createElement("template");
-
-/* Synchronous read of the HTML template */
-template.innerHTML = window.api.send("read-file", "../components/user-info.html");
-
 class UserInfo extends HTMLElement {
     constructor() {
         super();
 
         /* Use the F95API classes (Need main-preload) */
-        console.log(window.UserData);
-        this.userdata = new window.UserData();
+        this._userdata = window.F95.UserData;
 
-        /* Binds the methods to the class's methods */
-        this.login = login.bind(this);
-
+        /* Defines the HTML code of the custom element */
+        let template = document.createElement("template");
+        
+        /* Synchronous read of the HTML template */
+        let pathHTML = window.API.join(window.API.appDir, "src", "components", "user-info.html");
+        template.innerHTML = window.IO.readSync(pathHTML);
+        
         this.attachShadow({
             mode: 'open'
         });
@@ -42,13 +39,13 @@ class UserInfo extends HTMLElement {
     }
 
     get userdata() {
-        return this.userdata;
+        return this._userdata;
     }
 
     set userdata(val) {
-        if (!userdata) return;
+        if (!val) return;
 
-        this.userdata = val;
+        this._userdata = val;
 
         // Update shadow DOM
         this.shadowRoot.getElementById("avatar").setAttribute("src", val.avatarSrc);
@@ -56,20 +53,19 @@ class UserInfo extends HTMLElement {
         this.shadowRoot.querySelector(".col-username").style.display = "inline-block";
         this.shadowRoot.querySelector(".col-login").style.display = "none";
     }
+
+    //#region Events
+    /**
+     * @event
+     * Triggered when user wants to play the game.
+     */
+    login() {
+        // Raise the event
+        this.loginClickEvent = new Event("login");
+        this.dispatchEvent(this.loginClickEvent);
+    }
+    //#endregion Events
 }
 
 // Let the browser know that <user-info> is served by our new class
 customElements.define("user-info", UserInfo);
-
-//#region Events
-/**
- * @event
- * Triggered when user wants to play the game.
- */
-function login() {
-    console.log("login");
-    // Raise the event
-    this.loginClickEvent = new Event("login");
-    this.dispatchEvent(this.loginClickEvent);
-}
-//#endregion Events

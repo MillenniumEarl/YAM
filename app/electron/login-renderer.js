@@ -1,14 +1,18 @@
+"use strict";
+
 /*### Generic events ###*/
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
     // This function runs when the DOM is ready, i.e. when the document has been parsed
 
+    let credentialsPath = await window.API.invoke("credentials-path");
+
     // Load credentials if saved on disk
-    window.api.fileExists(window.api.shared.credentialsPath)
+    window.IO.fileExists(credentialsPath)
         .then(function (exists) {
             if (!exists) return;
 
             // Read and parse credentials
-            window.api.read(window.api.shared.credentialsPath)
+            window.IO.read(credentialsPath)
                 .then(function (json) {
                     let credentials = JSON.parse(json);
 
@@ -53,7 +57,8 @@ document.querySelector('#login-btn').addEventListener('click', function () {
 
 document.querySelector('#cancel-btn').addEventListener('click', function () {
     // Close the current window witouth authentication
-    window.api.currentWindow.close();
+    window.API.send('auth-result', "CANCELLED", null, null);
+    window.API.send("login-window-closing");
 });
 
 /*### Private methods ###*/
@@ -80,11 +85,16 @@ function manageLoginResult(result, username, password) {
             'password': password
         };
         let json = JSON.stringify(credentials);
-        window.api.write(window.api.shared.credentialsPath, json);
-        window.api.send('auth-successful', json);
 
-        // Close the window
-        window.api.currentWindow.close();
+        window.API.invoke("credentials-path")
+        .then(function (path) {
+            window.IO.write(path, json)
+            .then(function() {
+                // Close the window
+                window.API.send('auth-result', "AUTHENTICATED", username, password);
+                window.API.send("login-window-closing");
+            });
+        })
     } else {
         // Show error message
         setMessage('Error during authentication: ' + result.message, "error");

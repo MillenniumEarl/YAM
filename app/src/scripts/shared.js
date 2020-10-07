@@ -9,28 +9,28 @@ const {
  * Class containing variables shared between modules.
  */
 class Shared {
-    //#region Properties
+    //#region Private static properties
     /**
      * Base directory where to save the application cache.
      * @type String
      */
-    static _cacheDir = "cache";
+    static #_cacheDir = "cache";
     /**
      * Name of the directory to save the game cache.
      * @type String
      */
-    static _gameDirName = "gamedata";
+    static #_gamesDirName = "gamedata";
     /**
      * Name of the directory to save the browser cache.
      * @type String
      */
-    static _browserDirName = "browserdata";
+    static #_browserDirName = "browserdata";
     /**
      * Name of the file to save the credentials for accessing the F95Zone portal.
      * @type String
      */
-    static _credentialsName = "credentials.json";
-    //#endregion Properties
+    static #_credentialsName = "credentials.json";
+    //#endregion Private static properties
 
     //#region Getters
     /**
@@ -38,34 +38,34 @@ class Shared {
      * @returns {String}
      */
     static get cacheDir() {
-        return this._cacheDir;
+        return this.#_cacheDir;
     }
     /**
      * Name of the directory to save the game cache.
      * @returns {String}
      */
-    static get gameDataDir() {
-        return join(this._cacheDir, this._gameDirName);
+    static get gamesDataDir() {
+        return join(this.#_cacheDir, this.#_gamesDirName);
     }
     /**
      * Name of the directory to save the browser cache.
      * @returns {String}
      */
     static get browserDataDir() {
-        return join(this._cacheDir, this._browserDirName);
+        return join(this.#_cacheDir, this.#_browserDirName);
     }
     /**
      * Name of the file to save the credentials for accessing the F95Zone portal.
      * @returns {String}
      */
     static get credentialsPath() {
-        return join(this._cacheDir, this._credentialsName);
+        return join(this.#_cacheDir, this.#_credentialsName);
     }
     //#endregion Getters
 
     //#region Setters
     static set cacheDir(val) {
-        this._cacheDir = val;
+        this.#_cacheDir = val;
     }
     //#endregion Setters
 }

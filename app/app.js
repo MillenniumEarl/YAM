@@ -9,19 +9,23 @@ const {
   app,
   BrowserWindow,
   shell,
-  ipcMain
+  ipcMain,
+  dialog
 } = require('electron');
-const Store = require("secure-electron-store").default;
-const F95API = require("f95api");
 
 // Modules from file
 const {
   runApplication
 } = require("./src/scripts/io-operations.js");
+const Shared = require("./src/scripts/shared.js");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let loginWindow;
+
+// Variable used to close the main windows
+let closeMainWindow = false;
 
 //#region Windows creation methods
 async function createMainWindow() {
@@ -33,21 +37,13 @@ async function createMainWindow() {
     webPreferences: {
       allowRunningInsecureContent: false,
       worldSafeExecuteJavaScript: true,
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       contextIsolation: true,
       webSecurity: true,
       nodeIntegration: false,
-      preload: path.join(app.getAppPath(), 'app', 'electron', 'main-preload.js'),
-      additionalArguments: [`storePath:${app.getPath("userData")}`], // Needed for using the IPC-base JSON storage
+      preload: path.join(app.getAppPath(), 'app', 'electron', 'main-preload.js')
     }
   });
-
-  // Sets up app.js bindings for our electron store
-  const store = new Store({
-    path: app.getPath("userData")
-  });
-  store.mainBindings(ipcMain, mainWindow, fs);
-
   // Whatever URL the user clicks will open the default browser for viewing
   mainWindow.webContents.on('new-window', function (e, url) {
     e.preventDefault();
@@ -58,8 +54,9 @@ async function createMainWindow() {
   // this method intercept the default behaviour
   // Used to save the game data in the GameCards
   mainWindow.on('close', function (e) {
-    if (mainWindow) {
+    if (mainWindow && !closeMainWindow) {
       e.preventDefault();
+      closeMainWindow = true;
       mainWindow.webContents.send('window-closing');
     }
   });
@@ -77,7 +74,7 @@ async function createMainWindow() {
 
 async function createLoginWindow() {
   // Create the login window.
-  let loginWindow = new BrowserWindow({
+  loginWindow = new BrowserWindow({
     width: 400,
     height: 250,
     backgroundColor: '#252321', // Used to simulate loading and not make the user wait
@@ -89,15 +86,15 @@ async function createLoginWindow() {
       contextIsolation: true,
       webSecurity: true,
       nodeIntegration: false,
-      preload: path.join(app.getAppPath(), 'electron', 'login-preload.js')
+      preload: path.join(app.getAppPath(), "app", 'electron', 'login-preload.js')
     }
   });
-
+  
   // Disable default menu
   loginWindow.setMenu(null)
 
   // Load the html file
-  let htmlPath = path.join(app.getAppPath(), 'src', 'login.html');
+  let htmlPath = path.join(app.getAppPath(), "app", 'src', 'login.html');
   loginWindow.loadFile(htmlPath);
 }
 //#endregion Windows creation methods
@@ -105,34 +102,77 @@ async function createLoginWindow() {
 //#region IPC Communication
 // This will be called when the main window 
 // require credentials, open the login windows
-ipcMain.on('login-required', function () {
+ipcMain.on('login-required', function (e) {
   console.log('Login required from main window');
   createLoginWindow();
 });
 
 // Called when the main window has saved all 
 // the data and is ready to be definitely closed
-ipcMain.on('main-window-closing', function () {
+ipcMain.on('main-window-closing', function (e) {
+  mainWindow.close();
   mainWindow = null;
-  if (process.platform !== 'darwin') app.quit();
 });
 
-// Receive a valid pair of credentials and 
-// redirect them to the main window
-ipcMain.on('auth-successful', function (event, credentials) {
-  mainWindow.webContents.send('auth-successful', credentials);
+// Called when the login widnow want to be closed
+ipcMain.on('login-window-closing', function (e) {
+      loginWindow.close();
+      loginWindow = null;
+});
+
+// Receive the result of the login operation
+ipcMain.on('auth-result', function (e, result, username, password) {
+  mainWindow.webContents.send('auth-result', result, username, password);
 });
 
 // Execute the file passed as parameter
-ipcMain.on("exec", function (event, filename) {
+ipcMain.on("exec", function (e, filename) {
   runApplication(filename);
 });
+// Return the current app.js path (Current App Working Directory)
+ipcMain.handle("cawd", function (e) {
+  return app.getAppPath();
+});
+
+//#region Shared app variables
+ipcMain.handle("cache-dir", function (e) {
+  return Shared.cacheDir;
+});
+
+ipcMain.handle("browser-data-dir", function (e) {
+  return Shared.browserDataDir;
+});
+
+ipcMain.handle("games-data-dir", function (e) {
+  return Shared.gamesDataDir;
+});
+
+ipcMain.handle("credentials-path", function (e) {
+  return Shared.credentialsPath;
+});
+
+//#endregion Shared app variables
+
+//#region IPC dialog
+ipcMain.handle("message-dialog", function (e, window, options) {
+  return dialog.showMessageBox(window, options);
+});
+
+ipcMain.handle("open-dialog", function (e, window, options) {
+  return dialog.showOpenDialog(window, options);
+});
+
+ipcMain.handle("save-dialog", function (e, window, options) {
+  return dialog.showSaveDialog(window, options);
+});
+//#endregion IPC dialog
+
 //#endregion IPC Communication
 
 //#region App-related events
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+// Some APIs can only be used after this e occurs.
 app.whenReady().then(function () {
   createMainWindow();
 

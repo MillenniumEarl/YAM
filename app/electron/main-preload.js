@@ -3,43 +3,53 @@
 
 "use strict";
 
+// Core modules
+const fs = require("fs");
+const {
+  glob
+} = require('glob');
+const {
+  join
+} = require("path");
+
 // Public modules from npm
 const {
   contextBridge,
   ipcRenderer
 } = require("electron");
 const F95API = require("f95api");
-const fs = require("fs");
-const {
-  glob
-} = require('glob');
-const {join} = require("path");
-const dialog = require("electron-dialog");
 
 // Modules from file
-const Shared = require("../src/scripts/shared.js");
 const {
   deleteFolderRecursive,
-  readFile,
+  readFileSync,
   fileExists
 } = require("../src/scripts/io-operations.js");
 
+// Set F95 cache
+ipcRenderer.invoke("cawd")
+  .then(function (cawd) {
+    let cacheDir = join(cawd, "cache");
+    F95API.setCacheDir(cacheDir);
+    if (!fs.existsSync(cacheDir)) fs.mkdir(cacheDir);
+  });
+
 // Array of valid main-to-render channels
-let validReceiveChannels = ["window-closing", "delete-folder-reply", "auth-successful"];
+let validReceiveChannels = ["window-closing", "auth-result", "cawd", "cache-dir", "browser-data-dir", "games-data-dir", "credentials-path"];
 
 // Array of valid render-to-main channels
-let validSendChannels = ["main-window-closing", "login-required", "exec"];
+let validSendChannels = ["main-window-closing", "login-required", "exec", "message-dialog", "open-dialog", "save-dialog", "cawd", "cache-dir", "browser-data-dir", "games-data-dir", "credentials-path"];
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
-contextBridge.exposeInMainWorld("api", {
-  shared: Shared,
-  invoke: (channel, data) => { // Send a custom message
+contextBridge.exposeInMainWorld("API", {
+  appDir: __dirname.replace("electron", ""),
+  invoke: (channel, ...data) => { // Send a custom message
     if (validSendChannels.includes(channel)) {
       ipcRenderer.invoke(channel, data);
     }
   },
-  send: (channel, data) => { // Send a custom message
+  send: (channel, ...data) => { // Send a custom message
     if (validSendChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
     }
@@ -50,8 +60,17 @@ contextBridge.exposeInMainWorld("api", {
       ipcRenderer.on(channel, (event, ...args) => func(...args));
     }
   },
+  join: (...paths) => join(...paths),
+  isOnline: () => navigator.onLine
+});
+
+// Expose the I/O operations
+contextBridge.exposeInMainWorld("IO", {
+  readSync: function (path) {
+    return readFileSync(path);
+  },
   read: async function (path) {
-    return readFile(path);
+    return readFileSync(path);
   },
   write: async function (path, value) {
     fs.writeFileSync(path, value);
@@ -67,17 +86,15 @@ contextBridge.exposeInMainWorld("api", {
   fileExists: async function (filename) {
     return fileExists(filename);
   },
-  join: (paths) => join(paths),
-  dialogAlert: (message) => dialog.alert(message),
-  dialogChoice: (message, choiches) => dialog.choice(message, choiches),
-  dialogOpen: (options) => dialog.open(options)
 });
 
 // Expose the F95API
 contextBridge.exposeInMainWorld("F95", {
-  UserData: F95API.UserData,
-  GameInfo: F95API.GameInfo,
+  UserData: new F95API.UserData,
+  GameInfo: new F95API.GameInfo,
+  login: (username, password) => F95API.login(username, password),
   getUserData: F95API.getUserData(),
   getGameData: (name, includeMods) => F95API.getGameData(name, includeMods),
-  getGameVersion: (gameinfo) => F95API.getGameVersion(gameinfo)
+  getGameVersion: (gameinfo) => F95API.getGameVersion(gameinfo),
+  loadF95BaseData: () => F95API.loadF95BaseData()
 });

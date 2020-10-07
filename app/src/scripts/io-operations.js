@@ -49,11 +49,11 @@ module.exports.deleteFolderRecursive = async function(dirpath) {
 /**
  * Read a file from disk.
  * @param {String} filename Path to the file
- * @returns {Promise<String>} Text read
+ * @returns {String} Text read
  */
-module.exports.readFile = async function(filename) {
+module.exports.readFileSync = function(filename) {
     if(!fs.existsSync(filename)) return null;
-    else return fs.readFileSync(filename);
+    else return fs.readFileSync(filename, "utf-8");
 }
 
 /**
