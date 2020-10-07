@@ -16,9 +16,7 @@ const F95API = require("f95api");
 
 // Modules from file
 const {
-  deleteFolderRecursive,
-  runApplication,
-  readFile
+  runApplication
 } = require("./src/scripts/io-operations.js");
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -35,7 +33,7 @@ async function createMainWindow() {
     webPreferences: {
       allowRunningInsecureContent: false,
       worldSafeExecuteJavaScript: true,
-      enableRemoteModule: false,
+      enableRemoteModule: true,
       contextIsolation: true,
       webSecurity: true,
       nodeIntegration: false,
@@ -129,55 +127,6 @@ ipcMain.on('auth-successful', function (event, credentials) {
 ipcMain.on("exec", function (event, filename) {
   runApplication(filename);
 });
-
-// Delete the folder passed as parameter
-ipcMain.on("delete-folder", function (event, dirpath) {
-  deleteFolderRecursive(dirpath)
-    .then(function () {
-      e.sender.send("delete-folder-reply", true)
-    })
-    .catch(function () {
-      e.sender.send("delete-folder-reply", false)
-    })
-});
-
-// Download the game in the specified path
-ipcMain.on("download-game", function (event, downloadGameData, savepath) {
-  // TODO, maybe not necessary
-});
-
-// Retrieve the data of the specified game and return them
-ipcMain.on("get-game-data", function (event, name, includeMods) {
-  F95API.getGameData(name, includeMods)
-    .then(function (gameData) {
-      event.sender.send("get-game-data-reply", gameData);
-    });
-});
-
-// Retrieve the data of the logged user
-ipcMain.on("get-user-data", function (event) {
-  F95API.getUserData()
-    .then(function (userData) {
-      event.sender.send("get-user-data-reply", userData);
-    });
-});
-
-// Retrieve the game version
-ipcMain.on("get-game-version", function (event, info) {
-  F95API.getGameVersion(info)
-    .then(function (version) {
-      event.sender.send("get-game-version-reply", version);
-    });
-});
-
-// Read a file from disk
-ipcMain.on("read-file", function (event, filename) {
-  readFile(filename)
-  .then(function(text) { 
-    event.sender.send("read-file-reply", text);
-  });
-});
-
 //#endregion IPC Communication
 
 //#region App-related events

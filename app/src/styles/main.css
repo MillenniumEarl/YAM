@@ -8,7 +8,7 @@ body {
     background-image: url('../../../resources/images/background.png');
 }
 
-#btnAddGame {
+#add-game-btn {
   display: none;
 }
 
@@ -26,7 +26,7 @@ body {
 }
 
 /*### Search bar styles ###*/
-#searchGameName:focus {
+#search-game-name:focus {
   color: var(--main-text-color);
 }
 

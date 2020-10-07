@@ -24,8 +24,8 @@
   <!-- Navigation toolbar -->
   <div class="row">
     <div class="col s12">
-      <ul class="tabs" id="tabNavigator">
-        <li class="tab col s3 tablinks"><a href="#" onclick="openPage('gamesTab')" id="defaultOpenTab"> Games </a></li>
+      <ul class="tabs" id="tab-navigator">
+        <li class="tab col s3 tablinks default-open-tab"><a href="#" onclick="openPage('gamesTab')"> Games </a></li>
         <li class="tab col s3 tablinks"><a href="#" onclick="openPage('settingsTab')"> Settings </a></li>
       </ul>
     </div>
@@ -35,20 +35,20 @@
   </div>
 
   <!-- Tab content -->
-  <div id="gamesTab" class="tabcontent" hidden>
+  <div id="games-tab" class="tabcontent" hidden>
     <!-- Search game name -->
     <div class="input-field col s9">
       <i class="material-icons prefix">search_white</i>
-      <input id="searchGameName" type="text">
-      <label for="searchGameName">Search game name</label>
+      <input id="search-game-name" type="text">
+      <label for="search-game-name">Search game name</label>
     </div>
   </div>
 
-  <div id="settingsTab" class="tabcontent" hidden>
+  <div id="settings-tab" class="tabcontent" hidden>
   </div>
 
   <!-- Floating button (FAB) for adding games -->
-  <a class="btn-floating btn-large waves-effect waves-light fab" id="btnAddGame">
+  <a class="btn-floating btn-large waves-effect waves-light fab" id="add-game-btn">
     <i class="material-icons">add</i>
   </a>
 

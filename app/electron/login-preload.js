@@ -8,15 +8,21 @@ const {
     contextBridge,
     ipcRenderer
 } = require("electron");
+const F95API = require("f95api");
+const fs = require("fs");
 
 // Modules from file
 const Shared = require("../src/scripts/shared.js");
+const {
+    readFile,
+    fileExists
+} = require("../src/scripts/io-operations.js");
 
 // Array of valid main-to-render channels
-let validReceiveChannels = ["login-reply"];
+let validReceiveChannels = [];
 
 // Array of valid render-to-main channels
-let validSendChannels = ["read-file", "write-file", "file-exists", "auth-successful", "try-login"];
+let validSendChannels = ["read-file", "auth-successful"];
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
@@ -38,5 +44,19 @@ contextBridge.exposeInMainWorld("api", {
             ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
     },
-    currentWindow: Electron.remote.getCurrentWindow()
+    currentWindow: Electron.remote.getCurrentWindow(),
+    read: async function (path) {
+        return readFile(path);
+    },
+    write: async function (path, value) {
+        fs.writeFileSync(path, value);
+    },
+    fileExists: async function (filename) {
+        return fileExists(filename);
+    }
+});
+
+// Expose the F95API
+contextBridge.exposeInMainWorld("F95", {
+    login: (username, password) => F95API.login(username, password)
 });
