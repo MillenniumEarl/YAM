@@ -2,10 +2,10 @@
 @import "global.css";
 
 body {
-    font-family: Roboto;
-    background-color: var(--main-bg-color);
-    color: var(--main-text-color);
-    background-image: url('../../../resources/images/background.png');
+  font-family: Roboto;
+  background-color: var(--main-bg-color);
+  color: var(--main-text-color);
+  background-image: url("../../../resources/images/background.png");
 }
 
 .user-info-col {
@@ -24,7 +24,7 @@ body {
 }
 
 /*### Set the size and center the game/settings div ###*/
-.tabcontent{
+.tabcontent {
   margin: auto;
   width: 90%;
 }
@@ -35,24 +35,24 @@ body {
 }
 
 /* label focus color */
-.input-field input[type=text]:focus + label {
+.input-field input[type="text"]:focus + label {
   color: var(--secondary-app-color) !important;
 }
 
 /* label underline focus color */
-.input-field input[type=text]:focus {
+.input-field input[type="text"]:focus {
   border-bottom: 1px solid var(--secondary-app-color) !important;
   box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
 }
 
 /* valid color */
-.input-field input[type=text].valid {
- border-bottom: 1px solid var(--secondary-app-color) !important;
+.input-field input[type="text"].valid {
+  border-bottom: 1px solid var(--secondary-app-color) !important;
   box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
 }
 
 /* invalid color */
-.input-field input[type=text].invalid {
+.input-field input[type="text"].invalid {
   border-bottom: 1px solid var(--secondary-app-color) !important;
   box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
 }
@@ -62,11 +62,11 @@ body {
   color: var(--secondary-app-color) !important;
 }
 
-input[type="text"]:not(.browser-default):focus:not([readonly]){
+input[type="text"]:not(.browser-default):focus:not([readonly]) {
   border-bottom: 1px solid var(--secondary-app-color) !important;
   box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
 }
 
-input[type="text"]:not(.browser-default):focus:not([readonly]) + label{
+input[type="text"]:not(.browser-default):focus:not([readonly]) + label {
   color: var(--secondary-app-color) !important;
 }

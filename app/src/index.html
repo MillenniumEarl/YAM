@@ -1,61 +1,86 @@
 ﻿<!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <!--<meta http-equiv="Content-Security-Policy" content="script-src 'self'">-->
+    <title>F95 Game Updater</title>
 
-<head>
-  <meta charset="UTF-8">
-  <!--<meta http-equiv="Content-Security-Policy" content="script-src 'self'">-->
-  <title>F95 Game Updater</title>
+    <!-- Local resources link -->
+    <!-- Material icons loaded in ./main-style.css -->
+    <link
+      type="text/css"
+      href="../../node_modules/materialize-css/dist/css/materialize.min.css"
+      rel="stylesheet"
+    />
+    <link type="text/css" href="../src/styles/main.css" rel="stylesheet" />
+    <link
+      type="text/css"
+      href="../src/styles/material-button.css"
+      rel="stylesheet"
+    />
+    <link type="text/css" href="../src/styles/navbar.css" rel="stylesheet" />
 
-  <!-- Local resources link -->
-  <!-- Material icons loaded in ./main-style.css -->
-  <link type="text/css" href="../../node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" />
-  <link type="text/css" href="../src/styles/main.css" rel="stylesheet" />
-  <link type="text/css" href="../src/styles/material-button.css" rel="stylesheet" />
-  <link type="text/css" href="../src/styles/navbar.css" rel="stylesheet" />
+    <!-- Load local script -->
+    <script
+      type="text/javascript"
+      src="../electron/main-renderer.js"
+      defer
+    ></script>
+    <script
+      type="text/javascript"
+      src="../../node_modules/materialize-css/dist/js/materialize.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../src/components/game-card.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../src/components/user-info.js"
+    ></script>
+  </head>
 
-  <!-- Load local script -->
-  <script type="text/javascript" src="../electron/main-renderer.js" defer></script>
-  <script type="text/javascript" src="../../node_modules/materialize-css/dist/js/materialize.min.js"></script>
-  <script type="text/javascript" src="../src/components/game-card.js"></script>
-  <script type="text/javascript" src="../src/components/user-info.js"></script>
-</head>
-
-<body>
-  <!-- Navigation toolbar -->
-  <div class="row">
-    <div class="col s12">
-      <ul class="tabs" id="tab-navigator">
-        <li class="tab col s3 tablinks default-open-tab"><a href="#" onclick="openPage('games-tab')"> Games </a></li>
-        <li class="tab col s3 tablinks"><a href="#" onclick="openPage('settings-tab')"> Settings </a></li>
-        <li class="col s3 offset-s3 user-info-col">
-          <user-info id="user-info"></user-info>
-        </li>
-      </ul>
+  <body>
+    <!-- Navigation toolbar -->
+    <div class="row">
+      <div class="col s12">
+        <ul class="tabs" id="tab-navigator">
+          <li class="tab col s3 tablinks default-open-tab">
+            <a href="#" onclick="openPage('games-tab')"> Games </a>
+          </li>
+          <li class="tab col s3 tablinks">
+            <a href="#" onclick="openPage('settings-tab')"> Settings </a>
+          </li>
+          <li class="col s3 offset-s3 user-info-col">
+            <user-info id="user-info"></user-info>
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
 
-  <!-- Tab content -->
-  <div id="games-tab" class="tabcontent" hidden>
-    <!-- Search game name -->
-    <div class="input-field col s9">
-      <i class="material-icons prefix">search_white</i>
-      <input id="search-game-name" type="text">
-      <label for="search-game-name">Search game name</label>
+    <!-- Tab content -->
+    <div id="games-tab" class="tabcontent" hidden>
+      <!-- Search game name -->
+      <div class="input-field col s9">
+        <i class="material-icons prefix">search_white</i>
+        <input id="search-game-name" type="text" />
+        <label for="search-game-name">Search game name</label>
+      </div>
     </div>
-  </div>
 
-  <div id="settings-tab" class="tabcontent" hidden>
-  </div>
+    <div id="settings-tab" class="tabcontent" hidden></div>
 
-  <!-- Floating button (FAB) for adding games -->
-  <a class="btn-floating btn-large waves-effect waves-light fab" id="add-game-btn">
-    <i class="material-icons">add</i>
-  </a>
+    <!-- Floating button (FAB) for adding games -->
+    <a
+      class="btn-floating btn-large waves-effect waves-light fab"
+      id="add-game-btn"
+    >
+      <i class="material-icons">add</i>
+    </a>
 
-  <!-- Floating button (FAB) for log in
+    <!-- Floating button (FAB) for log in
   <a class="btn-floating btn-large waves-effect waves-light fab" id="btnLogin">
     <i class="material-icons">exit_to_app</i>
   </a> -->
-</body>
-
+  </body>
 </html>
