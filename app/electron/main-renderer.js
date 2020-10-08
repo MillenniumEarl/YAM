@@ -54,9 +54,8 @@ document.querySelector("#add-game-btn").addEventListener("click", () => {
     title: "Select game directory",
     properties: ["openDirectory"],
   };
-  
-  window.API.invoke("open-dialog", openDialogOptions)
-    .then((data) => {
+
+  window.API.invoke("open-dialog", openDialogOptions).then((data) => {
     // No folder selected
     if (data.filePaths.length === 0) return;
 
@@ -64,21 +63,25 @@ document.querySelector("#add-game-btn").addEventListener("click", () => {
     for (let path of data.filePaths) {
       getGameFromPath(path)
         .then(function (result) {
-        if (!result["result"]) {
-          // Send the error message to the user if the game is not found
-          sendMessageToUserWrapper("warning", 
-          "Game not detected", 
-          result["message"], 
-          "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)");
-        }
-      })
-      .catch(function(error) {
-        // Send error message
-        sendMessageToUserWrapper("error",
-          "Unexpected error",
-          "Cannot retrieve game data, unexpected error: " + error,
-          "");
-      });
+          if (!result["result"]) {
+            // Send the error message to the user if the game is not found
+            sendMessageToUserWrapper(
+              "warning",
+              "Game not detected",
+              result["message"],
+              "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)"
+            );
+          }
+        })
+        .catch(function (error) {
+          // Send error message
+          sendMessageToUserWrapper(
+            "error",
+            "Unexpected error",
+            "Cannot retrieve game data, unexpected error: " + error,
+            ""
+          );
+        });
     }
   });
 });
@@ -211,10 +214,12 @@ function login() {
   // Check network connection
   if (!window.API.isOnline) {
     // Send error message
-    sendMessageToUserWrapper("warining",
+    sendMessageToUserWrapper(
+      "warining",
       "No connection",
       "No network connection detected, unable to login to F95Zone",
-      "The lack of connection prevents you from logging in and updating the games but still allows you to play them");
+      "The lack of connection prevents you from logging in and updating the games but still allows you to play them"
+    );
     console.warn("No network connection, cannot login");
     return;
   }
@@ -328,9 +333,9 @@ function sendMessageToUserWrapper(type, title, message, detail) {
     type: type,
     buttons: ["OK"],
     defaultId: 0,
-    title: title, 
+    title: title,
     message: message,
-    detail: detail
+    detail: detail,
   };
 
   // Send a message to the user
@@ -344,10 +349,12 @@ async function getUserDataFromF95() {
   // Check user data
   if (userdata === null || !userdata) {
     // Send error message
-    sendMessageToUserWrapper("error",
+    sendMessageToUserWrapper(
+      "error",
       "Unexpected error",
       "Cannot retrieve user data",
-      "");
+      ""
+    );
   }
 
   // Update component
@@ -382,14 +389,14 @@ window.API.receive("auth-result", (args) => {
   // Load data (session not shared between windows)
   window.F95.login(username, password)
     .then(function () {
-        // Load F95 base data
-        window.F95.loadF95BaseData();
+      // Load F95 base data
+      window.F95.loadF95BaseData();
 
-        // Load user data
-        getUserDataFromF95();
+      // Load user data
+      getUserDataFromF95();
 
-        // Show "add game" button
-        document.getElementById("add-game-btn").style.display = "block";
+      // Show "add game" button
+      document.getElementById("add-game-btn").style.display = "block";
 
       // // Hide "login" button
       // document.getElementById("login-btn").style.display = "none";
@@ -399,12 +406,14 @@ window.API.receive("auth-result", (args) => {
       //   card.checkUpdates();
       // }
     })
-    .catch(function(error) {
+    .catch(function (error) {
       // Send error message
-      sendMessageToUserWrapper("error",
+      sendMessageToUserWrapper(
+        "error",
         "Unexpected error",
         "Cannot login, unexpected error: " + error,
-        "");
+        ""
+      );
     });
 });
 //#endregion IPC receive
