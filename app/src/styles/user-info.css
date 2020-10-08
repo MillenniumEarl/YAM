@@ -1,7 +1,7 @@
 /*### Import base styles ###*/
 @import "global.css";
 
-div.row {
+div.base-div {
     background-color: var(--primary-dark);
     color: var(--text-on-primary);
     display: inline-block;

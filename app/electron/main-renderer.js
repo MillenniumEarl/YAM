@@ -253,18 +253,19 @@ async function getGameFromPath(path) {
 
   // Search and add the game
   let resultInfo = await window.F95.getGameData(name, includeMods);
-
+  
   // No game found
-  if (resultInfo === null)
+  if (resultInfo.length === 0)
     return {
       result: false,
       message: "Cannot retrieve information for " + unparsedName,
     };
 
   // Add the game
+  let firstGame = resultInfo.pop();
   let card = addGameCard();
-  resultInfo.gameDir = path;
-  card.info = resultInfo;
+  firstGame.gameDir = path;
+  card.info = firstGame
 
   // TODO: Search for updates
   return {
@@ -356,7 +357,7 @@ async function getUserDataFromF95() {
       ""
     );
   }
-
+  
   // Update component
   document.getElementById("user-info").userdata = userdata;
 }
@@ -371,6 +372,9 @@ window.API.receive("window-closing", function () {
     // Remove the <div> containing the card
     card.parentNode.removeChild(card);
   }
+
+  // Close F95 browser
+  window.F95.logout();
 
   // Tell the main process to close this BrowserWindow
   window.API.send("main-window-closing");

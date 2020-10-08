@@ -64,4 +64,5 @@ contextBridge.exposeInMainWorld("IO", {
 // Expose the F95API
 contextBridge.exposeInMainWorld("F95", {
   login: (username, password) => F95API.login(username, password),
+  logout: () => F95API.logout()
 });

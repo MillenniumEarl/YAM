@@ -2,14 +2,16 @@
 @import "global.css";
 
 /*### Manage size for the 'tabs' component generated with materialize-css ###*/
-div.row, .row, ul.tabs{
+div.navbar,
+ul.tabs {
     width: 100%;
     margin: 0;
     padding: 0;
 }
 
 /*### Manage colors for the 'tabs' component generated with materialize-css ###*/
-div.row, ul.tabs {
+div.navbar,
+ul.tabs {
     background-color: var(--primary-dark);
 }
 /* Background color of the entire component */

@@ -84,6 +84,9 @@ function manageLoginResult(result, username, password) {
 
     window.API.invoke("credentials-path").then(function (path) {
       window.IO.write(path, json).then(function () {
+        // Close F95 browser
+        window.F95.logout();
+
         // Close the window
         window.API.send("auth-result", "AUTHENTICATED", username, password);
         window.API.send("login-window-closing");

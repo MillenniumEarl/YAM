@@ -105,7 +105,13 @@ async function createLoginWindow() {
 // require credentials, open the login windows
 ipcMain.on("login-required", function (e) {
   console.log("Login required from main window");
-  createLoginWindow();
+
+  // Avoid multiple instance of the login window
+  if(loginWindow) {
+    console.log("Login window already active");
+    return;
+  }
+  else createLoginWindow();
 });
 
 // Called when the main window has saved all

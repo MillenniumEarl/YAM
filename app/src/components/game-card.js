@@ -6,26 +6,15 @@ class GameCard extends HTMLElement {
 
     /* Use the F95API classes (Need main-preload) */
     this._info = window.F95.GameInfo;
-
-    /* Defines the HTML code of the custom element */
-    let template = document.createElement("template");
-
-    /* Synchronous read of the HTML template */
-    template.innerHTML = window.IO.readSync("game-card.html");
-    this.attachShadow({
-      mode: "open",
-    });
-    this.shadowRoot.appendChild(template.content.cloneNode(true));
-
-    this.playBtn = this.shadowRoot.getElementById("play-game-btn");
-    this.updateBtn = this.shadowRoot.getElementById("update-game-btn");
-    this.deleteBtn = this.shadowRoot.getElementById("delete-game-btn");
   }
 
   /**
    * Triggered once the element is added to the DOM
    */
   connectedCallback() {
+    // Prepare DOM
+    this.prepareDOM();
+
     /* Set events listeners for the buttons */
     this.playBtn.addEventListener("click", this.play);
     this.updateBtn.addEventListener("click", this.update);
@@ -47,20 +36,20 @@ class GameCard extends HTMLElement {
     this._info = value;
 
     // Set HTML elements
-    this.querySelector("#gameName").innerText = value.isMod
+    this.querySelector("#name").innerText = value.isMod
       ? "[MOD] " + value.name
       : value.name;
-    this.querySelector("#gameAuthor").innerText = value.author;
-    this.querySelector("#f95GameURL").setAttribute("href", value.f95url);
-    this.querySelector("#gameOverview").innerText = value.overview;
-    this.querySelector("#gameEngine").innerText = value.engine;
-    this.querySelector("#gameStatus").innerText = value.status;
+    this.querySelector("#author").innerText = value.author;
+    this.querySelector("#f95-url").setAttribute("href", value.f95url);
+    this.querySelector("#overview").innerText = value.overview;
+    this.querySelector("#engine").innerText = value.engine;
+    this.querySelector("#status").innerText = value.status;
     const source = value.previewSource
       ? value.previewSource
-      : "../../../resources/images/f95-logo.jpg";
-    this.querySelector("#gameImage").setAttribute("src", source);
-    this.querySelector("#gameInstalledVersion").innerText = value.version;
-    this.querySelector("#gameLastUpdate").innerText = value.lastUpdate;
+      : "../../resources/images/f95-logo.jpg";
+    this.querySelector("#preview").setAttribute("src", source);
+    this.querySelector("#installed-version").innerText = value.version;
+    this.querySelector("#last-update").innerText = value.lastUpdate;
   }
 
   get info() {
@@ -73,9 +62,8 @@ class GameCard extends HTMLElement {
    * Triggered when user wants to play the game.
    */
   play() {
-    console.log("play");
     // Get the game launcher
-    let launcherPath = getGameLauncher(this._info.gameDir);
+    let launcherPath = this.getGameLauncher(this._info.gameDir);
 
     // Raise the event
     this.playClickEvent = new CustomEvent("play", {
@@ -118,6 +106,28 @@ class GameCard extends HTMLElement {
   //#endregion Events
 
   //#region Private methods
+  /**
+   * Load the HTML file and define the buttons of the custom component.
+   */
+  prepareDOM() {
+    /* Defines the HTML code of the custom element */
+    let template = document.createElement("template");
+
+    /* Synchronous read of the HTML template */
+    let pathHTML = window.API.join(
+      window.API.appDir,
+      "src",
+      "components",
+      "game-card.html"
+    );
+    template.innerHTML = window.IO.readSync(pathHTML);
+    this.appendChild(template.content.cloneNode(true));
+
+    /* Define buttons in DOM */
+    this.playBtn = this.querySelector("#play-game-btn");
+    this.updateBtn = this.querySelector("#update-game-btn");
+    this.deleteBtn = this.querySelector("#delete-game-btn");
+  }
   /**
    * Search for a compatible game launcher for the current OS.
    * @param {String} gameDir Directory where looking for the launcher

@@ -112,4 +112,5 @@ contextBridge.exposeInMainWorld("F95", {
   getGameData: (name, includeMods) => F95API.getGameData(name, includeMods),
   getGameVersion: (gameinfo) => F95API.getGameVersion(gameinfo),
   loadF95BaseData: () => F95API.loadF95BaseData(),
+  logout: () => F95API.logout
 });
