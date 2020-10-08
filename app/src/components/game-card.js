@@ -130,7 +130,7 @@ class GameCard extends HTMLElement {
     if (window.osPlatform === "win32") extension = "exe";
     else if (window.osPlatform === "darwin") extension = "sh";
     // TODO -> not so sure
-    else if ((window.osPlatform === "linux")) extension = "py";
+    else if (window.osPlatform === "linux") extension = "py";
     // TODO -> not so sure
     else return null;
 
