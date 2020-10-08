@@ -1,4 +1,7 @@
 [![DeepSource](https://deepsource.io/gh/MillenniumEarl/F95GameUpdater.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/MillenniumEarl/F95GameUpdater/?ref=repository-badge)
+[![CodeFactor](https://www.codefactor.io/repository/github/millenniumearl/f95gameupdater/badge)](https://www.codefactor.io/repository/github/millenniumearl/f95gameupdater)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMillenniumEarl%2FF95GameUpdater.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FMillenniumEarl%2FF95GameUpdater?ref=badge_shield)
+[![Known Vulnerabilities](https://snyk.io/test/github/MillenniumEarl/F95GameUpdater/badge.svg)](https://snyk.io/test/github/MillenniumEarl/F95GameUpdater)
 
 # F95GameUpdater
 
