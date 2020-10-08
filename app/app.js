@@ -2,7 +2,6 @@
 
 // Core modules
 const path = require("path");
-const fs = require("fs");
 
 // Public modules from npm
 const { app, BrowserWindow, shell, ipcMain, dialog } = require("electron");
