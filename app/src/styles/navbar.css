@@ -4,12 +4,12 @@
 /*### Manage size for the 'tabs' component generated with materialize-css ###*/
 div.row, .row, ul.tabs{
     width: 100%;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 }
 
 /*### Manage colors for the 'tabs' component generated with materialize-css ###*/
-div.row, .row, ul.tabs {
+div.row, ul.tabs {
     background-color: var(--navbar-bg-color);
 }
 /* Background color of the entire component */

@@ -10,7 +10,7 @@ a.btn, a.btn:hover {
 /*### Handle position for floating button ###*/
 a.fab, a.fab:hover {
     position: absolute;
-    bottom: 25px; 
+    bottom: 25px;
     right: 25px;
     background-color: var(--secondary-app-color);
 }

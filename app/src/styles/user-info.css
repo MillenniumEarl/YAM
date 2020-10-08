@@ -29,7 +29,7 @@ div.row {
 }
 
 .col-username {
-    padding: 0px !important;
+    padding: 0 !important;
     display: none;
 }
 
