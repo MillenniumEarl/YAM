@@ -16,16 +16,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       let username = credentials["username"];
       let password = credentials["password"];
+      
+      // "Select" the textboxes to not overlap textual values and placeholder text
+      document.querySelector("label[for='username']").classList.add("active");
+      document.querySelector("label[for='password']").classList.add("active");
 
-      // Insert credentials in input and "select" the textboxes
-      let usernameElement = document.getElementById("username");
-      let passwordElement = document.getElementById("password");
-
-      usernameElement.value = username;
-      usernameElement.focus(); // TODO: Not work
-
-      passwordElement.value = password;
-      passwordElement.focus(); // TODO: Not work
+      // Insert credentials in textboxes
+      document.getElementById("username").value = username;
+      document.getElementById("password").value = password;
 
       // Try to log-in
       login(username, password);

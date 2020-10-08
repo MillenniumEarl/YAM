@@ -10,41 +10,41 @@ div.row, .row, ul.tabs{
 
 /*### Manage colors for the 'tabs' component generated with materialize-css ###*/
 div.row, ul.tabs {
-    background-color: var(--navbar-bg-color);
+    background-color: var(--primary-dark);
 }
 /* Background color of the entire component */
 
 li.tab {
-    background-color: var(--navbar-bg-color);
-    color: var(--main-text-color);
+    background-color: var(--primary-dark);
+    color: var(--text-on-primary);
 }
 /* Colors of the single "tab" */
 
 .tabs .tab a {
-    color: var(--main-text-color);
+    color: var(--text-on-primary);
 }
 /* Text color when not selected*/
 
 li.tab:active, .tabs .tab a.active {
-    background-color: var(--navbar-light-color);
-    color: var(--secondary-app-color);
+    background-color: var(--primary-light);
+    color: var(--secondary-app);
 }
 /* Colors of the single "tab" selected */
 
 li.tab:hover, .tabs .tab a:hover {
-    background-color: var(--navbar-light-color);
-    color: var(--secondary-app-color);
+    background-color: var(--primary-light);
+    color: var(--secondary-app);
 }
 /* Colors of the single "tab" on mouseover */
 
 .tabs .indicator {
-    background-color: var(--secondary-app-color);
+    background-color: var(--secondary-app);
 }
 /* Background color of the navigator tab indicator (lower bar) */
 
 .tabs .tab a:focus, .tabs .tab a:focus.active {
-    background-color: var(--navbar-light-color);
-    color: var(--secondary-app-color);
+    background-color: var(--primary-light);
+    color: var(--secondary-app);
 }
 /* Color of the single "tab" (of the internal link) when selected */
 

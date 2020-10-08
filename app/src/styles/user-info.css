@@ -40,6 +40,6 @@ div.row {
 
 a.btn,
 a.btn:hover {
-    background-color: var(--secondary-app-color);
-    color: var(--main-text-color);
+    background-color: var(--secondary-app);
+    color: var(--text-on-primary);
 }

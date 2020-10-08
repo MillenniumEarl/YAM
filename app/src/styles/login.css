@@ -3,8 +3,8 @@
 
 body {
     font-family: Roboto;
-    background-color: var(--navbar-light-color);
-    color: var(--main-text-color);
+    background-color: var(--primary-app);
+    color: var(--text-on-primary);
 }
 
 #inner {
@@ -30,75 +30,75 @@ div.input-field{
 #error-message{
     padding-left: 10px;
     padding-right: 10px;
-    color: var(--main-text-color);
+    color: var(--text-on-primary);
 }
 
 /*### Handles colors for buttons generated with materialize-css ###*/
 #login-btn,
 #login-btn:hover {
     background-color: var(--button-accept-color);
-    color: var(--main-text-color);
+    color: var(--text-on-primary);
 }
 
 #cancel-btn,
 #cancel-btn:hover {
     background-color: var(--button-neutral-color);
-    color: var(--main-text-color);
+    color: var(--text-on-primary);
 }
 
 /*### Input textbox ###*/
 #username, #password {
-    color: var(--main-text-color);
+    color: var(--text-on-primary);
 }
 
 /* label focus color */
 .input-field input:focus+label {
-    color: var(--secondary-app-color) !important;
+    color: var(--secondary-app) !important;
 }
 
 /* label underline focus color */
 .input-field input:focus {
-    border-bottom: 1px solid var(--secondary-app-color) !important;
-    box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
-    color: var(--main-text-color);
+    border-bottom: 1px solid var(--secondary-app) !important;
+    box-shadow: 0 1px 0 0 var(--secondary-app) !important;
+    color: var(--text-on-primary);
 }
 
 /* valid color */
 .input-field input.valid {
-    border-bottom: 1px solid var(--secondary-app-color) !important;
-    box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
-    color: var(--main-text-color);
+    border-bottom: 1px solid var(--secondary-app) !important;
+    box-shadow: 0 1px 0 0 var(--secondary-app) !important;
+    color: var(--text-on-primary);
 }
 
 /* invalid color */
 .input-field input.invalid {
-    border-bottom: 1px solid var(--secondary-app-color) !important;
-    box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
-    color: var(--main-text-color);
+    border-bottom: 1px solid var(--secondary-app) !important;
+    box-shadow: 0 1px 0 0 var(--secondary-app) !important;
+    color: var(--text-on-primary);
 }
 
 /* icon prefix focus color */
 .input-field .prefix.active {
-    color: var(--secondary-app-color) !important;
+    color: var(--secondary-app) !important;
 }
 
 input:not(.browser-default):focus:not([readonly]) {
-    border-bottom: 1px solid var(--secondary-app-color) !important;
-    box-shadow: 0 1px 0 0 var(--secondary-app-color) !important;
-    color: var(--main-text-color);
+    border-bottom: 1px solid var(--secondary-app) !important;
+    box-shadow: 0 1px 0 0 var(--secondary-app) !important;
+    color: var(--text-on-primary);
 }
 
 input:not(.browser-default):focus:not([readonly])+label {
-    color: var(--secondary-app-color) !important;
+    color: var(--secondary-app) !important;
 }
 
 /*### Manage the style for the preload bar ###*/
 div.progress {
     margin: 0;
     display: none;
-    background-color: var(--gamecard-background-color);
+    background-color: var(--primary-app);
 }
 
 .progress .indeterminate {
-    background-color: var(--secondary-app-color);
+    background-color: var(--secondary-app);
 }
