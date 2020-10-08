@@ -1,13 +1,29 @@
 {
+  "main": "./app/app.js",
   "name": "f95-game-updater",
   "version": "0.0.0",
-  "description": "F95 Game Updater",
-  "main": "./app/app.js",
   "author": {
     "name": "Millennium Earl"
   },
+  "description": "Unoffical Game Updater for the F95Zone platform",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MillenniumEarl/F95GameUpdater.git"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "keywords": [
+    "game",
+    "games",
+    "updater",
+    "f95zone",
+    "f95"
+  ],
   "scripts": {
     "start": "electron ."
+  },
+  "engines": {
+    "node": ">=10.0"
   },
   "dependencies": {
     "electron": "^10.1.1",
