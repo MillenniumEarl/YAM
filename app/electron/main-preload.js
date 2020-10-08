@@ -59,7 +59,7 @@ contextBridge.exposeInMainWorld("API", {
   invoke: (channel, ...data) => {
     // Send a custom message
     if (validSendChannels.includes(channel)) {
-      ipcRenderer.invoke(channel, data);
+      return ipcRenderer.invoke(channel, data);
     }
   },
   send: (channel, ...data) => {
@@ -108,7 +108,7 @@ contextBridge.exposeInMainWorld("F95", {
   UserData: new F95API.UserData(),
   GameInfo: new F95API.GameInfo(),
   login: (username, password) => F95API.login(username, password),
-  getUserData: F95API.getUserData(),
+  getUserData: () => F95API.getUserData(),
   getGameData: (name, includeMods) => F95API.getGameData(name, includeMods),
   getGameVersion: (gameinfo) => F95API.getGameVersion(gameinfo),
   loadF95BaseData: () => F95API.loadF95BaseData(),

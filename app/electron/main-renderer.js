@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let tabNavigator = document.getElementById("navigator-tab");
   M.Tabs.init(tabNavigator, {});
 
-  // Get the element with class="default-open-tab" and click on it
-  document.getElementsByClassName("deafult-open-tab").click();
+  // Get the element with id="default-open-tab" and click on it
+  document.getElementById("default-open-tab").click();
 
   // Load the cached games
   loadCachedGames();
@@ -27,7 +27,7 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
   let gameCards = document.querySelectorAll("game-card");
 
   // Hide the column which the game-card belong
-  // if it"s games with a title that not match the search query
+  // if it's games with a title that not match the search query
   for (let gameCard of gameCards) {
     if (!gameCards.info.name.startsWith(searchText)) {
       gameCard.parentNode.style.display = "none";
@@ -54,29 +54,30 @@ document.querySelector("#add-game-btn").addEventListener("click", () => {
     title: "Select game directory",
     properties: ["openDirectory"],
   };
-
-  window.API.invoke("open-dialog", this, openDialogOptions).then((data) => {
+  
+  window.API.invoke("open-dialog", openDialogOptions)
+    .then((data) => {
     // No folder selected
     if (data.filePaths.length === 0) return;
 
     // Parse the game dir name(s)
     for (let path of data.filePaths) {
-      getGameFromPath(path).then(function (result) {
+      getGameFromPath(path)
+        .then(function (result) {
         if (!result["result"]) {
           // Send the error message to the user if the game is not found
-          let warningDialogOptions = {
-            type: "warning",
-            buttons: ["OK"],
-            defaultId: 0,
-            title: "Game not detected",
-            message: result["message"],
-            detail:
-              "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
-          };
-
-          // Send a message to the user
-          window.API.send("message-dialog", this, warningDialogOptions);
+          sendMessageToUserWrapper("warning", 
+          "Game not detected", 
+          result["message"], 
+          "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)");
         }
+      })
+      .catch(function(error) {
+        // Send error message
+        sendMessageToUserWrapper("error",
+          "Unexpected error",
+          "Cannot retrieve game data, unexpected error: " + error,
+          "");
       });
     }
   });
@@ -209,18 +210,11 @@ function loadCachedGames() {
 function login() {
   // Check network connection
   if (!window.API.isOnline) {
-    let options = {
-      type: "warning",
-      buttons: ["OK"],
-      defaultId: 0,
-      title: "No connection",
-      message: "No network connection detected, unable to login to F95Zone",
-      detail:
-        "The lack of connection prevents you from logging in and updating the games but still allows you to play them",
-    };
-
-    // Send a message to the user
-    window.API.send("message-dialog", this, options);
+    // Send error message
+    sendMessageToUserWrapper("warining",
+      "No connection",
+      "No network connection detected, unable to login to F95Zone",
+      "The lack of connection prevents you from logging in and updating the games but still allows you to play them");
     console.warn("No network connection, cannot login");
     return;
   }
@@ -270,7 +264,7 @@ async function getGameFromPath(path) {
   // TODO: Search for updates
   return {
     result: true,
-    message: name + " addedd correctly",
+    message: name + " added correctly",
   };
 }
 
@@ -327,6 +321,38 @@ function getGameVersionFromName(name) {
 
   return version;
 }
+
+function sendMessageToUserWrapper(type, title, message, detail) {
+  // Send the error message to the user if the game is not found
+  let warningDialogOptions = {
+    type: type,
+    buttons: ["OK"],
+    defaultId: 0,
+    title: title, 
+    message: message,
+    detail: detail
+  };
+
+  // Send a message to the user
+  window.API.send("message-dialog", warningDialogOptions);
+}
+
+async function getUserDataFromF95() {
+  // Retrieve user data
+  let userdata = await window.F95.getUserData();
+
+  // Check user data
+  if (userdata === null || !userdata) {
+    // Send error message
+    sendMessageToUserWrapper("error",
+      "Unexpected error",
+      "Cannot retrieve user data",
+      "");
+  }
+
+  // Update component
+  document.getElementById("user-info").userdata = userdata;
+}
 //#endregion Private methods
 
 //#region IPC receive
@@ -345,6 +371,7 @@ window.API.receive("window-closing", function () {
 
 // Called when the result of the authentication are ready
 window.API.receive("auth-result", (args) => {
+  // Parse args
   let result = args[0];
   let username = args[1];
   let password = args[2];
@@ -353,11 +380,17 @@ window.API.receive("auth-result", (args) => {
   if (result !== "AUTHENTICATED") return;
 
   // Load data (session not shared between windows)
-  window.F95.login(username, password).then(
-    window.F95.loadF95BaseData().then(function () {
-      // TODO: Use new component
-      // // Show "add game" button
-      // document.getElementById("add-game-btn").style.display = "block";
+  window.F95.login(username, password)
+    .then(function () {
+        // Load F95 base data
+        window.F95.loadF95BaseData();
+
+        // Load user data
+        getUserDataFromF95();
+
+        // Show "add game" button
+        document.getElementById("add-game-btn").style.display = "block";
+
       // // Hide "login" button
       // document.getElementById("login-btn").style.display = "none";
       // // Check update for all the listed games
@@ -366,6 +399,12 @@ window.API.receive("auth-result", (args) => {
       //   card.checkUpdates();
       // }
     })
-  );
+    .catch(function(error) {
+      // Send error message
+      sendMessageToUserWrapper("error",
+        "Unexpected error",
+        "Cannot login, unexpected error: " + error,
+        "");
+    });
 });
 //#endregion IPC receive

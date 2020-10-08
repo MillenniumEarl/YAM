@@ -131,6 +131,7 @@ ipcMain.on("auth-result", function (e, result, username, password) {
 ipcMain.on("exec", function (e, filename) {
   runApplication(filename);
 });
+
 // Return the current app.js path (Current App Working Directory)
 ipcMain.handle("cawd", function (e) {
   return app.getAppPath();
@@ -155,19 +156,19 @@ ipcMain.handle("credentials-path", function (e) {
 
 //#endregion Shared app variables
 
-//#region IPC dialog
-ipcMain.handle("message-dialog", function (e, window, options) {
-  return dialog.showMessageBox(window, options);
+//#region IPC dialog for main window
+ipcMain.handle("message-dialog", function (e, options) {
+  return dialog.showMessageBox(mainWindow, options[0]);
 });
 
-ipcMain.handle("open-dialog", function (e, window, options) {
-  return dialog.showOpenDialog(window, options);
+ipcMain.handle("open-dialog", function (e, options) {
+  return dialog.showOpenDialog(mainWindow, options[0]);
 });
 
-ipcMain.handle("save-dialog", function (e, window, options) {
-  return dialog.showSaveDialog(window, options);
+ipcMain.handle("save-dialog", function (e, options) {
+  return dialog.showSaveDialog(mainWindow, options[0]);
 });
-//#endregion IPC dialog
+//#endregion IPC dialog for main window
 
 //#endregion IPC Communication
 

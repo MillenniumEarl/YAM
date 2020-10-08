@@ -22,10 +22,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       let passwordElement = document.getElementById("password");
 
       usernameElement.value = username;
-      usernameElement.click();
+      usernameElement.focus(); // TODO: Not work
 
       passwordElement.value = password;
-      passwordElement.click();
+      passwordElement.focus(); // TODO: Not work
 
       // Try to log-in
       login(username, password);

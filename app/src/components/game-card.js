@@ -10,13 +10,8 @@ class GameCard extends HTMLElement {
     /* Defines the HTML code of the custom element */
     let template = document.createElement("template");
 
-    /* Binds the methods to the class's methods */
-    // this.play = playGame.bind(this);
-    // this.update = updateGame.bind(this);
-    // this.delete = deleteGame.bind(this);
-
     /* Synchronous read of the HTML template */
-    template.innerHTML = window.API.readSync("game-card.html");
+    template.innerHTML = window.IO.readSync("game-card.html");
     this.attachShadow({
       mode: "open",
     });
@@ -130,12 +125,12 @@ class GameCard extends HTMLElement {
    */
   getGameLauncher(gameDir) {
     // Get the extension matching the current OS
-    var extension = "";
+    let extension = "";
 
-    if (window.osPlatform == "win32") extension = "exe";
-    else if (window.osPlatform == "darwin") extension = "sh";
+    if (window.osPlatform === "win32") extension = "exe";
+    else if (window.osPlatform === "darwin") extension = "sh";
     // TODO -> not so sure
-    else if ((window.osPlatform = "linux")) extension = "py";
+    else if ((window.osPlatform === "linux")) extension = "py";
     // TODO -> not so sure
     else return null;
 

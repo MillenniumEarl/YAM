@@ -53,7 +53,7 @@ class UserInfo extends HTMLElement {
     this._userdata = val;
 
     // Update shadow DOM
-    this.shadowRoot.getElementById("avatar").setAttribute("src", val.avatarSrc);
+    if (val.avatarSrc) this.shadowRoot.getElementById("avatar").setAttribute("src", val.avatarSrc);
     this.shadowRoot.getElementById("username").innerText = val.username;
     this.shadowRoot.querySelector(".col-username").style.display =
       "inline-block";
