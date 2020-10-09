@@ -31,6 +31,38 @@ class GameCard extends HTMLElement {
     this.deleteBtn.removeEventListener("click", this.delete);
   }
 
+  /**
+   * Triggered when a observed attribute change
+   * @param {String} name 
+   * @param {*} oldValue 
+   * @param {*} newValue 
+   */
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name == 'updateAvailable' && oldValue !== newValue) {
+      console.log(newValue);
+      // An update is available, show the button
+      this.updateBtn.style.display = "block";
+
+      // Change the text of the button
+      this.updateBtn.innerText = "Update (" + newValue + ")";
+    }
+  }
+
+  //#region Attributes
+  static get observedAttributes() {
+    // Specify the attributes that, when changed, trigger the 'attributeChangedCallback'
+    return ['updateAvailable'];
+  }
+
+  /**
+   * @param {Boolean} value
+   */
+  set updateAvailable(value) {
+    this.setAttribute('updateAvailable', Boolean(value));
+  }
+  //#endregion Attributes
+
+  //#region Properties
   set info(value) {
     if (!value) return;
     this._info = value;
@@ -55,6 +87,7 @@ class GameCard extends HTMLElement {
   get info() {
     return this._info;
   }
+  //#endregion Properties
 
   //#region Events
   /**
@@ -66,7 +99,7 @@ class GameCard extends HTMLElement {
     let launcherPath = await this.getGameLauncher(this._info.gameDir);
 
     // Raise the event
-    this.playClickEvent = new CustomEvent("play", {
+    let playClickEvent = new CustomEvent("play", {
       detail: {
         launcher: launcherPath,
       },
@@ -80,9 +113,9 @@ class GameCard extends HTMLElement {
    */
   update() {
     // Raise the event
-    this.updateClickEvent = new CustomEvent("update", {
+    updateClickEvent = new CustomEvent("update", {
       detail: {
-        // TODO: Add download info
+        downloadInfo: this._info.downloadInfo,
         gameDir: this._info.gameDir,
       },
     });
@@ -95,7 +128,7 @@ class GameCard extends HTMLElement {
    */
   delete() {
     // Raise the event
-    this.deleteClickEvent = new CustomEvent("delete", {
+    deleteClickEvent = new CustomEvent("delete", {
       detail: {
         gameDir: this._info.gameDir,
       },
@@ -159,7 +192,7 @@ class GameCard extends HTMLElement {
 
     // Return executable
     if (files.length === 0) return null;
-    else return window.join(gameDir, files[0]);
+    else return window.API.join(gameDir, files[0]);
   }
 
   /**

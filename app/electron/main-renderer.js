@@ -9,10 +9,12 @@ document.addEventListener("DOMContentLoaded", function () {
   openPage('games-tab');
 
   // Load the cached games
-  loadCachedGames();
-
-  // Login to F95Zone
-  login();
+  loadCachedGames()
+  .then(function() {
+    // Login after loading games to 
+    // allow the games to search for updates
+    login();
+  });
 });
 
 /*### Text changed events ###*/
@@ -28,7 +30,7 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
   // Hide the column which the game-card belong
   // if it's games with a title that not match the search query
   for (let gameCard of gameCards) {
-    if (!gameCard.info.name.startsWith(searchText)) {
+    if (!gameCard.info.name.toUpperCase().startsWith(searchText)) {
       gameCard.parentNode.style.display = "none";
     } else {
       gameCard.parentNode.style.display = "block";
@@ -45,7 +47,8 @@ document.querySelector("#add-game-btn").addEventListener("click", () => {
     properties: ["openDirectory"],
   };
 
-  window.API.invoke("open-dialog", openDialogOptions).then((data) => {
+  window.API.invoke("open-dialog", openDialogOptions)
+  .then((data) => {
     // No folder selected
     if (data.filePaths.length === 0) return;
 
@@ -53,6 +56,7 @@ document.querySelector("#add-game-btn").addEventListener("click", () => {
     for (let path of data.filePaths) {
       getGameFromPath(path)
         .then(function (result) {
+          console.log(result);
           if (!result["result"]) {
             // Send the error message to the user if the game is not found
             sendMessageToUserWrapper(
@@ -77,6 +81,11 @@ document.querySelector("#add-game-btn").addEventListener("click", () => {
 });
 
 //#region Private methods
+/**
+ * @private
+ * Select the tab with the specified ID in DOM.
+ * @param {String} pageID 
+ */
 function openPage(pageID) {
   // Local variables
   let i, tabcontent;
@@ -152,9 +161,13 @@ function addGameCard() {
   return gameCard;
 }
 
+/**
+ * @private
+ * Add the event listeners (play/update/delete) to a specific GameCard.
+ * @param {GameCard} gamecard Object to add the listeners to
+ */
 function addEventListenerToGameCard(gamecard) {
   gamecard.addEventListener('play', function (e) {
-    console.log("Play!");
     if (e.target) {
       let launcherPath = e.detail["launcher"];
       window.API.send("exec", launcherPath);
@@ -163,9 +176,19 @@ function addEventListenerToGameCard(gamecard) {
 
   gamecard.addEventListener('update', function (e) {
     if (e.target) {
+      console.log("Update!");
+
+      // Parse info
       let gameDir = e.detail["gameDir"];
-      // TODO: Get download info
-      // TODO: Download and install
+      let downloadInfo = e.detail["downloadInfo"];
+
+      // Download and install (first hosting platoform in list)
+      for (let di of downloadInfo) {
+        if (di.supportedOS.includes(window.API.platform)) {
+          di.download(gameDir);
+          break;
+        }
+      }
     }
   });
 
@@ -205,22 +228,50 @@ function removeSpecials(str, allowedChars) {
  * @private
  * Load the data of the cached game and display them in the main window.
  */
-function loadCachedGames() {
+async function loadCachedGames() {
   console.log("Load cached games...");
 
   // Get all the .json files in the game dir and create a <game-card> for each of them
-  window.API.invoke("games-data-dir")
-  .then(function (gamesDir) {
-    window.IO.filter("*.json", gamesDir)
-    .then(function (files) {
-      for (let filename of files) {
-        let card = addGameCard();
-        let gameJSONPath = window.API.join(gamesDir, filename);
-        card.loadGameData(gameJSONPath);
-      }
-      console.log("Loading completed");
-    });
+  let gamesDir = await window.API.invoke("games-data-dir");
+  let files = await window.IO.filter("*.json", gamesDir);
+
+  // Load data in game-cards
+  let promisesList = [];
+  for (let filename of files) {
+    let card = addGameCard();
+    let gameJSONPath = window.API.join(gamesDir, filename);
+
+    let promise = card.loadGameData(gameJSONPath);
+    promisesList.push(promise);
+  }
+
+  // Write end log
+  Promise.all(promisesList).then(function() {
+    console.log("Cached games loaded");
   });
+}
+
+/**
+ * @private
+ * Check the version of the listed games 
+ * in the game-card components in DOM.
+ */
+async function checkVersionCachedGames() {
+  console.log("Checking games updates...");
+
+  // Get all the gamecards in DOM
+  let cardGames = document.querySelectorAll("game-card");
+  for (let card of cardGames) {
+    // Get version
+    let onlineVersion = await window.F95.getGameVersion(card.info);
+    
+    // Trigger the component
+    if(onlineVersion !== card.info.version) {
+      card.updateAvailable = onlineVersion;
+    }
+  }
+
+  console.log("Games updates checked");
 }
 
 /**
@@ -283,12 +334,14 @@ async function getGameFromPath(path) {
   // Add the game
   let firstGame = resultInfo.pop();
   let card = addGameCard();
+  let onlineVersion = firstGame.version;
+
+  // Update local data
   firstGame.gameDir = path;
   firstGame.version = version;
   card.info = firstGame;
-  console.log(info.preview);
-
-  // TODO: Search for updates
+  if (onlineVersion !== version) card.updateAvailable = onlineVersion;
+  
   return {
     result: true,
     message: name + " added correctly",
@@ -349,6 +402,14 @@ function getGameVersionFromName(name) {
   return version;
 }
 
+/**
+ * @private
+ * Wrapper to show a plain message box to the user.
+ * @param {String} type Type of message (*error/warning/...*)
+ * @param {String} title Title of the window
+ * @param {String} message Message to the user
+ * @param {String} detail Submessage to the user
+ */
 function sendMessageToUserWrapper(type, title, message, detail) {
   // Send the error message to the user if the game is not found
   let warningDialogOptions = {
@@ -364,6 +425,10 @@ function sendMessageToUserWrapper(type, title, message, detail) {
   window.API.send("message-dialog", warningDialogOptions);
 }
 
+/**
+ * @private
+ * Obtain data of the logged user and show them in the custom element "user-info".
+ */
 async function getUserDataFromF95() {
   // Retrieve user data
   let userdata = await window.F95.getUserData();
@@ -424,16 +489,11 @@ window.API.receive("auth-result", (args) => {
       // Load user data
       getUserDataFromF95();
 
+      // Check games updates
+      checkVersionCachedGames();
+
       // Show "add game" button
       document.getElementById("add-game-btn").style.display = "block";
-
-      // // Hide "login" button
-      // document.getElementById("login-btn").style.display = "none";
-      // // Check update for all the listed games
-      // let cardGames = document.querySelectorAll("game-card");
-      // for (let card of cardGames) {
-      //   card.checkUpdates();
-      // }
     })
     .catch(function (error) {
       // Send error message

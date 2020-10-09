@@ -4,10 +4,18 @@
 const path = require("path");
 
 // Public modules from npm
-const { app, BrowserWindow, shell, ipcMain, dialog } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  dialog
+} = require("electron");
 
 // Modules from file
-const { runApplication } = require("./src/scripts/io-operations.js");
+const {
+  runApplication
+} = require("./src/scripts/io-operations.js");
 const Shared = require("./src/scripts/shared.js");
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -107,11 +115,10 @@ ipcMain.on("login-required", function (e) {
   console.log("Login required from main window");
 
   // Avoid multiple instance of the login window
-  if(loginWindow) {
+  if (loginWindow) {
     console.log("Login window already active");
     return;
-  }
-  else createLoginWindow();
+  } else createLoginWindow();
 });
 
 // Called when the main window has saved all
@@ -134,7 +141,7 @@ ipcMain.on("auth-result", function (e, result, username, password) {
 
 // Execute the file passed as parameter
 ipcMain.on("exec", function (e, filename) {
-  runApplication(filename);
+  runApplication(...filename);
 });
 
 // Return the current app.js path (Current App Working Directory)

@@ -14,9 +14,11 @@ const { shell } = require("electron");
  */
 module.exports.runApplication = async function (path) {
   console.log("Executing " + path);
-  shell.openPath(path).then((err) => {
+  shell.openPath(path)
+  .then((err) => {
     if (err) console.error("Failed to start subprocess: " + err);
-  });
+  })
+  .catch((error) => console.error("Failed to start subprocess: " + error));
 };
 /**
  * @protected
