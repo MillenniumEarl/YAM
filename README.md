@@ -16,7 +16,6 @@ project
 ..\electron
 ..\src
 ..\..\components
-..\..\..\vue?
 ..\..\styles
 ..\..\scripts
 \docs
@@ -42,6 +41,3 @@ Also it will implement IPC and ContextBridge in the preloads.
 
 For more information about secure use of IPC see:
 https://github.com/reZach/secure-electron-template/blob/master/docs/newtoelectron.md
-
-For how to use the IPC-based JSON store see:
-https://github.com/reZach/secure-electron-store
