@@ -35,6 +35,10 @@
 }
 
 /*### Class elements ###*/
+.inline {
+    display: inline-block;
+}
+
 .action-p {
     padding-top: 5px;
 }
@@ -51,18 +55,6 @@
     font-family: Roboto;
 }
 
-/*### Generic elements ###*/
-/*Manage the style for the preload bar*/
-div.progress {
-    margin: 0;
-    display: none;
-    background-color: var(--primary-gc);
-}
-
-.progress .indeterminate {
-    background-color: var(--secondary-app);
-}
-
 /* Handles color for the various part of the card */
 .card-description {
     color: var(--text-on-primary-gc);
@@ -76,7 +68,19 @@ div.progress {
     color: black;
 }
 
-/* Set font family for <pre> tag*/
+/*### Generic elements ###*/
+/*Manage the style for the preload bar*/
+div.progress {
+    margin: 0;
+    display: none;
+    background-color: var(--primary-gc);
+}
+
+.progress .indeterminate {
+    background-color: var(--secondary-app);
+}
+
+/* Set font family for <span> tag*/
 pre {
     font-family: Roboto;
 }

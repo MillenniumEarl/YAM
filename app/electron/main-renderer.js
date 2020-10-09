@@ -29,7 +29,7 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
   // Hide the column which the game-card belong
   // if it's games with a title that not match the search query
   for (let gameCard of gameCards) {
-    if (!gameCards.info.name.startsWith(searchText)) {
+    if (!gameCard.info.name.startsWith(searchText)) {
       gameCard.parentNode.style.display = "none";
     } else {
       gameCard.parentNode.style.display = "block";
