@@ -5,9 +5,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initialize the navigator-tab
   let tabNavigator = document.getElementById("navigator-tab");
   M.Tabs.init(tabNavigator, {});
-
-  // Get the element with id="default-open-tab" and click on it
-  document.getElementById("default-open-tab").click();
+  // Select the defualt page
+  openPage('games-tab');
 
   // Load the cached games
   loadCachedGames();
@@ -35,15 +34,6 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
       gameCard.parentNode.style.display = "block";
     }
   }
-  // TODO: Check if works
-  // for (let i = 0; i < gameCards.length; i++) {
-  //   let gameName = gameCards[i].info.name.toUpperCase();
-  //   if (!gameName.startsWith(searchText)) {
-  //     gameCards[i].parentNode.style.display = "none";
-  //   } else {
-  //     gameCards[i].parentNode.style.display = "block";
-  //   }
-  // }
 });
 
 /*### Click events ###*/
@@ -87,7 +77,7 @@ document.querySelector("#add-game-btn").addEventListener("click", () => {
 });
 
 //#region Private methods
-function openPage(pageName) {
+function openPage(pageID) {
   // Local variables
   let i, tabcontent;
 
@@ -98,7 +88,7 @@ function openPage(pageName) {
   }
 
   // Show the specific tab content
-  document.getElementById(pageName).style.display = "block";
+  document.getElementById(pageID).style.display = "block";
 }
 
 /**
@@ -131,6 +121,7 @@ function addGameCard() {
   // 2 - When connect the element to DOM
   // 3 - Lastly. we can change the "gamedata" property
   let gameCard = document.createElement("game-card");
+  addEventListenerToGameCard(gameCard);
 
   // Create a simil-table layout wit materialize-css
   // "s4" means that the element occupies 4 of 12 columns
@@ -159,6 +150,31 @@ function addGameCard() {
   row.appendChild(column);
 
   return gameCard;
+}
+
+function addEventListenerToGameCard(gamecard) {
+  gamecard.addEventListener('play', function (e) {
+    console.log("Play!");
+    if (e.target) {
+      let launcherPath = e.detail["launcher"];
+      window.API.send("exec", launcherPath);
+    }
+  });
+
+  gamecard.addEventListener('update', function (e) {
+    if (e.target) {
+      let gameDir = e.detail["gameDir"];
+      // TODO: Get download info
+      // TODO: Download and install
+    }
+  });
+
+  gamecard.addEventListener('delete', function (e) {
+    if (e.target) {
+      let gameDir = e.detail["gameDir"];
+      window.IO.deleteFolder(gameDir);
+    }
+  });
 }
 
 /**
@@ -193,11 +209,14 @@ function loadCachedGames() {
   console.log("Load cached games...");
 
   // Get all the .json files in the game dir and create a <game-card> for each of them
-  window.API.invoke("games-data-dir").then(function (dir) {
-    window.IO.filter("*.json", dir).then(function (files) {
-      for (const filename of files) {
+  window.API.invoke("games-data-dir")
+  .then(function (gamesDir) {
+    window.IO.filter("*.json", gamesDir)
+    .then(function (files) {
+      for (let filename of files) {
         let card = addGameCard();
-        // TODO card.datapath = window.API.join(window.API.gameDataDir, filename);
+        let gameJSONPath = window.API.join(gamesDir, filename);
+        card.loadGameData(gameJSONPath);
       }
       console.log("Loading completed");
     });
@@ -265,7 +284,9 @@ async function getGameFromPath(path) {
   let firstGame = resultInfo.pop();
   let card = addGameCard();
   firstGame.gameDir = path;
-  card.info = firstGame
+  firstGame.version = version;
+  card.info = firstGame;
+  console.log(info.preview);
 
   // TODO: Search for updates
   return {
@@ -366,18 +387,22 @@ async function getUserDataFromF95() {
 //#region IPC receive
 // Called when the window is being closed
 window.API.receive("window-closing", function () {
-  // Remove all the GameCards to allow saving data
+  // Save data game
   let cardGames = document.querySelectorAll("game-card");
+  let promiseList = [];
   for (let card of cardGames) {
-    // Remove the <div> containing the card
-    card.parentNode.removeChild(card);
+    let promise = card.saveGameData();
+    promiseList.push(promise);
   }
 
-  // Close F95 browser
-  window.F95.logout();
+  Promise.all(promiseList)
+  .then(function() {
+    // Close F95 browser
+    window.F95.logout();
 
-  // Tell the main process to close this BrowserWindow
-  window.API.send("main-window-closing");
+    // Tell the main process to close this BrowserWindow
+    window.API.send("main-window-closing");
+  });
 });
 
 // Called when the result of the authentication are ready

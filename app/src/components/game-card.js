@@ -61,9 +61,9 @@ class GameCard extends HTMLElement {
    * @event
    * Triggered when user wants to play the game.
    */
-  play() {
+  async play() {
     // Get the game launcher
-    let launcherPath = this.getGameLauncher(this._info.gameDir);
+    let launcherPath = await this.getGameLauncher(this._info.gameDir);
 
     // Raise the event
     this.playClickEvent = new CustomEvent("play", {
@@ -79,10 +79,10 @@ class GameCard extends HTMLElement {
    * Triggered when user wants to update the game (and an update is available).
    */
   update() {
-    console.log("update");
     // Raise the event
     this.updateClickEvent = new CustomEvent("update", {
       detail: {
+        // TODO: Add download info
         gameDir: this._info.gameDir,
       },
     });
@@ -94,7 +94,6 @@ class GameCard extends HTMLElement {
    * Triggered when user wants to delete the game.
    */
   delete() {
-    console.log("delete");
     // Raise the event
     this.deleteClickEvent = new CustomEvent("delete", {
       detail: {
@@ -127,34 +126,38 @@ class GameCard extends HTMLElement {
     this.playBtn = this.querySelector("#play-game-btn");
     this.updateBtn = this.querySelector("#update-game-btn");
     this.deleteBtn = this.querySelector("#delete-game-btn");
+
+    /* Bind function to use this */
+    this.loadGameData = this.loadGameData.bind(this);
+    this.saveGameData = this.saveGameData.bind(this);
+    this.play = this.play.bind(this);
+    this.update = this.update.bind(this);
+    this.delete = this.delete.bind(this);
   }
+
   /**
    * Search for a compatible game launcher for the current OS.
    * @param {String} gameDir Directory where looking for the launcher
-   * @returns {String} Launcher of the game or null if no file are found
+   * @returns {Promise<String>} Launcher of the game or null if no file are found
    */
-  getGameLauncher(gameDir) {
+  async getGameLauncher(gameDir) {
     // Get the extension matching the current OS
     let extension = "";
 
-    if (window.osPlatform === "win32") extension = "exe";
-    else if (window.osPlatform === "darwin") extension = "sh";
+    if (window.API.platform === "win32") extension = "exe";
+    else if (window.API.platform === "darwin") extension = "sh";
     // TODO -> not so sure
-    else if (window.osPlatform === "linux") extension = "py";
+    else if (window.API.platform === "linux") extension = "py";
     // TODO -> not so sure
     else return null;
 
     // Find the launcher
-    let files = window.glob.sync("*." + extension, {
-      cwd: gameDir,
-    });
-    if (files.length === 0) {
-      // Try with HTML
-      files = window.glob.sync("*.html", {
-        cwd: gameDir,
-      });
-    }
+    let files = await window.IO.filter("*." + extension, gameDir);
 
+    // Try with HTML
+    if(files.length === 0) files = await window.IO.filter("*.html", gameDir);
+
+    // Return executable
     if (files.length === 0) return null;
     else return window.join(gameDir, files[0]);
   }
@@ -163,67 +166,67 @@ class GameCard extends HTMLElement {
    * @private
    * Download the game cover image.
    * @param {String} name Game name
-   * @param {URL} previewSource Current URL of the image
-   * @returns {String} Local path to the image or null if it was not downloaded
+   * @param {String} previewSource Current URL of the image
+   * @returns {Promise<String>} Local path to the image or null if it was not downloaded
    */
-  downloadGamePreview(name, previewSource) {
+  async downloadGamePreview(name, previewSource) {
     // Check if it's possible to download the image
-    if (previewSource.toString() === "") return null;
-    if (previewSource.toString() === "./images/f95CompactLogo.jpg") return null;
-    if (window.existsSync(previewSource.toString())) return null; // Already downloaded
+    if (previewSource.trim() === "") return null;
+    if (previewSource.trim() === "../../resources/images/f95-logo.jpg") return null;
+    if (await window.IO.fileExists(previewSource)) return null; // Already downloaded
 
     // Get image extension
-    var splitted = previewSource.toString().split(".");
-    var extension = splitted.pop();
-    const IMAGE_NAME = name.replaceAll(" ", "") + "_preview." + extension;
+    let splitted = previewSource.split(".");
+    let extension = splitted.pop();
+    let imageName = name.replaceAll(" ", "") + "_preview." + extension;
 
     // Download image
-    const BASE_DIR = window.AppCostant.GAME_DATA_DIR;
-    var localPreviewPath = window.join(BASE_DIR, IMAGE_NAME);
-    var downloaded = window.downloadImage(previewSource, localPreviewPath);
-
-    if (downloaded) return localPreviewPath;
+    let cawd = await window.API.invoke("cawd");
+    let gameCacheDir = await window.API.invoke("games-data-dir");
+    let localPreviewPath = window.API.join(cawd, gameCacheDir, imageName);
+    let path = await window.API.downloadImage(previewSource, localPreviewPath);
+    
+    if (path) return localPreviewPath;
     else return null;
   }
+  //#endregion Private methods
 
+  //#region Public methods
   /**
-   * @private
+   * @public
    * Save component data to disk as a JSON string.
-   * @param {GameCard} gameCard Component to save data for
    */
-  saveGameData(gameCard) {
+  async saveGameData() {
     // Download preview image
-    var previewLocalPath = downloadGamePreview(
-      gameCard._info.name,
-      gameCard._info.previewSource
+    let previewLocalPath = await this.downloadGamePreview(
+      this._info.name,
+      this._info.previewSource
     );
-    if (previewLocalPath) gameCard._info.previewSource = previewLocalPath;
+    if (previewLocalPath) this._info.previewSource = previewLocalPath;
 
     // Join save path
-    const BASE_DIR = window.AppCostant.GAME_DATA_DIR;
-    const FILE_NAME = gameCard._info.name.replaceAll(" ", "") + "_data.json";
-    var savePath = window.join(BASE_DIR, FILE_NAME);
+    const BASE_DIR = await window.API.invoke("games-data-dir");
+    const FILE_NAME = this._info.name.replaceAll(" ", "").trim() + "_data.json";
+    let savePath = window.API.join(BASE_DIR, FILE_NAME);
 
     // Save the serialized JSON
-    window.writeFileSync(savePath, JSON.stringify(gameCard._info));
+    window.IO.write(savePath, JSON.stringify(this._info));
   }
-
   /**
-   * @private
+   * @public
    * Load component data from disk.
    * @param {String} path Path where the data to be loaded are located
-   * @param {GameCard} gameCard Component to load data for
    */
-  loadGameData(path, gameCard) {
+  async loadGameData(path) {
     // Load the serialized JSON
-    var json = window.readFileSync(path);
-    var obj = JSON.parse(json);
+    let json = await window.IO.read(path);
+    let obj = JSON.parse(json);
 
     // Load object
-    gameCard._info = obj;
+    this.info = obj;
   }
-  //#endregion Private methods
+  //#endregion Public methods
 }
 
-// Let the browser know that game-card> is served by our new class
+// Let the browser know that <game-card> is served by our new class
 customElements.define("game-card", GameCard);

@@ -11,6 +11,7 @@ const { join } = require("path");
 // Public modules from npm
 const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
+const download = require('image-downloader');
 
 // Modules from file
 const {
@@ -56,6 +57,7 @@ let validSendChannels = [
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
   appDir: __dirname.replace("electron", ""),
+  platform: process.platform,
   invoke: (channel, ...data) => {
     // Send a custom message
     if (validSendChannels.includes(channel)) {
@@ -77,6 +79,9 @@ contextBridge.exposeInMainWorld("API", {
   },
   join: (...paths) => join(...paths),
   isOnline: () => navigator.onLine,
+  downloadImage: function(url, dest) {
+    return download.image({url: url, dest: dest});
+  }
 });
 
 // Expose the I/O operations

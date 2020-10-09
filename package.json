@@ -30,6 +30,7 @@
     "electron-online": "^1.0.0",
     "f95api": "MillenniumEarl/F95API#master",
     "glob": "^7.1.6",
+    "image-downloader": "^4.0.1",
     "material-design-icons": "^3.0.1",
     "materialize-css": "materializecss/materialize#v1-dev"
   }
