@@ -11,6 +11,7 @@ const {
   ipcMain,
   dialog
 } = require("electron");
+const prompt = require('electron-prompt');
 
 // Modules from file
 const {
@@ -179,6 +180,10 @@ ipcMain.handle("open-dialog", function (e, options) {
 
 ipcMain.handle("save-dialog", function (e, options) {
   return dialog.showSaveDialog(mainWindow, options[0]);
+});
+
+ipcMain.handle("prompt-dialog", function (e, options) {
+  return prompt(options[0], mainWindow);
 });
 //#endregion IPC dialog for main window
 

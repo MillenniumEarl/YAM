@@ -233,14 +233,14 @@ class GameCard extends HTMLElement {
   }
   /**
    * Used to notificate the GameCard of a new version of the game.
-   * @param {Promise<GameInfo>} promise Promise of the game search 
+   * @param {Promise<GameInfo[]>} promise Promise of the game search (return a list)
    */
   async notificateUpdate(promise) {
     // Show the progress bar
     this.progressbar.style.display = "block";
 
     // Await game data
-    let info = await promise;
+    let info = (await promise).pop();
 
     // An update is available, show the button
     this.querySelector(".update-p").style.display = "block";

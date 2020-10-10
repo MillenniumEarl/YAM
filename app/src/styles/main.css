@@ -17,6 +17,12 @@ body {
   display: none;
 }
 
+.fixed-action-btn {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+}
+
 /*### Set size of avatar image ###*/
 .avatar {
   object-fit: scale-down;

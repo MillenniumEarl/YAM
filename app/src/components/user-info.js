@@ -39,11 +39,12 @@ class UserInfo extends HTMLElement {
     // Update shadow DOM
     if (val.avatarSrc)
       this.querySelector("#avatar")
-        .setAttribute("src", val.avatarSrc.toString()); // toString because it's a URL
+        .setAttribute("src", val.avatarSrc);
     this.querySelector("#username").innerText = val.username;
-    this.querySelector(".col-username").style.display =
+    this.querySelector("div.col-username").style.display =
       "inline-block";
-    this.querySelector(".col-login").style.display = "none";
+    this.querySelector("div.col-login").style.display = "none";
+    this.querySelector("div.col-spinner").style.display = "none";
   }
 
   //#region Events
@@ -52,6 +53,9 @@ class UserInfo extends HTMLElement {
    * Triggered when user wants to play the game.
    */
   login() {
+    // Show the spinner
+    this.showSpinner();
+
     // Raise the event
     this.loginClickEvent = new Event("login");
     this.dispatchEvent(this.loginClickEvent);
@@ -78,8 +82,25 @@ class UserInfo extends HTMLElement {
 
     /* Define buttons in DOM */
     this.loginBtn = this.querySelector("#login-btn");
+
+    /* Bind function to use this */
+    this.login = this.login.bind(this);
+    this.showSpinner = this.showSpinner.bind(this);
   }
   //#endregion Private methods
+
+  //#region Public methods
+  /**
+   * @public
+   * Show the spinner in the component.
+   */
+  showSpinner() {
+    // Show the spinner
+    this.querySelector("div.col-spinner").style.display = "inline-block";
+    this.querySelector("div.col-username").style.display = "none";
+    this.querySelector("div.col-login").style.display = "none";
+  }
+  //#endregion
 }
 
 // Let the browser know that <user-info> is served by our new class

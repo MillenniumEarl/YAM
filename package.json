@@ -28,6 +28,7 @@
   "dependencies": {
     "electron": "^10.1.1",
     "electron-online": "^1.0.0",
+    "electron-prompt": "^1.6.0",
     "f95api": "MillenniumEarl/F95API#master",
     "glob": "^7.1.6",
     "image-downloader": "^4.0.1",

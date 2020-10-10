@@ -5,6 +5,14 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initialize the navigator-tab
   let tabNavigator = document.getElementById("navigator-tab");
   M.Tabs.init(tabNavigator, {});
+
+  // Initialize the floating button
+  let elems = document.querySelectorAll('.fixed-action-btn');
+  M.FloatingActionButton.init(elems, {
+    direction: 'left',
+    hoverEnabled: false
+  });
+
   // Select the defualt page
   openPage('games-tab');
 
@@ -17,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-/*### Text changed events ###*/
+/*### Events ###*/
 document.querySelector("#search-game-name").addEventListener("input", () => {
   // Obtain the text
   let searchText = document
@@ -38,47 +46,61 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
   }
 });
 
-/*### Click events ###*/
-document.querySelector("#user-info").addEventListener("login", login());
+document.querySelector("#user-info").addEventListener("login", login);
 
-document.querySelector("#add-game-btn").addEventListener("click", () => {
+document.querySelector("#add-remote-game-btn").addEventListener("click", addGameFromURL);
+
+async function addGameFromURL() {
   let openDialogOptions = {
     title: "Select game directory",
-    properties: ["openDirectory"],
-    multiSelections: true
+    properties: ["openDirectory", "multiSelections"],
   };
 
   window.API.invoke("open-dialog", openDialogOptions)
-  .then((data) => {
-    // No folder selected
-    if (data.filePaths.length === 0) return;
+    .then((data) => {
+      // No folder selected
+      if (data.filePaths.length === 0) return;
 
-    // Parse the game dir name(s)
-    for (let path of data.filePaths) {
-      getGameFromPath(path)
-        .then(function (result) {
-          console.log(result);
-          if (!result["result"]) {
-            // Send the error message to the user if the game is not found
-            sendMessageToUserWrapper(
-              "warning",
-              "Game not detected",
-              result["message"],
-              "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)"
-            );
-          }
-        })
-        .catch(function (error) {
-          // Send error message
-          sendMessageToUserWrapper(
-            "error",
-            "Unexpected error",
-            "Cannot retrieve game data, unexpected error: " + error,
-            ""
-          );
+      // Ask the URL of the game
+      let promptDialogOptions = {
+        title: 'Insert the game URL on F95Zone',
+        label: 'URL:',
+        value: 'http://example.org',
+        inputAttrs: {
+          type: 'url'
+        },
+        type: 'input'
+      }
+
+      window.API.invoke("prompt-dialog", promptDialogOptions)
+        .then(async (response) => {
+          if (!response) return;
+          let url = response;
+
+          // Add game to list
+          let cardPromise = await getGameFromPath(data.filePaths.pop());
+          if (!cardPromise.cardElement) return;
+
+          let info = await window.F95.getGameDataFromURL(url);
+          cardPromise.cardElement.info = info;
         });
-    }
-  });
+    });
+}
+
+document.querySelector("#add-local-game-btn").addEventListener("click", () => {
+  let openDialogOptions = {
+    title: "Select game directory",
+    properties: ["openDirectory"],
+  };
+
+  window.API.invoke("open-dialog", openDialogOptions)
+    .then((data) => {
+      // No folder selected
+      if (data.filePaths.length === 0) return;
+
+      // Obtain the data
+      getGameFromPaths(data.filePaths);
+    });
 });
 
 //#region Private methods
@@ -298,9 +320,55 @@ function login() {
     return;
   }
 
+  // Show the spinner in the avatar component
+  document.getElementById("user-info").showSpinner();
+
   // Request user input
   console.log("Send API to main process for auth request");
   window.API.send("login-required");
+}
+
+/**
+ * @async
+ * @private
+ * Given a directory listing, it gets information about the games contained in them.
+ * @param {String[]} paths Path of the directories containg games
+ */
+async function getGameFromPaths(paths) {
+  // Allow max 5 searched at the time
+  let promiseList = [];
+  const MAX_PROMISE_AT_TIME = 5;
+
+  // Parse the game dir name(s)
+  for (let path of paths) {
+    let promise = getGameFromPath(path)
+      .then(function (result) {
+        if (result["result"] === false) {
+          // Send the error message to the user if the game is not found
+          sendMessageToUserWrapper(
+            "warning",
+            "Game not detected",
+            result["message"],
+            "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)"
+          );
+        }
+      })
+      .catch(function (error) {
+        // Send error message
+        sendMessageToUserWrapper(
+          "error",
+          "Unexpected error",
+          "Cannot retrieve game data, unexpected error: " + error,
+          ""
+        );
+      });
+
+    promiseList.push(promise);
+    if (promiseList.length === MAX_PROMISE_AT_TIME) {
+      await Promise.all(promiseList);
+      promiseList = [];
+    }
+  }
 }
 
 /**
@@ -334,6 +402,7 @@ async function getGameFromPath(path) {
     return {
       result: false,
       message: "Cannot retrieve information for " + unparsedName,
+      cardElement: null,
     };
 
   // Add the game
@@ -345,13 +414,14 @@ async function getGameFromPath(path) {
   firstGame.gameDir = path;
   firstGame.version = version;
   card.info = firstGame;
-  if (onlineVersion !== version) {
+  if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
     card.notificateUpdate(promise);
   }
   
   return {
     result: true,
     message: name + " added correctly",
+    cardElement: card
   };
 }
 

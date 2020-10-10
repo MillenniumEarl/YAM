@@ -33,6 +33,12 @@ div.base-div {
     display: none;
 }
 
+.col-spinner {
+    margin: auto;
+    padding: 5px !important;
+    display: none;
+}
+
 .col-login {
     margin: auto;
     padding: 5px !important;

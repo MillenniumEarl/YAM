@@ -71,11 +71,14 @@
     <div id="settings-tab" class="tabcontent" hidden></div>
 
     <!-- Floating button (FAB) for adding games -->
-    <a
-      class="btn-floating btn-large waves-effect waves-light fab"
-      id="add-game-btn"
-    >
-      <i class="material-icons">add</i>
-    </a>
+    <div class="fixed-action-btn">
+      <a class="btn-floating btn-large waves-effect waves-light fab">
+        <i class="material-icons">add</i>
+      </a>
+      <ul>
+        <li><a class="btn-floating fab-option" id="add-local-game-btn"><i class="material-icons">folder</i></a></li>
+        <li><a class="btn-floating fab-option" id="add-remote-game-btn"><i class="material-icons">language</i></a></li>
+      </ul>
+    </div>
   </body>
 </html>

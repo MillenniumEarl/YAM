@@ -14,15 +14,17 @@ a.btn:focus {
 }
 
 /*### Handle position for floating button ###*/
-a.fab, a.fab:hover {
-    position: absolute;
-    bottom: 25px;
-    right: 25px;
-    background-color: var(--secondary-app);
-}
-a.fab:hover {
-    background-color: var(--secondary-light);
-}
+a.fab,
+a.fab:hover,
 a.fab:focus {
     background-color: var(--secondary-app);
+}
+
+a.fab-option,
+a.fab-option:focus {
+    background-color: var(--secondary-app);
+}
+
+a.fab-option:hover {
+    background-color: var(--secondary-light);
 }
