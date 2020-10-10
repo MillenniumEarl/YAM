@@ -2,9 +2,15 @@
 @import "global.css";
 
 /*### Handles colors for buttons generated with materialize-css ###*/
-a.btn, a.btn:hover {
-    background-color: var(--secondary-app-color);
-    color: var(--main-text-color);
+a.btn,
+a.btn:hover {
+    background-color: var(--secondary-app);
+    color: var(--text-on-secondary);
+}
+
+a.btn:focus {
+    background-color: var(--secondary-light);
+    color: var(--text-on-secondary);
 }
 
 /*### Handle position for floating button ###*/
@@ -12,5 +18,11 @@ a.fab, a.fab:hover {
     position: absolute;
     bottom: 25px;
     right: 25px;
-    background-color: var(--secondary-app-color);
+    background-color: var(--secondary-app);
+}
+a.fab:hover {
+    background-color: var(--secondary-light);
+}
+a.fab:focus {
+    background-color: var(--secondary-app);
 }

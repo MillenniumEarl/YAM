@@ -6,6 +6,7 @@ class GameCard extends HTMLElement {
 
     /* Use the F95API classes (Need main-preload) */
     this._info = window.F95.GameInfo;
+    this._updateInfo = null; // Used only when is necessary to update a game
   }
 
   /**
@@ -30,37 +31,6 @@ class GameCard extends HTMLElement {
     this.updateBtn.removeEventListener("click", this.update);
     this.deleteBtn.removeEventListener("click", this.delete);
   }
-
-  /**
-   * Triggered when a observed attribute change
-   * @param {String} name 
-   * @param {*} oldValue 
-   * @param {*} newValue 
-   */
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (name == 'updateAvailable' && oldValue !== newValue) {
-      console.log(newValue);
-      // An update is available, show the button
-      this.updateBtn.style.display = "block";
-
-      // Change the text of the button
-      this.updateBtn.innerText = "Update (" + newValue + ")";
-    }
-  }
-
-  //#region Attributes
-  static get observedAttributes() {
-    // Specify the attributes that, when changed, trigger the 'attributeChangedCallback'
-    return ['updateAvailable'];
-  }
-
-  /**
-   * @param {Boolean} value
-   */
-  set updateAvailable(value) {
-    this.setAttribute('updateAvailable', Boolean(value));
-  }
-  //#endregion Attributes
 
   //#region Properties
   set info(value) {
@@ -113,9 +83,9 @@ class GameCard extends HTMLElement {
    */
   update() {
     // Raise the event
-    updateClickEvent = new CustomEvent("update", {
+    let updateClickEvent = new CustomEvent("update", {
       detail: {
-        downloadInfo: this._info.downloadInfo,
+        downloadInfo: this._updateInfo.downloadInfo,
         gameDir: this._info.gameDir,
       },
     });
@@ -128,7 +98,7 @@ class GameCard extends HTMLElement {
    */
   delete() {
     // Raise the event
-    deleteClickEvent = new CustomEvent("delete", {
+    let deleteClickEvent = new CustomEvent("delete", {
       detail: {
         gameDir: this._info.gameDir,
       },
@@ -155,14 +125,16 @@ class GameCard extends HTMLElement {
     template.innerHTML = window.IO.readSync(pathHTML);
     this.appendChild(template.content.cloneNode(true));
 
-    /* Define buttons in DOM */
+    /* Define elements in DOM */
     this.playBtn = this.querySelector("#play-game-btn");
     this.updateBtn = this.querySelector("#update-game-btn");
     this.deleteBtn = this.querySelector("#delete-game-btn");
+    this.progressbar = this.querySelector("#card-progressbar");
 
     /* Bind function to use this */
     this.loadGameData = this.loadGameData.bind(this);
     this.saveGameData = this.saveGameData.bind(this);
+    this.notificateUpdate = this.notificateUpdate.bind(this);
     this.play = this.play.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
@@ -257,6 +229,35 @@ class GameCard extends HTMLElement {
 
     // Load object
     this.info = obj;
+  }
+  /**
+   * Used to notificate the GameCard of a new version of the game.
+   * @param {Promise<GameInfo>} promise Promise of the game search 
+   */
+  async notificateUpdate(promise) {
+    // Show the progress bar
+    this.progressbar.style.display = "block";
+
+    // Await game data
+    let info = await promise;
+
+    // An update is available, show the button
+    this.querySelector(".update-p").style.display = "block";
+    
+    // Change the text of the button
+    this.updateBtn.innerText = "Update (v." + info.version + ")";
+    
+    // Re-add the icon (innerText is overwritten)
+    let icon = document.createElement("i");
+    icon.classList.add("material-icons", "left");
+    icon.innerText = "file_download";
+    this.updateBtn.appendChild(icon);
+
+    // Set update data
+    this._updateInfo = info;
+
+    // Hide progressbar
+    this.progressbar.style.display = "none";
   }
   //#endregion Public methods
 }

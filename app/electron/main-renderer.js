@@ -263,11 +263,12 @@ async function checkVersionCachedGames() {
   let cardGames = document.querySelectorAll("game-card");
   for (let card of cardGames) {
     // Get version
-    let onlineVersion = await window.F95.getGameVersion(card.info);
+    let update = await window.F95.checkGameUpdates(card.info);
     
     // Trigger the component
-    if(onlineVersion !== card.info.version) {
-      card.updateAvailable = onlineVersion;
+    if (update) {
+      let promise = window.F95.getGameDataFromURL(card.info.f95url);
+      card.notificateUpdate(promise);
     }
   }
 
@@ -322,7 +323,8 @@ async function getGameFromPath(path) {
   name = cleanGameName(unparsedName);
 
   // Search and add the game
-  let resultInfo = await window.F95.getGameData(name, includeMods);
+  let promise = window.F95.getGameData(name, includeMods);
+  let resultInfo = await promise;
   
   // No game found
   if (resultInfo.length === 0)
@@ -340,7 +342,9 @@ async function getGameFromPath(path) {
   firstGame.gameDir = path;
   firstGame.version = version;
   card.info = firstGame;
-  if (onlineVersion !== version) card.updateAvailable = onlineVersion;
+  if (onlineVersion !== version) {
+    card.notificateUpdate(promise);
+  }
   
   return {
     result: true,
