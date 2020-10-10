@@ -86,6 +86,7 @@ class GameCard extends HTMLElement {
     let updateClickEvent = new CustomEvent("update", {
       detail: {
         downloadInfo: this._updateInfo.downloadInfo,
+        url: this._info.f95url,
         gameDir: this._info.gameDir,
       },
     });

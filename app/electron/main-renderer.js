@@ -45,6 +45,7 @@ document.querySelector("#add-game-btn").addEventListener("click", () => {
   let openDialogOptions = {
     title: "Select game directory",
     properties: ["openDirectory"],
+    multiSelections: true
   };
 
   window.API.invoke("open-dialog", openDialogOptions)
@@ -176,13 +177,15 @@ function addEventListenerToGameCard(gamecard) {
 
   gamecard.addEventListener('update', function (e) {
     if (e.target) {
-      console.log("Update!");
-
       // Parse info
       let gameDir = e.detail["gameDir"];
       let downloadInfo = e.detail["downloadInfo"];
+      let url = e.detail["url"];
+      window.API.send("exec", url);
+      return;
 
       // Download and install (first hosting platoform in list)
+      // !!! Against the guidelines: DON'T DO IT !!!
       for (let di of downloadInfo) {
         if (di.supportedOS.includes(window.API.platform)) {
           di.download(gameDir);
