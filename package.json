@@ -20,13 +20,14 @@
     "f95"
   ],
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "engines": {
     "node": ">=10.0"
   },
   "dependencies": {
-    "electron": "^10.1.1",
     "electron-online": "^1.0.0",
     "electron-prompt": "^1.6.0",
     "f95api": "MillenniumEarl/F95API#master",
@@ -34,5 +35,32 @@
     "image-downloader": "^4.0.1",
     "material-design-icons": "^3.0.1",
     "materialize-css": "materializecss/materialize#v1-dev"
+  },
+  "devDependencies": {
+    "electron": "^10.1.1",
+    "electron-builder": "^22.8.1"
+  },
+  "build": {
+    "appId": "com.electron.${name}",
+    "productName": "F95 Game Updater",
+    "copyright": "Copyright © year ${author}",
+    "directories": {
+      "output": "./dist"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "resources/images/logo.ico",
+      "publisherName": "${author}"
+    },
+    "mac": {
+      "category": "public.app-category.games",
+      "target": "default",
+      "icon": "resources/images/logo.icns",
+      "type": "development"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "resources/images/logo.icns"
+    }
   }
 }
