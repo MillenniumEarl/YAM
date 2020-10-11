@@ -7,19 +7,18 @@ document.addEventListener("DOMContentLoaded", function () {
   M.Tabs.init(tabNavigator, {});
 
   // Initialize the floating button
-  let elems = document.querySelectorAll('.fixed-action-btn');
+  let elems = document.querySelectorAll(".fixed-action-btn");
   M.FloatingActionButton.init(elems, {
-    direction: 'left',
-    hoverEnabled: false
+    direction: "left",
+    hoverEnabled: false,
   });
 
   // Select the defualt page
-  openPage('games-tab');
+  openPage("games-tab");
 
   // Load the cached games
-  loadCachedGames()
-  .then(function() {
-    // Login after loading games to 
+  loadCachedGames().then(function () {
+    // Login after loading games to
     // allow the games to search for updates
     login();
   });
@@ -48,41 +47,43 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
 
 document.querySelector("#user-info").addEventListener("login", login);
 
-document.querySelector("#add-remote-game-btn").addEventListener("click", async function () {
-  let openDialogOptions = {
-    title: "Select game directory",
-    properties: ["openDirectory"],
-  };
+document
+  .querySelector("#add-remote-game-btn")
+  .addEventListener("click", async function () {
+    let openDialogOptions = {
+      title: "Select game directory",
+      properties: ["openDirectory"],
+    };
 
-  let data = await window.API.invoke("open-dialog", openDialogOptions);
+    let data = await window.API.invoke("open-dialog", openDialogOptions);
 
-  // No folder selected
-  if (data.filePaths.length === 0) return;
+    // No folder selected
+    if (data.filePaths.length === 0) return;
 
-  // No folder selected
-  if (data.filePaths.length === 0) return;
+    // No folder selected
+    if (data.filePaths.length === 0) return;
 
-  // Ask the URL of the game
-  let promptDialogOptions = {
-    title: 'Insert the game URL on F95Zone',
-    label: 'URL:',
-    value: 'https://f95zone.to/threads/gamename/',
-    inputAttrs: {
-      type: 'url'
-    },
-    type: 'input'
-  }
+    // Ask the URL of the game
+    let promptDialogOptions = {
+      title: "Insert the game URL on F95Zone",
+      label: "URL:",
+      value: "https://f95zone.to/threads/gamename/",
+      inputAttrs: {
+        type: "url",
+      },
+      type: "input",
+    };
 
-  let url = await window.API.invoke("prompt-dialog", promptDialogOptions);
-  if (!url) return;
+    let url = await window.API.invoke("prompt-dialog", promptDialogOptions);
+    if (!url) return;
 
-  // Add game to list
-  let cardPromise = await getGameFromPath(data.filePaths.pop());
-  if (!cardPromise.cardElement) return;
+    // Add game to list
+    let cardPromise = await getGameFromPath(data.filePaths.pop());
+    if (!cardPromise.cardElement) return;
 
-  let info = await window.F95.getGameDataFromURL(url);
-  cardPromise.cardElement.info = info;
-});
+    let info = await window.F95.getGameDataFromURL(url);
+    cardPromise.cardElement.info = info;
+  });
 
 document.querySelector("#add-local-game-btn").addEventListener("click", () => {
   let openDialogOptions = {
@@ -90,21 +91,20 @@ document.querySelector("#add-local-game-btn").addEventListener("click", () => {
     properties: ["openDirectory", "multiSelections"],
   };
 
-  window.API.invoke("open-dialog", openDialogOptions)
-    .then((data) => {
-      // No folder selected
-      if (data.filePaths.length === 0) return;
+  window.API.invoke("open-dialog", openDialogOptions).then((data) => {
+    // No folder selected
+    if (data.filePaths.length === 0) return;
 
-      // Obtain the data
-      getGameFromPaths(data.filePaths);
-    });
+    // Obtain the data
+    getGameFromPaths(data.filePaths);
+  });
 });
 
 //#region Private methods
 /**
  * @private
  * Select the tab with the specified ID in DOM.
- * @param {String} pageID 
+ * @param {String} pageID
  */
 function openPage(pageID) {
   // Local variables
@@ -187,14 +187,14 @@ function addGameCard() {
  * @param {GameCard} gamecard Object to add the listeners to
  */
 function addEventListenerToGameCard(gamecard) {
-  gamecard.addEventListener('play', function (e) {
+  gamecard.addEventListener("play", function (e) {
     if (e.target) {
       let launcherPath = e.detail["launcher"];
       window.API.send("exec", launcherPath);
     }
   });
 
-  gamecard.addEventListener('update', function (e) {
+  gamecard.addEventListener("update", function (e) {
     if (e.target) {
       // Parse info
       let gameDir = e.detail["gameDir"];
@@ -214,7 +214,7 @@ function addEventListenerToGameCard(gamecard) {
     }
   });
 
-  gamecard.addEventListener('delete', function (e) {
+  gamecard.addEventListener("delete", function (e) {
     if (e.target) {
       let gameDir = e.detail["gameDir"];
       window.IO.deleteFolder(gameDir);
@@ -268,14 +268,14 @@ async function loadCachedGames() {
   }
 
   // Write end log
-  Promise.all(promisesList).then(function() {
+  Promise.all(promisesList).then(function () {
     console.log("Cached games loaded");
   });
 }
 
 /**
  * @private
- * Check the version of the listed games 
+ * Check the version of the listed games
  * in the game-card components in DOM.
  */
 async function checkVersionCachedGames() {
@@ -286,7 +286,7 @@ async function checkVersionCachedGames() {
   for (let card of cardGames) {
     // Get version
     let update = await window.F95.checkGameUpdates(card.info);
-    
+
     // Trigger the component
     if (update) {
       let promise = window.F95.getGameDataFromURL(card.info.f95url);
@@ -392,7 +392,7 @@ async function getGameFromPath(path) {
 
   // Search and add the game
   let resultInfo = await window.F95.getGameData(name, includeMods);
-  
+
   // No game found
   if (resultInfo.length === 0)
     return {
@@ -402,7 +402,7 @@ async function getGameFromPath(path) {
     };
 
   // Add the game
-  let copy = { ... resultInfo };
+  let copy = { ...resultInfo };
   let firstGame = resultInfo.pop(); // ???
   let card = addGameCard();
   let onlineVersion = firstGame.version;
@@ -414,11 +414,11 @@ async function getGameFromPath(path) {
   if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
     card.notificateUpdate(copy.pop());
   }
-  
+
   return {
     result: true,
     message: name + " added correctly",
-    cardElement: card
+    cardElement: card,
   };
 }
 
@@ -517,7 +517,7 @@ async function getUserDataFromF95() {
       ""
     );
   }
-  
+
   // Update component
   document.getElementById("user-info").userdata = userdata;
 }
@@ -534,8 +534,7 @@ window.API.receive("window-closing", function () {
     promiseList.push(promise);
   }
 
-  Promise.all(promiseList)
-  .then(function() {
+  Promise.all(promiseList).then(function () {
     // Close F95 browser
     window.F95.logout();
 

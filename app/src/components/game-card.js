@@ -162,7 +162,7 @@ class GameCard extends HTMLElement {
     let files = await window.IO.filter("*." + extension, gameDir);
 
     // Try with HTML
-    if(files.length === 0) files = await window.IO.filter("*.html", gameDir);
+    if (files.length === 0) files = await window.IO.filter("*.html", gameDir);
 
     // Return executable
     if (files.length === 0) return null;
@@ -179,7 +179,8 @@ class GameCard extends HTMLElement {
   async downloadGamePreview(name, previewSource) {
     // Check if it's possible to download the image
     if (previewSource.trim() === "") return null;
-    if (previewSource.trim() === "../../resources/images/f95-logo.jpg") return null;
+    if (previewSource.trim() === "../../resources/images/f95-logo.jpg")
+      return null;
     if (await window.IO.fileExists(previewSource)) return null; // Already downloaded
 
     // Get image extension
@@ -192,7 +193,7 @@ class GameCard extends HTMLElement {
     let gameCacheDir = await window.API.invoke("games-data-dir");
     let localPreviewPath = window.API.join(cawd, gameCacheDir, imageName);
     let path = await window.API.downloadImage(previewSource, localPreviewPath);
-    
+
     if (path) return localPreviewPath;
     else return null;
   }
