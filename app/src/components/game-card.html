@@ -6,7 +6,7 @@
 <script type="text/javascript" src="../../node_modules/materialize-css/dist/js/materialize.min.js"></script>
 <script type="text/javascript" src="components/game-card.js"></script>
 
-<div class="card">
+<div class="card medium">
     <!-- Click on the image to show the hidden side of the card -->
     <div class="card-image waves-effect waves-block waves-light">
         <img class="activator" id="preview" src="../../resources/images/f95-logo.jpg">
@@ -22,22 +22,24 @@
         <span class="card-description" id="installed-version">Current version: v.1.2.3.4</span>
 
         <!-- Action buttons -->
-        <p class="action-p">
-            <a class="waves-effect waves-light btn" id="play-game-btn">
-                <i class="material-icons left">gamepad</i>
-                Play
-            </a>
-            <a class="waves-effect waves-light btn" id="delete-game-btn">
-                <i class="material-icons left">delete</i>
-                Remove
-            </a>
-        </p>
-        <p class="update-p">
-            <a class="waves-effect waves-light btn" id="update-game-btn">
-                <i class="material-icons left">file_download</i>
-                Update (v.1.2.3.4)
-            </a>
-        </p>
+        <div class="card-action">
+            <p class="action-p">
+                <a class="waves-effect waves-light btn" id="play-game-btn">
+                    <i class="material-icons left">gamepad</i>
+                    Play
+                </a>
+                <a class="waves-effect waves-light btn" id="delete-game-btn">
+                    <i class="material-icons left">delete</i>
+                    Remove
+                </a>
+            </p>
+            <p class="update-p">
+                <a class="waves-effect waves-light btn" id="update-game-btn">
+                    <i class="material-icons left">file_download</i>
+                    Update (v.1.2.3.4)
+                </a>
+            </p>
+        </div>
     </div>
 
     <!-- Hidden side of the card, contains addictional informations -->

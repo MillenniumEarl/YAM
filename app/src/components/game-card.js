@@ -50,7 +50,7 @@ class GameCard extends HTMLElement {
       ? value.previewSource
       : "../../resources/images/f95-logo.jpg";
     this.querySelector("#preview").setAttribute("src", source);
-    this.querySelector("#installed-version").innerText = value.version;
+    this.querySelector("#installed-version").innerText = "Installed version: " + value.version;
     this.querySelector("#last-update").innerText = value.lastUpdate;
   }
 
