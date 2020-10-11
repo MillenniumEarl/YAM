@@ -136,6 +136,7 @@ class GameCard extends HTMLElement {
     this.loadGameData = this.loadGameData.bind(this);
     this.saveGameData = this.saveGameData.bind(this);
     this.notificateUpdate = this.notificateUpdate.bind(this);
+    this.notificateUpdateOnPromise = this.notificateUpdateOnPromise.bind(this);
     this.play = this.play.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
@@ -232,22 +233,35 @@ class GameCard extends HTMLElement {
     this.info = obj;
   }
   /**
+   * @public
    * Used to notificate the GameCard of a new version of the game.
    * @param {Promise<GameInfo[]>} promise Promise of the game search (return a list)
    */
-  async notificateUpdate(promise) {
+  async notificateUpdateOnPromise(promise) {
     // Show the progress bar
     this.progressbar.style.display = "block";
 
     // Await game data
     let info = (await promise).pop();
 
+    // Refresh data
+    this.notificateUpdate(info);
+
+    // Hide progressbar
+    this.progressbar.style.display = "none";
+  }
+  /**
+   * @public
+   * Used to notificate the GameCard of a new version of the game.
+   * @param {GameInfo} promise Game data updated
+   */
+  notificateUpdate(info) {
     // An update is available, show the button
     this.querySelector(".update-p").style.display = "block";
-    
+
     // Change the text of the button
     this.updateBtn.innerText = "Update (v." + info.version + ")";
-    
+
     // Re-add the icon (innerText is overwritten)
     let icon = document.createElement("i");
     icon.classList.add("material-icons", "left");
@@ -256,9 +270,6 @@ class GameCard extends HTMLElement {
 
     // Set update data
     this._updateInfo = info;
-
-    // Hide progressbar
-    this.progressbar.style.display = "none";
   }
   //#endregion Public methods
 }

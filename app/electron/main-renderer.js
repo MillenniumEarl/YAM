@@ -48,49 +48,46 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
 
 document.querySelector("#user-info").addEventListener("login", login);
 
-document.querySelector("#add-remote-game-btn").addEventListener("click", addGameFromURL);
-
-async function addGameFromURL() {
+document.querySelector("#add-remote-game-btn").addEventListener("click", async function () {
   let openDialogOptions = {
     title: "Select game directory",
-    properties: ["openDirectory", "multiSelections"],
+    properties: ["openDirectory"],
   };
 
-  window.API.invoke("open-dialog", openDialogOptions)
-    .then((data) => {
-      // No folder selected
-      if (data.filePaths.length === 0) return;
+  let data = await window.API.invoke("open-dialog", openDialogOptions);
 
-      // Ask the URL of the game
-      let promptDialogOptions = {
-        title: 'Insert the game URL on F95Zone',
-        label: 'URL:',
-        value: 'http://example.org',
-        inputAttrs: {
-          type: 'url'
-        },
-        type: 'input'
-      }
+  // No folder selected
+  if (data.filePaths.length === 0) return;
 
-      window.API.invoke("prompt-dialog", promptDialogOptions)
-        .then(async (response) => {
-          if (!response) return;
-          let url = response;
+  // No folder selected
+  if (data.filePaths.length === 0) return;
 
-          // Add game to list
-          let cardPromise = await getGameFromPath(data.filePaths.pop());
-          if (!cardPromise.cardElement) return;
+  // Ask the URL of the game
+  let promptDialogOptions = {
+    title: 'Insert the game URL on F95Zone',
+    label: 'URL:',
+    value: 'https://f95zone.to/threads/gamename/',
+    inputAttrs: {
+      type: 'url'
+    },
+    type: 'input'
+  }
 
-          let info = await window.F95.getGameDataFromURL(url);
-          cardPromise.cardElement.info = info;
-        });
-    });
-}
+  let url = await window.API.invoke("prompt-dialog", promptDialogOptions);
+  if (!url) return;
+
+  // Add game to list
+  let cardPromise = await getGameFromPath(data.filePaths.pop());
+  if (!cardPromise.cardElement) return;
+
+  let info = await window.F95.getGameDataFromURL(url);
+  cardPromise.cardElement.info = info;
+});
 
 document.querySelector("#add-local-game-btn").addEventListener("click", () => {
   let openDialogOptions = {
     title: "Select game directory",
-    properties: ["openDirectory"],
+    properties: ["openDirectory", "multiSelections"],
   };
 
   window.API.invoke("open-dialog", openDialogOptions)
@@ -293,7 +290,7 @@ async function checkVersionCachedGames() {
     // Trigger the component
     if (update) {
       let promise = window.F95.getGameDataFromURL(card.info.f95url);
-      card.notificateUpdate(promise);
+      card.notificateUpdateOnPromise(promise);
     }
   }
 
@@ -394,8 +391,7 @@ async function getGameFromPath(path) {
   name = cleanGameName(unparsedName);
 
   // Search and add the game
-  let promise = window.F95.getGameData(name, includeMods);
-  let resultInfo = await promise;
+  let resultInfo = await window.F95.getGameData(name, includeMods);
   
   // No game found
   if (resultInfo.length === 0)
@@ -406,7 +402,8 @@ async function getGameFromPath(path) {
     };
 
   // Add the game
-  let firstGame = resultInfo.pop();
+  let copy = { ... resultInfo };
+  let firstGame = resultInfo.pop(); // ???
   let card = addGameCard();
   let onlineVersion = firstGame.version;
 
@@ -415,7 +412,7 @@ async function getGameFromPath(path) {
   firstGame.version = version;
   card.info = firstGame;
   if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
-    card.notificateUpdate(promise);
+    card.notificateUpdate(copy.pop());
   }
   
   return {
@@ -499,7 +496,7 @@ function sendMessageToUserWrapper(type, title, message, detail) {
   };
 
   // Send a message to the user
-  window.API.send("message-dialog", warningDialogOptions);
+  window.API.invoke("message-dialog", warningDialogOptions);
 }
 
 /**
@@ -568,9 +565,6 @@ window.API.receive("auth-result", (args) => {
 
       // Check games updates
       checkVersionCachedGames();
-
-      // Show "add game" button
-      document.getElementById("add-game-btn").style.display = "block";
     })
     .catch(function (error) {
       // Send error message
