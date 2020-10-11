@@ -34,7 +34,16 @@ async function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 600,
-    backgroundColor: "#252321", // Used to simulate loading and not make the user wait
+    minWidth: 1024,
+    minHeight: 600,
+    useContentSize: true,
+    icon: path.join(
+      app.getAppPath(),
+      "resources",
+      "images",
+      "icon.ico"
+    ),
+    backgroundColor: "#262626", // Used to simulate loading and not make the user wait
     webPreferences: {
       allowRunningInsecureContent: false,
       worldSafeExecuteJavaScript: true,
@@ -83,7 +92,13 @@ async function createLoginWindow() {
   loginWindow = new BrowserWindow({
     width: 400,
     height: 250,
-    backgroundColor: "#252321", // Used to simulate loading and not make the user wait
+    icon: path.join(
+      app.getAppPath(),
+      "resources",
+      "images",
+      "icon.ico"
+    ),
+    backgroundColor: "#262626", // Used to simulate loading and not make the user wait
     frame: false,
     webPreferences: {
       allowRunningInsecureContent: false,
