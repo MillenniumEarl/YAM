@@ -21,12 +21,11 @@ const {
 } = require("../src/scripts/io-operations.js");
 
 // Set F95 cache
-ipcRenderer.invoke("cawd").then(function (cawd) {
-  ipcRenderer.invoke("browser-data-dir").then(function (browserDir) {
-    let cacheDir = join(cawd, browserDir);
-    F95API.setCacheDir(cacheDir);
-  });
+ipcRenderer.invoke("browser-data-dir")
+.then(function (browserDir) {
+  F95API.setCacheDir(browserDir);
 });
+F95API.debug(true);
 
 // Set F95 isolation
 F95API.setIsolation(true);

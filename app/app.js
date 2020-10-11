@@ -168,21 +168,33 @@ ipcMain.handle("cawd", function (e) {
 
 //#region Shared app variables
 ipcMain.handle("cache-dir", function (e) {
+  let dirname = path.join(app.getAppPath(), Shared.cacheDir);
+
   // Create directory if not existent
-  if (!fs.existsSync(Shared.cacheDir)) fs.mkdirSync(Shared.cacheDir, {recursive: true});
-  return Shared.cacheDir;
+  if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, {
+    recursive: true
+  });
+  return dirname;
 });
 
 ipcMain.handle("browser-data-dir", function (e) {
+  let dirname = path.join(app.getAppPath(), Shared.browserDataDir);
+
   // Create directory if not existent
-  if (!fs.existsSync(Shared.browserDataDir)) fs.mkdirSync(Shared.browserDataDir, {recursive: true});
-  return Shared.browserDataDir;
+  if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, {
+    recursive: true
+  });
+  return dirname;
 });
 
 ipcMain.handle("games-data-dir", function (e) {
+  let dirname = path.join(app.getAppPath(), Shared.gamesDataDir);
+
   // Create directory if not existent
-  if (!fs.existsSync(Shared.gamesDataDir)) fs.mkdirSync(Shared.gamesDataDir, {recursive: true});
-  return Shared.gamesDataDir;
+  if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, {
+    recursive: true
+  });
+  return dirname;
 });
 
 ipcMain.handle("credentials-path", function (e) {

@@ -190,9 +190,8 @@ class GameCard extends HTMLElement {
     let imageName = name.replaceAll(" ", "") + "_preview." + extension;
 
     // Download image
-    let cawd = await window.API.invoke("cawd");
     let gameCacheDir = await window.API.invoke("games-data-dir");
-    let localPreviewPath = window.API.join(cawd, gameCacheDir, imageName);
+    let localPreviewPath = window.API.join(gameCacheDir, imageName);
     let path = await window.API.downloadImage(previewSource, localPreviewPath);
     
     if (path) return localPreviewPath;
@@ -216,11 +215,13 @@ class GameCard extends HTMLElement {
    */
   async saveGameData() {
     // Download preview image
-    let previewLocalPath = await this.downloadGamePreview(
-      this._info.name,
-      this._info.previewSource
-    );
-    if (previewLocalPath) this._info.previewSource = previewLocalPath;
+    if (this._info.previewSource) {
+      let previewLocalPath = await this.downloadGamePreview(
+        this._info.name,
+        this._info.previewSource
+      );
+      if (previewLocalPath) this._info.previewSource = previewLocalPath;
+    }
     
     // Save the serialized JSON
     window.IO.write(await this.getDataJSONPath(), JSON.stringify(this._info));
@@ -247,6 +248,7 @@ class GameCard extends HTMLElement {
     window.IO.deleteFile(await this.getDataJSONPath());
 
     // Delete the cached preview
+    if (!this.info.previewSource) return;
     if (window.IO.fileExists(this.info.previewSource)) window.IO.deleteFile(this.info.previewSource);
   }
   /**

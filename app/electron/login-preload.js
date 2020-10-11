@@ -5,18 +5,15 @@
 
 // Core modules
 const fs = require("fs");
-const { join } = require("path");
 
 // Public modules from npm
 const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
 
 // Set F95 cache
-ipcRenderer.invoke("cawd").then(function (cawd) {
-  ipcRenderer.invoke("browser-data-dir").then(function(browserDir) {
-    let cacheDir = join(cawd, browserDir);
-    F95API.setCacheDir(cacheDir);
-  });
+ipcRenderer.invoke("browser-data-dir")
+.then(function (browserDir) {
+  F95API.setCacheDir(browserDir);
 });
 
 // Modules from file

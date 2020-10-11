@@ -395,7 +395,7 @@ async function getGameFromPaths(paths) {
         sendMessageToUserWrapper(
           "error",
           "Unexpected error",
-          "Cannot retrieve game data, unexpected error: " + error,
+          "Cannot retrieve game data (" + path + "), unexpected error: " + error,
           ""
         );
       });
@@ -442,8 +442,8 @@ async function getGameFromPath(path) {
     };
 
   // Add the game
-  let copy = { ... resultInfo };
-  let firstGame = resultInfo.pop(); // ???
+  let copy = Object.assign({}, resultInfo[0]); // Copy reference to object
+  let firstGame = resultInfo[0];
   let card = addGameCard();
   let onlineVersion = firstGame.version;
 
@@ -451,8 +451,9 @@ async function getGameFromPath(path) {
   firstGame.gameDir = path;
   firstGame.version = version;
   card.info = firstGame;
+  card.saveGameData();
   if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
-    card.notificateUpdate(copy.pop());
+    card.notificateUpdate(copy);
   }
   
   return {
