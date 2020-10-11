@@ -22,10 +22,14 @@ const {
 
 // Set F95 cache
 ipcRenderer.invoke("cawd").then(function (cawd) {
-  let cacheDir = join(cawd, "cache");
-  F95API.setCacheDir(cacheDir);
-  if (!fs.existsSync(cacheDir)) fs.mkdir(cacheDir);
+  ipcRenderer.invoke("browser-data-dir").then(function (browserDir) {
+    let cacheDir = join(cawd, browserDir);
+    F95API.setCacheDir(cacheDir);
+  });
 });
+
+// Set F95 isolation
+F95API.setIsolation(true);
 
 // Array of valid main-to-render channels
 let validReceiveChannels = [
@@ -100,6 +104,9 @@ contextBridge.exposeInMainWorld("IO", {
     return glob.sync(filter, {
       cwd: basedir,
     });
+  },
+  deleteFile: function (filename) {
+    fs.unlinkSync(filename);
   },
   deleteFolder: async function (dirname) {
     deleteFolderRecursive(dirname);

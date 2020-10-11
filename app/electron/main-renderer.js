@@ -1,4 +1,7 @@
-/*### Generic events ###*/
+/* Global variables */
+let lastGameCardID = 0;
+
+//#region Events
 document.addEventListener("DOMContentLoaded", function () {
   // This function runs when the DOM is ready, i.e. when the document has been parsed
 
@@ -25,7 +28,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-/*### Events ###*/
 document.querySelector("#search-game-name").addEventListener("input", () => {
   // Obtain the text
   let searchText = document
@@ -99,6 +101,7 @@ document.querySelector("#add-local-game-btn").addEventListener("click", () => {
       getGameFromPaths(data.filePaths);
     });
 });
+//#endregion Events
 
 //#region Private methods
 /**
@@ -151,6 +154,8 @@ function addGameCard() {
   // 3 - Lastly. we can change the "gamedata" property
   let gameCard = document.createElement("game-card");
   addEventListenerToGameCard(gameCard);
+  gameCard.setAttribute("id", "game-card-" + lastGameCardID);
+  lastGameCardID += 1;
 
   // Create a simil-table layout wit materialize-css
   // "s4" means that the element occupies 4 of 12 columns
@@ -215,10 +220,45 @@ function addEventListenerToGameCard(gamecard) {
   });
 
   gamecard.addEventListener('delete', function (e) {
-    if (e.target) {
-      let gameDir = e.detail["gameDir"];
-      window.IO.deleteFolder(gameDir);
-    }
+    if (!e.target) return;
+
+    // Ask the confirmation
+    let dialogOptions = {
+      type: "question",
+      buttons: ["Remove only", "Delete also game files", "Cancel"],
+      defaultId: 2, // Cancel
+      title: "Confirm deletion",
+      message: "Do you really want to eliminate the game?",
+      checkboxLabel: "Keep saves (if possible)",
+      checkboxChecked: true
+    };
+
+    window.API.invoke("message-dialog", dialogOptions)
+      .then(function (data) {
+        if (!data) return;
+
+        // Cancel button
+        if (data.response === 2) return;
+        else {
+          // Copy saves
+          if (data.checkboxChecked) {
+            // TODO...
+          }
+
+          // Delete also game files
+          if (data.response === 1) {
+            let gameDir = e.detail["gameDir"];
+            window.IO.deleteFolder(gameDir);
+          }
+
+          // Remove the game data
+          gamecard.deleteGameData();
+
+          // Remove the column div containing the card
+          let id = gamecard.getAttribute("id");
+          document.querySelector("#" + id).parentNode.remove();
+        }
+      });
   });
 }
 

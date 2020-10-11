@@ -31,16 +31,16 @@ module.exports.deleteFolderRecursive = async function (dirpath) {
 
   // Foreach element in dir, delete (file) or recurse (folder)
   fs.readdirSync(dirpath).forEach((file, index) => {
-    const curPath = path.join(dirpath, file);
+    let p = path.join(dirpath, file);
 
     // Remove subdir
-    if (fs.lstatSync(curPath).isDirectory()) deleteFolderRecursive(curPath);
+    if (fs.lstatSync(p).isDirectory()) deleteFolderRecursive(p);
     // ...or remove single file
-    else fs.unlinkSync(curPath);
+    else fs.unlinkSync(p);
   });
 
   // Remove main dir
-  fs.rmdirSync(path);
+  fs.rmdirSync(dirpath);
 };
 
 /**

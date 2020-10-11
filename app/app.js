@@ -2,6 +2,7 @@
 
 // Core modules
 const path = require("path");
+const fs = require("fs");
 
 // Public modules from npm
 const {
@@ -152,14 +153,20 @@ ipcMain.handle("cawd", function (e) {
 
 //#region Shared app variables
 ipcMain.handle("cache-dir", function (e) {
+  // Create directory if not existent
+  if (!fs.existsSync(Shared.cacheDir)) fs.mkdirSync(Shared.cacheDir, {recursive: true});
   return Shared.cacheDir;
 });
 
 ipcMain.handle("browser-data-dir", function (e) {
+  // Create directory if not existent
+  if (!fs.existsSync(Shared.browserDataDir)) fs.mkdirSync(Shared.browserDataDir, {recursive: true});
   return Shared.browserDataDir;
 });
 
 ipcMain.handle("games-data-dir", function (e) {
+  // Create directory if not existent
+  if (!fs.existsSync(Shared.gamesDataDir)) fs.mkdirSync(Shared.gamesDataDir, {recursive: true});
   return Shared.gamesDataDir;
 });
 

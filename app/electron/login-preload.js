@@ -13,9 +13,10 @@ const F95API = require("f95api");
 
 // Set F95 cache
 ipcRenderer.invoke("cawd").then(function (cawd) {
-  let cacheDir = join(cawd, "cache");
-  F95API.setCacheDir(cacheDir);
-  if (!fs.existsSync(cacheDir)) fs.mkdir(cacheDir);
+  ipcRenderer.invoke("browser-data-dir").then(function(browserDir) {
+    let cacheDir = join(cawd, browserDir);
+    F95API.setCacheDir(cacheDir);
+  });
 });
 
 // Modules from file

@@ -135,6 +135,8 @@ class GameCard extends HTMLElement {
     /* Bind function to use this */
     this.loadGameData = this.loadGameData.bind(this);
     this.saveGameData = this.saveGameData.bind(this);
+    this.getDataJSONPath = this.getDataJSONPath.bind(this);
+    this.deleteGameData = this.deleteGameData.bind(this);
     this.notificateUpdate = this.notificateUpdate.bind(this);
     this.notificateUpdateOnPromise = this.notificateUpdateOnPromise.bind(this);
     this.play = this.play.bind(this);
@@ -196,6 +198,15 @@ class GameCard extends HTMLElement {
     if (path) return localPreviewPath;
     else return null;
   }
+  /**
+   * @private
+   * Obtain the save data path for the game info.
+   */
+  async getDataJSONPath() {
+    let base = await window.API.invoke("games-data-dir");
+    let filename = this._info.name.replaceAll(" ", "").trim() + "_data.json";
+    return window.API.join(base, filename);
+  }
   //#endregion Private methods
 
   //#region Public methods
@@ -210,14 +221,9 @@ class GameCard extends HTMLElement {
       this._info.previewSource
     );
     if (previewLocalPath) this._info.previewSource = previewLocalPath;
-
-    // Join save path
-    const BASE_DIR = await window.API.invoke("games-data-dir");
-    const FILE_NAME = this._info.name.replaceAll(" ", "").trim() + "_data.json";
-    let savePath = window.API.join(BASE_DIR, FILE_NAME);
-
+    
     // Save the serialized JSON
-    window.IO.write(savePath, JSON.stringify(this._info));
+    window.IO.write(await this.getDataJSONPath(), JSON.stringify(this._info));
   }
   /**
    * @public
@@ -234,15 +240,26 @@ class GameCard extends HTMLElement {
   }
   /**
    * @public
+   * Delete the stored game data.
+   */
+  async deleteGameData() {
+    // Delete the file data
+    window.IO.deleteFile(await this.getDataJSONPath());
+
+    // Delete the cached preview
+    if (window.IO.fileExists(this.info.previewSource)) window.IO.deleteFile(this.info.previewSource);
+  }
+  /**
+   * @public
    * Used to notificate the GameCard of a new version of the game.
-   * @param {Promise<GameInfo[]>} promise Promise of the game search (return a list)
+   * @param {Promise<GameInfo>} promise Promise of the game data scraping
    */
   async notificateUpdateOnPromise(promise) {
     // Show the progress bar
     this.progressbar.style.display = "block";
 
     // Await game data
-    let info = (await promise).pop();
+    let info = await promise;
 
     // Refresh data
     this.notificateUpdate(info);
