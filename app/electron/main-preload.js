@@ -11,7 +11,7 @@ const { join } = require("path");
 // Public modules from npm
 const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
-const download = require('image-downloader');
+const download = require("image-downloader");
 
 // Modules from file
 const {
@@ -21,8 +21,7 @@ const {
 } = require("../src/scripts/io-operations.js");
 
 // Set F95 cache
-ipcRenderer.invoke("browser-data-dir")
-.then(function (browserDir) {
+ipcRenderer.invoke("browser-data-dir").then(function (browserDir) {
   F95API.setCacheDir(browserDir);
 });
 
@@ -82,9 +81,9 @@ contextBridge.exposeInMainWorld("API", {
   },
   join: (...paths) => join(...paths),
   isOnline: () => navigator.onLine,
-  downloadImage: function(url, dest) {
-    return download.image({url: url, dest: dest});
-  }
+  downloadImage: function (url, dest) {
+    return download.image({ url: url, dest: dest });
+  },
 });
 
 // Expose the I/O operations
@@ -124,5 +123,5 @@ contextBridge.exposeInMainWorld("F95", {
   getGameDataFromURL: (url) => F95API.getGameDataFromURL(url),
   checkGameUpdates: (gameinfo) => F95API.chekIfGameHasUpdate(gameinfo),
   loadF95BaseData: () => F95API.loadF95BaseData(),
-  logout: () => F95API.logout()
+  logout: () => F95API.logout(),
 });

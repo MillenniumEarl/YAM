@@ -10,19 +10,18 @@ document.addEventListener("DOMContentLoaded", function () {
   M.Tabs.init(tabNavigator, {});
 
   // Initialize the floating button
-  let elems = document.querySelectorAll('.fixed-action-btn');
+  let elems = document.querySelectorAll(".fixed-action-btn");
   M.FloatingActionButton.init(elems, {
-    direction: 'left',
-    hoverEnabled: false
+    direction: "left",
+    hoverEnabled: false,
   });
 
   // Select the defualt page
-  openPage('games-tab');
+  openPage("games-tab");
 
   // Load the cached games
-  loadCachedGames()
-  .then(function() {
-    // Login after loading games to 
+  loadCachedGames().then(function () {
+    // Login after loading games to
     // allow the games to search for updates
     login();
   });
@@ -50,41 +49,43 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
 
 document.querySelector("#user-info").addEventListener("login", login);
 
-document.querySelector("#add-remote-game-btn").addEventListener("click", async function () {
-  let openDialogOptions = {
-    title: "Select game directory",
-    properties: ["openDirectory"],
-  };
+document
+  .querySelector("#add-remote-game-btn")
+  .addEventListener("click", async function () {
+    let openDialogOptions = {
+      title: "Select game directory",
+      properties: ["openDirectory"],
+    };
 
-  let data = await window.API.invoke("open-dialog", openDialogOptions);
+    let data = await window.API.invoke("open-dialog", openDialogOptions);
 
-  // No folder selected
-  if (data.filePaths.length === 0) return;
+    // No folder selected
+    if (data.filePaths.length === 0) return;
 
-  // No folder selected
-  if (data.filePaths.length === 0) return;
+    // No folder selected
+    if (data.filePaths.length === 0) return;
 
-  // Ask the URL of the game
-  let promptDialogOptions = {
-    title: 'Insert the game URL on F95Zone',
-    label: 'URL:',
-    value: 'https://f95zone.to/threads/gamename/',
-    inputAttrs: {
-      type: 'url'
-    },
-    type: 'input'
-  }
+    // Ask the URL of the game
+    let promptDialogOptions = {
+      title: "Insert the game URL on F95Zone",
+      label: "URL:",
+      value: "https://f95zone.to/threads/gamename/",
+      inputAttrs: {
+        type: "url",
+      },
+      type: "input",
+    };
 
-  let url = await window.API.invoke("prompt-dialog", promptDialogOptions);
-  if (!url) return;
+    let url = await window.API.invoke("prompt-dialog", promptDialogOptions);
+    if (!url) return;
 
-  // Add game to list
-  let cardPromise = await getGameFromPath(data.filePaths.pop());
-  if (!cardPromise.cardElement) return;
+    // Add game to list
+    let cardPromise = await getGameFromPath(data.filePaths.pop());
+    if (!cardPromise.cardElement) return;
 
-  let info = await window.F95.getGameDataFromURL(url);
-  cardPromise.cardElement.info = info;
-});
+    let info = await window.F95.getGameDataFromURL(url);
+    cardPromise.cardElement.info = info;
+  });
 
 document.querySelector("#add-local-game-btn").addEventListener("click", () => {
   let openDialogOptions = {
@@ -92,14 +93,13 @@ document.querySelector("#add-local-game-btn").addEventListener("click", () => {
     properties: ["openDirectory", "multiSelections"],
   };
 
-  window.API.invoke("open-dialog", openDialogOptions)
-    .then((data) => {
-      // No folder selected
-      if (data.filePaths.length === 0) return;
+  window.API.invoke("open-dialog", openDialogOptions).then((data) => {
+    // No folder selected
+    if (data.filePaths.length === 0) return;
 
-      // Obtain the data
-      getGameFromPaths(data.filePaths);
-    });
+    // Obtain the data
+    getGameFromPaths(data.filePaths);
+  });
 });
 //#endregion Events
 
@@ -107,7 +107,7 @@ document.querySelector("#add-local-game-btn").addEventListener("click", () => {
 /**
  * @private
  * Select the tab with the specified ID in DOM.
- * @param {String} pageID 
+ * @param {String} pageID
  */
 function openPage(pageID) {
   // Local variables
@@ -192,14 +192,14 @@ function addGameCard() {
  * @param {GameCard} gamecard Object to add the listeners to
  */
 function addEventListenerToGameCard(gamecard) {
-  gamecard.addEventListener('play', function (e) {
+  gamecard.addEventListener("play", function (e) {
     if (e.target) {
       let launcherPath = e.detail["launcher"];
       window.API.send("exec", launcherPath);
     }
   });
 
-  gamecard.addEventListener('update', function (e) {
+  gamecard.addEventListener("update", function (e) {
     if (e.target) {
       // Parse info
       let gameDir = e.detail["gameDir"];
@@ -219,7 +219,7 @@ function addEventListenerToGameCard(gamecard) {
     }
   });
 
-  gamecard.addEventListener('delete', function (e) {
+  gamecard.addEventListener("delete", function (e) {
     if (!e.target) return;
 
     // Ask the confirmation
@@ -230,35 +230,34 @@ function addEventListenerToGameCard(gamecard) {
       title: "Confirm deletion",
       message: "Do you really want to eliminate the game?",
       checkboxLabel: "Keep saves (if possible)",
-      checkboxChecked: true
+      checkboxChecked: true,
     };
 
-    window.API.invoke("message-dialog", dialogOptions)
-      .then(function (data) {
-        if (!data) return;
+    window.API.invoke("message-dialog", dialogOptions).then(function (data) {
+      if (!data) return;
 
-        // Cancel button
-        if (data.response === 2) return;
-        else {
-          // Copy saves
-          if (data.checkboxChecked) {
-            // TODO...
-          }
-
-          // Delete also game files
-          if (data.response === 1) {
-            let gameDir = e.detail["gameDir"];
-            window.IO.deleteFolder(gameDir);
-          }
-
-          // Remove the game data
-          gamecard.deleteGameData();
-
-          // Remove the column div containing the card
-          let id = gamecard.getAttribute("id");
-          document.querySelector("#" + id).parentNode.remove();
+      // Cancel button
+      if (data.response === 2) return;
+      else {
+        // Copy saves
+        if (data.checkboxChecked) {
+          // TODO...
         }
-      });
+
+        // Delete also game files
+        if (data.response === 1) {
+          let gameDir = e.detail["gameDir"];
+          window.IO.deleteFolder(gameDir);
+        }
+
+        // Remove the game data
+        gamecard.deleteGameData();
+
+        // Remove the column div containing the card
+        let id = gamecard.getAttribute("id");
+        document.querySelector("#" + id).parentNode.remove();
+      }
+    });
   });
 }
 
@@ -308,14 +307,14 @@ async function loadCachedGames() {
   }
 
   // Write end log
-  Promise.all(promisesList).then(function() {
+  Promise.all(promisesList).then(function () {
     console.log("Cached games loaded");
   });
 }
 
 /**
  * @private
- * Check the version of the listed games 
+ * Check the version of the listed games
  * in the game-card components in DOM.
  */
 async function checkVersionCachedGames() {
@@ -326,7 +325,7 @@ async function checkVersionCachedGames() {
   for (let card of cardGames) {
     // Get version
     let update = await window.F95.checkGameUpdates(card.info);
-    
+
     // Trigger the component
     if (update) {
       let promise = window.F95.getGameDataFromURL(card.info.f95url);
@@ -393,7 +392,10 @@ async function getGameFromPaths(paths) {
         sendMessageToUserWrapper(
           "error",
           "Unexpected error",
-          "Cannot retrieve game data (" + path + "), unexpected error: " + error,
+          "Cannot retrieve game data (" +
+            path +
+            "), unexpected error: " +
+            error,
           ""
         );
       });
@@ -430,20 +432,24 @@ async function getGameFromPath(path) {
 
   // Search and add the game
   let promiseResult = await window.F95.getGameData(name, includeMods);
-  
+
   // No game found
   if (promiseResult.length === 0) {
     return {
       result: false,
       message: "Cannot retrieve information for " + unparsedName,
-      details: "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
+      details:
+        "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
       cardElement: null,
     };
   } else if (promiseResult.length !== 1) {
     return {
       result: false,
       message: "Cannot retrieve information for " + unparsedName,
-      details: "Multiple occurrences of '" + unparsedName + "' detected. Add the game via URL",
+      details:
+        "Multiple occurrences of '" +
+        unparsedName +
+        "' detected. Add the game via URL",
       cardElement: null,
     };
   }
@@ -462,12 +468,12 @@ async function getGameFromPath(path) {
   if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
     card.notificateUpdate(copy);
   }
-  
+
   return {
     result: true,
     message: name + " added correctly",
     details: "",
-    cardElement: card
+    cardElement: card,
   };
 }
 
@@ -566,7 +572,7 @@ async function getUserDataFromF95() {
       ""
     );
   }
-  
+
   // Update component
   document.getElementById("user-info").userdata = userdata;
 }
@@ -583,8 +589,7 @@ window.API.receive("window-closing", function () {
     promiseList.push(promise);
   }
 
-  Promise.all(promiseList)
-  .then(function() {
+  Promise.all(promiseList).then(function () {
     // Close F95 browser
     window.F95.logout();
 
