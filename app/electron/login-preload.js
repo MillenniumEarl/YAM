@@ -11,8 +11,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
 
 // Set F95 cache
-ipcRenderer.invoke("browser-data-dir")
-.then(function (browserDir) {
+ipcRenderer.invoke("browser-data-dir").then(function (browserDir) {
   F95API.setCacheDir(browserDir);
 });
 
@@ -59,5 +58,5 @@ contextBridge.exposeInMainWorld("IO", {
 // Expose the F95API
 contextBridge.exposeInMainWorld("F95", {
   login: (username, password) => F95API.login(username, password),
-  logout: () => F95API.logout()
+  logout: () => F95API.logout(),
 });
