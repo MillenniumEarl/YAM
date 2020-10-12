@@ -324,13 +324,13 @@ async function checkVersionCachedGames() {
   let cardGames = document.querySelectorAll("game-card");
   for (let card of cardGames) {
     // Get version
-    window.F95.checkGameUpdates(card.info).then(function(update) {
-      // Trigger the component
-      if (update) {
-        let promise = window.F95.getGameDataFromURL(card.info.f95url);
-        card.notificateUpdateOnPromise(promise);
-      }
-    });
+    let update = await window.F95.checkGameUpdates(card.info);
+
+    // Trigger the component
+    if (update) {
+      let promise = window.F95.getGameDataFromURL(card.info.f95url);
+      card.notificateUpdateOnPromise(promise);
+    }
   }
 }
 
