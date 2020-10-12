@@ -5,19 +5,11 @@ const path = require("path");
 const fs = require("fs");
 
 // Public modules from npm
-const {
-  app,
-  BrowserWindow,
-  shell,
-  ipcMain,
-  dialog
-} = require("electron");
-const prompt = require('electron-prompt');
+const { app, BrowserWindow, shell, ipcMain, dialog } = require("electron");
+const prompt = require("electron-prompt");
 
 // Modules from file
-const {
-  runApplication
-} = require("./src/scripts/io-operations.js");
+const { runApplication } = require("./src/scripts/io-operations.js");
 const Shared = require("./src/scripts/shared.js");
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -37,12 +29,7 @@ async function createMainWindow() {
     minWidth: 1024,
     minHeight: 600,
     useContentSize: true,
-    icon: path.join(
-      app.getAppPath(),
-      "resources",
-      "images",
-      "icon.ico"
-    ),
+    icon: path.join(app.getAppPath(), "resources", "images", "icon.ico"),
     backgroundColor: "#262626", // Used to simulate loading and not make the user wait
     webPreferences: {
       allowRunningInsecureContent: false,
@@ -92,12 +79,7 @@ async function createLoginWindow() {
   loginWindow = new BrowserWindow({
     width: 400,
     height: 250,
-    icon: path.join(
-      app.getAppPath(),
-      "resources",
-      "images",
-      "icon.ico"
-    ),
+    icon: path.join(app.getAppPath(), "resources", "images", "icon.ico"),
     backgroundColor: "#262626", // Used to simulate loading and not make the user wait
     frame: false,
     webPreferences: {
@@ -171,9 +153,10 @@ ipcMain.handle("cache-dir", function (e) {
   let dirname = path.join(app.getAppPath(), Shared.cacheDir);
 
   // Create directory if not existent
-  if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, {
-    recursive: true
-  });
+  if (!fs.existsSync(dirname))
+    fs.mkdirSync(dirname, {
+      recursive: true,
+    });
   return dirname;
 });
 
@@ -181,9 +164,10 @@ ipcMain.handle("browser-data-dir", function (e) {
   let dirname = path.join(app.getAppPath(), Shared.browserDataDir);
 
   // Create directory if not existent
-  if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, {
-    recursive: true
-  });
+  if (!fs.existsSync(dirname))
+    fs.mkdirSync(dirname, {
+      recursive: true,
+    });
   return dirname;
 });
 
@@ -191,9 +175,10 @@ ipcMain.handle("games-data-dir", function (e) {
   let dirname = path.join(app.getAppPath(), Shared.gamesDataDir);
 
   // Create directory if not existent
-  if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, {
-    recursive: true
-  });
+  if (!fs.existsSync(dirname))
+    fs.mkdirSync(dirname, {
+      recursive: true,
+    });
   return dirname;
 });
 

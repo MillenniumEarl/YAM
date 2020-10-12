@@ -263,8 +263,10 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
     buttons: ["Open F95 page", "Cancel"],
     defaultId: 1, // Cancel
     title: "Update game: Step 1",
-    message: "Click 'Open F95 Page' to download the game.\nInstall/extract it in the directory that will open when this window is closed.",
-    details: "Follow the installation instructions on the official page.\nYou may need to delete the previous version and/or any saved games."
+    message:
+      "Click 'Open F95 Page' to download the game.\nInstall/extract it in the directory that will open when this window is closed.",
+    details:
+      "Follow the installation instructions on the official page.\nYou may need to delete the previous version and/or any saved games.",
   };
 
   window.API.invoke("message-dialog", optionsStepOne).then(function (data) {
@@ -284,21 +286,25 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
       defaultId: 1, // Cancel
       title: "Update game: Step 2",
       message: "Click 'Update completed' to mark the game as updated.",
-      details: "Clicking on 'Update completed', will rename the directory, make sure it is not used by other processes!"
+      details:
+        "Clicking on 'Update completed', will rename the directory, make sure it is not used by other processes!",
     };
 
-    window.API.invoke("message-dialog", optionsStepTwo).then(async function (data) {
+    window.API.invoke("message-dialog", optionsStepTwo).then(async function (
+      data
+    ) {
       if (!data) return;
       if (data.response !== 0) return;
 
       // Finalize the update
       let result = await gamecard.finalizeUpdate();
 
-      if(!result) {
+      if (!result) {
         sendMessageToUserWrapper(
-          "error", 
-        "Error during update", 
-        "Cannot finalize the update, please check if another directory of the game exists.")
+          "error",
+          "Error during update",
+          "Cannot finalize the update, please check if another directory of the game exists."
+        );
       }
     });
   });
