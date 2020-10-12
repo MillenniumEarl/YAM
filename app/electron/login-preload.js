@@ -16,7 +16,7 @@ ipcRenderer.invoke("browser-data-dir").then(function (browserDir) {
 });
 
 // Modules from file
-const { readFileSync, fileExists } = require("../src/scripts/io-operations.js");
+const { readFileSync, exists } = require("../src/scripts/io-operations.js");
 
 // Array of valid render-to-main channels
 let validSendChannels = [
@@ -51,7 +51,7 @@ contextBridge.exposeInMainWorld("IO", {
     fs.writeFileSync(path, value);
   },
   fileExists: async function (filename) {
-    return fileExists(filename);
+    return exists(filename);
   },
 });
 

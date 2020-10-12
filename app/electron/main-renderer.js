@@ -201,15 +201,11 @@ function addEventListenerToGameCard(gamecard) {
 
   gamecard.addEventListener("update", function (e) {
     if (e.target) {
-      // Parse info
-      let gameDir = e.detail["gameDir"];
-      let downloadInfo = e.detail["downloadInfo"];
-      let url = e.detail["url"];
-      window.API.send("exec", url);
-      return;
+      guidedGameUpdate(gamecard, e.detail["gameDir"], e.detail["url"]);
 
       // Download and install (first hosting platoform in list)
       // !!! Against the guidelines: DON'T DO IT !!!
+      // let downloadInfo = e.detail["downloadInfo"];
       // for (let di of downloadInfo) {
       //   if (di.supportedOS.includes(window.API.platform)) {
       //     di.download(gameDir);
@@ -256,6 +252,53 @@ function addEventListenerToGameCard(gamecard) {
         // Remove the column div containing the card
         let id = gamecard.getAttribute("id");
         document.querySelector("#" + id).parentNode.remove();
+      }
+    });
+  });
+}
+
+function guidedGameUpdate(gamecard, gamedir, gameurl) {
+  let optionsStepOne = {
+    type: "info",
+    buttons: ["Open F95 page", "Cancel"],
+    defaultId: 1, // Cancel
+    title: "Update game: Step 1",
+    message: "Click 'Open F95 Page' to download the game.\nInstall/extract it in the directory that will open when this window is closed.",
+    details: "Follow the installation instructions on the official page.\nYou may need to delete the previous version and/or any saved games."
+  };
+
+  window.API.invoke("message-dialog", optionsStepOne).then(function (data) {
+    if (!data) return;
+    if (data.response !== 0) return;
+
+    // Open URL in default browser
+    window.API.send("exec", gameurl);
+
+    // Open the game directory
+    window.API.send("exec", gamedir);
+
+    // Mark the update as completed
+    let optionsStepTwo = {
+      type: "info",
+      buttons: ["Update completed", "Cancel"],
+      defaultId: 1, // Cancel
+      title: "Update game: Step 2",
+      message: "Click 'Update completed' to mark the game as updated.",
+      details: "Clicking on 'Update completed', will rename the directory, make sure it is not used by other processes!"
+    };
+
+    window.API.invoke("message-dialog", optionsStepTwo).then(async function (data) {
+      if (!data) return;
+      if (data.response !== 0) return;
+
+      // Finalize the update
+      let result = await gamecard.finalizeUpdate();
+
+      if(!result) {
+        sendMessageToUserWrapper(
+          "error", 
+        "Error during update", 
+        "Cannot finalize the update, please check if another directory of the game exists.")
       }
     });
   });
@@ -345,7 +388,7 @@ function login() {
   if (!window.API.isOnline) {
     // Send error message
     sendMessageToUserWrapper(
-      "warining",
+      "warning",
       "No connection",
       "No network connection detected, unable to login to F95Zone",
       "The lack of connection prevents you from logging in and updating the games but still allows you to play them"
@@ -369,9 +412,9 @@ function login() {
  * @param {String[]} paths Path of the directories containg games
  */
 async function getGameFromPaths(paths) {
-  // Allow max 5 searched at the time
+  // Allow max 3 searched at the time
   let promiseList = [];
-  const MAX_PROMISE_AT_TIME = 5;
+  const MAX_PROMISE_AT_TIME = 3;
 
   // Parse the game dir name(s)
   for (let path of paths) {

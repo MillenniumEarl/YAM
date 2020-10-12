@@ -84,7 +84,7 @@ async function createMainWindow() {
   mainWindow.loadFile(htmlPath);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 }
 
 async function createLoginWindow() {

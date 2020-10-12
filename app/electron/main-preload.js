@@ -6,7 +6,7 @@
 // Core modules
 const fs = require("fs");
 const { glob } = require("glob");
-const { join } = require("path");
+const { join, basename, dirname } = require("path");
 
 // Public modules from npm
 const { contextBridge, ipcRenderer } = require("electron");
@@ -17,7 +17,7 @@ const download = require("image-downloader");
 const {
   deleteFolderRecursive,
   readFileSync,
-  fileExists,
+  exists,
 } = require("../src/scripts/io-operations.js");
 
 // Set F95 cache
@@ -84,6 +84,9 @@ contextBridge.exposeInMainWorld("API", {
   downloadImage: function (url, dest) {
     return download.image({ url: url, dest: dest });
   },
+  getDirName: function (path) {
+    return basename(dirname(path));
+  }
 });
 
 // Expose the I/O operations
@@ -109,7 +112,13 @@ contextBridge.exposeInMainWorld("IO", {
     deleteFolderRecursive(dirname);
   },
   fileExists: async function (filename) {
-    return fileExists(filename);
+    return exists(filename);
+  },
+  dirExists: async function (filename) {
+    return exists(filename);
+  },
+  renameDir: function (currPath, newPath) {
+    fs.renameSync(currPath, newPath);
   },
 });
 

@@ -139,6 +139,7 @@ class GameCard extends HTMLElement {
     this.deleteGameData = this.deleteGameData.bind(this);
     this.notificateUpdate = this.notificateUpdate.bind(this);
     this.notificateUpdateOnPromise = this.notificateUpdateOnPromise.bind(this);
+    this.finalizeUpdate = this.finalizeUpdate.bind(this);
     this.play = this.play.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
@@ -289,6 +290,37 @@ class GameCard extends HTMLElement {
 
     // Set update data
     this._updateInfo = info;
+  }
+  /**
+   * @public
+   * Finalize the update renaming the game folder and showing the new info.
+   * @return {Boolean} Result of the operation
+   */
+  async finalizeUpdate() {
+    if(!this._updateInfo) {
+      console.warn("No need to finalize, no update notified");
+      return;
+    }
+
+    // Rename the old path
+    let oldDirName = this.info.gameDir.split("\\").pop();
+    let dirpath = this.info.gameDir.replace(oldDirName, "");
+    let modVariant = this._updateInfo.isMod ? " [MOD]" : ""; // Leave the trailing space!
+    let dirname = this._updateInfo.name + " [v." + this._updateInfo.version + "]" + modVariant;
+    let newpath = window.API.join(dirpath, dirname);
+    if(await window.IO.dirExists(newpath)) return false;
+    window.IO.renameDir(this.info.gameDir, newpath);
+
+    // Update info
+    this._updateInfo.gameDir = newpath;
+    this.info = this._updateInfo;
+
+    // Save info
+    this.saveGameData();
+
+    // Hide the button
+    this.querySelector(".update-p").style.display = "none";
+    return true;
   }
   //#endregion Public methods
 }
