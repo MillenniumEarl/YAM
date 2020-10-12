@@ -19,9 +19,6 @@ ipcRenderer.invoke("browser-data-dir")
 // Modules from file
 const { readFileSync, fileExists } = require("../src/scripts/io-operations.js");
 
-// Array of valid main-to-render channels
-let validReceiveChannels = ["auth-result", "credentials-path"];
-
 // Array of valid render-to-main channels
 let validSendChannels = [
   "auth-result",

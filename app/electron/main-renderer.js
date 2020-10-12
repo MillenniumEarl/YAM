@@ -210,12 +210,12 @@ function addEventListenerToGameCard(gamecard) {
 
       // Download and install (first hosting platoform in list)
       // !!! Against the guidelines: DON'T DO IT !!!
-      for (let di of downloadInfo) {
-        if (di.supportedOS.includes(window.API.platform)) {
-          di.download(gameDir);
-          break;
-        }
-      }
+      // for (let di of downloadInfo) {
+      //   if (di.supportedOS.includes(window.API.platform)) {
+      //     di.download(gameDir);
+      //     break;
+      //   }
+      // }
     }
   });
 
@@ -333,8 +333,6 @@ async function checkVersionCachedGames() {
       card.notificateUpdateOnPromise(promise);
     }
   }
-
-  console.log("Games updates checked");
 }
 
 /**
@@ -386,7 +384,7 @@ async function getGameFromPaths(paths) {
             "warning",
             "Game not detected",
             result["message"],
-            "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)"
+            result["details"]
           );
         }
       })
@@ -431,19 +429,28 @@ async function getGameFromPath(path) {
   name = cleanGameName(unparsedName);
 
   // Search and add the game
-  let resultInfo = await window.F95.getGameData(name, includeMods);
+  let promiseResult = await window.F95.getGameData(name, includeMods);
   
   // No game found
-  if (resultInfo.length === 0)
+  if (promiseResult.length === 0) {
     return {
       result: false,
       message: "Cannot retrieve information for " + unparsedName,
+      details: "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
       cardElement: null,
     };
+  } else if (promiseResult.length !== 1) {
+    return {
+      result: false,
+      message: "Cannot retrieve information for " + unparsedName,
+      details: "Multiple occurrences of '" + unparsedName + "' detected. Add the game via URL",
+      cardElement: null,
+    };
+  }
 
   // Add the game
-  let copy = Object.assign({}, resultInfo[0]); // Copy reference to object
-  let firstGame = resultInfo[0];
+  let copy = Object.assign({}, promiseResult[0]); // Copy reference to object
+  let firstGame = promiseResult[0];
   let card = addGameCard();
   let onlineVersion = firstGame.version;
 
@@ -459,6 +466,7 @@ async function getGameFromPath(path) {
   return {
     result: true,
     message: name + " added correctly",
+    details: "",
     cardElement: card
   };
 }

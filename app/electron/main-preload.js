@@ -25,7 +25,6 @@ ipcRenderer.invoke("browser-data-dir")
 .then(function (browserDir) {
   F95API.setCacheDir(browserDir);
 });
-F95API.debug(true);
 
 // Set F95 isolation
 F95API.setIsolation(true);
