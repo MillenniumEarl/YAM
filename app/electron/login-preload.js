@@ -27,7 +27,7 @@ const { readFileSync, exists } = require("../src/scripts/io-operations.js");
 let validSendChannels = [
   "auth-result",
   "login-window-closing",
-  "credentials-path"
+  "credentials-path",
 ];
 
 // Expose protected methods that allow the renderer process to use

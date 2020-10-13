@@ -7,12 +7,12 @@ const fs = require("fs");
 // Public modules from npm
 const { app, BrowserWindow, shell, ipcMain, dialog } = require("electron");
 const prompt = require("electron-prompt");
-const isDev = require('electron-is-dev');
+const isDev = require("electron-is-dev");
 
 // Modules from file
 const { runApplication } = require("./src/scripts/io-operations.js");
 const shared = require("./src/scripts/shared.js");
-const {installChromium} = require("./src/scripts/chromium.js");
+const { installChromium } = require("./src/scripts/chromium.js");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -66,7 +66,7 @@ async function createMainWindow() {
   });
 
   // Disable default menu
-  if(!isDev) mainWindow.setMenu(null)
+  if (!isDev) mainWindow.setMenu(null);
 
   // Load the index.html of the app.
   let htmlPath = path.join(app.getAppPath(), "app", "src", "index.html");
@@ -145,43 +145,43 @@ ipcMain.on("exec", function (e, filename) {
 
 // Return the current root dir path (Current Working Directory)
 ipcMain.handle("cwd", function (e) {
-  return '.';
+  return ".";
 });
 
 //#region shared app variables
 ipcMain.handle("cache-dir", function (e) {
-  let dirname = path.resolve('.', shared.cacheDir);
+  let dirname = path.resolve(".", shared.cacheDir);
 
   // Create directory if not existent
   if (!fs.existsSync(dirname))
     fs.mkdirSync(dirname, {
       recursive: true,
     });
-  
+
   return dirname;
 });
 
 ipcMain.handle("browser-data-dir", function (e) {
-  let dirname = path.resolve('.', shared.browserDataDir);
+  let dirname = path.resolve(".", shared.browserDataDir);
 
   // Create directory if not existent
   if (!fs.existsSync(dirname))
     fs.mkdirSync(dirname, {
       recursive: true,
     });
-    
+
   return dirname;
 });
 
 ipcMain.handle("games-data-dir", function (e) {
-  let dirname = path.resolve('.', shared.gamesDataDir);
+  let dirname = path.resolve(".", shared.gamesDataDir);
 
   // Create directory if not existent
   if (!fs.existsSync(dirname))
     fs.mkdirSync(dirname, {
       recursive: true,
     });
-    
+
   return dirname;
 });
 

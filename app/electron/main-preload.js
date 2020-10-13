@@ -34,10 +34,7 @@ ipcRenderer.invoke("chromium-path").then(function (path) {
 F95API.setIsolation(true);
 
 // Array of valid main-to-render channels
-let validReceiveChannels = [
-  "window-closing",
-  "auth-result",
-];
+let validReceiveChannels = ["window-closing", "auth-result"];
 
 // Array of valid render-to-main channels
 let validSendChannels = [
@@ -52,7 +49,7 @@ let validSendChannels = [
   "cache-dir",
   "browser-data-dir",
   "games-data-dir",
-  "credentials-path"
+  "credentials-path",
 ];
 
 // Expose protected methods that allow the renderer process to use
