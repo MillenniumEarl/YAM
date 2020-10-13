@@ -100,6 +100,16 @@ class UserInfo extends HTMLElement {
     this.querySelector("div.col-username").style.display = "none";
     this.querySelector("div.col-login").style.display = "none";
   }
+  /**
+   * @public
+   * Hide the spinner in the component.
+   */
+  hideSpinner() {
+    // Show the spinner
+    this.querySelector("div.col-spinner").style.display = "none";
+    this.querySelector("div.col-username").style.display = "none";
+    this.querySelector("div.col-login").style.display = "inline-block";
+  }
   //#endregion
 }
 

@@ -22,7 +22,10 @@
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux",
+    "dist:all": "electron-builder -mwl"
   },
   "engines": {
     "node": ">=10.0"
@@ -49,18 +52,18 @@
     },
     "win": {
       "target": "portable",
-      "icon": "resources/images/logo.ico",
+      "icon": "./resources/images/icon.ico",
       "publisherName": "${author}"
     },
     "mac": {
       "category": "public.app-category.games",
       "target": "default",
-      "icon": "resources/images/logo.icns",
+      "icon": "./resources/images/icon.icns",
       "type": "development"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "resources/images/logo.icns"
+      "icon": "./resources/images/icon.icns"
     }
   }
 }

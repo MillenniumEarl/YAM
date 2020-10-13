@@ -257,6 +257,13 @@ function addEventListenerToGameCard(gamecard) {
   });
 }
 
+/**
+ * @private
+ * Guide the user in the game update.
+ * @param {HTMLElement} gamecard GameCard of the game to update
+ * @param {String} gamedir Directory where the game is installed
+ * @param {String} gameurl  URL of the game
+ */
 function guidedGameUpdate(gamecard, gamedir, gameurl) {
   let optionsStepOne = {
     type: "info",
@@ -649,7 +656,14 @@ window.API.receive("auth-result", (args) => {
   let password = args[2];
 
   console.log("Authentication result: " + result);
-  if (result !== "AUTHENTICATED") return;
+  if (result !== "AUTHENTICATED") {
+    // Hide "new game" button
+    document.querySelector("#fab-add-game-btn").style.display = "none";
+
+    // Hide spinner
+    document.getElementById("user-info").hideSpinner();
+    return;
+  }
 
   // Load data (session not shared between windows)
   window.F95.login(username, password)
@@ -662,6 +676,9 @@ window.API.receive("auth-result", (args) => {
 
       // Check games updates
       checkVersionCachedGames();
+
+      // Show "new game" button
+      document.querySelector("#fab-add-game-btn").style.display = "block";
     })
     .catch(function (error) {
       // Send error message
