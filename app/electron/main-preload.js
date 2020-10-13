@@ -25,6 +25,11 @@ ipcRenderer.invoke("browser-data-dir").then(function (browserDir) {
   F95API.setCacheDir(browserDir);
 });
 
+// Set F95 chromium path
+ipcRenderer.invoke("chromium-path").then(function (path) {
+  F95API.setChromiumPath(path);
+});
+
 // Set F95 isolation
 F95API.setIsolation(true);
 
@@ -32,11 +37,6 @@ F95API.setIsolation(true);
 let validReceiveChannels = [
   "window-closing",
   "auth-result",
-  "cawd",
-  "cache-dir",
-  "browser-data-dir",
-  "games-data-dir",
-  "credentials-path",
 ];
 
 // Array of valid render-to-main channels
@@ -48,11 +48,11 @@ let validSendChannels = [
   "open-dialog",
   "save-dialog",
   "prompt-dialog",
-  "cawd",
+  "cwd",
   "cache-dir",
   "browser-data-dir",
   "games-data-dir",
-  "credentials-path",
+  "credentials-path"
 ];
 
 // Expose protected methods that allow the renderer process to use

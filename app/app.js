@@ -10,7 +10,8 @@ const prompt = require("electron-prompt");
 
 // Modules from file
 const { runApplication } = require("./src/scripts/io-operations.js");
-const Shared = require("./src/scripts/shared.js");
+const shared = require("./src/scripts/shared.js");
+const {installChromium} = require("./src/scripts/chromium.js");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -69,9 +70,6 @@ async function createMainWindow() {
   // Load the index.html of the app.
   let htmlPath = path.join(app.getAppPath(), "app", "src", "index.html");
   mainWindow.loadFile(htmlPath);
-
-  // Open the DevTools.
-  //mainWindow.webContents.openDevTools();
 }
 
 async function createLoginWindow() {
@@ -79,6 +77,7 @@ async function createLoginWindow() {
   loginWindow = new BrowserWindow({
     width: 400,
     height: 250,
+    resizable: false,
     icon: path.join(app.getAppPath(), "resources", "images", "icon.ico"),
     backgroundColor: "#262626", // Used to simulate loading and not make the user wait
     frame: false,
@@ -99,7 +98,7 @@ async function createLoginWindow() {
   });
 
   // Disable default menu
-  loginWindow.setMenu(null);
+  //loginWindow.setMenu(null);
 
   // Load the html file
   let htmlPath = path.join(app.getAppPath(), "app", "src", "login.html");
@@ -143,50 +142,57 @@ ipcMain.on("exec", function (e, filename) {
   runApplication(...filename);
 });
 
-// Return the current app.js path (Current App Working Directory)
-ipcMain.handle("cawd", function (e) {
-  return app.getAppPath();
+// Return the current root dir path (Current Working Directory)
+ipcMain.handle("cwd", function (e) {
+  return '.';
 });
 
-//#region Shared app variables
+//#region shared app variables
 ipcMain.handle("cache-dir", function (e) {
-  let dirname = path.join(app.getAppPath(), Shared.cacheDir);
+  let dirname = path.resolve('.', shared.cacheDir);
 
   // Create directory if not existent
   if (!fs.existsSync(dirname))
     fs.mkdirSync(dirname, {
       recursive: true,
     });
+  
   return dirname;
 });
 
 ipcMain.handle("browser-data-dir", function (e) {
-  let dirname = path.join(app.getAppPath(), Shared.browserDataDir);
+  let dirname = path.resolve('.', shared.browserDataDir);
 
   // Create directory if not existent
   if (!fs.existsSync(dirname))
     fs.mkdirSync(dirname, {
       recursive: true,
     });
+    
   return dirname;
 });
 
 ipcMain.handle("games-data-dir", function (e) {
-  let dirname = path.join(app.getAppPath(), Shared.gamesDataDir);
+  let dirname = path.resolve('.', shared.gamesDataDir);
 
   // Create directory if not existent
   if (!fs.existsSync(dirname))
     fs.mkdirSync(dirname, {
       recursive: true,
     });
+    
   return dirname;
 });
 
 ipcMain.handle("credentials-path", function (e) {
-  return Shared.credentialsPath;
+  return shared.credentialsPath;
 });
 
-//#endregion Shared app variables
+ipcMain.handle("chromium-path", function (e) {
+  return shared.chromiumPath;
+});
+
+//#endregion shared app variables
 
 //#region IPC dialog for main window
 ipcMain.handle("message-dialog", function (e, options) {
@@ -211,8 +217,10 @@ ipcMain.handle("prompt-dialog", function (e, options) {
 //#region App-related events
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-// Some APIs can only be used after this e occurs.
-app.whenReady().then(function () {
+// Some APIs can only be used after this event occurs.
+app.whenReady().then(async function () {
+  shared.chromiumPath = await installChromium();
+
   createMainWindow();
 
   app.on("activate", function () {

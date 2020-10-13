@@ -15,6 +15,11 @@ ipcRenderer.invoke("browser-data-dir").then(function (browserDir) {
   F95API.setCacheDir(browserDir);
 });
 
+// Set F95 chromium path
+ipcRenderer.invoke("chromium-path").then(function (path) {
+  F95API.setChromiumPath(path);
+});
+
 // Modules from file
 const { readFileSync, exists } = require("../src/scripts/io-operations.js");
 
@@ -22,7 +27,7 @@ const { readFileSync, exists } = require("../src/scripts/io-operations.js");
 let validSendChannels = [
   "auth-result",
   "login-window-closing",
-  "credentials-path",
+  "credentials-path"
 ];
 
 // Expose protected methods that allow the renderer process to use

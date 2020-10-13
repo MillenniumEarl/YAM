@@ -28,6 +28,11 @@ class Shared {
    * @type String
    */
   static #_credentialsName = "credentials.json";
+  /**
+   * Path to the local version of chromium.
+   * @type String
+   */
+  static #_chromiumLocalPath = null;
   //#endregion Private static properties
 
   //#region Getters
@@ -59,11 +64,21 @@ class Shared {
   static get credentialsPath() {
     return join(this.#_cacheDir, this.#_credentialsName);
   }
+  /**
+   * Path to the local version of chromium.
+   * @returns {String}
+   */
+  static get chromiumPath() {
+    return this.#_chromiumLocalPath;
+  }
   //#endregion Getters
 
   //#region Setters
   static set cacheDir(val) {
     this.#_cacheDir = val;
+  }
+  static set chromiumPath(val) {
+    this.#_chromiumLocalPath = val;
   }
   //#endregion Setters
 }

@@ -31,6 +31,7 @@
     "node": ">=10.0"
   },
   "dependencies": {
+    "download-chromium": "^2.2.1",
     "electron-online": "^1.0.0",
     "electron-prompt": "^1.6.0",
     "f95api": "MillenniumEarl/F95API#master",
@@ -49,7 +50,8 @@
     "copyright": "Copyright © year ${author}",
     "files": [
       "**/*",
-      "!cache${/*}"
+      "!cache${/*}",
+      "!node_modules/puppeteer/.local-chromium${/*}"
     ],
     "directories": {
       "output": "./dist"
