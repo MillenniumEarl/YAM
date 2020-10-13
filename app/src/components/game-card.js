@@ -50,7 +50,8 @@ class GameCard extends HTMLElement {
       ? value.previewSource
       : "../../resources/images/f95-logo.jpg";
     this.querySelector("#preview").setAttribute("src", source);
-    this.querySelector("#installed-version").innerText = "Installed version: " + value.version;
+    this.querySelector("#installed-version").innerText =
+      "Installed version: " + value.version;
     this.querySelector("#last-update").innerText = value.lastUpdate;
   }
 
@@ -165,7 +166,7 @@ class GameCard extends HTMLElement {
     let files = await window.IO.filter("*." + extension, gameDir);
 
     // Try with HTML
-    if(files.length === 0) files = await window.IO.filter("*.html", gameDir);
+    if (files.length === 0) files = await window.IO.filter("*.html", gameDir);
 
     // Return executable
     if (files.length === 0) return null;
@@ -182,7 +183,8 @@ class GameCard extends HTMLElement {
   async downloadGamePreview(name, previewSource) {
     // Check if it's possible to download the image
     if (previewSource.trim() === "") return null;
-    if (previewSource.trim() === "../../resources/images/f95-logo.jpg") return null;
+    if (previewSource.trim() === "../../resources/images/f95-logo.jpg")
+      return null;
     if (await window.IO.fileExists(previewSource)) return null; // Already downloaded
 
     // Get image extension
@@ -194,7 +196,7 @@ class GameCard extends HTMLElement {
     let gameCacheDir = await window.API.invoke("games-data-dir");
     let localPreviewPath = window.API.join(gameCacheDir, imageName);
     let path = await window.API.downloadImage(previewSource, localPreviewPath);
-    
+
     if (path) return localPreviewPath;
     else return null;
   }
@@ -223,7 +225,7 @@ class GameCard extends HTMLElement {
       );
       if (previewLocalPath) this._info.previewSource = previewLocalPath;
     }
-    
+
     // Save the serialized JSON
     window.IO.write(await this.getDataJSONPath(), JSON.stringify(this._info));
   }
@@ -250,7 +252,8 @@ class GameCard extends HTMLElement {
 
     // Delete the cached preview
     if (!this.info.previewSource) return;
-    if (window.IO.fileExists(this.info.previewSource)) window.IO.deleteFile(this.info.previewSource);
+    if (window.IO.fileExists(this.info.previewSource))
+      window.IO.deleteFile(this.info.previewSource);
   }
   /**
    * @public
@@ -297,7 +300,7 @@ class GameCard extends HTMLElement {
    * @return {Boolean} Result of the operation
    */
   async finalizeUpdate() {
-    if(!this._updateInfo) {
+    if (!this._updateInfo) {
       console.warn("No need to finalize, no update notified");
       return;
     }
@@ -306,9 +309,14 @@ class GameCard extends HTMLElement {
     let oldDirName = this.info.gameDir.split("\\").pop();
     let dirpath = this.info.gameDir.replace(oldDirName, "");
     let modVariant = this._updateInfo.isMod ? " [MOD]" : ""; // Leave the trailing space!
-    let dirname = this._updateInfo.name + " [v." + this._updateInfo.version + "]" + modVariant;
+    let dirname =
+      this._updateInfo.name +
+      " [v." +
+      this._updateInfo.version +
+      "]" +
+      modVariant;
     let newpath = window.API.join(dirpath, dirname);
-    if(await window.IO.dirExists(newpath)) return false;
+    if (await window.IO.dirExists(newpath)) return false;
     window.IO.renameDir(this.info.gameDir, newpath);
 
     // Update info

@@ -38,11 +38,9 @@ class UserInfo extends HTMLElement {
 
     // Update shadow DOM
     if (val.avatarSrc)
-      this.querySelector("#avatar")
-        .setAttribute("src", val.avatarSrc);
+      this.querySelector("#avatar").setAttribute("src", val.avatarSrc);
     this.querySelector("#username").innerText = val.username;
-    this.querySelector("div.col-username").style.display =
-      "inline-block";
+    this.querySelector("div.col-username").style.display = "inline-block";
     this.querySelector("div.col-login").style.display = "none";
     this.querySelector("div.col-spinner").style.display = "none";
   }

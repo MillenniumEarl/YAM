@@ -86,7 +86,7 @@ contextBridge.exposeInMainWorld("API", {
   },
   getDirName: function (path) {
     return basename(dirname(path));
-  }
+  },
 });
 
 // Expose the I/O operations
