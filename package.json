@@ -47,6 +47,10 @@
     "appId": "com.electron.${name}",
     "productName": "F95 Game Updater",
     "copyright": "Copyright © year ${author}",
+    "files": [
+      "**/*",
+      "!cache${/*}"
+    ],
     "directories": {
       "output": "./dist"
     },
