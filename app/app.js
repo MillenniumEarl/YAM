@@ -7,6 +7,7 @@ const fs = require("fs");
 // Public modules from npm
 const { app, BrowserWindow, shell, ipcMain, dialog } = require("electron");
 const prompt = require("electron-prompt");
+const isDev = require('electron-is-dev');
 
 // Modules from file
 const { runApplication } = require("./src/scripts/io-operations.js");
@@ -65,7 +66,7 @@ async function createMainWindow() {
   });
 
   // Disable default menu
-  //mainWindow.setMenu(null)
+  if(!isDev) mainWindow.setMenu(null)
 
   // Load the index.html of the app.
   let htmlPath = path.join(app.getAppPath(), "app", "src", "index.html");
@@ -98,7 +99,7 @@ async function createLoginWindow() {
   });
 
   // Disable default menu
-  //loginWindow.setMenu(null);
+  if (!isDev) loginWindow.setMenu(null);
 
   // Load the html file
   let htmlPath = path.join(app.getAppPath(), "app", "src", "login.html");

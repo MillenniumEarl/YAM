@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "download-chromium": "^2.2.1",
+    "electron-is-dev": "^1.2.0",
     "electron-online": "^1.0.0",
     "electron-prompt": "^1.6.0",
     "f95api": "MillenniumEarl/F95API#master",
