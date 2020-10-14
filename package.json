@@ -33,11 +33,14 @@
   "dependencies": {
     "download-chromium": "^2.2.1",
     "electron-is-dev": "^1.2.0",
+    "electron-log": "^4.2.4",
     "electron-online": "^1.0.0",
     "electron-prompt": "^1.6.0",
+    "electron-store": "^6.0.1",
     "f95api": "MillenniumEarl/F95API#master",
     "glob": "^7.1.6",
     "image-downloader": "^4.0.1",
+    "material-components-web": "^7.0.0",
     "material-design-icons": "^3.0.1",
     "materialize-css": "materializecss/materialize#v1-dev"
   },

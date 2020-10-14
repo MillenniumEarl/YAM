@@ -185,7 +185,7 @@ class GameCard extends HTMLElement {
     if (previewSource.trim() === "") return null;
     if (previewSource.trim() === "../../resources/images/f95-logo.jpg")
       return null;
-    if (await window.IO.fileExists(previewSource)) return null; // Already downloaded
+    if (await window.IO.pathExists(previewSource)) return null; // Already downloaded
 
     // Get image extension
     let splitted = previewSource.split(".");
@@ -252,7 +252,7 @@ class GameCard extends HTMLElement {
 
     // Delete the cached preview
     if (!this.info.previewSource) return;
-    if (window.IO.fileExists(this.info.previewSource))
+    if (window.IO.pathExists(this.info.previewSource))
       window.IO.deleteFile(this.info.previewSource);
   }
   /**
@@ -316,7 +316,7 @@ class GameCard extends HTMLElement {
       "]" +
       modVariant;
     let newpath = window.API.join(dirpath, dirname);
-    if (await window.IO.dirExists(newpath)) return false;
+    if (await window.IO.pathExists(newpath)) return false;
     window.IO.renameDir(this.info.gameDir, newpath);
 
     // Update info

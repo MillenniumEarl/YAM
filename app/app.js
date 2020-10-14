@@ -82,6 +82,8 @@ async function createLoginWindow() {
     icon: path.join(app.getAppPath(), "resources", "images", "icon.ico"),
     backgroundColor: "#262626", // Used to simulate loading and not make the user wait
     frame: false,
+    parent: mainWindow,
+    modal: true,
     webPreferences: {
       allowRunningInsecureContent: false,
       worldSafeExecuteJavaScript: true,

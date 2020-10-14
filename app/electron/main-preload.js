@@ -56,6 +56,9 @@ let validSendChannels = [
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
   appDir: __dirname.replace("electron", ""),
+  /**
+   * OS platform of the current device.
+   */
   platform: process.platform,
   invoke: (channel, ...data) => {
     // Send a custom message
@@ -88,32 +91,68 @@ contextBridge.exposeInMainWorld("API", {
 
 // Expose the I/O operations
 contextBridge.exposeInMainWorld("IO", {
+  /**
+   * Read data from a file synchronously.
+   * @param {String} path 
+   * @returns {Any}
+   */
   readSync: function (path) {
     return readFileSync(path);
   },
+  /**
+   * Read data from a file asynchronously.
+   * @param {String} path 
+   * @returns {Any}
+   */
   read: async function (path) {
     return readFileSync(path);
   },
+  /**
+   * Write data in a file.
+   * @param {String} path 
+   * @param {Any} value 
+   */
   write: async function (path, value) {
     fs.writeFileSync(path, value);
   },
+  /**
+   * Filter a direcotry using glob.
+   * @param {String} filter Glob filter
+   * @param {String} basedir Path to the directory where starting using the filter
+   * @returns {Promise<String[]>} List of files matching the filter
+   */
   filter: async function (filter, basedir) {
     return glob.sync(filter, {
       cwd: basedir,
     });
   },
+  /**
+   * Remove a single file from disk.
+   * @param {String} filename Path to the file
+   */
   deleteFile: function (filename) {
     fs.unlinkSync(filename);
   },
+  /**
+   * Remove a dirctory recursively, unlinking also the content.
+   * @param {String} dirname Path of the directory
+   */
   deleteFolder: async function (dirname) {
     deleteFolderRecursive(dirname);
   },
-  fileExists: async function (filename) {
-    return exists(filename);
+  /**
+   * Check if the path exists on disk.
+   * @param {String} path 
+   * @returns {Boolean}
+   */
+  pathExists: async function (path) {
+    return exists(path);
   },
-  dirExists: async function (filename) {
-    return exists(filename);
-  },
+  /**
+   * Rename a directory.
+   * @param {String} currPath Current path of the directory
+   * @param {String} newPath Path of the directory with the new name
+   */
   renameDir: function (currPath, newPath) {
     fs.renameSync(currPath, newPath);
   },
