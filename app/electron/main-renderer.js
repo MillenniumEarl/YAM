@@ -240,11 +240,11 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
     defaultId: 1, // Cancel
     title: "Update game: Step 1",
     message:
-      "Click 'Open F95 Page' to download the game.\nInstall/extract it in the directory that will open when this window is closed.",
-    details:
-      "Follow the installation instructions on the official page.\nYou may need to delete the previous version and/or any saved games.",
+      "Click 'Open F95 Page' to download the game.\nInstall/extract it in the directory that will open when this window is closed.\nFollow the installation instructions on the official page.\nYou may need to delete the previous version and/or any saved games",
+    detail:
+      "Changelog:\n" + gamecard.changelog,
   };
-
+  
   window.API.invoke("message-dialog", optionsStepOne).then(function (data) {
     if (!data) return;
     if (data.response !== 0) return;
@@ -262,7 +262,7 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
       defaultId: 1, // Cancel
       title: "Update game: Step 2",
       message: "Click 'Update completed' to mark the game as updated.",
-      details:
+      detail:
         "Clicking on 'Update completed', will rename the directory, make sure it is not used by other processes!",
     };
 
@@ -463,7 +463,7 @@ async function getGameFromPath(path) {
     return {
       result: false,
       message: "Cannot retrieve information for " + unparsedName,
-      details:
+      detail:
         "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
       cardElement: null,
     };
@@ -471,7 +471,7 @@ async function getGameFromPath(path) {
     return {
       result: false,
       message: "Cannot retrieve information for " + unparsedName,
-      details:
+      detail:
         "Multiple occurrences of '" +
         unparsedName +
         "' detected. Add the game via URL",

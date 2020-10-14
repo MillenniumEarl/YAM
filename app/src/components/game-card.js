@@ -58,6 +58,11 @@ class GameCard extends HTMLElement {
   get info() {
     return this._info;
   }
+
+  get changelog() {
+    let value = this._updateInfo ? this._updateInfo.changelog : this.info.changelog;
+    return value;
+  }
   //#endregion Properties
 
   //#region Events
@@ -283,7 +288,7 @@ class GameCard extends HTMLElement {
     this.querySelector(".update-p").style.display = "block";
 
     // Change the text of the button
-    this.updateBtn.innerText = "Update (v." + info.version + ")";
+    this.updateBtn.innerText = "Update (" + info.version + ")";
 
     // Re-add the icon (innerText is overwritten)
     let icon = document.createElement("i");
