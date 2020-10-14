@@ -125,25 +125,6 @@ function openPage(pageID) {
 
 /**
  * @private
- * Create a new <div> in the DOM with the materialize-css's "row" class.
- * @returns {HTMLDivElement} Created div
- */
-function createNewGridRowInDOM() {
-  // Create a new div "row"
-  let row = document.createElement("div");
-  row.setAttribute("class", "row");
-
-  // Select the container div
-  let container = document.getElementById("games-tab");
-
-  // Add the row to the div
-  container.appendChild(row);
-
-  return row;
-}
-
-/**
- * @private
  * Create an empty *game-card* and add it in the DOM.
  * @returns {HTMLElement} Created game-card element
  */
@@ -156,31 +137,19 @@ function addGameCard() {
   addEventListenerToGameCard(gameCard);
   gameCard.setAttribute("id", "game-card-" + lastGameCardID);
   lastGameCardID += 1;
-
+  
   // Create a simil-table layout wit materialize-css
-  // "s4" means that the element occupies 4 of 12 columns
+  // "s6" means that the element occupies 6 of 12 columns with small screens
+  // "m5" means that the element occupies 5 of 12 columns with medium screens
+  // "l4" means that the element occupies 4 of 12 columns with large screens
+  // "xl3" means that the element occupies 3 of 12 columns with very large screens
   // The 12 columns are the base layout provided by materialize-css
   let column = document.createElement("div");
-  column.setAttribute("class", "col s4");
+  column.setAttribute("class", "col s6 m5 l4 xl3");
   column.appendChild(gameCard);
-
-  // Check if is needed to create a new "row" in the grid
-  let cardGamesNumber = document.querySelectorAll("game-card").length;
-  let rowsInDOM = document.querySelectorAll("#games-tab > div.row");
-  let gamesPerRow = 3; // s4 -> 12 / 4 = 3
-  let row;
-  if (rowsInDOM.length == 0) {
-    // We need a new row!
-    row = createNewGridRowInDOM();
-  } else if (cardGamesNumber % gamesPerRow == 0) {
-    // We need a new row!
-    row = createNewGridRowInDOM();
-  } else {
-    // Select the last row
-    row = rowsInDOM[rowsInDOM.length - 1];
-  }
-
-  // Connect the new column to the pre-existend/new row in DOM
+  
+  // Connect the new column in DOM
+  let row = document.getElementById("game-cards-container");
   row.appendChild(column);
 
   return gameCard;
