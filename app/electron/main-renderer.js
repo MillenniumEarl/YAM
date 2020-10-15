@@ -6,11 +6,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // This function runs when the DOM is ready, i.e. when the document has been parsed
 
   // Initialize the navigator-tab
-  let tabNavigator = document.getElementById("navigator-tab");
+  const tabNavigator = document.getElementById("navigator-tab");
   M.Tabs.init(tabNavigator, {});
 
   // Initialize the floating button
-  let elems = document.querySelectorAll(".fixed-action-btn");
+  const elems = document.querySelectorAll(".fixed-action-btn");
   M.FloatingActionButton.init(elems, {
     direction: "left",
     hoverEnabled: false,
@@ -29,16 +29,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.querySelector("#search-game-name").addEventListener("input", () => {
   // Obtain the text
-  let searchText = document
+  const searchText = document
     .getElementById("search-game-name")
     .value.toUpperCase();
 
   // Obtain all the available GameCard
-  let gameCards = document.querySelectorAll("game-card");
+  const gameCards = document.querySelectorAll("game-card");
 
   // Hide the column which the game-card belong
   // if it's games with a title that not match the search query
-  for (let gameCard of gameCards) {
+  for (const gameCard of gameCards) {
     if (!gameCard.info.name.toUpperCase().startsWith(searchText)) {
       gameCard.parentNode.style.display = "none";
     } else {
@@ -52,12 +52,12 @@ document.querySelector("#user-info").addEventListener("login", login);
 document
   .querySelector("#add-remote-game-btn")
   .addEventListener("click", async function () {
-    let openDialogOptions = {
+    const openDialogOptions = {
       title: "Select game directory",
       properties: ["openDirectory"],
     };
 
-    let data = await window.API.invoke("open-dialog", openDialogOptions);
+    const data = await window.API.invoke("open-dialog", openDialogOptions);
 
     // No folder selected
     if (data.filePaths.length === 0) return;
@@ -66,7 +66,7 @@ document
     if (data.filePaths.length === 0) return;
 
     // Ask the URL of the game
-    let promptDialogOptions = {
+    const promptDialogOptions = {
       title: "Insert the game URL on F95Zone",
       label: "URL:",
       value: "https://f95zone.to/threads/gamename/",
@@ -76,19 +76,19 @@ document
       type: "input",
     };
 
-    let url = await window.API.invoke("prompt-dialog", promptDialogOptions);
+    const url = await window.API.invoke("prompt-dialog", promptDialogOptions);
     if (!url) return;
 
     // Add game to list
-    let cardPromise = await getGameFromPath(data.filePaths.pop());
+    const cardPromise = await getGameFromPath(data.filePaths.pop());
     if (!cardPromise.cardElement) return;
 
-    let info = await window.F95.getGameDataFromURL(url);
+    const info = await window.F95.getGameDataFromURL(url);
     cardPromise.cardElement.info = info;
   });
 
 document.querySelector("#add-local-game-btn").addEventListener("click", () => {
-  let openDialogOptions = {
+  const openDialogOptions = {
     title: "Select game directory",
     properties: ["openDirectory", "multiSelections"],
   };
@@ -133,7 +133,7 @@ function addGameCard() {
   // 1 - First we create the element
   // 2 - When connect the element to DOM
   // 3 - Lastly. we can change the "gamedata" property
-  let gameCard = document.createElement("game-card");
+  const gameCard = document.createElement("game-card");
   addEventListenerToGameCard(gameCard);
   gameCard.setAttribute("id", "game-card-" + lastGameCardID);
   lastGameCardID += 1;
@@ -144,12 +144,12 @@ function addGameCard() {
   // "l4" means that the element occupies 4 of 12 columns with large screens
   // "xl3" means that the element occupies 3 of 12 columns with very large screens
   // The 12 columns are the base layout provided by materialize-css
-  let column = document.createElement("div");
+  const column = document.createElement("div");
   column.setAttribute("class", "col s6 m5 l4 xl3");
   column.appendChild(gameCard);
 
   // Connect the new column in DOM
-  let row = document.getElementById("game-cards-container");
+  const row = document.getElementById("game-cards-container");
   row.appendChild(column);
 
   return gameCard;
@@ -163,7 +163,7 @@ function addGameCard() {
 function addEventListenerToGameCard(gamecard) {
   gamecard.addEventListener("play", function (e) {
     if (e.target) {
-      let launcherPath = e.detail["launcher"];
+      const launcherPath = e.detail["launcher"];
       window.API.send("exec", launcherPath);
     }
   });
@@ -188,7 +188,7 @@ function addEventListenerToGameCard(gamecard) {
     if (!e.target) return;
 
     // Ask the confirmation
-    let dialogOptions = {
+    const dialogOptions = {
       type: "question",
       buttons: ["Remove only", "Delete also game files", "Cancel"],
       defaultId: 2, // Cancel
@@ -211,7 +211,7 @@ function addEventListenerToGameCard(gamecard) {
 
         // Delete also game files
         if (data.response === 1) {
-          let gameDir = e.detail["gameDir"];
+          const gameDir = e.detail["gameDir"];
           window.IO.deleteFolder(gameDir);
         }
 
@@ -219,7 +219,7 @@ function addEventListenerToGameCard(gamecard) {
         gamecard.deleteGameData();
 
         // Remove the column div containing the card
-        let id = gamecard.getAttribute("id");
+        const id = gamecard.getAttribute("id");
         document.querySelector("#" + id).parentNode.remove();
       }
     });
@@ -234,7 +234,7 @@ function addEventListenerToGameCard(gamecard) {
  * @param {String} gameurl  URL of the game
  */
 function guidedGameUpdate(gamecard, gamedir, gameurl) {
-  let optionsStepOne = {
+  const optionsStepOne = {
     type: "info",
     buttons: ["Open F95 page", "Cancel"],
     defaultId: 1, // Cancel
@@ -255,7 +255,7 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
     window.API.send("exec", gamedir);
 
     // Mark the update as completed
-    let optionsStepTwo = {
+    const optionsStepTwo = {
       type: "info",
       buttons: ["Update completed", "Cancel"],
       defaultId: 1, // Cancel
@@ -272,7 +272,7 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
       if (data.response !== 0) return;
 
       // Finalize the update
-      let result = await gamecard.finalizeUpdate();
+      const result = await gamecard.finalizeUpdate();
 
       if (!result) {
         sendMessageToUserWrapper(
@@ -294,8 +294,8 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
  * @returns {String} Parsed string
  */
 function removeSpecials(str, allowedChars) {
-  let lower = str.toLowerCase();
-  let upper = str.toUpperCase();
+  const lower = str.toLowerCase();
+  const upper = str.toUpperCase();
 
   let res = "";
   for (let i = 0; i < lower.length; ++i) {
@@ -317,16 +317,16 @@ async function loadCachedGames() {
   console.log("Load cached games...");
 
   // Get all the .json files in the game dir and create a <game-card> for each of them
-  let gamesDir = await window.API.invoke("games-data-dir");
-  let files = await window.IO.filter("*.json", gamesDir);
+  const gamesDir = await window.API.invoke("games-data-dir");
+  const files = await window.IO.filter("*.json", gamesDir);
 
   // Load data in game-cards
-  let promisesList = [];
-  for (let filename of files) {
-    let card = addGameCard();
-    let gameJSONPath = window.API.join(gamesDir, filename);
+  const promisesList = [];
+  for (const filename of files) {
+    const card = addGameCard();
+    const gameJSONPath = window.API.join(gamesDir, filename);
 
-    let promise = card.loadGameData(gameJSONPath);
+    const promise = card.loadGameData(gameJSONPath);
     promisesList.push(promise);
   }
 
@@ -345,14 +345,14 @@ async function checkVersionCachedGames() {
   console.log("Checking games updates...");
 
   // Get all the gamecards in DOM
-  let cardGames = document.querySelectorAll("game-card");
-  for (let card of cardGames) {
+  const cardGames = document.querySelectorAll("game-card");
+  for (const card of cardGames) {
     // Get version
-    let update = await window.F95.checkGameUpdates(card.info);
+    const update = await window.F95.checkGameUpdates(card.info);
 
     // Trigger the component
     if (update) {
-      let promise = window.F95.getGameDataFromURL(card.info.f95url);
+      const promise = window.F95.getGameDataFromURL(card.info.f95url);
       card.notificateUpdateOnPromise(promise);
     }
   }
@@ -398,8 +398,8 @@ async function getGameFromPaths(paths) {
   const MAX_PROMISE_AT_TIME = 3;
 
   // Parse the game dir name(s)
-  for (let path of paths) {
-    let promise = getGameFromPath(path)
+  for (const path of paths) {
+    const promise = getGameFromPath(path)
       .then(function (result) {
         if (result["result"] === false) {
           // Send the error message to the user if the game is not found
@@ -442,20 +442,22 @@ async function getGameFromPaths(paths) {
  */
 async function getGameFromPath(path) {
   // After the splitting, the last name is the directory name
-  let unparsedName = path.split("\\").pop();
+  const unparsedName = path.split("\\").pop();
 
   // Check if it is a mod
   const MOD_TAG = "[MOD]";
-  let includeMods = unparsedName.toUpperCase().includes(MOD_TAG) ? true : false;
+  const includeMods = unparsedName.toUpperCase().includes(MOD_TAG)
+    ? true
+    : false;
 
   // Find game version
-  let version = getGameVersionFromName(unparsedName);
+  const version = getGameVersionFromName(unparsedName);
 
   // Get only the game title
   name = cleanGameName(unparsedName);
 
   // Search and add the game
-  let promiseResult = await window.F95.getGameData(name, includeMods);
+  const promiseResult = await window.F95.getGameData(name, includeMods);
 
   // No game found
   if (promiseResult.length === 0) {
@@ -479,10 +481,10 @@ async function getGameFromPath(path) {
   }
 
   // Add the game
-  let copy = Object.assign({}, promiseResult[0]); // Copy reference to object
-  let firstGame = promiseResult[0];
-  let card = addGameCard();
-  let onlineVersion = firstGame.version;
+  const copy = Object.assign({}, promiseResult[0]); // Copy reference to object
+  const firstGame = promiseResult[0];
+  const card = addGameCard();
+  const onlineVersion = firstGame.version;
 
   // Update local data
   firstGame.gameDir = path;
@@ -527,7 +529,7 @@ function cleanGameName(name) {
   ]);
 
   // Remove mod tag and version
-  let rx = /\[(.*?)\]/g;
+  const rx = /\[(.*?)\]/g;
   name = name.replaceAll(rx, "").trim();
 
   return name;
@@ -546,9 +548,9 @@ function getGameVersionFromName(name) {
 
   // Search the version tag, if any
   if (name.toUpperCase().includes(PREFIX_VERSION)) {
-    let startIndex =
+    const startIndex =
       name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
-    let endIndex = name.indexOf("]", startIndex);
+    const endIndex = name.indexOf("]", startIndex);
     version = name.substr(startIndex, endIndex - startIndex);
   }
 
@@ -565,7 +567,7 @@ function getGameVersionFromName(name) {
  */
 function sendMessageToUserWrapper(type, title, message, detail) {
   // Send the error message to the user if the game is not found
-  let warningDialogOptions = {
+  const warningDialogOptions = {
     type: type,
     buttons: ["OK"],
     defaultId: 0,
@@ -584,7 +586,7 @@ function sendMessageToUserWrapper(type, title, message, detail) {
  */
 async function getUserDataFromF95() {
   // Retrieve user data
-  let userdata = await window.F95.getUserData();
+  const userdata = await window.F95.getUserData();
 
   // Check user data
   if (userdata === null || !userdata) {
@@ -606,10 +608,10 @@ async function getUserDataFromF95() {
 // Called when the window is being closed
 window.API.receive("window-closing", function () {
   // Save data game
-  let cardGames = document.querySelectorAll("game-card");
-  let promiseList = [];
-  for (let card of cardGames) {
-    let promise = card.saveGameData();
+  const cardGames = document.querySelectorAll("game-card");
+  const promiseList = [];
+  for (const card of cardGames) {
+    const promise = card.saveGameData();
     promiseList.push(promise);
   }
 
@@ -625,9 +627,9 @@ window.API.receive("window-closing", function () {
 // Called when the result of the authentication are ready
 window.API.receive("auth-result", (args) => {
   // Parse args
-  let result = args[0];
-  let username = args[1];
-  let password = args[2];
+  const result = args[0];
+  const username = args[1];
+  const password = args[2];
 
   console.log("Authentication result: " + result);
   if (result !== "AUTHENTICATED") {

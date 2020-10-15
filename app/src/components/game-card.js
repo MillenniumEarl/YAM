@@ -60,7 +60,7 @@ class GameCard extends HTMLElement {
   }
 
   get changelog() {
-    let value = this._updateInfo
+    const value = this._updateInfo
       ? this._updateInfo.changelog
       : this.info.changelog;
     return value;
@@ -74,10 +74,10 @@ class GameCard extends HTMLElement {
    */
   async play() {
     // Get the game launcher
-    let launcherPath = await this.getGameLauncher(this._info.gameDir);
+    const launcherPath = await this.getGameLauncher(this._info.gameDir);
 
     // Raise the event
-    let playClickEvent = new CustomEvent("play", {
+    const playClickEvent = new CustomEvent("play", {
       detail: {
         launcher: launcherPath,
       },
@@ -91,7 +91,7 @@ class GameCard extends HTMLElement {
    */
   update() {
     // Raise the event
-    let updateClickEvent = new CustomEvent("update", {
+    const updateClickEvent = new CustomEvent("update", {
       detail: {
         downloadInfo: this._updateInfo.downloadInfo,
         url: this._info.f95url,
@@ -107,7 +107,7 @@ class GameCard extends HTMLElement {
    */
   delete() {
     // Raise the event
-    let deleteClickEvent = new CustomEvent("delete", {
+    const deleteClickEvent = new CustomEvent("delete", {
       detail: {
         gameDir: this._info.gameDir,
       },
@@ -122,10 +122,10 @@ class GameCard extends HTMLElement {
    */
   prepareDOM() {
     /* Defines the HTML code of the custom element */
-    let template = document.createElement("template");
+    const template = document.createElement("template");
 
     /* Synchronous read of the HTML template */
-    let pathHTML = window.API.join(
+    const pathHTML = window.API.join(
       window.API.appDir,
       "src",
       "components",
@@ -195,14 +195,17 @@ class GameCard extends HTMLElement {
     if (await window.IO.pathExists(previewSource)) return null; // Already downloaded
 
     // Get image extension
-    let splitted = previewSource.split(".");
-    let extension = splitted.pop();
-    let imageName = name.replaceAll(" ", "") + "_preview." + extension;
+    const splitted = previewSource.split(".");
+    const extension = splitted.pop();
+    const imageName = name.replaceAll(" ", "") + "_preview." + extension;
 
     // Download image
-    let gameCacheDir = await window.API.invoke("games-data-dir");
-    let localPreviewPath = window.API.join(gameCacheDir, imageName);
-    let path = await window.API.downloadImage(previewSource, localPreviewPath);
+    const gameCacheDir = await window.API.invoke("games-data-dir");
+    const localPreviewPath = window.API.join(gameCacheDir, imageName);
+    const path = await window.API.downloadImage(
+      previewSource,
+      localPreviewPath
+    );
 
     if (path) return localPreviewPath;
     else return null;
@@ -212,8 +215,8 @@ class GameCard extends HTMLElement {
    * Obtain the save data path for the game info.
    */
   async getDataJSONPath() {
-    let base = await window.API.invoke("games-data-dir");
-    let filename = this._info.name.replaceAll(" ", "").trim() + "_data.json";
+    const base = await window.API.invoke("games-data-dir");
+    const filename = this._info.name.replaceAll(" ", "").trim() + "_data.json";
     return window.API.join(base, filename);
   }
   //#endregion Private methods
@@ -226,7 +229,7 @@ class GameCard extends HTMLElement {
   async saveGameData() {
     // Download preview image
     if (this._info.previewSource) {
-      let previewLocalPath = await this.downloadGamePreview(
+      const previewLocalPath = await this.downloadGamePreview(
         this._info.name,
         this._info.previewSource
       );
@@ -243,8 +246,8 @@ class GameCard extends HTMLElement {
    */
   async loadGameData(path) {
     // Load the serialized JSON
-    let json = await window.IO.read(path);
-    let obj = JSON.parse(json);
+    const json = await window.IO.read(path);
+    const obj = JSON.parse(json);
 
     // Load object
     this.info = obj;
@@ -272,7 +275,7 @@ class GameCard extends HTMLElement {
     this.progressbar.style.display = "block";
 
     // Await game data
-    let info = await promise;
+    const info = await promise;
 
     // Refresh data
     this.notificateUpdate(info);
@@ -293,7 +296,7 @@ class GameCard extends HTMLElement {
     this.updateBtn.innerText = "Update (" + info.version + ")";
 
     // Re-add the icon (innerText is overwritten)
-    let icon = document.createElement("i");
+    const icon = document.createElement("i");
     icon.classList.add("material-icons", "left");
     icon.innerText = "file_download";
     this.updateBtn.appendChild(icon);
@@ -313,16 +316,16 @@ class GameCard extends HTMLElement {
     }
 
     // Rename the old path
-    let oldDirName = this.info.gameDir.split("\\").pop();
-    let dirpath = this.info.gameDir.replace(oldDirName, "");
-    let modVariant = this._updateInfo.isMod ? " [MOD]" : ""; // Leave the trailing space!
-    let dirname =
+    const oldDirName = this.info.gameDir.split("\\").pop();
+    const dirpath = this.info.gameDir.replace(oldDirName, "");
+    const modVariant = this._updateInfo.isMod ? " [MOD]" : ""; // Leave the trailing space!
+    const dirname =
       this._updateInfo.name +
       " [v." +
       this._updateInfo.version +
       "]" +
       modVariant;
-    let newpath = window.API.join(dirpath, dirname);
+    const newpath = window.API.join(dirpath, dirname);
     if (await window.IO.pathExists(newpath)) return false;
     window.IO.renameDir(this.info.gameDir, newpath);
 

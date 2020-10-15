@@ -66,10 +66,10 @@ class UserInfo extends HTMLElement {
    */
   prepareDOM() {
     /* Defines the HTML code of the custom element */
-    let template = document.createElement("template");
+    const template = document.createElement("template");
 
     /* Synchronous read of the HTML template */
-    let pathHTML = window.API.join(
+    const pathHTML = window.API.join(
       window.API.appDir,
       "src",
       "components",

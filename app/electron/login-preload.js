@@ -24,7 +24,7 @@ ipcRenderer.invoke("chromium-path").then(function (path) {
 const { readFileSync, exists } = require("../src/scripts/io-operations.js");
 
 // Array of valid render-to-main channels
-let validSendChannels = [
+const validSendChannels = [
   "auth-result",
   "login-window-closing",
   "credentials-path",
