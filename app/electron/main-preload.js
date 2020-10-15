@@ -93,7 +93,7 @@ contextBridge.exposeInMainWorld("API", {
 contextBridge.exposeInMainWorld("IO", {
   /**
    * Read data from a file synchronously.
-   * @param {String} path 
+   * @param {String} path
    * @returns {Any}
    */
   readSync: function (path) {
@@ -101,7 +101,7 @@ contextBridge.exposeInMainWorld("IO", {
   },
   /**
    * Read data from a file asynchronously.
-   * @param {String} path 
+   * @param {String} path
    * @returns {Any}
    */
   read: async function (path) {
@@ -109,8 +109,8 @@ contextBridge.exposeInMainWorld("IO", {
   },
   /**
    * Write data in a file.
-   * @param {String} path 
-   * @param {Any} value 
+   * @param {String} path
+   * @param {Any} value
    */
   write: async function (path, value) {
     fs.writeFileSync(path, value);
@@ -142,7 +142,7 @@ contextBridge.exposeInMainWorld("IO", {
   },
   /**
    * Check if the path exists on disk.
-   * @param {String} path 
+   * @param {String} path
    * @returns {Boolean}
    */
   pathExists: async function (path) {

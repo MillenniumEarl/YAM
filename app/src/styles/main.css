@@ -16,7 +16,14 @@ body {
     #393939,
     #3f3f3f
   ); */
-  background-image: linear-gradient(to right bottom, #1d1d1e, #1f1f20, #212122, #242424, #262626);
+  background-image: linear-gradient(
+    to right bottom,
+    #1d1d1e,
+    #1f1f20,
+    #212122,
+    #242424,
+    #262626
+  );
   background-attachment: fixed;
 }
 
@@ -53,7 +60,7 @@ body {
 }
 
 /* label focus color */
-.input-field input[type="text"]:focus+label {
+.input-field input[type="text"]:focus + label {
   color: var(--secondary-app) !important;
 }
 
@@ -85,6 +92,6 @@ input[type="text"]:not(.browser-default):focus:not([readonly]) {
   box-shadow: 0 1px 0 0 var(--secondary-app) !important;
 }
 
-input[type="text"]:not(.browser-default):focus:not([readonly])+label {
+input[type="text"]:not(.browser-default):focus:not([readonly]) + label {
   color: var(--secondary-app) !important;
 }
