@@ -1,17 +1,12 @@
 /* Import base styles */
 @import "global.css";
 
-/*### Manage size for the 'tabs' component generated with materialize-css ###*/
+/*### Manage size and colors for the 'tabs' component generated with materialize-css ###*/
 div.navbar,
 ul.tabs {
     width: 100%;
     margin: 0;
     padding: 0;
-}
-
-/*### Manage colors for the 'tabs' component generated with materialize-css ###*/
-div.navbar,
-ul.tabs {
     background-color: var(--primary-dark);
 }
 
@@ -23,7 +18,6 @@ li.tab {
 }
 
 /* Colors of the single "tab" */
-
 .tabs .tab a {
     color: var(--text-on-primary);
 }
