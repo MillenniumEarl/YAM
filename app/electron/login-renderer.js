@@ -131,7 +131,7 @@ function setMessage(message, type) {
   let color = "";
   if (type === "error") color = "#990000";
   // --secondary-app-color in button-style.css
-  else if (type == "warning") color = "#FF9900";
+  else if (type === "warning") color = "#FF9900";
   else color = "#00CC00";
 
   // Set the message

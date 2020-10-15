@@ -111,10 +111,10 @@ document.querySelector("#add-local-game-btn").addEventListener("click", () => {
  */
 function openPage(pageID) {
   // Local variables
-  let i, tabcontent;
+  let i;
 
   // Hide all elements with class="tabcontent" by default
-  tabcontent = document.getElementsByClassName("tabcontent");
+  const tabcontent = document.getElementsByClassName("tabcontent");
   for (i = 0; i < tabcontent.length; i++) {
     tabcontent[i].style.display = "none";
   }
@@ -300,7 +300,7 @@ function removeSpecials(str, allowedChars) {
   let res = "";
   for (let i = 0; i < lower.length; ++i) {
     if (
-      lower[i] != upper[i] ||
+      lower[i] !== upper[i] ||
       lower[i].trim() === "" ||
       allowedChars.includes(lower[i])
     )

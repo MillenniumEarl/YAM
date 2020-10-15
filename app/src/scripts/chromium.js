@@ -14,7 +14,7 @@ module.exports.installChromium = async function () {
   // Parse the UserData dir based on the current OS
   let userData =
     process.env.APPDATA ||
-    (process.platform == "darwin"
+    (process.platform === "darwin"
       ? process.env.HOME + "/Library/Preferences"
       : process.env.HOME + "/.local/share");
   let chromiumDirectory = join(userData, "./f95-game-updater-chromium");
