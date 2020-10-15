@@ -4,7 +4,7 @@
 document.addEventListener("DOMContentLoaded", async function () {
   // This function runs when the DOM is ready, i.e. when the document has been parsed
 
-  let credentialsPath = await window.API.invoke("credentials-path");
+  const credentialsPath = await window.API.invoke("credentials-path");
 
   // Load credentials if saved on disk
   window.IO.fileExists(credentialsPath).then(function (exists) {
@@ -12,10 +12,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Read and parse credentials
     window.IO.read(credentialsPath).then(function (json) {
-      let credentials = JSON.parse(json);
+      const credentials = JSON.parse(json);
 
-      let username = credentials["username"];
-      let password = credentials["password"];
+      const username = credentials["username"];
+      const password = credentials["password"];
       
       // "Select" the textboxes to not overlap textual values and placeholder text
       document.querySelector("label[for='username']").classList.add("active");
@@ -34,8 +34,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 /*### Click events ###*/
 document.querySelector("#login-btn").addEventListener("click", function () {
   // Get the credentials inserted by the user
-  let username = document.getElementById("username").value;
-  let password = document.getElementById("password").value;
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
 
   // Check credentials
   if (isNullOrWhitespace(username)) {
@@ -76,11 +76,11 @@ function isNullOrWhitespace(input) {
 function manageLoginResult(result, username, password) {
   if (result.success) {
     // Valid auth, save and send credentials to main process
-    let credentials = {
+    const credentials = {
       username: username,
       password: password,
     };
-    let json = JSON.stringify(credentials);
+    const json = JSON.stringify(credentials);
 
     window.API.invoke("credentials-path").then(function (path) {
       window.IO.write(path, json).then(function () {
@@ -135,7 +135,7 @@ function setMessage(message, type) {
   else color = "#00CC00";
 
   // Set the message
-  let element = document.getElementById("error-message");
+  const element = document.getElementById("error-message");
   element.innerText = message;
   element.style.color = color;
 
