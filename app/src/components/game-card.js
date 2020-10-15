@@ -60,7 +60,9 @@ class GameCard extends HTMLElement {
   }
 
   get changelog() {
-    let value = this._updateInfo ? this._updateInfo.changelog : this.info.changelog;
+    let value = this._updateInfo
+      ? this._updateInfo.changelog
+      : this.info.changelog;
     return value;
   }
   //#endregion Properties

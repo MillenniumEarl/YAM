@@ -137,7 +137,7 @@ function addGameCard() {
   addEventListenerToGameCard(gameCard);
   gameCard.setAttribute("id", "game-card-" + lastGameCardID);
   lastGameCardID += 1;
-  
+
   // Create a simil-table layout wit materialize-css
   // "s6" means that the element occupies 6 of 12 columns with small screens
   // "m5" means that the element occupies 5 of 12 columns with medium screens
@@ -147,7 +147,7 @@ function addGameCard() {
   let column = document.createElement("div");
   column.setAttribute("class", "col s6 m5 l4 xl3");
   column.appendChild(gameCard);
-  
+
   // Connect the new column in DOM
   let row = document.getElementById("game-cards-container");
   row.appendChild(column);
@@ -241,10 +241,9 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
     title: "Update game: Step 1",
     message:
       "Click 'Open F95 Page' to download the game.\nInstall/extract it in the directory that will open when this window is closed.\nFollow the installation instructions on the official page.\nYou may need to delete the previous version and/or any saved games",
-    detail:
-      "Changelog:\n" + gamecard.changelog,
+    detail: "Changelog:\n" + gamecard.changelog,
   };
-  
+
   window.API.invoke("message-dialog", optionsStepOne).then(function (data) {
     if (!data) return;
     if (data.response !== 0) return;
