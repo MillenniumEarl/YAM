@@ -140,7 +140,7 @@ ipcMain.on("login-window-closing", function (e) {
 
 // Receive the result of the login operation
 ipcMain.on("auth-result", function (e, result, username, password) {
-  logger.info("Authentication result: " + result);
+  logger.info("Authentication result: " + result[0]);
   mainWindow.webContents.send("auth-result", result, username, password);
 });
 

@@ -63,9 +63,6 @@ document
     // No folder selected
     if (data.filePaths.length === 0) return;
 
-    // No folder selected
-    if (data.filePaths.length === 0) return;
-
     // Ask the URL of the game
     const promptDialogOptions = {
       title: "Insert the game URL on F95Zone",
@@ -79,6 +76,8 @@ document
 
     const url = await window.API.invoke("prompt-dialog", promptDialogOptions);
     if (!url) return;
+
+    sendToastToUser("info", "Adding game from URL...");
 
     // Add game to list
     const cardPromise = await getGameFromPath(data.filePaths.pop());
@@ -99,6 +98,7 @@ document.querySelector("#add-local-game-btn").addEventListener("click", () => {
     if (data.filePaths.length === 0) return;
 
     // Obtain the data
+    sendToastToUser("info", "Adding game from path...");
     getGameFromPaths(data.filePaths);
   });
 });
@@ -337,7 +337,8 @@ async function loadCachedGames() {
  * in the game-card components in DOM.
  */
 async function checkVersionCachedGames() {
-  window.API.log.info("Checking games updates...");
+  window.API.log.info("Checking for game updates...");
+  sendToastToUser("info", "Checking for game updates...");
 
   // Get all the gamecards in DOM
   const cardGames = document.querySelectorAll("game-card");
@@ -614,7 +615,7 @@ async function getUserDataFromF95() {
     sendToastToUser("error", "Cannot retrieve user data");
     window.API.log.error("Something wrong while retrieving user info from F95");
   }
-
+  
   // Update component
   document.getElementById("user-info").userdata = userdata;
 }
@@ -660,6 +661,8 @@ window.API.receive("auth-result", (args) => {
   // Load data (session not shared between windows)
   window.F95.login(username, password)
     .then(function () {
+      sendToastToUser("info", "Login successful!");
+
       // Load F95 base data
       window.F95.loadF95BaseData();
 
