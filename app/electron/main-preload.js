@@ -12,6 +12,7 @@ const { join, basename, dirname } = require("path");
 const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
 const download = require("image-downloader");
+const logger = require('electron-log');
 
 // Modules from file
 const {
@@ -87,6 +88,7 @@ contextBridge.exposeInMainWorld("API", {
   getDirName: function (path) {
     return basename(dirname(path));
   },
+  log: logger.functions,
 });
 
 // Expose the I/O operations

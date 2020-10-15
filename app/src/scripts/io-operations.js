@@ -13,7 +13,6 @@ const { shell } = require("electron");
  * @param {String} path Path of the application to run
  */
 module.exports.runApplication = async function (path) {
-  console.log("Executing " + path);
   shell
     .openPath(path)
     .then((err) => {

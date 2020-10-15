@@ -8,6 +8,7 @@ const fs = require("fs");
 const { app, BrowserWindow, shell, ipcMain, dialog } = require("electron");
 const prompt = require("electron-prompt");
 const isDev = require("electron-is-dev");
+const logger = require('electron-log');
 
 // Modules from file
 const { runApplication } = require("./src/scripts/io-operations.js");
@@ -113,11 +114,11 @@ async function createLoginWindow() {
 // This will be called when the main window
 // require credentials, open the login windows
 ipcMain.on("login-required", function (e) {
-  console.log("Login required from main window");
+  logger.info("Login required from main window");
 
   // Avoid multiple instance of the login window
   if (loginWindow) {
-    console.log("Login window already active");
+    logger.warn("Login window already active");
     return;
   } else createLoginWindow();
 });
@@ -125,24 +126,28 @@ ipcMain.on("login-required", function (e) {
 // Called when the main window has saved all
 // the data and is ready to be definitely closed
 ipcMain.on("main-window-closing", function (e) {
+  logger.silly("Closing main window");
   mainWindow.close();
   mainWindow = null;
 });
 
 // Called when the login widnow want to be closed
 ipcMain.on("login-window-closing", function (e) {
+  logger.silly("Closing main window");
   loginWindow.close();
   loginWindow = null;
 });
 
 // Receive the result of the login operation
 ipcMain.on("auth-result", function (e, result, username, password) {
+  logger.info("Authentication result: " + result);
   mainWindow.webContents.send("auth-result", result, username, password);
 });
 
 // Execute the file passed as parameter
 ipcMain.on("exec", function (e, filename) {
-  runApplication(...filename);
+  logger.info("Executing " + filename[0]);
+  runApplication(filename[0]);
 });
 
 // Return the current root dir path (Current Working Directory)
@@ -222,8 +227,12 @@ ipcMain.handle("prompt-dialog", function (e, options) {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async function () {
+  logger.info("Application ready");
   shared.chromiumPath = await installChromium();
+  if (shared.chromiumPath ) logger.info("Chromium installed");
+  else logger.error("Something wrong with Chromium");
 
+  logger.silly("Creating main window");
   createMainWindow();
 
   app.on("activate", function () {
@@ -237,6 +246,7 @@ app.whenReady().then(async function () {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", function () {
+  logger.silly("Closing application");
   if (process.platform !== "darwin") app.quit();
 });
 //#endregion App-related events

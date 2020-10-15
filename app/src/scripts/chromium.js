@@ -17,7 +17,7 @@ module.exports.installChromium = async function () {
     (process.platform === "darwin"
       ? process.env.HOME + "/Library/Preferences"
       : process.env.HOME + "/.local/share");
-  const chromiumDirectory = join(userData, "./f95-game-updater-chromium");
+  const chromiumDirectory = join(userData, "f95-game-updater", "local_chromium");
 
   // Download Chromium
   const executablePath = await download({

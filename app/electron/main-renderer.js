@@ -4,6 +4,7 @@ let lastGameCardID = 0;
 //#region Events
 document.addEventListener("DOMContentLoaded", function () {
   // This function runs when the DOM is ready, i.e. when the document has been parsed
+  window.API.log.info("DOM loaded, initializing elements");
 
   // Initialize the navigator-tab
   const tabNavigator = document.getElementById("navigator-tab");
@@ -274,13 +275,7 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
       // Finalize the update
       const result = await gamecard.finalizeUpdate();
 
-      if (!result) {
-        sendMessageToUserWrapper(
-          "error",
-          "Error during update",
-          "Cannot finalize the update, please check if another directory of the game exists."
-        );
-      }
+      if (!result) sendToastToUser("error", "Cannot finalize the update, please check if another directory of the game exists.");
     });
   });
 }
@@ -314,8 +309,8 @@ function removeSpecials(str, allowedChars) {
  * Load the data of the cached game and display them in the main window.
  */
 async function loadCachedGames() {
-  console.log("Load cached games...");
-
+  window.API.log.info("Load cached games...");
+  
   // Get all the .json files in the game dir and create a <game-card> for each of them
   const gamesDir = await window.API.invoke("games-data-dir");
   const files = await window.IO.filter("*.json", gamesDir);
@@ -332,7 +327,7 @@ async function loadCachedGames() {
 
   // Write end log
   Promise.all(promisesList).then(function () {
-    console.log("Cached games loaded");
+    window.API.log.info("Cached games loaded");
   });
 }
 
@@ -342,7 +337,7 @@ async function loadCachedGames() {
  * in the game-card components in DOM.
  */
 async function checkVersionCachedGames() {
-  console.log("Checking games updates...");
+  window.API.log.info("Checking games updates...");
 
   // Get all the gamecards in DOM
   const cardGames = document.querySelectorAll("game-card");
@@ -367,14 +362,8 @@ async function checkVersionCachedGames() {
 function login() {
   // Check network connection
   if (!window.API.isOnline) {
-    // Send error message
-    sendMessageToUserWrapper(
-      "warning",
-      "No connection",
-      "No network connection detected, unable to login to F95Zone",
-      "The lack of connection prevents you from logging in and updating the games but still allows you to play them"
-    );
-    console.warn("No network connection, cannot login");
+    sendToastToUser("warning", "No network connection");
+    window.API.log.warn("No network connection, cannot login");
     return;
   }
 
@@ -382,7 +371,7 @@ function login() {
   document.getElementById("user-info").showSpinner();
 
   // Request user input
-  console.log("Send API to main process for auth request");
+  window.API.log.info("Send API to main process for auth request");
   window.API.send("login-required");
 }
 
@@ -422,10 +411,12 @@ async function getGameFromPaths(paths) {
             error,
           ""
         );
+        window.API.log.error("Unexpected error while retrieving game data from path: " + path + ". " + error);
       });
 
     promiseList.push(promise);
     if (promiseList.length === MAX_PROMISE_AT_TIME) {
+      window.API.log.silly("Waiting for promises for game data from multiple paths to finish...");
       await Promise.all(promiseList);
       promiseList = [];
     }
@@ -581,22 +572,47 @@ function sendMessageToUserWrapper(type, title, message, detail) {
 }
 
 /**
+ * Show a toast in the top-right of the screen.
+ * @param {String} type Type of message (*error/warning/...*)
+ * @param {String} message Message to the user
+ */
+function sendToastToUser(type, message) {
+  // Select various data based on the type of message
+  let icon = "info";
+  let htmlColor = "blue";
+  let timer = 3000;
+  if (type === "error") {
+    icon = "error_outline";
+    htmlColor = "red";
+    timer = 25000;
+  } else if (type === "warning") {
+    icon = "warning";
+    htmlColor = "orange";
+    timer = 15000;
+  }
+
+  const htmlToast = "<i class='material-icons' style='padding-right: 10px'>" + icon + "</i><span>" + message + "</span>";
+  M.toast({
+    html: htmlToast,
+    displayLength: 5000,
+    classes: htmlColor
+  })
+}
+
+/**
  * @private
  * Obtain data of the logged user and show them in the custom element "user-info".
  */
 async function getUserDataFromF95() {
+  window.API.log.info("Retrieving user info from F95");
   // Retrieve user data
   const userdata = await window.F95.getUserData();
 
   // Check user data
   if (userdata === null || !userdata) {
     // Send error message
-    sendMessageToUserWrapper(
-      "error",
-      "Unexpected error",
-      "Cannot retrieve user data",
-      ""
-    );
+    sendToastToUser("error", "Cannot retrieve user data");
+    window.API.log.error("Something wrong while retrieving user info from F95");
   }
 
   // Update component
@@ -631,7 +647,7 @@ window.API.receive("auth-result", (args) => {
   const username = args[1];
   const password = args[2];
 
-  console.log("Authentication result: " + result);
+  window.API.log.info("Authentication result: " + result);
   if (result !== "AUTHENTICATED") {
     // Hide "new game" button
     document.querySelector("#fab-add-game-btn").style.display = "none";
@@ -658,12 +674,8 @@ window.API.receive("auth-result", (args) => {
     })
     .catch(function (error) {
       // Send error message
-      sendMessageToUserWrapper(
-        "error",
-        "Unexpected error",
-        "Cannot login, unexpected error: " + error,
-        ""
-      );
+      sendToastToUser("error", "Cannot login: " + error);
+      window.API.log.error("Cannot login: " + error);
     });
 });
 //#endregion IPC receive

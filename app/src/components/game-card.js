@@ -311,8 +311,8 @@ class GameCard extends HTMLElement {
    */
   async finalizeUpdate() {
     if (!this._updateInfo) {
-      console.warn("No need to finalize, no update notified");
-      return;
+      window.API.log.warn("No need to finalize the GameCard, no update notified");
+      return false;
     }
 
     // Rename the old path
