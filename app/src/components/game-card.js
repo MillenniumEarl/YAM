@@ -202,7 +202,10 @@ class GameCard extends HTMLElement {
     // Download image
     const gameCacheDir = await window.API.invoke("games-data-dir");
     const localPreviewPath = window.API.join(gameCacheDir, imageName);
-    const path = await window.API.downloadImage(previewSource, localPreviewPath);
+    const path = await window.API.downloadImage(
+      previewSource,
+      localPreviewPath
+    );
 
     if (path) return localPreviewPath;
     else return null;

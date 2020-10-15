@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const username = credentials["username"];
       const password = credentials["password"];
-      
+
       // "Select" the textboxes to not overlap textual values and placeholder text
       document.querySelector("label[for='username']").classList.add("active");
       document.querySelector("label[for='password']").classList.add("active");

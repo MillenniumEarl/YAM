@@ -446,7 +446,9 @@ async function getGameFromPath(path) {
 
   // Check if it is a mod
   const MOD_TAG = "[MOD]";
-  const includeMods = unparsedName.toUpperCase().includes(MOD_TAG) ? true : false;
+  const includeMods = unparsedName.toUpperCase().includes(MOD_TAG)
+    ? true
+    : false;
 
   // Find game version
   const version = getGameVersionFromName(unparsedName);
