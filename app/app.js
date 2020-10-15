@@ -69,7 +69,7 @@ async function createMainWindow() {
   if (!isDev) mainWindow.setMenu(null);
 
   // Load the index.html of the app.
-  let htmlPath = path.join(app.getAppPath(), "app", "src", "index.html");
+  const htmlPath = path.join(app.getAppPath(), "app", "src", "index.html");
   mainWindow.loadFile(htmlPath);
 }
 
@@ -104,7 +104,7 @@ async function createLoginWindow() {
   if (!isDev) loginWindow.setMenu(null);
 
   // Load the html file
-  let htmlPath = path.join(app.getAppPath(), "app", "src", "login.html");
+  const htmlPath = path.join(app.getAppPath(), "app", "src", "login.html");
   loginWindow.loadFile(htmlPath);
 }
 //#endregion Windows creation methods
@@ -152,7 +152,7 @@ ipcMain.handle("cwd", function (e) {
 
 //#region shared app variables
 ipcMain.handle("cache-dir", function (e) {
-  let dirname = path.resolve(".", shared.cacheDir);
+  const dirname = path.resolve(".", shared.cacheDir);
 
   // Create directory if not existent
   if (!fs.existsSync(dirname))
@@ -164,7 +164,7 @@ ipcMain.handle("cache-dir", function (e) {
 });
 
 ipcMain.handle("browser-data-dir", function (e) {
-  let dirname = path.resolve(".", shared.browserDataDir);
+  const dirname = path.resolve(".", shared.browserDataDir);
 
   // Create directory if not existent
   if (!fs.existsSync(dirname))
@@ -176,7 +176,7 @@ ipcMain.handle("browser-data-dir", function (e) {
 });
 
 ipcMain.handle("games-data-dir", function (e) {
-  let dirname = path.resolve(".", shared.gamesDataDir);
+  const dirname = path.resolve(".", shared.gamesDataDir);
 
   // Create directory if not existent
   if (!fs.existsSync(dirname))

@@ -32,7 +32,7 @@ module.exports.deleteFolderRecursive = async function (dirpath) {
 
   // Foreach element in dir, delete (file) or recurse (folder)
   fs.readdirSync(dirpath).forEach((file, index) => {
-    let p = path.join(dirpath, file);
+    const p = path.join(dirpath, file);
 
     // Remove subdir
     if (fs.lstatSync(p).isDirectory()) deleteFolderRecursive(p);
