@@ -6,17 +6,22 @@ document.addEventListener("DOMContentLoaded", async function () {
   // This function runs when the DOM is ready, i.e. when the document has been parsed
   window.API.log.info("DOM loaded, initializing elements");
   await translateElementsInDOM();
+  await listAvailableLanguages();
 
   // Initialize the navigator-tab
   const tabNavigator = document.getElementById("tab-navigator");
   M.Tabs.init(tabNavigator, {});
 
   // Initialize the floating button
-  const elems = document.querySelectorAll(".fixed-action-btn");
-  M.FloatingActionButton.init(elems, {
+  const fabs = document.querySelectorAll(".fixed-action-btn");
+  M.FloatingActionButton.init(fabs, {
     direction: "left",
     hoverEnabled: false,
   });
+
+  // Initialize the <select> for languages
+  const selects = document.querySelectorAll('select');
+  M.FormSelect.init(selects, {});
 
   // Select the defualt page
   openPage("games-tab");
@@ -124,6 +129,51 @@ async function translateElementsInDOM() {
     // ... or change only the last child (the text)
     else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
   }
+}
+
+/**
+ * @private
+ * @async
+ * Select all the available languages for the app and create a <select>.
+ */
+async function listAvailableLanguages() {
+  // Read all the available languages
+  let langs = await window.IO.filter("*.json", "./resources/lang");
+
+  let cwd = await window.API.invoke("cwd");
+  for(let lang of langs) {
+    let iso = lang.replace(".json", "");
+
+    // Create <option> for the combobox
+    let option = document.createElement("option");
+    option.setAttribute("class", "left"); // Icons on the left
+    option.setAttribute("value", iso);
+    let flagPath = window.API.join(cwd, "resources", "images", "flags", iso + ".png");
+    option.setAttribute("data-icon", flagPath);
+    option.textContent = iso.toUpperCase();
+
+    // Add the option
+    document.getElementById("main-language-select").appendChild(option);
+  }
+}
+
+/**
+ * @private
+ * @async
+ * @event
+ * Triggered when the user select a language from the <select> element.
+ * Change the language for the elements in the DOM.
+ */
+async function updateLanguage() {
+  // Parse user choice
+  let e = document.getElementById("main-language-select");
+  let selectedISO = e.options[e.selectedIndex].value;
+
+  // Change language via IPC
+  await window.API.changeLanguage(selectedISO);
+
+  // Refresh strings
+  await translateElementsInDOM();
 }
 
 /**

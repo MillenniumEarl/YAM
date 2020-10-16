@@ -14,7 +14,6 @@
         "LR invalid username": "Ungültiger Benutzername",
         "LR invalid password": "Ungültiges Passwort",
         "LR error during authentication": "Fehler während der Authentifizierung",
-        "ui-username": "USERNAME",
         "ui-login-btn": "Login",
         "gc-play-game-btn": "Spielen",
         "gc-delete-game-btn": "Löschen",

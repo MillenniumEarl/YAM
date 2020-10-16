@@ -139,6 +139,13 @@ contextBridge.exposeInMainWorld("API", {
    */
   translate: async function(key) {
     return ipcRenderer.invoke("translate", key);
+  },
+  /**
+   * Change the displayed language in the app.
+   * @param {String} iso ISO 639-1 language
+   */
+  changeLanguage: async function(iso) {
+    return ipcRenderer.invoke("change-language", iso);
   }
 });
 

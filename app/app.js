@@ -157,12 +157,17 @@ ipcMain.on("exec", function (e, filename) {
 
 // Return the current root dir path (Current Working Directory)
 ipcMain.handle("cwd", function (e) {
-  return ".";
+  return isDev ? app.getAppPath() : ".";
 });
 
 // Return the value localized of the specified key
 ipcMain.handle("translate", function(e, key) {
   return getTranslation(key);
+});
+
+// Change language and save user choice
+ipcMain.handle("change-language", function (e, iso) {
+  return changeLanguage(iso);
 });
 
 //#region shared app variables

@@ -14,7 +14,6 @@
        "LR invalid username": "无效的用户名",
        "LR invalid password": "无效密码",
        "LR error during authentication": "认证期间的错误",
-       "ui-username": "USERNAME",
        "ui-login-btn": "登录",
        "gc-play-game-btn": "播放",
        "gc-delete-game-btn": "删除",
