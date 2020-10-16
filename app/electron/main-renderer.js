@@ -275,7 +275,11 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
       // Finalize the update
       const result = await gamecard.finalizeUpdate();
 
-      if (!result) sendToastToUser("error", "Cannot finalize the update, please check if another directory of the game exists.");
+      if (!result)
+        sendToastToUser(
+          "error",
+          "Cannot finalize the update, please check if another directory of the game exists."
+        );
     });
   });
 }
@@ -310,7 +314,7 @@ function removeSpecials(str, allowedChars) {
  */
 async function loadCachedGames() {
   window.API.log.info("Load cached games...");
-  
+
   // Get all the .json files in the game dir and create a <game-card> for each of them
   const gamesDir = await window.API.invoke("games-data-dir");
   const files = await window.IO.filter("*.json", gamesDir);
@@ -412,12 +416,19 @@ async function getGameFromPaths(paths) {
             error,
           ""
         );
-        window.API.log.error("Unexpected error while retrieving game data from path: " + path + ". " + error);
+        window.API.log.error(
+          "Unexpected error while retrieving game data from path: " +
+            path +
+            ". " +
+            error
+        );
       });
 
     promiseList.push(promise);
     if (promiseList.length === MAX_PROMISE_AT_TIME) {
-      window.API.log.silly("Waiting for promises for game data from multiple paths to finish...");
+      window.API.log.silly(
+        "Waiting for promises for game data from multiple paths to finish..."
+      );
       await Promise.all(promiseList);
       promiseList = [];
     }
@@ -592,12 +603,17 @@ function sendToastToUser(type, message) {
     timer = 15000;
   }
 
-  const htmlToast = "<i class='material-icons' style='padding-right: 10px'>" + icon + "</i><span>" + message + "</span>";
+  const htmlToast =
+    "<i class='material-icons' style='padding-right: 10px'>" +
+    icon +
+    "</i><span>" +
+    message +
+    "</span>";
   M.toast({
     html: htmlToast,
     displayLength: 5000,
-    classes: htmlColor
-  })
+    classes: htmlColor,
+  });
 }
 
 /**
@@ -615,7 +631,7 @@ async function getUserDataFromF95() {
     sendToastToUser("error", "Cannot retrieve user data");
     window.API.log.error("Something wrong while retrieving user info from F95");
   }
-  
+
   // Update component
   document.getElementById("user-info").userdata = userdata;
 }
