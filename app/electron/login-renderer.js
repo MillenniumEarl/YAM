@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     window.IO.read(credentialsPath).then(function (json) {
       const credentials = JSON.parse(json);
 
-      const username = credentials["username"];
-      const password = credentials["password"];
+      const username = credentials.username;
+      const password = credentials.password;
 
       // "Select" the textboxes to not overlap textual values and placeholder text
       document.querySelector("label[for='username']").classList.add("active");
