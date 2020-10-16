@@ -235,6 +235,7 @@ function addEventListenerToGameCard(gamecard) {
  * @param {String} gameurl  URL of the game
  */
 function guidedGameUpdate(gamecard, gamedir, gameurl) {
+  window.API.log.info("Update of " + gamecard.info.name + ", step 1");
   const optionsStepOne = {
     type: "info",
     buttons: ["Open F95 page", "Cancel"],
@@ -265,6 +266,7 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
       detail:
         "Clicking on 'Update completed', will rename the directory, make sure it is not used by other processes!",
     };
+    window.API.log.info("Update of " + gamecard.info.name + ", step 2");
 
     window.API.invoke("message-dialog", optionsStepTwo).then(async function (
       data
@@ -275,11 +277,13 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
       // Finalize the update
       const result = await gamecard.finalizeUpdate();
 
-      if (!result)
+      if (!result) {
         sendToastToUser(
           "error",
           "Cannot finalize the update, please check if another directory of the game exists."
         );
+        window.API.log.error("Cannot finalize the update, please check if another directory of the game exists");
+      }
     });
   });
 }
@@ -395,15 +399,15 @@ async function getGameFromPaths(paths) {
   for (const path of paths) {
     const promise = getGameFromPath(path)
       .then(function (result) {
-        if (result.result === false) {
-          // Send the error message to the user if the game is not found
-          sendMessageToUserWrapper(
-            "warning",
-            "Game not detected",
-            result.message,
-            result.details
-          );
-        }
+        if (result.result) return; 
+        // Send the error message to the user if the game is not found
+        sendMessageToUserWrapper(
+          "warning",
+          "Game not detected",
+          result.message,
+          result.details
+        );
+        window.API.log.warn("Cannot detect game: " + result.message + ", " + result.details);
       })
       .catch(function (error) {
         // Send error message
@@ -467,8 +471,7 @@ async function getGameFromPath(path) {
     return {
       result: false,
       message: "Cannot retrieve information for " + unparsedName,
-      detail:
-        "Check the network connection or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
+      detail: "Check the network connection, check if the game exists or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
       cardElement: null,
     };
   } else if (promiseResult.length !== 1) {

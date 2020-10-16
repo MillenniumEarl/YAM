@@ -56,23 +56,42 @@ const validSendChannels = [
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
+  /**
+   * Directory of the app.js file.
+   */
   appDir: __dirname.replace("electron", ""),
   /**
    * OS platform of the current device.
    */
   platform: process.platform,
+  /**
+   * Send an asynchronous request via IPC and wait for a response.
+   * @param {String} channel Communication channel
+   * @param {Any[]} data Data to send to main process
+   * @returns {Promise<Any>} Result from the main process
+   */
   invoke: (channel, ...data) => {
     // Send a custom message
     if (validSendChannels.includes(channel)) {
       return ipcRenderer.invoke(channel, data);
     }
   },
+  /**
+   * Send an asynchronous request via IPC.
+   * @param {String} channel Communication channel
+   * @param {Any[]} data Data to send to main process
+   */
   send: (channel, ...data) => {
     // Send a custom message
     if (validSendChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
     }
   },
+  /**
+   * Receive a message from main process via IPC and execute a method.
+   * @param {String} channel Communication channel
+   * @param {Function} func Method to execute when a message is received
+   */
   receive: (channel, func) => {
     // Receive a custom message
     if (validReceiveChannels.includes(channel)) {
@@ -80,14 +99,37 @@ contextBridge.exposeInMainWorld("API", {
       ipcRenderer.on(channel, (event, ...args) => func(...args));
     }
   },
+  /**
+   * Join multiple strings into a parsed path for the current OS.
+   * @param {String[]} paths Partial paths to join
+   * @return {String} Joined path
+   */
   join: (...paths) => join(...paths),
+  /**
+   * Check if an Internet connection is available
+   * @returns {Boolean}
+   */
   isOnline: () => navigator.onLine,
+  /**
+   * Download an image given a url.
+   * @param {String} url URL to download the image from
+   * @param {String} dest Path where save the image
+   * @returns {Promise<Any>}
+   */
   downloadImage: function (url, dest) {
     return download.image({ url: url, dest: dest });
   },
+  /**
+   * Obtain the name of the parent directory of a specified path.
+   * @param {String} path
+   * @returns {String}
+   */
   getDirName: function (path) {
     return basename(dirname(path));
   },
+  /**
+   * Provide access to logger methods.
+   */
   log: logger.functions,
 });
 

@@ -33,28 +33,54 @@ const validSendChannels = [
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
+  /**
+   * Send an asynchronous request via IPC and wait for a response.
+   * @param {String} channel Communication channel
+   * @param {Any[]} data Data to send to main process
+   * @returns {Promise<Any>} Result from the main process
+   */
   invoke: (channel, ...data) => {
-    // Send a custom message
-    if (validSendChannels.includes(channel)) {
-      return ipcRenderer.invoke(channel, data);
-    }
-  },
-  send: (channel, ...data) => {
-    // Send a custom message
-    if (validSendChannels.includes(channel)) {
-      ipcRenderer.send(channel, data);
-    }
-  },
+      // Send a custom message
+      if (validSendChannels.includes(channel)) {
+        return ipcRenderer.invoke(channel, data);
+      }
+    },
+    /**
+     * Send an asynchronous request via IPC.
+     * @param {String} channel Communication channel
+     * @param {Any[]} data Data to send to main process
+     */
+    send: (channel, ...data) => {
+      // Send a custom message
+      if (validSendChannels.includes(channel)) {
+        ipcRenderer.send(channel, data);
+      }
+    },
 });
 
 // Expose the I/O operations
 contextBridge.exposeInMainWorld("IO", {
+  /**
+   * Read data from a file asynchronously.
+   * @param {String} path
+   * @returns {Any}
+   */
   read: async function (path) {
-    return readFileSync(path);
-  },
-  write: async function (path, value) {
-    fs.writeFileSync(path, value);
-  },
+      return readFileSync(path);
+    },
+    /**
+     * Write data in a file.
+     * @param {String} path
+     * @param {Any} value
+     */
+    write: async function (path, value) {
+      fs.writeFileSync(path, value);
+    },
+  /**
+   * Check if the specified file exists on disk.
+   * @param {String} filename 
+   * @returns {Boolean}
+   */
   fileExists: async function (filename) {
     return exists(filename);
   },
