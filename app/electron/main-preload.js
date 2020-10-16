@@ -51,6 +51,7 @@ const validSendChannels = [
   "browser-data-dir",
   "games-data-dir",
   "credentials-path",
+  "translate",
 ];
 
 // Expose protected methods that allow the renderer process to use
@@ -131,6 +132,14 @@ contextBridge.exposeInMainWorld("API", {
    * Provide access to logger methods.
    */
   log: logger.functions,
+  /**
+   * Translate a key into a message in the language specified by the user.
+   * @param {String} key Unique key of the message
+   * @returns {Promise<String>}
+   */
+  translate: async function(key) {
+    return ipcRenderer.invoke("translate", key);
+  }
 });
 
 // Expose the I/O operations

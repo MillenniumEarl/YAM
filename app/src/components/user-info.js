@@ -38,8 +38,8 @@ class UserInfo extends HTMLElement {
 
     // Update shadow DOM
     if (val.avatarSrc)
-      this.querySelector("#avatar").setAttribute("src", val.avatarSrc);
-    this.querySelector("#username").innerText = val.username;
+      this.querySelector("#ui-avatar").setAttribute("src", val.avatarSrc);
+    this.querySelector("#ui-username").innerText = val.username;
     this.querySelector("div.col-username").style.display = "inline-block";
     this.querySelector("div.col-login").style.display = "none";
     this.querySelector("div.col-spinner").style.display = "none";
@@ -62,6 +62,7 @@ class UserInfo extends HTMLElement {
 
   //#region Private methods
   /**
+   * @private
    * Load the HTML file and define the buttons of the custom component.
    */
   prepareDOM() {
@@ -79,11 +80,30 @@ class UserInfo extends HTMLElement {
     this.appendChild(template.content.cloneNode(true));
 
     /* Define buttons in DOM */
-    this.loginBtn = this.querySelector("#login-btn");
+    this.loginBtn = this.querySelector("#ui-login-btn");
 
     /* Bind function to use this */
     this.login = this.login.bind(this);
     this.showSpinner = this.showSpinner.bind(this);
+
+    /* Translate DOM */
+    this.translateElementsInDOM();
+  }
+  /**
+   * @private
+   * Translate the DOM elements in the current language.
+   */
+  async translateElementsInDOM() {
+    // Get only the localizable elements
+    const elements = this.querySelectorAll(".localizable");
+
+    // Translate elements
+    for (let e of elements) {
+      // Change text if no child elements are presents...
+      if (e.childNodes.length === 0) e.textContent = await window.API.translate(e.id);
+      // ... or change only the last child (the text)
+      else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
+    }
   }
   //#endregion Private methods
 

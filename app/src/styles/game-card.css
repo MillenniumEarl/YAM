@@ -3,26 +3,26 @@
 
 /*### ID elements ###*/
 /* Handles colors for buttons generated with materialize-css */
-#play-game-btn,
-#play-game-btn:hover {
+#gc-play-game-btn,
+#gc-play-game-btn:hover {
     color: var(--text-on-primary-gc);
     background-color: var(--button-accept-color);
 }
 
-#update-game-btn,
-#update-game-btn:hover {
+#gc-update-game-btn,
+#gc-update-game-btn:hover {
     color: var(--text-on-primary-gc);
     background-color: var(--button-neutral-color);
 }
 
-#delete-game-btn,
-#delete-game-btn:hover {
+#gc-delete-game-btn,
+#gc-delete-game-btn:hover {
     color: var(--text-on-primary-gc);
     background-color: var(--button-negative-color);
 }
 
 /* Manage the attributes for the preview image */
-#preview {
+#gc-preview {
     background-color: var(--primary-gc);
     object-fit: cover;
     width: 300px;
@@ -30,7 +30,7 @@
 }
 
 /* Handles colors for the texts */
-#name {
+#gc-name {
     color: var(--text-on-primary-gc);
 }
 

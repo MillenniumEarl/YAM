@@ -18,10 +18,10 @@
   <div class="card-image waves-effect waves-block waves-light">
     <img
       class="activator"
-      id="preview"
+      id="gc-preview"
       src="../../resources/images/f95-logo.jpg"
     />
-    <div class="progress" id="card-progressbar">
+    <div class="progress" id="gc-card-progressbar">
       <div class="indeterminate"></div>
     </div>
   </div>
@@ -29,63 +29,60 @@
   <!-- Front face of the card, contains the buttons and the main informations about the game -->
   <div class="card-content">
     <!-- Game's informations -->
-    <span class="card-title" id="name">Game name</span>
-    <span class="card-description" id="installed-version"
+    <span class="card-title" id="gc-name">Game name</span>
+    <span class="card-description" id="gc-installed-version"
       >Current version: v.1.2.3.4</span
     >
 
     <!-- Action buttons -->
     <div class="card-action">
-      <p class="action-p">
-        <a class="waves-effect waves-light btn" id="play-game-btn">
+      <div class="action-p">
+        <a class="waves-effect waves-light btn localizable" id="gc-play-game-btn">
           <i class="material-icons left">gamepad</i>
           Play
         </a>
-        <a class="waves-effect waves-light btn" id="delete-game-btn">
+        <a class="waves-effect waves-light btn localizable" id="gc-delete-game-btn">
           <i class="material-icons left">delete</i>
           Remove
         </a>
-      </p>
-      <p class="update-p">
-        <a class="waves-effect waves-light btn" id="update-game-btn">
+      </div>
+      <div class="update-p">
+        <a class="waves-effect waves-light btn localizable truncate" id="gc-update-game-btn">
           <i class="material-icons left">file_download</i>
           Update (v.1.2.3.4)
         </a>
-      </p>
+      </div> 
     </div>
   </div>
 
   <!-- Hidden side of the card, contains addictional informations -->
   <div class="card-reveal">
-    <span class="card-title grey-text text-darken-4">
-      Overview
+    <span class="card-title grey-text text-darken-4 localizable" id="gc-overview-title">
       <i class="material-icons right">close</i>
+      Overview
     </span>
-    <p id="overview">Game overview</p>
+    <p id="gc-overview">Game overview</p>
     <p>
-      <b class="inline">Author:</b>
-      <span id="author">Author</span>
+      <b class="inline localizable" id="gc-author-title">Author:</b>
+      <span id="gc-author">Author</span>
     </p>
     <p>
-      <b class="inline">Last update:</b>
-      <span id="last-update">Last update date</span>
+      <b class="inline localizable" id="gc-last-update-title">Last update:</b>
+      <span id="gc-last-update">Last update date</span>
     </p>
     <p>
-      <b class="inline">Used Engine:</b>
-      <span id="engine">Engine</span>
+      <b class="inline localizable" id="gc-engine-title">Used Engine:</b>
+      <span id="gc-engine">Engine</span>
     </p>
     <p>
-      <b class="inline">Game status:</b>
-      <span id="status">Status</span>
+      <b class="inline localizable" id="gc-status-title">Game status:</b>
+      <span id="gc-status">Status</span>
     </p>
-    <a
-      class="waves-effect waves-light btn"
-      id="f95-url"
-      target="_blank"
-      visit-url
-    >
-      <i class="material-icons left">public</i>
-      F95 Original Thread
-    </a>
+    <div class="center-align">
+      <a class="waves-effect waves-light btn localizable" id="gc-f95-url" target="_blank" visit-url>
+        <i class="material-icons left">public</i>
+        F95 Original Thread
+      </a>
+    </div>
   </div>
 </div>

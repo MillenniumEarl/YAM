@@ -1,8 +1,9 @@
 "use strict";
 
-/*### Generic events ###*/
+//#region Events
 document.addEventListener("DOMContentLoaded", async function () {
   // This function runs when the DOM is ready, i.e. when the document has been parsed
+  await translateElementsInDOM();
 
   const credentialsPath = await window.API.invoke("credentials-path");
 
@@ -18,12 +19,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       const password = credentials.password;
 
       // "Select" the textboxes to not overlap textual values and placeholder text
-      document.querySelector("label[for='username']").classList.add("active");
-      document.querySelector("label[for='password']").classList.add("active");
+      document.querySelector("label[for='login-username']").classList.add("active");
+      document.querySelector("label[for='login-password']").classList.add("active");
 
       // Insert credentials in textboxes
-      document.getElementById("username").value = username;
-      document.getElementById("password").value = password;
+      document.getElementById("login-username").value = username;
+      document.getElementById("login-password").value = password;
 
       // Try to log-in
       login(username, password);
@@ -31,19 +32,20 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 });
 
-/*### Click events ###*/
-document.querySelector("#login-btn").addEventListener("click", function () {
+document.querySelector("#login-login-btn").addEventListener("click", async function () {
   // Get the credentials inserted by the user
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+  const username = document.getElementById("login-username").value;
+  const password = document.getElementById("login-password").value;
 
   // Check credentials
   if (isNullOrWhitespace(username)) {
-    setMessage("Invalid username", "warning");
+    let message = await window.API.translate("LR invalid username");
+    setMessage(message, "warning");
     return;
   }
   if (isNullOrWhitespace(password)) {
-    setMessage("Invalid password", "warning");
+    let message = await window.API.translate("LR invalid password");
+    setMessage(message, "warning");
     return;
   }
 
@@ -51,13 +53,31 @@ document.querySelector("#login-btn").addEventListener("click", function () {
   login(username, password);
 });
 
-document.querySelector("#cancel-btn").addEventListener("click", function () {
+document.querySelector("#login-cancel-btn").addEventListener("click", function () {
   // Close the current window witouth authentication
   window.API.send("auth-result", "CANCELLED", null, null);
   window.API.send("login-window-closing");
 });
 
-/*### Private methods ###*/
+//#endregion Events
+
+//#region Private methods
+/**
+ * @private
+ * Translate the DOM elements in the current language.
+ */
+async function translateElementsInDOM() {
+  // Get only the localizable elements
+  const elements = document.querySelectorAll(".localizable");
+
+  // Translate elements
+  for(let e of elements) {
+    // Change text if no child elements are presents...
+    if(e.childNodes.length === 0) e.textContent = await window.API.translate(e.id);
+    // ... or change only the last child (the text)
+    else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
+  }
+}
 /**
  * Check if a string is null, empty or composed only of white spaces.
  * @param {String} input
@@ -73,7 +93,7 @@ function isNullOrWhitespace(input) {
  * @param {String} username Username used during authentication
  * @param {String} password Password used during authentication
  */
-function manageLoginResult(result, username, password) {
+async function manageLoginResult(result, username, password) {
   if (result.success) {
     // Valid auth, save and send credentials to main process
     const credentials = {
@@ -94,12 +114,13 @@ function manageLoginResult(result, username, password) {
     });
   } else {
     // Show error message
-    setMessage("Error during authentication: " + result.message, "error");
+    let prefix = await window.API.translate("LR error during authentication");
+    setMessage(prefix + ": " + result.message, "error");
 
     // Unblock elements and hide the progress bar
-    document.getElementById("login-btn").classList.remove("disabled");
-    document.getElementById("cancel-btn").classList.remove("disabled");
-    document.getElementById("progressbar").style.display = "none";
+    document.getElementById("login-login-btn").classList.remove("disabled");
+    document.getElementById("login-cancel-btn").classList.remove("disabled");
+    document.getElementById("login-progressbar").style.display = "none";
   }
 }
 
@@ -111,9 +132,9 @@ function manageLoginResult(result, username, password) {
  */
 async function login(username, password) {
   // Block elements and show a progress bar
-  document.getElementById("login-btn").classList.add("disabled");
-  document.getElementById("cancel-btn").classList.add("disabled");
-  document.getElementById("progressbar").style.display = "block";
+  document.getElementById("login-login-btn").classList.add("disabled");
+  document.getElementById("login-cancel-btn").classList.add("disabled");
+  document.getElementById("login-progressbar").style.display = "block";
 
   // Try to log-in
   window.F95.login(username, password).then((result) =>
@@ -135,10 +156,11 @@ function setMessage(message, type) {
   else color = "#00CC00";
 
   // Set the message
-  const element = document.getElementById("error-message");
+  const element = document.getElementById("login-error-message");
   element.innerText = message;
   element.style.color = color;
 
   // Hide the element if the message is empty
   if (message === "") element.style.display = "none";
 }
+//#endregion Private methods

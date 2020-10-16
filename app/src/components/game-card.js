@@ -38,21 +38,26 @@ class GameCard extends HTMLElement {
     this._info = value;
 
     // Set HTML elements
-    this.querySelector("#name").innerText = value.isMod
+    this.querySelector("#gc-name").innerText = value.isMod
       ? "[MOD] " + value.name
       : value.name;
-    this.querySelector("#author").innerText = value.author;
-    this.querySelector("#f95-url").setAttribute("href", value.f95url);
-    this.querySelector("#overview").innerText = value.overview;
-    this.querySelector("#engine").innerText = value.engine;
-    this.querySelector("#status").innerText = value.status;
+    this.querySelector("#gc-author").innerText = value.author;
+    this.querySelector("#gc-f95-url").setAttribute("href", value.f95url);
+    this.querySelector("#gc-overview").innerText = value.overview;
+    this.querySelector("#gc-engine").innerText = value.engine;
+    this.querySelector("#gc-status").innerText = value.status;
+    this.querySelector("#gc-last-update").innerText = value.lastUpdate;
+
     const source = value.previewSource
       ? value.previewSource
       : "../../resources/images/f95-logo.jpg";
-    this.querySelector("#preview").setAttribute("src", source);
-    this.querySelector("#installed-version").innerText =
-      "Installed version: " + value.version;
-    this.querySelector("#last-update").innerText = value.lastUpdate;
+    this.querySelector("#gc-preview").setAttribute("src", source);
+
+    window.API.translate("GC installed version")
+    .then((translation) =>
+      this.querySelector("#gc-installed-version").innerText =
+        translation + ": " + value.version
+    );
   }
 
   get info() {
@@ -135,10 +140,10 @@ class GameCard extends HTMLElement {
     this.appendChild(template.content.cloneNode(true));
 
     /* Define elements in DOM */
-    this.playBtn = this.querySelector("#play-game-btn");
-    this.updateBtn = this.querySelector("#update-game-btn");
-    this.deleteBtn = this.querySelector("#delete-game-btn");
-    this.progressbar = this.querySelector("#card-progressbar");
+    this.playBtn = this.querySelector("#gc-play-game-btn");
+    this.updateBtn = this.querySelector("#gc-update-game-btn");
+    this.deleteBtn = this.querySelector("#gc-delete-game-btn");
+    this.progressbar = this.querySelector("#gc-card-progressbar");
 
     /* Bind function to use this */
     this.loadGameData = this.loadGameData.bind(this);
@@ -151,6 +156,26 @@ class GameCard extends HTMLElement {
     this.play = this.play.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
+
+    // Translate DOM
+    this.translateElementsInDOM();
+  }
+
+  /**
+   * @private
+   * Translate the DOM elements in the current language.
+   */
+  async translateElementsInDOM() {
+    // Get only the localizable elements
+    const elements = this.querySelectorAll(".localizable");
+
+    // Translate elements
+    for (let e of elements) {
+      // Change text if no child elements are presents...
+      if (e.childNodes.length === 0) e.textContent = await window.API.translate(e.id);
+      // ... or change only the last child (the text)
+      else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
+    }
   }
 
   /**
@@ -293,13 +318,17 @@ class GameCard extends HTMLElement {
     this.querySelector(".update-p").style.display = "block";
 
     // Change the text of the button
-    this.updateBtn.innerText = "Update (" + info.version + ")";
+    window.API.translate("GC update").then((translation) => {
+      let lenght = this.updateBtn.childNodes.length;
+      let element = this.updateBtn.childNodes[lenght - 1];
+      element.textContent = translation + " (" + info.version + ")";
+    });
 
-    // Re-add the icon (innerText is overwritten)
-    const icon = document.createElement("i");
-    icon.classList.add("material-icons", "left");
-    icon.innerText = "file_download";
-    this.updateBtn.appendChild(icon);
+    // // Re-add the icon (innerText is overwritten)
+    // const icon = document.createElement("i");
+    // icon.classList.add("material-icons", "left");
+    // icon.innerText = "file_download";
+    // this.updateBtn.appendChild(icon);
 
     // Set update data
     this._updateInfo = info;

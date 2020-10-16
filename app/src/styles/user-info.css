@@ -8,13 +8,13 @@ div.base-div {
     margin: 0;
 }
 
-#login-div {
+#ui-login-div {
     margin: auto;
     width: 50%;
     padding: 10px;
 }
 
-#avatar {
+#ui-avatar {
     width: 45px;
     height: 45px;
     object-fit: scale-down;
@@ -23,7 +23,7 @@ div.base-div {
     padding: 5px;
 }
 
-#username {
+#ui-username {
     margin: 0 auto;
     padding: 15px;
 }

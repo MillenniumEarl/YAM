@@ -2,12 +2,13 @@
 let lastGameCardID = 0;
 
 //#region Events
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   // This function runs when the DOM is ready, i.e. when the document has been parsed
   window.API.log.info("DOM loaded, initializing elements");
+  await translateElementsInDOM();
 
   // Initialize the navigator-tab
-  const tabNavigator = document.getElementById("navigator-tab");
+  const tabNavigator = document.getElementById("tab-navigator");
   M.Tabs.init(tabNavigator, {});
 
   // Initialize the floating button
@@ -77,7 +78,8 @@ document
     const url = await window.API.invoke("prompt-dialog", promptDialogOptions);
     if (!url) return;
 
-    sendToastToUser("info", "Adding game from URL...");
+    let translation = await window.API.translate("MR adding game from url");
+    sendToastToUser("info", translation);
 
     // Add game to list
     const cardPromise = await getGameFromPath(data.filePaths.pop());
@@ -98,13 +100,32 @@ document.querySelector("#add-local-game-btn").addEventListener("click", () => {
     if (data.filePaths.length === 0) return;
 
     // Obtain the data
-    sendToastToUser("info", "Adding game from path...");
+    window.API.translate("MR adding game from path")
+      .then((translation) =>
+        sendToastToUser("info", translation));
     getGameFromPaths(data.filePaths);
   });
 });
 //#endregion Events
 
 //#region Private methods
+/**
+ * @private
+ * Translate the DOM elements in the current language.
+ */
+async function translateElementsInDOM() {
+  // Get only the localizable elements
+  const elements = document.querySelectorAll(".localizable");
+
+  // Translate elements
+  for (let e of elements) {
+    // Change text if no child elements are presents...
+    if (e.childNodes.length === 0) e.textContent = await window.API.translate(e.id);
+    // ... or change only the last child (the text)
+    else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
+  }
+}
+
 /**
  * @private
  * Select the tab with the specified ID in DOM.
@@ -241,8 +262,7 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
     buttons: ["Open F95 page", "Cancel"],
     defaultId: 1, // Cancel
     title: "Update game: Step 1",
-    message:
-      "Click 'Open F95 Page' to download the game.\nInstall/extract it in the directory that will open when this window is closed.\nFollow the installation instructions on the official page.\nYou may need to delete the previous version and/or any saved games",
+    message: "Click 'Open F95 Page' to download the game.\nInstall/extract it in the directory that will open when this window is closed.\nFollow the installation instructions on the official page.\nYou may need to delete the previous version and/or any saved games",
     detail: "Changelog:\n" + gamecard.changelog,
   };
 
@@ -263,8 +283,7 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
       defaultId: 1, // Cancel
       title: "Update game: Step 2",
       message: "Click 'Update completed' to mark the game as updated.",
-      detail:
-        "Clicking on 'Update completed', will rename the directory, make sure it is not used by other processes!",
+      detail: "Clicking on 'Update completed', will rename the directory, make sure it is not used by other processes!",
     };
     window.API.log.info("Update of " + gamecard.info.name + ", step 2");
 
@@ -278,10 +297,8 @@ function guidedGameUpdate(gamecard, gamedir, gameurl) {
       const result = await gamecard.finalizeUpdate();
 
       if (!result) {
-        sendToastToUser(
-          "error",
-          "Cannot finalize the update, please check if another directory of the game exists."
-        );
+        let translation = await window.API.translate("MR error finalizing update");
+        sendToastToUser("error", translation);
         window.API.log.error("Cannot finalize the update, please check if another directory of the game exists");
       }
     });
@@ -346,7 +363,8 @@ async function loadCachedGames() {
  */
 async function checkVersionCachedGames() {
   window.API.log.info("Checking for game updates...");
-  sendToastToUser("info", "Checking for game updates...");
+  let translation = await window.API.translate("MR checking games update");
+  sendToastToUser("info", translation);
 
   // Get all the gamecards in DOM
   const cardGames = document.querySelectorAll("game-card");
@@ -371,7 +389,9 @@ async function checkVersionCachedGames() {
 function login() {
   // Check network connection
   if (!window.API.isOnline) {
-    sendToastToUser("warning", "No network connection");
+    window.API.translate("MR no network connection")
+      .then((translation) =>
+        sendToastToUser("warning", translation));
     window.API.log.warn("No network connection, cannot login");
     return;
   }
@@ -399,7 +419,7 @@ async function getGameFromPaths(paths) {
   for (const path of paths) {
     const promise = getGameFromPath(path)
       .then(function (result) {
-        if (result.result) return; 
+        if (result.result) return;
         // Send the error message to the user if the game is not found
         sendMessageToUserWrapper(
           "warning",
@@ -415,16 +435,16 @@ async function getGameFromPaths(paths) {
           "error",
           "Unexpected error",
           "Cannot retrieve game data (" +
-            path +
-            "), unexpected error: " +
-            error,
+          path +
+          "), unexpected error: " +
+          error,
           ""
         );
         window.API.log.error(
           "Unexpected error while retrieving game data from path: " +
-            path +
-            ". " +
-            error
+          path +
+          ". " +
+          error
         );
       });
 
@@ -453,9 +473,9 @@ async function getGameFromPath(path) {
 
   // Check if it is a mod
   const MOD_TAG = "[MOD]";
-  const includeMods = unparsedName.toUpperCase().includes(MOD_TAG)
-    ? true
-    : false;
+  const includeMods = unparsedName.toUpperCase().includes(MOD_TAG) ?
+    true :
+    false;
 
   // Find game version
   const version = getGameVersionFromName(unparsedName);
@@ -478,8 +498,7 @@ async function getGameFromPath(path) {
     return {
       result: false,
       message: "Cannot retrieve information for " + unparsedName,
-      detail:
-        "Multiple occurrences of '" +
+      detail: "Multiple occurrences of '" +
         unparsedName +
         "' detected. Add the game via URL",
       cardElement: null,
@@ -631,7 +650,8 @@ async function getUserDataFromF95() {
   // Check user data
   if (userdata === null || !userdata) {
     // Send error message
-    sendToastToUser("error", "Cannot retrieve user data");
+    let translation = await window.API.translate("MR cannot retrieve user data");
+    sendToastToUser("error", translation);
     window.API.log.error("Something wrong while retrieving user info from F95");
   }
 
@@ -680,7 +700,9 @@ window.API.receive("auth-result", (args) => {
   // Load data (session not shared between windows)
   window.F95.login(username, password)
     .then(function () {
-      sendToastToUser("info", "Login successful!");
+      window.API.translate("MR login successful")
+        .then((translation) =>
+          sendToastToUser("info", translation));
 
       // Load F95 base data
       window.F95.loadF95BaseData();
@@ -696,7 +718,9 @@ window.API.receive("auth-result", (args) => {
     })
     .catch(function (error) {
       // Send error message
-      sendToastToUser("error", "Cannot login: " + error);
+      window.API.translate("MR cannot login")
+        .then((translation) =>
+          sendToastToUser("error", translation + ": " + error));
       window.API.log.error("Cannot login: " + error);
     });
 });

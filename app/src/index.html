@@ -39,17 +39,17 @@
       src="../src/components/user-info.js"
     ></script>
   </head>
-
+  
   <body>
     <!-- Navigation toolbar -->
     <div class="row navbar">
       <div class="col s12">
         <ul class="tabs" id="tab-navigator">
           <li id="default-open-tab" class="tab col s3 tablinks">
-            <a href="#" onclick="openPage('games-tab')"> Games </a>
+            <a href="#" class="localizable" id="main-games-tab" onclick="openPage('games-tab')"> Games </a>
           </li>
           <li class="tab col s3 tablinks">
-            <a href="#" onclick="openPage('settings-tab')"> Settings </a>
+            <a href="#" class="localizable" id="main-settings-tab" onclick="openPage('settings-tab')"> Settings </a>
           </li>
           <li class="col s3 offset-s3 user-info-col">
             <user-info id="user-info"></user-info>
@@ -64,7 +64,7 @@
       <div class="input-field col s9">
         <i class="material-icons prefix">search_white</i>
         <input id="search-game-name" type="text" />
-        <label for="search-game-name">Search game name</label>
+        <label for="search-game-name" id="main-search-game-name-label" class="localizable">Search game name</label>
       </div>
       <div class="row" id="game-cards-container">
         <!-- Game cards goes here -->
@@ -75,20 +75,20 @@
       <!-- Credentials -->
       <div class="row">
         <div class="input-field col s12 m5 l5 xl5">
-          <input id="username-txt" type="text">
-          <label for="first_name">Username</label>
+          <input id="settings-username-txt" type="text">
+          <label for="settings-username-txt" id="settings-username-txt-label" class="localizable">Username</label>
         </div>
         <div class="input-field col s11 m4 l4 xl4">
-          <input id="password-txt" type="password">
-          <label for="password-txt">Password</label>
+          <input id="settings-password-txt" type="password">
+          <label for="settings-password-txt" id="settings-password-txt-label" class="localizable">Password</label>
         </div>
-        <div class="col s1 m1 l1 xl1">
-          <a class="btn-flat" id="password-toggle">
+        <div class="col s1 m1 l1 xl1 padding-correction-textinput">
+          <a class="btn-flat" id="settings-password-toggle">
             <i class="material-icons left">remove_red_eye</i>
           </a>
         </div>
-        <div class="col s12 m2 l2 xl2">
-          <a class="waves-effect waves-light btn" id="save-credentials-btn">
+        <div class="col s12 m2 l2 xl2 padding-correction-textinput">
+          <a class="waves-effect waves-light btn localizable" id="settings-save-credentials-btn">
             <i class="material-icons left">save</i>
             Save
           </a>

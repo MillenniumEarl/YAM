@@ -27,27 +27,28 @@ div.input-field{
     padding-right: 10px;
 }
 
-#error-message{
+#login-error-message{
     padding-left: 10px;
     padding-right: 10px;
     color: var(--text-on-primary);
 }
 
 /*### Handles colors for buttons generated with materialize-css ###*/
-#login-btn,
-#login-btn:hover {
+#login-login-btn,
+#login-login-btn:hover {
     background-color: var(--button-accept-color);
     color: var(--text-on-primary);
 }
 
-#cancel-btn,
-#cancel-btn:hover {
+#login-cancel-btn,
+#login-cancel-btn:hover {
     background-color: var(--button-neutral-color);
     color: var(--text-on-primary);
 }
 
 /*### Input textbox ###*/
-#username, #password {
+#login-username,
+#login-password {
     color: var(--text-on-primary);
 }
 

@@ -32,27 +32,27 @@
   </head>
 
   <body>
-    <div class="progress" id="progressbar">
+    <div class="progress" id="login-progressbar">
       <div class="indeterminate"></div>
     </div>
     <div class="input-field col s12">
       <i class="material-icons prefix">person</i>
-      <input id="username" type="text" />
-      <label for="username">Username</label>
+      <input id="login-username" type="text" />
+      <label for="login-username" class="localizable" id="login-username-label">Username</label>
     </div>
     <div class="input-field col s12">
       <i class="material-icons prefix">vpn_key</i>
-      <input id="password" type="password" />
-      <label for="password">Password</label>
+      <input id="login-password" type="password" />
+      <label for="login-password" class="localizable" id="login-password-label">Password</label>
     </div>
-    <p id="error-message">Authentication on F95Zone</p>
+    <p id="login-error-message" class="localizable">Authentication on F95Zone</p>
     <div id="outer">
       <div id="inner">
-        <a class="waves-effect waves-light btn" id="login-btn">
+        <a class="waves-effect waves-light btn localizable" id="login-login-btn">
           <i class="material-icons left">exit_to_app</i>
           Login F95
         </a>
-        <a class="waves-effect waves-light btn" id="cancel-btn">
+        <a class="waves-effect waves-light btn localizable" id="login-cancel-btn">
           <i class="material-icons left">cancel</i>
           Cancel
         </a>

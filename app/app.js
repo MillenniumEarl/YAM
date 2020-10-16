@@ -14,6 +14,11 @@ const logger = require('electron-log');
 const { runApplication } = require("./src/scripts/io-operations.js");
 const shared = require("./src/scripts/shared.js");
 const { installChromium } = require("./src/scripts/chromium.js");
+const {
+  initLocalization,
+  getTranslation,
+  changeLanguage
+} = require("./src/scripts/localization.js");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -155,6 +160,11 @@ ipcMain.handle("cwd", function (e) {
   return ".";
 });
 
+// Return the value localized of the specified key
+ipcMain.handle("translate", function(e, key) {
+  return getTranslation(key);
+});
+
 //#region shared app variables
 ipcMain.handle("cache-dir", function (e) {
   const dirname = path.resolve(".", shared.cacheDir);
@@ -228,6 +238,12 @@ ipcMain.handle("prompt-dialog", function (e, options) {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async function () {
   logger.info("Application ready");
+
+  // Initialize language
+  logger.info("Initializing languages...");
+  initLocalization("./resources/lang/");
+  logger.info("Languages initialized");
+  
   shared.chromiumPath = await installChromium();
   if (shared.chromiumPath ) logger.info("Chromium installed");
   else logger.error("Something wrong with Chromium");

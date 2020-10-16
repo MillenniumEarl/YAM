@@ -6,7 +6,8 @@ const util = require("util");
 const path = require("path");
 
 // Public modules from npm
-const i18next = require("i18next").default;
+const i18next = require("i18next");
+const LanguageDetector = require("i18next-electron-language-detector");
 const isDev = require("electron-is-dev");
 
 async function getTranslationResourcesFromDir(dirname) {
@@ -28,21 +29,26 @@ async function getTranslationResourcesFromDir(dirname) {
         // Add translation
         resources[langName] = langTranslation;
     }
-
-    return {
-        resources
-    };
+    return resources;
 }
 
 module.exports.initLocalization = async function (resourcesPath) {
+    // Obtain the translation files
     let res = await getTranslationResourcesFromDir(resourcesPath);
-    await i18next.init({
+    
+    // Initialize class
+    await i18next
+        .use(LanguageDetector)
+        .init({
         resources: res,
         fallbackLng: isDev ? "dev" : "en",
-        debug: isDev
+        debug: isDev,
     });
 }
 
 module.exports.getTranslation = function (key) {
     return i18next.t(key);
+}
+module.exports.changeLanguage = async function (lang) {
+    await i18next.changeLanguage(lang);
 }

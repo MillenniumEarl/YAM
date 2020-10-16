@@ -9,19 +9,17 @@ ul.tabs {
     padding: 0;
     background-color: var(--primary-dark);
 }
-
 /* Background color of the entire component */
 
 li.tab {
     background-color: var(--primary-dark);
     color: var(--text-on-primary);
 }
-
 /* Colors of the single "tab" */
+
 .tabs .tab a {
     color: var(--text-on-primary);
 }
-
 /* Text color when not selected*/
 
 li.tab:active,
@@ -29,7 +27,6 @@ li.tab:active,
     background-color: var(--primary-light);
     color: var(--secondary-app);
 }
-
 /* Colors of the single "tab" selected */
 
 li.tab:hover,
@@ -37,13 +34,11 @@ li.tab:hover,
     background-color: var(--primary-light);
     color: var(--secondary-app);
 }
-
 /* Colors of the single "tab" on mouseover */
 
 .tabs .indicator {
     background-color: var(--secondary-app);
 }
-
 /* Background color of the navigator tab indicator (lower bar) */
 
 .tabs .tab a:focus,
@@ -51,7 +46,6 @@ li.tab:hover,
     background-color: var(--primary-light);
     color: var(--secondary-app);
 }
-
 /* Color of the single "tab" (of the internal link) when selected */
 
 /*### Size and alignment of the user data in the last column ###*/
