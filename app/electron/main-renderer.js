@@ -164,14 +164,14 @@ function addGameCard() {
 function addEventListenerToGameCard(gamecard) {
   gamecard.addEventListener("play", function (e) {
     if (e.target) {
-      const launcherPath = e.detail["launcher"];
+      const launcherPath = e.detail.launcher;
       window.API.send("exec", launcherPath);
     }
   });
 
   gamecard.addEventListener("update", function (e) {
     if (e.target) {
-      guidedGameUpdate(gamecard, e.detail["gameDir"], e.detail["url"]);
+      guidedGameUpdate(gamecard, e.detail.gameDir, e.detail.url);
 
       // Download and install (first hosting platoform in list)
       // !!! Against the guidelines: DON'T DO IT !!!
@@ -212,7 +212,7 @@ function addEventListenerToGameCard(gamecard) {
 
         // Delete also game files
         if (data.response === 1) {
-          const gameDir = e.detail["gameDir"];
+          const gameDir = e.detail.gameDir;
           window.IO.deleteFolder(gameDir);
         }
 
@@ -391,13 +391,13 @@ async function getGameFromPaths(paths) {
   for (const path of paths) {
     const promise = getGameFromPath(path)
       .then(function (result) {
-        if (result["result"] === false) {
+        if (result.result === false) {
           // Send the error message to the user if the game is not found
           sendMessageToUserWrapper(
             "warning",
             "Game not detected",
-            result["message"],
-            result["details"]
+            result.message,
+            result.details
           );
         }
       })
