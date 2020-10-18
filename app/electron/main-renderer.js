@@ -2,6 +2,7 @@
 
 /* Global variables */
 let lastGameCardID = 0;
+let logged = false;
 
 //#region Events
 document.addEventListener("DOMContentLoaded", async function () {
@@ -279,7 +280,7 @@ function openPage(pageID) {
   document.getElementById(pageID).style.display = "block";
 
   // Hide/show the add game button
-  if (pageID === "main-games-tab")
+  if (pageID === "main-games-tab" && logged)
     document.querySelector("#fab-add-game-btn").style.display = "block";
   else document.querySelector("#fab-add-game-btn").style.display = "none";
 }
@@ -886,6 +887,7 @@ window.API.receive("auth-result", (args) => {
       window.API.translate("MR login successful").then((translation) =>
         sendToastToUser("info", translation)
       );
+      logged = true;
 
       // Load F95 base data
       window.F95.loadF95BaseData();
