@@ -8,6 +8,7 @@
         "main-games-tab": "Jeux",
         "main-settings-tab": "Paramètres",
         "main-search-game-name-label": "Rechercher des jeux par nom",
+        "main-select-language-label": "Choisir la langue",
         "settings-username-txt-label": "Username",
         "settings-password-txt-label": "Mot de passe",
         "settings-save-credentials-btn": "Enregistrer",
@@ -33,6 +34,23 @@
         "MR no network connection": "No network connection",
         "MR cannot retrieve user data": "Impossible de récupérer les données utilisateur de F95",
         "MR login successful": "Authentification réussie",
-        "MR cannot login": "Ne peut se connecter"
+        "MR cannot login": "Ne peut se connecter",
+        "MR credentials edited": "Identifiants modifiés",
+        "MR select game directory": "Select game directory",
+        "MR insert game url": "Entrez l'URL du jeu sur F95Zone",
+        "MR confirm deletion": "Confirmer la suppression",
+        "MR message confirm deletion": "Voulez-vous vraiment supprimer le jeu?",
+        "MR keep saves checkbox": "Conserver les sauvegardes (si possible)",
+        "MR remove only game button": "Supprimer uniquement",
+        "MR delete also button": "Supprimer également du disque",
+        "MR cancel button": "Annuler",
+        "MR update game step 1 title": "Update: first step",
+        "MR update game step 1 message": "Cliquez sur le bouton pour télécharger la mise à jour.\nInstallez/extrayez-la dans le dossier qui s'ouvrira une fois cette fenêtre fermée.\nFuivez le processus d'installation sur la page officielle.\nYVous devrez peut-être supprimer l'ancienne. version du jeu et/ou sauvegarde des parties. ",
+        "MR update game step 1 detail": "Modifications",
+        "MR open f95 page": "Ouvrir la page sur F95Zone",
+        "MR update game step 2 title": "Update: second step",
+        "MR update game step 2 message": "Appuyez sur 'Update complete' pour définir le jeu comme mis à jour.",
+        "MR update game step 2 detail": "En cliquant sur 'Update completed', le répertoire du jeu sera renommé, assurez-vous qu'il n'est utilisé par aucun autre processus!",
+        "MR update completed": "Mise à jour terminée"
     }
 }

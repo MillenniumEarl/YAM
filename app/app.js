@@ -58,6 +58,11 @@ async function createMainWindow() {
       ),
     },
   });
+
+  // Detect if the user maximized the window in a previous session
+  let maximize = store.has("main-maximized") ? store.get("main-maximized") : false;
+  if(maximize) mainWindow.maximize();
+  
   // Whatever URL the user clicks will open the default browser for viewing
   mainWindow.webContents.on("new-window", function (e, url) {
     e.preventDefault();
@@ -141,6 +146,9 @@ ipcMain.on("main-window-closing", function (e) {
   let size = mainWindow.getSize();
   store.set("main-width", size[0]);
   store.set("main-height", size[1]);
+
+  // Check is the window is maximized
+  store.set("main-maximized", mainWindow.isMaximized());
 
   mainWindow.close();
   mainWindow = null;

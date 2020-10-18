@@ -8,6 +8,7 @@
         "main-games-tab": "Spiele",
         "main-settings-tab": "Einstellungen",
         "main-search-game-name-label": "Spiele nach Namen suchen",
+        "main-select-language-label": "Sprache auswählen",
         "settings-username-txt-label": "Benutzername",
         "settings-password-txt-label": "Passwort",
         "settings-save-credentials-btn": "Speichern",
@@ -33,6 +34,23 @@
         "MR no network connection": "Keine Netzwerkverbindung",
         "MR cannot retrieve user data": "Benutzerdaten können nicht von F95 abgerufen werden",
         "MR login successful": "Authentifizierung erfolgreich",
-        "MR cannot login": "Anmeldung nicht möglich"
+        "MR cannot login": "Anmeldung nicht möglich",
+        "MR credentials edited": "Anmeldeinformationen bearbeitet",
+        "MR select game directory": "Spielverzeichnis auswählen",
+        "MR insert game url": "Spiel-URL in F95Zone eingeben",
+        "MR confirm deletion": "Löschung bestätigen",
+        "MR message confirm deletion": "Möchten Sie das Spiel wirklich löschen?",
+        "MR keep saves checkbox": "Speicher speichern (falls möglich)",
+        "MR remove only game button": "Nur entfernen",
+        "MR delete also button": "Auch von Festplatte löschen",
+        "MR cancel button": "Abbrechen",
+        "MR update game step 1 title": "Update: Erster Schritt",
+        "MR update game step 1 message": "Klicken Sie auf die Schaltfläche, um das Update herunterzuladen.\nInstallieren/extrahieren Sie es in dem Ordner, der geöffnet wird, sobald dieses Fenster geschlossen wird.\nFolgen Sie dem Installationsvorgang auf der offiziellen Seite.\nY Möglicherweise müssen Sie das alte löschen. Spielversion und/oder Spiele speichern. ",
+        "MR update game step 1 detail": "Änderungen",
+        "MR open f95 page": "Open page on F95Zone",
+        "MR update game step 2 title": "Update: Zweiter Schritt",
+        "MR update game step 2 message": "Drücken Sie 'Update abgeschlossen', um das Spiel als aktualisiert einzustellen.",
+        "MR update game step 2 detail": "Wenn Sie auf 'Update abgeschlossen' klicken, wird das Spielverzeichnis umbenannt. Stellen Sie sicher, dass es nicht von einem anderen Prozess verwendet wird!",
+        "MR update completed": "Update abgeschlossen"
     }
 }

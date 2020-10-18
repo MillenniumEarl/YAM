@@ -46,10 +46,10 @@
       <div class="col s12">
         <ul class="tabs" id="tab-navigator">
           <li id="default-open-tab" class="tab col s3 tablinks">
-            <a href="#" class="localizable" id="main-games-tab" onclick="openPage('games-tab')"> Games </a>
+            <a href="#" class="localizable" onclick="openPage('main-games-tab')"> Games </a>
           </li>
           <li class="tab col s3 tablinks">
-            <a href="#" class="localizable" id="main-settings-tab" onclick="openPage('settings-tab')"> Settings </a>
+            <a href="#" class="localizable" onclick="openPage('main-settings-tab')"> Settings </a>
           </li>
           <li class="col s3 offset-s3 user-info-col">
             <user-info id="user-info"></user-info>
@@ -59,7 +59,7 @@
     </div>
 
     <!-- Tab content -->
-    <div id="games-tab" class="tabcontent" hidden>
+    <div id="main-games-tab" class="tabcontent" hidden>
       <!-- Search game name -->
       <div class="input-field col s9">
         <i class="material-icons prefix">search_white</i>
@@ -71,7 +71,7 @@
       </div>
     </div>
 
-    <div id="settings-tab" class="tabcontent" hidden>
+    <div id="main-settings-tab" class="tabcontent" hidden>
       <!-- Credentials -->
       <div class="row">
         <div class="input-field col s12 m5 l5 xl5">
@@ -99,7 +99,7 @@
         <div class="input-field col s6 m4">
           <select class="icons" id="main-language-select" onchange="updateLanguage()">
           </select>
-          <label id="main-select-language-label">Select language</label>
+          <label id="main-select-language-label" class="localizable">Select language</label>
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@
         "main-games-tab": "Jogos",
         "main-settings-tab": "Configurações",
         "main-search-game-name-label": "Pesquisar jogos por nome",
+        "main-select-language-label": "Selecione o idioma",
         "settings-username-txt-label": "Nome de usuário",
         "settings-password-txt-label": "Senha",
         "settings-save-credentials-btn": "Salvar",
@@ -33,6 +34,23 @@
         "MR no network connection": "Sem conexão de rede",
         "MR cannot retrieve user data": "Não é possível recuperar dados do usuário de F95",
         "MR login successful": "Autenticação bem-sucedida",
-        "MR cannot login": "Não é possível fazer o login"
+        "MR cannot login": "Não é possível fazer o login",
+        "MR credentials edited": "Credenciais editadas",
+        "MR select game directory": "Selecionar diretório do jogo",
+        "MR insert game url": "Insira o URL do jogo no F95Zone",
+        "MR confirm deletion": "Confirmar exclusão",
+        "MR message confirm deletion": "Você realmente deseja excluir o jogo?",
+        "MR keep saves checkbox": "Manter salvos (se possível)",
+        "MR remove only game button": "Remover apenas",
+        "MR delete also button": "Excluir também do disco",
+        "MR cancel button": "Cancelar",
+        "MR update game step 1 title": "Atualização: primeira etapa",
+        "MR update game step 1 message": "Clique no botão para baixar a atualização.\nInstalar/extraí-la na pasta que será aberta assim que esta janela for fechada.\nSiga o processo de instalação na página oficial.\nVocê pode ter que excluir a antiga versão do jogo e/ou salvar jogos. ",
+        "MR update game step 1 detail": "Mudanças",
+        "MR open f95 page": "Abrir página na F95Zone",
+        "MR update game step 2 title": "Atualização: segunda etapa",
+        "MR update game step 2 message": "Pressione 'Atualização concluída' para definir o jogo como atualizado.",
+        "MR update game step 2 detail": "Ao clicar em 'Atualização concluída', o diretório do jogo será renomeado, certifique - se de que não seja usado por nenhum outro processo!",
+        "MR update completed": "Atualização concluída"
     }
 }

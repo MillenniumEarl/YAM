@@ -33,6 +33,16 @@ body {
   right: 25px;
 }
 
+/* Set text color for the selected element in language selector */
+.select-dropdown {
+  color: var(--text-on-primary);
+}
+
+/* Set color of the language select options*/
+li[id^="select-options"] {
+  background-color: var(--primary-light);
+}
+
 /*### Set size of avatar image ###*/
 .avatar {
   object-fit: scale-down;
@@ -48,11 +58,13 @@ body {
 
 /*### Settings elements ###*/
 .padding-correction-textinput {
-  padding-top: 20px;
+  padding-top: 20px !important;
 }
 
-/*### Search bar styles ###*/
-#search-game-name:focus {
+/*### Input selectors ###*/
+#search-game-name,
+#settings-username-txt,
+#settings-password-txt {
   color: var(--text-on-primary);
 }
 
@@ -61,8 +73,17 @@ body {
   color: var(--secondary-app) !important;
 }
 
+.input-field input[type="password"]:focus+label {
+  color: var(--secondary-app) !important;
+}
+
 /* label underline focus color */
 .input-field input[type="text"]:focus {
+  border-bottom: 1px solid var(--secondary-app) !important;
+  box-shadow: 0 1px 0 0 var(--secondary-app) !important;
+}
+
+.input-field input[type="password"]:focus {
   border-bottom: 1px solid var(--secondary-app) !important;
   box-shadow: 0 1px 0 0 var(--secondary-app) !important;
 }
@@ -73,8 +94,18 @@ body {
   box-shadow: 0 1px 0 0 var(--secondary-app) !important;
 }
 
-/* invalid color */
+.input-field input[type="password"].valid {
+  border-bottom: 1px solid var(--secondary-app) !important;
+  box-shadow: 0 1px 0 0 var(--secondary-app) !important;
+}
+
+/* Invalid color */
 .input-field input[type="text"].invalid {
+  border-bottom: 1px solid var(--secondary-app) !important;
+  box-shadow: 0 1px 0 0 var(--secondary-app) !important;
+}
+
+.input-field input[type="password"].invalid {
   border-bottom: 1px solid var(--secondary-app) !important;
   box-shadow: 0 1px 0 0 var(--secondary-app) !important;
 }

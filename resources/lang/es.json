@@ -8,6 +8,7 @@
         "main-games-tab": "Juegos",
         "main-settings-tab": "Configuración",
         "main-search-game-name-label": "Buscar juegos por nombre",
+        "main-select-language-label": "Seleccione el idioma",
         "settings-username-txt-label": "Nombre de usuario",
         "settings-password-txt-label": "Contraseña",
         "settings-save-credentials-btn": "Guardar",
@@ -33,6 +34,23 @@
         "MR no network connection": "Sin conexión de red",
         "MR cannot retrieve user data": "No se pueden recuperar los datos del usuario de F95",
         "MR login successful": "Autenticación exitosa",
-        "MR cannot login": "No se pudo iniciar sesión"
+        "MR cannot login": "No se pudo iniciar sesión",
+        "MR credentials editeds": "Credenciales editadas",
+        "MR select game directory": "Seleccionar directorio de juegos",
+        "MR insert game url": "Ingresa la URL del juego en F95Zone",
+        "MR confirm deletion": "Confirmar eliminación",
+        "MR message confirm deletion": "¿Realmente quieres eliminar el juego?",
+        "MR keep saves checkbox": "Mantener las partidas guardadas (si es posible)",
+        "MR remove only game button": "Eliminar solo",
+        "MR delete also button": "Eliminar también del disco",
+        "MR cancel button": "Cancelar",
+        "MR update game step 1 title": "Actualización: primer paso",
+        "MR update game step 1 message": "Haga clic en el botón para descargar la actualización.\nInstale/extráigala en la carpeta que se abrirá una vez que se cierre esta ventana.\nSiga el proceso de instalación en la página oficial.\nEs posible que deba eliminar la versión del juego y/o partidas guardadas. ",
+        "MR update game step 1 detail": "Cambios",
+        "MR open f95 page": "Abrir página en F95Zone",
+        "MR update game step 2 title": "Actualización: segundo paso",
+        "MR update game step 2 message": "Pulse 'Actualización completa' para configurar el juego como actualizado",
+        "MR update game step 2 detail": "Al hacer clic en 'Actualización completada', se cambiará el nombre del directorio del juego, ¡asegúrese de que no sea utilizado por ningún otro proceso!",
+        "MR update completed": "Actualización completada"
     }
 }

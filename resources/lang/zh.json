@@ -8,6 +8,7 @@
        "main-games-tab": "游戏",
        "main-settings-tab": "设置",
        "main-search-game-name-label": "按名称搜索游戏",
+       "main-select-language-label": "选择语言",
        "settings-username-txt-label": "用户名",
        "settings-password-txt-label": "密码",
        "settings-save-credentials-btn": "保存",
@@ -33,6 +34,23 @@
        "MR no network connection": "无网络连接",
        "MR cannot retrieve user data": "无法从F95检索用户数据",
        "MR login successful": "身份验证成功",
-       "MR cannot login": "无法登录"
+       "MR cannot login": "无法登录",
+       "MR credentials edited": "凭证已编辑",
+       "MR select game directory": "选择游戏目录",
+       "MR insert game url": "在F95Zone上输入游戏网址",
+       "MR confirm deletion": "确认删除",
+       "MR message confirm deletion": "您真的要删除游戏吗？",
+       "MR keep saves checkbox": "保留保存（如果可能）",
+       "MR remove only game button": "仅删除",
+       "MR delete also button": "还从磁盘删除",
+       "MR cancel button": "取消",
+       "MR update game step 1 title": "更新: 第一步",
+       "MR update game step 1 message": "单击按钮下载更新。\n在关闭此窗口后将其安装/解压缩到将打开的文件夹中。\nF请遵循官方页面上的安装过程。\n您可能必须删除旧的游戏版本和/或保存游戏。",
+       "MR update game step 1 detail": "更改",
+       "MR open f95 page": "F95Zone上的打开页面",
+       "MR update game step 2 title": "更新: 第二步",
+       "MR update game step 2 message": "按'更新完成'以将游戏设置为已更新。",
+       "MR update game step 2 detail": "通过单击'更新完成',将重命名游戏目录,确保没有其他任何进程使用它！",
+       "MR update completed": "更新完成"
     }
 }

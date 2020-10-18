@@ -8,6 +8,7 @@
         "main-games-tab": "Games",
         "main-settings-tab": "Settings",
         "main-search-game-name-label": "Search games by name",
+        "main-select-language-label": "Select language",
         "settings-username-txt-label": "Username",
         "settings-password-txt-label": "Password",
         "settings-save-credentials-btn": "Save",
@@ -33,6 +34,23 @@
         "MR no network connection": "No network connection",
         "MR cannot retrieve user data": "Cannot retrieve user data from F95",
         "MR login successful": "Authentication successful",
-        "MR cannot login": "Could not login"
+        "MR cannot login": "Could not login",
+        "MR credentials edited": "Credentials edited",
+        "MR select game directory": "Select game directory",
+        "MR insert game url": "Enter game URL on F95Zone",
+        "MR confirm deletion": "Confirm deletion",
+        "MR message confirm deletion": "Do you really want to delete the game?",
+        "MR keep saves checkbox": "Keep saves (if possible)",
+        "MR remove only game button": "Remove only",
+        "MR delete also button": "Also delete from disk",
+        "MR cancel button": "Cancel",
+        "MR update game step 1 title": "Update: first step",
+        "MR update game step 1 message": "Click on the button to download the update.\nInstall/extract it in the folder that will open once this window is closed.\nFollow the installation process on the official page.\nYou may have to delete the old one. game version and/or save games. ",
+        "MR update game step 1 detail": "Changes",
+        "MR open f95 page": "Open page on F95Zone",
+        "MR update game step 2 title": "Update: second step",
+        "MR update game step 2 message": "Press 'Update complete' to set the game as updated.",
+        "MR update game step 2 detail": "By clicking on 'Update completed', the game directory will be renamed, make sure it is not used by any other process!",
+        "MR update completed": "Update completed"
     }
 }
