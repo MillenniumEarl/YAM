@@ -1,3 +1,5 @@
+"use strict";
+
 /* Global variables */
 let lastGameCardID = 0;
 
@@ -140,6 +142,7 @@ async function listAvailableLanguages() {
   // Read all the available languages
   let cwd = await window.API.invoke("cwd");
   let langs = await window.IO.filter("*.json", window.API.join(cwd, "resources", "lang"));
+  let currentLanguageISO = (await window.API.currentLanguage()).toUpperCase();
 
   for(let lang of langs) {
     let iso = lang.replace(".json", "");
@@ -151,6 +154,9 @@ async function listAvailableLanguages() {
     let flagPath = window.API.join(cwd, "resources", "images", "flags", iso + ".png");
     option.setAttribute("data-icon", flagPath);
     option.textContent = iso.toUpperCase();
+
+    // If current language make the option selected
+    if (currentLanguageISO === iso.toUpperCase()) option.setAttribute("selected", "");
 
     // Add the option
     document.getElementById("main-language-select").appendChild(option);

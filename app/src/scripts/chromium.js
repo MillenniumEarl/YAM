@@ -1,3 +1,5 @@
+"use strict";
+
 // Core modules
 const { join } = require("path");
 

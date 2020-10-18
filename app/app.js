@@ -9,16 +9,13 @@ const { app, BrowserWindow, shell, ipcMain, dialog } = require("electron");
 const prompt = require("electron-prompt");
 const isDev = require("electron-is-dev");
 const logger = require('electron-log');
+const Store = require('electron-store');
 
 // Modules from file
 const { runApplication } = require("./src/scripts/io-operations.js");
 const shared = require("./src/scripts/shared.js");
 const { installChromium } = require("./src/scripts/chromium.js");
-const {
-  initLocalization,
-  getTranslation,
-  changeLanguage
-} = require("./src/scripts/localization.js");
+const localization = require("./src/scripts/localization.js");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -28,12 +25,19 @@ let loginWindow;
 // Variable used to close the main windows
 let closeMainWindow = false;
 
+// Global store, keep user-settings
+const store = new Store();
+
 //#region Windows creation methods
 async function createMainWindow() {
+  // Local variables
+  let width = store.has("main-width") ? store.get("main-width") : 1024;
+  let height = store.has("main-height") ? store.get("main-height") : 600;
+  
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 600,
+    width: width,
+    height: height,
     minWidth: 1024,
     minHeight: 600,
     useContentSize: true,
@@ -59,7 +63,7 @@ async function createMainWindow() {
     e.preventDefault();
     shell.openExternal(url);
   });
-
+  
   // When the user try to close the main window,
   // this method intercept the default behaviour
   // Used to save the game data in the GameCards
@@ -132,6 +136,12 @@ ipcMain.on("login-required", function (e) {
 // the data and is ready to be definitely closed
 ipcMain.on("main-window-closing", function (e) {
   logger.silly("Closing main window");
+
+  // Save the sizes of the window
+  let size = mainWindow.getSize();
+  store.set("main-width", size[0]);
+  store.set("main-height", size[1]);
+
   mainWindow.close();
   mainWindow = null;
 });
@@ -162,20 +172,20 @@ ipcMain.handle("cwd", function (e) {
 
 // Return the value localized of the specified key
 ipcMain.handle("translate", function(e, key) {
-  return getTranslation(key);
+  return localization.getTranslation(key);
 });
 
 // Change language and save user choice
 ipcMain.handle("change-language", function (e, iso) {
-  return changeLanguage(iso);
+  store.set("language-iso", iso);
+  return localization.changeLanguage(iso);
 });
 
-ipcMain.handle("resource-dir", function (e) {
-  let devPath = path.join(app.getAppPath(), "resources");
-  let prodPath = ".resources";
-  if(isDev) return devPath;
-  else return prodPath;
+// Get the current language ISO
+ipcMain.handle("current-language", function (e) {
+  return localization.getCurrentLanguage();
 });
+
 
 //#region shared app variables
 ipcMain.handle("cache-dir", function (e) {
@@ -253,8 +263,12 @@ app.whenReady().then(async function () {
 
   // Initialize language
   logger.info("Initializing languages...");
+  let lang = store.has("language-iso") ? store.get("language-iso") : "DEFAULT";
   let langPath = path.join(app.getAppPath(), "resources", "lang");
-  initLocalization(langPath);
+  localization.initLocalization({
+    resourcesPath: langPath,
+    language: lang
+  });
   logger.info("Languages initialized");
   
   shared.chromiumPath = await installChromium();

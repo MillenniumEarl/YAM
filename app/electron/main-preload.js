@@ -146,6 +146,12 @@ contextBridge.exposeInMainWorld("API", {
    */
   changeLanguage: async function(iso) {
     return ipcRenderer.invoke("change-language", iso);
+  },
+  /**
+   * Get the current app language ISO-code
+   */
+  currentLanguage: async function() {
+    return ipcRenderer.invoke("current-language");
   }
 });
 
