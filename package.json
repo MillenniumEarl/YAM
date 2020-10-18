@@ -55,14 +55,23 @@
     "copyright": "Copyright © year ${author}",
     "files": [
       "**/*",
+      "!.github${/*}",
+      "!.vscode${/*}",
       "!cache${/*}",
+      "!docs${/*}",
       "!node_modules/puppeteer/.local-chromium${/*}"
     ],
     "directories": {
       "output": "./dist"
     },
     "win": {
-      "target": "portable",
+      "target": {
+        "target": "dir",
+        "arch": [
+          "ia32",
+          "x64"
+        ]
+      },
       "icon": "./resources/images/icon.ico",
       "publisherName": "${author}"
     },

@@ -72,7 +72,7 @@ async function createMainWindow() {
   });
 
   // Disable default menu
-  if (!isDev) mainWindow.setMenu(null);
+  //if (!isDev) mainWindow.setMenu(null);
 
   // Load the index.html of the app.
   const htmlPath = path.join(app.getAppPath(), "app", "src", "index.html");
@@ -157,7 +157,7 @@ ipcMain.on("exec", function (e, filename) {
 
 // Return the current root dir path (Current Working Directory)
 ipcMain.handle("cwd", function (e) {
-  return isDev ? app.getAppPath() : ".";
+  return app.getAppPath();
 });
 
 // Return the value localized of the specified key
@@ -168,6 +168,13 @@ ipcMain.handle("translate", function(e, key) {
 // Change language and save user choice
 ipcMain.handle("change-language", function (e, iso) {
   return changeLanguage(iso);
+});
+
+ipcMain.handle("resource-dir", function (e) {
+  let devPath = path.join(app.getAppPath(), "resources");
+  let prodPath = ".resources";
+  if(isDev) return devPath;
+  else return prodPath;
 });
 
 //#region shared app variables
@@ -246,7 +253,8 @@ app.whenReady().then(async function () {
 
   // Initialize language
   logger.info("Initializing languages...");
-  initLocalization("./resources/lang/");
+  let langPath = path.join(app.getAppPath(), "resources", "lang");
+  initLocalization(langPath);
   logger.info("Languages initialized");
   
   shared.chromiumPath = await installChromium();

@@ -53,11 +53,7 @@ class GameCard extends HTMLElement {
       : "../../resources/images/f95-logo.jpg";
     this.querySelector("#gc-preview").setAttribute("src", source);
 
-    window.API.translate("GC installed version")
-    .then((translation) =>
-      this.querySelector("#gc-installed-version").innerText =
-        translation + ": " + value.version
-    );
+    this.querySelector("#gc-installed-version").innerText = value.version;
   }
 
   get info() {

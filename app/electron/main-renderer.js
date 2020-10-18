@@ -138,9 +138,9 @@ async function translateElementsInDOM() {
  */
 async function listAvailableLanguages() {
   // Read all the available languages
-  let langs = await window.IO.filter("*.json", "./resources/lang");
-
   let cwd = await window.API.invoke("cwd");
+  let langs = await window.IO.filter("*.json", window.API.join(cwd, "resources", "lang"));
+
   for(let lang of langs) {
     let iso = lang.replace(".json", "");
 
