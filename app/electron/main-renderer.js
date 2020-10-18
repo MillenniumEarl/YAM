@@ -90,7 +90,7 @@ document
     const url = await window.API.invoke("prompt-dialog", promptDialogOptions);
     if (!url) return;
 
-    let translation = await window.API.translate("MR adding game from url");
+    const translation = await window.API.translate("MR adding game from url");
     sendToastToUser("info", translation);
 
     // Add game to list
@@ -102,33 +102,33 @@ document
   });
 
 document.querySelector("#add-local-game-btn").addEventListener("click", async function() {
-  let translationDialog = await window.API.translate("MR select game directory");
+  const translationDialog = await window.API.translate("MR select game directory");
   const openDialogOptions = {
     title: translationDialog,
     properties: ["openDirectory", "multiSelections"],
   };
 
-  let data = await window.API.invoke("open-dialog", openDialogOptions);
+  const data = await window.API.invoke("open-dialog", openDialogOptions);
   // No folder selected
   if (data.filePaths.length === 0) return;
 
   // Obtain the data
-  let translation = await window.API.translate("MR adding game from path");
+  const translation = await window.API.translate("MR adding game from path");
   sendToastToUser("info", translation);
   getGameFromPaths(data.filePaths);
 });
 
 document.querySelector("#settings-password-toggle").addEventListener("click", () => {
-  let input = document.getElementById("settings-password-txt");
+  const input = document.getElementById("settings-password-txt");
 
   if(input.type === "password") input.type = "text";
   else input.type = "password";
 });
 
 document.querySelector("#settings-save-credentials-btn").addEventListener("click", async function() {
-  let credPath = await window.API.invoke("credentials-path");
-  let username = document.getElementById("settings-username-txt").value;
-  let password = document.getElementById("settings-password-txt").value;
+  const credPath = await window.API.invoke("credentials-path");
+  const username = document.getElementById("settings-username-txt").value;
+  const password = document.getElementById("settings-password-txt").value;
 
   const credentials = {
     username: username,
@@ -136,7 +136,7 @@ document.querySelector("#settings-save-credentials-btn").addEventListener("click
   };
   const json = JSON.stringify(credentials);
   window.IO.write(credPath, json);
-  let translation = await window.API.translate("MR credentials edited");
+  const translation = await window.API.translate("MR credentials edited");
   sendToastToUser("info", translation);
 });
 
@@ -152,7 +152,7 @@ async function translateElementsInDOM() {
   const elements = document.querySelectorAll(".localizable");
 
   // Translate elements
-  for (let e of elements) {
+  for (const e of elements) {
     // Change text if no child elements are presents...
     if (e.childNodes.length === 0) e.textContent = await window.API.translate(e.id);
     // ... or change only the last child (the text)
@@ -167,18 +167,18 @@ async function translateElementsInDOM() {
  */
 async function listAvailableLanguages() {
   // Read all the available languages
-  let cwd = await window.API.invoke("cwd");
-  let langs = await window.IO.filter("*.json", window.API.join(cwd, "resources", "lang"));
-  let currentLanguageISO = (await window.API.currentLanguage()).toUpperCase();
+  const cwd = await window.API.invoke("cwd");
+  const langs = await window.IO.filter("*.json", window.API.join(cwd, "resources", "lang"));
+  const currentLanguageISO = (await window.API.currentLanguage()).toUpperCase();
 
-  for(let lang of langs) {
-    let iso = lang.replace(".json", "");
+  for(const lang of langs) {
+    const iso = lang.replace(".json", "");
 
     // Create <option> for the combobox
-    let option = document.createElement("option");
+    const option = document.createElement("option");
     option.setAttribute("class", "left"); // Icons on the left
     option.setAttribute("value", iso);
-    let flagPath = window.API.join(cwd, "resources", "images", "flags", iso + ".png");
+    const flagPath = window.API.join(cwd, "resources", "images", "flags", iso + ".png");
     option.setAttribute("data-icon", flagPath);
     option.textContent = iso.toUpperCase();
 
@@ -197,12 +197,12 @@ async function listAvailableLanguages() {
  */
 async function loadCredentials() {
   // Check path
-  let credPath = await window.API.invoke("credentials-path");
+  const credPath = await window.API.invoke("credentials-path");
   if (!window.IO.pathExists(credPath)) return;
 
   // Parse credentials
-  let json = await window.IO.read(credPath);
-  let credentials = JSON.parse(json);
+  const json = await window.IO.read(credPath);
+  const credentials = JSON.parse(json);
 
   // Set values
   document.getElementById("settings-username-txt").value = credentials.username;
@@ -222,8 +222,8 @@ async function loadCredentials() {
  */
 async function updateLanguage() {
   // Parse user choice
-  let e = document.getElementById("main-language-select");
-  let selectedISO = e.options[e.selectedIndex].value;
+  const e = document.getElementById("main-language-select");
+  const selectedISO = e.options[e.selectedIndex].value;
 
   // Change language via IPC
   await window.API.changeLanguage(selectedISO);
@@ -320,12 +320,12 @@ function addEventListenerToGameCard(gamecard) {
     if (!e.target) return;
 
     // Ask the confirmation
-    let titleTranslation = await window.API.translate("MR confirm deletion");
-    let messageTranslation = await window.API.translate("MR message confirm deletion");
-    let checkboxTranslation = await window.API.translate("MR keep saves checkbox");
-    let removeOnlyTranslation = await window.API.translate("MR remove only game button");
-    let deleteAlsoTranslation = await window.API.translate("MR delete also button");
-    let cancelTranslation = await window.API.translate("MR cancel button");
+    const titleTranslation = await window.API.translate("MR confirm deletion");
+    const messageTranslation = await window.API.translate("MR message confirm deletion");
+    const checkboxTranslation = await window.API.translate("MR keep saves checkbox");
+    const removeOnlyTranslation = await window.API.translate("MR remove only game button");
+    const deleteAlsoTranslation = await window.API.translate("MR delete also button");
+    const cancelTranslation = await window.API.translate("MR cancel button");
     const dialogOptions = {
       type: "question",
       buttons: [removeOnlyTranslation, deleteAlsoTranslation, cancelTranslation],
@@ -336,7 +336,7 @@ function addEventListenerToGameCard(gamecard) {
       checkboxChecked: true,
     };
 
-    let data = await window.API.invoke("message-dialog", dialogOptions);
+    const data = await window.API.invoke("message-dialog", dialogOptions);
     if (!data) return;
 
     // Cancel button
@@ -378,7 +378,7 @@ async function guidedGameUpdate(gamecard, gamedir, gameurl) {
   let messageTranslation = await window.API.translate("MR update game step 1 message");
   let detailTranslation = await window.API.translate("MR update game step 1 detail");
   let buttonTranslation = await window.API.translate("MR open f95 page");
-  let cancelTranslation = await window.API.translate("MR cancel button");
+  const cancelTranslation = await window.API.translate("MR cancel button");
   const optionsStepOne = {
     type: "info",
     buttons: [buttonTranslation, cancelTranslation],
@@ -421,7 +421,7 @@ async function guidedGameUpdate(gamecard, gamedir, gameurl) {
   const result = await gamecard.finalizeUpdate();
 
   if (!result) {
-    let translation = await window.API.translate("MR error finalizing update");
+    const translation = await window.API.translate("MR error finalizing update");
     sendToastToUser("error", translation);
     window.API.log.error("Cannot finalize the update, please check if another directory of the game exists");
   }
@@ -485,7 +485,7 @@ async function loadCachedGames() {
  */
 async function checkVersionCachedGames() {
   window.API.log.info("Checking for game updates...");
-  let translation = await window.API.translate("MR checking games update");
+  const translation = await window.API.translate("MR checking games update");
   sendToastToUser("info", translation);
 
   // Get all the gamecards in DOM
@@ -772,7 +772,7 @@ async function getUserDataFromF95() {
   // Check user data
   if (userdata === null || !userdata) {
     // Send error message
-    let translation = await window.API.translate("MR cannot retrieve user data");
+    const translation = await window.API.translate("MR cannot retrieve user data");
     sendToastToUser("error", translation);
     window.API.log.error("Something wrong while retrieving user info from F95");
   }

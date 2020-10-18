@@ -12,7 +12,7 @@ const isDev = require("electron-is-dev");
 
 module.exports.initLocalization = async function ({resourcesPath, language}) {
     // Obtain the translation files
-    let res = await getTranslationResourcesFromDir(resourcesPath);
+    const res = await getTranslationResourcesFromDir(resourcesPath);
     
     // Initialize class
     await i18next
@@ -45,16 +45,16 @@ async function getTranslationResourcesFromDir(dirname) {
     const readdir = util.promisify(fs.readdir);
     const readfile = util.promisify(fs.readFile);
 
-    let resources = {};
-    let dir = path.resolve(dirname);
-    for (let filename of await readdir(path.resolve(dir))) {
+    const resources = {};
+    const dir = path.resolve(dirname);
+    for (const filename of await readdir(path.resolve(dir))) {
         // Read translation
-        let translationPath = path.join(dir, filename);
-        let json = await readfile(translationPath);
+        const translationPath = path.join(dir, filename);
+        const json = await readfile(translationPath);
 
         // Parse translation
-        let langTranslation = JSON.parse(json);
-        let langName = filename.split(".")[0];
+        const langTranslation = JSON.parse(json);
+        const langName = filename.split(".")[0];
 
         // Add translation
         resources[langName] = langTranslation;

@@ -31,8 +31,8 @@ const store = new Store();
 //#region Windows creation methods
 async function createMainWindow() {
   // Local variables
-  let width = store.has("main-width") ? store.get("main-width") : 1024;
-  let height = store.has("main-height") ? store.get("main-height") : 600;
+  const width = store.has("main-width") ? store.get("main-width") : 1024;
+  const height = store.has("main-height") ? store.get("main-height") : 600;
   
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -60,7 +60,7 @@ async function createMainWindow() {
   });
 
   // Detect if the user maximized the window in a previous session
-  let maximize = store.has("main-maximized") ? store.get("main-maximized") : false;
+  const maximize = store.has("main-maximized") ? store.get("main-maximized") : false;
   if(maximize) mainWindow.maximize();
   
   // Whatever URL the user clicks will open the default browser for viewing
@@ -143,7 +143,7 @@ ipcMain.on("main-window-closing", function (e) {
   logger.silly("Closing main window");
 
   // Save the sizes of the window
-  let size = mainWindow.getSize();
+  const size = mainWindow.getSize();
   store.set("main-width", size[0]);
   store.set("main-height", size[1]);
 
@@ -271,8 +271,8 @@ app.whenReady().then(async function () {
 
   // Initialize language
   logger.info("Initializing languages...");
-  let lang = store.has("language-iso") ? store.get("language-iso") : "DEFAULT";
-  let langPath = path.join(app.getAppPath(), "resources", "lang");
+  const lang = store.has("language-iso") ? store.get("language-iso") : "DEFAULT";
+  const langPath = path.join(app.getAppPath(), "resources", "lang");
   localization.initLocalization({
     resourcesPath: langPath,
     language: lang
