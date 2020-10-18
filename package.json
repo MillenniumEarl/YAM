@@ -25,7 +25,8 @@
     "dist:win": "electron-builder --win",
     "dist:mac": "electron-builder --mac",
     "dist:linux": "electron-builder --linux",
-    "dist:all": "electron-builder -mwl"
+    "dist:all": "electron-builder -mwl",
+    "release": "git commit -am v{$version} && git tag v{$version} && git push && git push --tags"
   },
   "engines": {
     "node": ">=10.0"
