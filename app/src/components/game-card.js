@@ -168,9 +168,13 @@ class GameCard extends HTMLElement {
     // Translate elements
     for (const e of elements) {
       // Change text if no child elements are presents...
-      if (e.childNodes.length === 0) e.textContent = await window.API.translate(e.id);
+      if (e.childNodes.length === 0)
+        e.textContent = await window.API.translate(e.id);
       // ... or change only the last child (the text)
-      else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
+      else
+        e.childNodes[
+          e.childNodes.length - 1
+        ].textContent = await window.API.translate(e.id);
     }
   }
 
@@ -336,7 +340,9 @@ class GameCard extends HTMLElement {
    */
   async finalizeUpdate() {
     if (!this._updateInfo) {
-      window.API.log.warn("No need to finalize the GameCard, no update notified");
+      window.API.log.warn(
+        "No need to finalize the GameCard, no update notified"
+      );
       return false;
     }
 
