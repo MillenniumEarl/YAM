@@ -8,8 +8,8 @@ const fs = require("fs");
 const { app, BrowserWindow, shell, ipcMain, dialog } = require("electron");
 const prompt = require("electron-prompt");
 const isDev = require("electron-is-dev");
-const logger = require('electron-log');
-const Store = require('electron-store');
+const logger = require("electron-log");
+const Store = require("electron-store");
 
 // Modules from file
 const { runApplication } = require("./src/scripts/io-operations.js");
@@ -31,9 +31,9 @@ const store = new Store();
 //#region Windows creation methods
 async function createMainWindow() {
   // Local variables
-  let width = store.has("main-width") ? store.get("main-width") : 1024;
-  let height = store.has("main-height") ? store.get("main-height") : 600;
-  
+  const width = store.has("main-width") ? store.get("main-width") : 1024;
+  const height = store.has("main-height") ? store.get("main-height") : 600;
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: width,
@@ -60,15 +60,17 @@ async function createMainWindow() {
   });
 
   // Detect if the user maximized the window in a previous session
-  let maximize = store.has("main-maximized") ? store.get("main-maximized") : false;
-  if(maximize) mainWindow.maximize();
-  
+  const maximize = store.has("main-maximized")
+    ? store.get("main-maximized")
+    : false;
+  if (maximize) mainWindow.maximize();
+
   // Whatever URL the user clicks will open the default browser for viewing
   mainWindow.webContents.on("new-window", function (e, url) {
     e.preventDefault();
     shell.openExternal(url);
   });
-  
+
   // When the user try to close the main window,
   // this method intercept the default behaviour
   // Used to save the game data in the GameCards
@@ -143,7 +145,7 @@ ipcMain.on("main-window-closing", function (e) {
   logger.silly("Closing main window");
 
   // Save the sizes of the window
-  let size = mainWindow.getSize();
+  const size = mainWindow.getSize();
   store.set("main-width", size[0]);
   store.set("main-height", size[1]);
 
@@ -179,7 +181,7 @@ ipcMain.handle("cwd", function (e) {
 });
 
 // Return the value localized of the specified key
-ipcMain.handle("translate", function(e, key) {
+ipcMain.handle("translate", function (e, key) {
   return localization.getTranslation(key);
 });
 
@@ -193,7 +195,6 @@ ipcMain.handle("change-language", function (e, iso) {
 ipcMain.handle("current-language", function (e) {
   return localization.getCurrentLanguage();
 });
-
 
 //#region shared app variables
 ipcMain.handle("cache-dir", function (e) {
@@ -271,16 +272,18 @@ app.whenReady().then(async function () {
 
   // Initialize language
   logger.info("Initializing languages...");
-  let lang = store.has("language-iso") ? store.get("language-iso") : "DEFAULT";
-  let langPath = path.join(app.getAppPath(), "resources", "lang");
+  const lang = store.has("language-iso")
+    ? store.get("language-iso")
+    : "DEFAULT";
+  const langPath = path.join(app.getAppPath(), "resources", "lang");
   localization.initLocalization({
     resourcesPath: langPath,
-    language: lang
+    language: lang,
   });
   logger.info("Languages initialized");
-  
+
   shared.chromiumPath = await installChromium();
-  if (shared.chromiumPath ) logger.info("Chromium installed");
+  if (shared.chromiumPath) logger.info("Chromium installed");
   else logger.error("Something wrong with Chromium");
 
   logger.silly("Creating main window");
