@@ -59,7 +59,8 @@
       "!.vscode${/*}",
       "!cache${/*}",
       "!docs${/*}",
-      "!node_modules/puppeteer/.local-chromium${/*}"
+      "!node_modules/puppeteer/.local-chromium${/*}",
+      "!resources/images/github${/*}"
     ],
     "directories": {
       "output": "./dist"
