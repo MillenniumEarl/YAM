@@ -4,7 +4,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/MillenniumEarl/F95GameUpdater/badge.svg)](https://snyk.io/test/github/MillenniumEarl/F95GameUpdater)
 
 # F95 Game Updater
-Made with :heart: with :electron:
+Made with :heart: using :electron:
 
 F95 game updater is an unofficial game manager for the [F95Zone platform](https://f95zone.to/), great for managing the games installed on your device. It will allow you to play, delete, read information and above all notify you of updates to your games.
 
@@ -26,8 +26,8 @@ The graphical interface is reduced to the bare minimum:
 
 ## Adding a game
 Adding a game is possible via the ![add_game](/resources/images/github/plus-button.png) button at the bottom right. When pressed it will present two choices:
-1. ![add_from_folder](/resources/images/github/add-game-from-folder.png): You will be presented with a directory selection screen. Select one or more directories containing the game directly and press OK.
-2. ![add_from_url](/resources/images/github/add-game-from-url.png): A directory selection screen will be presented. Select a single directory containing the game directly and press OK. A further screen will then appear asking for the main URL (post # 1) of the thread on F95Zone that contains the game information.
+1. ![add_from_folder](/resources/images/github/add-game-from-folder.png)  You will be presented with a directory selection screen. Select one or more directories containing the game directly and press OK.
+2. ![add_from_url](/resources/images/github/add-game-from-url.png)  A directory selection screen will be presented. Select a single directory containing the game directly and press OK. A further screen will then appear asking for the main URL (post # 1) of the thread on F95Zone that contains the game information.
 
 **Warning!** In order to correctly detect the games, the folders must be in the format: *GAME NAME [V.VERSION] [MOD]*
 + **GAME NAME**: The game name, including any special characters (case insensitive)
@@ -51,6 +51,7 @@ When adding a game or starting the application, updates of installed games are c
 3. Sometimes adding games will generate a timeout error
 4. Sometimes when searching for updates for a game, that update gets stuck due to an error
 5. Some translations may be totally or partially inaccurate, this is because they are machine translations
+6. Game previews sometimes don't appear
 
 ## How to contribute
 + **Translations**: If you know a language that is not available, you can contribute by creating a .json file with the same format as these files. Create a fork and pull request to share it.
