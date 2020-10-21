@@ -47,13 +47,13 @@ class GameCard extends HTMLElement {
     this.querySelector("#gc-engine").innerText = value.engine;
     this.querySelector("#gc-status").innerText = value.status;
     this.querySelector("#gc-last-update").innerText = value.lastUpdate;
-
-    const source = value.previewSource
-      ? value.previewSource
-      : "../../resources/images/f95-logo.jpg";
-    this.querySelector("#gc-preview").setAttribute("src", source);
-
     this.querySelector("#gc-installed-version").innerText = value.version;
+
+    // Parse the relative path of the image (asynchronusly)
+    this.parsePreviewPath(value.previewSource)
+    .then((source) => {
+      this.querySelector("#gc-preview").setAttribute("src", source);
+    });
   }
 
   get info() {
@@ -210,14 +210,17 @@ class GameCard extends HTMLElement {
    * Download the game cover image.
    * @param {String} name Game name
    * @param {String} previewSource Current URL of the image
-   * @returns {Promise<String>} Local path to the image or null if it was not downloaded
+   * @returns {Promise<String>} Name of the image or null if it was not downloaded
    */
   async downloadGamePreview(name, previewSource) {
     // Check if it's possible to download the image
     if (previewSource.trim() === "") return null;
     if (previewSource.trim() === "../../resources/images/f95-logo.jpg")
       return null;
-    if (await window.IO.pathExists(previewSource)) return null; // Already downloaded
+
+    const gameCacheDir = await window.API.invoke("games-data-dir");
+    const localPath = window.API.join(gameCacheDir, previewSource);
+    if (await window.IO.pathExists(localPath)) return null; // Already downloaded
 
     // Get image extension
     const splitted = previewSource.split(".");
@@ -225,16 +228,15 @@ class GameCard extends HTMLElement {
     const imageName = name.replaceAll(" ", "") + "_preview." + extension;
 
     // Download image
-    const gameCacheDir = await window.API.invoke("games-data-dir");
-    const localPreviewPath = window.API.join(gameCacheDir, imageName);
     const path = await window.API.downloadImage(
       previewSource,
-      localPreviewPath
+      window.API.join(gameCacheDir, imageName)
     );
 
-    if (path) return localPreviewPath;
+    if (path) return imageName;
     else return null;
   }
+
   /**
    * @private
    * Obtain the save data path for the game info.
@@ -243,6 +245,33 @@ class GameCard extends HTMLElement {
     const base = await window.API.invoke("games-data-dir");
     const filename = this._info.name.replaceAll(" ", "").trim() + "_data.json";
     return window.API.join(base, filename);
+  }
+
+  /**
+   * Get the path to the preview source of the game.
+   * @param {String} src Saved preview source in the game's data
+   * @returns {String} Path to the preview (online or offline)
+   */
+  async parsePreviewPath(src) {
+    // First check if the source is valid, if not return the default image
+    if (!src) return "../../resources/images/f95-logo.jpg";
+
+    // Then check if it's a URL
+    try {
+      // It's a URL
+      const url = new URL(src);
+      return url.toString();
+    } catch {
+      // It's an image name
+      const gamesDir = await window.API.invoke("games-data-dir");
+      const previewPath = window.API.join(gamesDir, src);
+
+      // Check if the image exists
+      const exists = await window.IO.pathExists(previewPath);
+      if(exists) return previewPath;
+      // Something wrong, return the default image
+      else return "../../resources/images/f95-logo.jpg";
+    }
   }
   //#endregion Private methods
 
@@ -254,11 +283,11 @@ class GameCard extends HTMLElement {
   async saveGameData() {
     // Download preview image
     if (this._info.previewSource) {
-      const previewLocalPath = await this.downloadGamePreview(
+      const imageName = await this.downloadGamePreview(
         this._info.name,
         this._info.previewSource
       );
-      if (previewLocalPath) this._info.previewSource = previewLocalPath;
+      if (imageName) this._info.previewSource = imageName;
     }
 
     // Save the serialized JSON
