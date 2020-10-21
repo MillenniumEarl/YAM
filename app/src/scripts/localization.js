@@ -18,7 +18,6 @@ module.exports.initLocalization = async function ({ resourcesPath, language }) {
   await i18next.use(LanguageDetector).init({
     resources: res,
     fallbackLng: isDev ? "dev" : "en",
-    debug: isDev,
   });
 
   // If defined, change language

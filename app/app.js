@@ -188,6 +188,7 @@ ipcMain.handle("translate", function (e, key) {
 // Change language and save user choice
 ipcMain.handle("change-language", function (e, iso) {
   store.set("language-iso", iso);
+  logger.log("Language changed: " + iso);
   return localization.changeLanguage(iso);
 });
 

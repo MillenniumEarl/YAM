@@ -35,8 +35,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Load the cached games
   await loadCachedGames();
 
-  // Login after loading games to
-  // allow the games to search for updates
+  // Login after loading games to allow the games to search for updates
   login();
 });
 
