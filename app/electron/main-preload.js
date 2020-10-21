@@ -12,7 +12,7 @@ const { join, basename, dirname } = require("path");
 const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
 const download = require("image-downloader");
-const logger = require('electron-log');
+const logger = require("electron-log");
 
 // Modules from file
 const {
@@ -137,22 +137,22 @@ contextBridge.exposeInMainWorld("API", {
    * @param {String} key Unique key of the message
    * @returns {Promise<String>}
    */
-  translate: async function(key) {
+  translate: async function (key) {
     return ipcRenderer.invoke("translate", key);
   },
   /**
    * Change the displayed language in the app.
    * @param {String} iso ISO 639-1 language
    */
-  changeLanguage: async function(iso) {
+  changeLanguage: async function (iso) {
     return ipcRenderer.invoke("change-language", iso);
   },
   /**
    * Get the current app language ISO-code
    */
-  currentLanguage: async function() {
+  currentLanguage: async function () {
     return ipcRenderer.invoke("current-language");
-  }
+  },
 });
 
 // Expose the I/O operations
