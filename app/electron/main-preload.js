@@ -32,7 +32,7 @@ ipcRenderer.invoke("chromium-path").then(function (path) {
 });
 
 // Set F95 isolation
-F95API.setIsolation(true);
+F95API.setIsolation(false);
 
 // Array of valid main-to-render channels
 const validReceiveChannels = ["window-closing", "auth-result"];
