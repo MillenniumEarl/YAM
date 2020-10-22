@@ -379,7 +379,7 @@ class GameCard extends HTMLElement {
 
     // Clean the path
     let dirname = `${this._updateInfo.name} [v.${this._updateInfo.version}] ${modVariant}`;
-    dirname = dirname.replace(/[/\\?%*:|"<>]/g, ' ').trim(); // Remove invalid chars
+    dirname = dirname.replace(/[/\\?%*:|"<>]/g, " ").trim(); // Remove invalid chars
     const newpath = window.API.join(dirpath, dirname);
 
     // Rename the old path
