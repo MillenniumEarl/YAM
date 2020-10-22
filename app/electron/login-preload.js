@@ -75,16 +75,16 @@ contextBridge.exposeInMainWorld("IO", {
    * @returns {Any}
    */
   read: async function (path) {
-      return readFileSync(path);
-    },
-    /**
-     * Write data in a file.
-     * @param {String} path
-     * @param {Any} value
-     */
-    write: async function (path, value) {
-      fs.writeFileSync(path, value);
-    },
+    return readFileSync(path);
+  },
+  /**
+   * Write data in a file.
+   * @param {String} path
+   * @param {Any} value
+   */
+  write: async function (path, value) {
+    fs.writeFileSync(path, value);
+  },
   /**
    * Check if the specified file exists on disk.
    * @param {String} filename 

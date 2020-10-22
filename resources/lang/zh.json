@@ -51,6 +51,7 @@
        "MR update game step 2 title": "更新: 第二步",
        "MR update game step 2 message": "按'更新完成'以将游戏设置为已更新。",
        "MR update game step 2 detail": "通过单击'更新完成',将重命名游戏目录,确保没有其他任何进程使用它！",
-       "MR update completed": "更新完成"
+       "MR update completed": "更新完成",
+       "MR cannot find game path": "找不到游戏路径"
     }
 }

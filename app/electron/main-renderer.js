@@ -322,27 +322,37 @@ function addGameCard() {
  * @param {GameCard} gamecard Object to add the listeners to
  */
 function addEventListenerToGameCard(gamecard) {
-  gamecard.addEventListener("play", function (e) {
-    if (e.target) {
-      const launcherPath = e.detail.launcher;
-      window.API.send("exec", launcherPath);
+  gamecard.addEventListener("play", async function (e) {
+    if (!e.target) return;
+    const launcherPath = e.detail.launcher;
+
+    // Check if the path exists
+    const exists = await window.IO.pathExists(launcherPath);
+    const translation = await window.API.translate("MR cannot find game path");
+    if (!exists) {
+      window.API.log.error("Cannot find game path: " + launcherPath);
+      sendToastToUser("error", translation);
+      return;
     }
+
+    // Launch the game
+    window.API.send("exec", launcherPath);
   });
 
   gamecard.addEventListener("update", function (e) {
-    if (e.target) {
-      guidedGameUpdate(gamecard, e.detail.gameDir, e.detail.url);
+    if (!e.target) return;
 
-      // Download and install (first hosting platoform in list)
-      // !!! Against the guidelines: DON'T DO IT !!!
-      // let downloadInfo = e.detail["downloadInfo"];
-      // for (let di of downloadInfo) {
-      //   if (di.supportedOS.includes(window.API.platform)) {
-      //     di.download(gameDir);
-      //     break;
-      //   }
-      // }
-    }
+    guidedGameUpdate(gamecard, e.detail.gameDir, e.detail.url);
+
+    // Download and install (first hosting platoform in list)
+    // !!! Against the guidelines: DON'T DO IT !!!
+    // let downloadInfo = e.detail["downloadInfo"];
+    // for (let di of downloadInfo) {
+    //   if (di.supportedOS.includes(window.API.platform)) {
+    //     di.download(gameDir);
+    //     break;
+    //   }
+    // }
   });
 
   gamecard.addEventListener("delete", async function (e) {

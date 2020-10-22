@@ -51,6 +51,7 @@
         "MR update game step 2 title": "Atualização: segunda etapa",
         "MR update game step 2 message": "Pressione 'Atualização concluída' para definir o jogo como atualizado.",
         "MR update game step 2 detail": "Ao clicar em 'Atualização concluída', o diretório do jogo será renomeado, certifique - se de que não seja usado por nenhum outro processo!",
-        "MR update completed": "Atualização concluída"
+        "MR update completed": "Atualização concluída",
+        "MR cannot find game path": "O caminho do jogo não pode ser encontrado"
     }
 }
