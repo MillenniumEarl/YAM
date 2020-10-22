@@ -50,8 +50,7 @@ class GameCard extends HTMLElement {
     this.querySelector("#gc-installed-version").innerText = value.version;
 
     // Parse the relative path of the image (asynchronusly)
-    this.parsePreviewPath(value.previewSource)
-    .then((source) => {
+    this.parsePreviewPath(value.previewSource).then((source) => {
       this.querySelector("#gc-preview").setAttribute("src", source);
     });
   }
@@ -270,7 +269,7 @@ class GameCard extends HTMLElement {
 
       // Check if the image exists
       const exists = await window.IO.pathExists(previewPath);
-      if(exists) return previewPath;
+      if (exists) return previewPath;
       // Something wrong, return the default image
       else return "../../resources/images/f95-logo.jpg";
     }
