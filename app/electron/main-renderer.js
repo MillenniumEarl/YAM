@@ -874,7 +874,9 @@ async function getUnlistedGamesInArrayOfPath(paths) {
 
   // Check if the game(s) is (are) already present
   const cardGames = document.querySelectorAll("game-card");
-  cardGames.forEach(card => listedGameNames.push(cleanGameName(card.info.name).toUpperCase()));
+  cardGames.forEach((card) =>
+    listedGameNames.push(cleanGameName(card.info.name).toUpperCase())
+  );
 
   for (const path of paths) {
     // Get the clean game name
@@ -883,7 +885,9 @@ async function getUnlistedGamesInArrayOfPath(paths) {
 
     // Check if it's already present
     if (listedGameNames.includes(newGameName.toUpperCase())) {
-      const translationWarn = await window.API.translate("MR game already listed"); // This game is already present: ...
+      const translationWarn = await window.API.translate(
+        "MR game already listed"
+      ); // This game is already present: ...
       sendToastToUser("warning", translationWarn + newGameName);
     }
     // ... else add it to the list
