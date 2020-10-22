@@ -314,10 +314,13 @@ class GameCard extends HTMLElement {
     // Delete the file data
     window.IO.deleteFile(await this.getDataJSONPath());
 
-    // Delete the cached preview
+    // Check the cached preview
     if (!this.info.previewSource) return;
-    if (window.IO.pathExists(this.info.previewSource))
-      window.IO.deleteFile(this.info.previewSource);
+
+    // Delete the cached preview
+    const previewPath = this.parsePreviewPath(this.info.previewSource);
+    const exists = await window.IO.pathExists(previewPath);
+    if (exists) window.IO.deleteFile(previewPath);
   }
   /**
    * @public
@@ -332,7 +335,7 @@ class GameCard extends HTMLElement {
     const info = await promise;
 
     // Refresh data
-    this.notificateUpdate(info);
+    await this.notificateUpdate(info);
 
     // Hide progressbar
     this.progressbar.style.display = "none";
@@ -342,22 +345,15 @@ class GameCard extends HTMLElement {
    * Used to notificate the GameCard of a new version of the game.
    * @param {GameInfo} promise Game data updated
    */
-  notificateUpdate(info) {
+  async notificateUpdate(info) {
     // An update is available, show the button
     this.querySelector(".update-p").style.display = "block";
 
     // Change the text of the button
-    window.API.translate("GC update").then((translation) => {
-      const lenght = this.updateBtn.childNodes.length;
-      const element = this.updateBtn.childNodes[lenght - 1];
-      element.textContent = translation + " (" + info.version + ")";
-    });
-
-    // // Re-add the icon (innerText is overwritten)
-    // const icon = document.createElement("i");
-    // icon.classList.add("material-icons", "left");
-    // icon.innerText = "file_download";
-    // this.updateBtn.appendChild(icon);
+    const translation = await window.API.translate("GC update");
+    const lenght = this.updateBtn.childNodes.length;
+    const element = this.updateBtn.childNodes[lenght - 1];
+    element.textContent = translation + " (" + info.version + ")";
 
     // Set update data
     this._updateInfo = info;
