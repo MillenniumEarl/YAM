@@ -23,6 +23,7 @@ The graphical interface is reduced to the bare minimum:
 + Game update wizard
 + Game folders are renamed to reflect the installed version
 + Support for the following languages: :it: :uk: :es: :portugal: :de: :cn:
++ It is possible to save/export game saves (*not yet implemented*)
 
 ## Adding a game
 Adding a game is possible via the ![add_game](/resources/images/github/plus-button.png) button at the bottom right. When pressed it will present two choices:
@@ -30,7 +31,7 @@ Adding a game is possible via the ![add_game](/resources/images/github/plus-butt
 2. ![add_from_url](/resources/images/github/add-game-from-url.png)  A directory selection screen will be presented. Select a single directory containing the game directly and press OK. A further screen will then appear asking for the main URL (post # 1) of the thread on F95Zone that contains the game information.
 
 **Warning!** In order to correctly detect the games, the folders must be in the format: *GAME NAME [V.VERSION] [MOD]*
-+ **GAME NAME**: The game name, including any special characters (case insensitive)
++ **GAME NAME**: The game name, including any special characters (excluding non-usable characters such as /,%,:, etc ...), case insensitive
 + **VERSION**: The exact version of the game (case insensitive). Make sure directory name is present "v."
 + **MOD**: If it's not a game but a mod add this tag
 
@@ -46,12 +47,8 @@ When adding a game or starting the application, updates of installed games are c
 **Warning!** Remember to save any game saves in the game folder to update!
 
 ## Known Issues
-1. After updating a game, it is still identified as "to be updated"
-2. Sometimes the application does not connect to the F95Zone platform, forcing it to restart
-3. Sometimes adding games will generate a timeout error
-4. Sometimes when searching for updates for a game, that update gets stuck due to an error
-5. Some translations may be totally or partially inaccurate, this is because they are machine translations
-6. Game previews sometimes don't appear
+1. Sometimes the application does not connect to the F95Zone platform, forcing it to restart
+2. Some translations may be totally or partially inaccurate, this is because they are machine translations
 
 ## How to contribute
 + **Translations**: If you know a language that is not available, you can contribute by creating a .json file with the same format as these files. Create a fork and pull request to share it.
