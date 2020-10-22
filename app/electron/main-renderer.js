@@ -869,8 +869,8 @@ async function getUserDataFromF95() {
  */
 async function getUnlistedGamesInArrayOfPath(paths) {
   // Local variables
-  let gameFolderPaths = [];
-  let listedGameNames = [];
+  const gameFolderPaths = [];
+  const listedGameNames = [];
 
   // Check if the game(s) is (are) already present
   const cardGames = document.querySelectorAll("game-card");
