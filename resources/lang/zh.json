@@ -25,7 +25,7 @@
        "gc-engine-title": "图形引擎:",
        "gc-status-title": "进度:",
        "gc-f95-url": "F95上的线程",
-       "gc-version-title": "安装的版本",
+       "gc-version-title": "安装的版本:",
        "GC update": "更新",
        "MR adding game from url": "从URL添加游戏...",
        "MR adding game from path": "从光盘添加游戏...",
@@ -52,6 +52,7 @@
        "MR update game step 2 message": "按'更新完成'以将游戏设置为已更新。",
        "MR update game step 2 detail": "通过单击'更新完成',将重命名游戏目录,确保没有其他任何进程使用它！",
        "MR update completed": "更新完成",
-       "MR cannot find game path": "找不到游戏路径"
+       "MR cannot find game path": "找不到游戏路径",
+       "MR game already listed": "游戏已经存在："
     }
 }

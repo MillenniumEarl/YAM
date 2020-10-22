@@ -52,6 +52,7 @@
         "MR update game step 2 message": "Premi 'Aggiornamento completato' per impostare il gioco come aggiornato.",
         "MR update game step 2 detail": "Premendo su 'Aggiornamento completato', la directory del gioco verrà rinominata, assicurati che non sia utilizzata da nessun'altro processo!",
         "MR update completed": "Aggiornamento completato",
-        "MR cannot find game path": "Impossibile trovare il percorso del gioco"
+        "MR cannot find game path": "Impossibile trovare il percorso del gioco",
+        "MR game already listed": "Il gioco è già presente: "
     }
 }

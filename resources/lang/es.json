@@ -52,6 +52,7 @@
         "MR update game step 2 message": "Pulse 'Actualización completa' para configurar el juego como actualizado",
         "MR update game step 2 detail": "Al hacer clic en 'Actualización completada', se cambiará el nombre del directorio del juego, ¡asegúrese de que no sea utilizado por ningún otro proceso!",
         "MR update completed": "Actualización completada",
-        "MR cannot find game path": "No se puede encontrar la ruta del juego"
+        "MR cannot find game path": "No se puede encontrar la ruta del juego",
+        "MR game already listed": "El juego ya está presente: "
     }
 }

@@ -243,7 +243,9 @@ class GameCard extends HTMLElement {
    */
   async getDataJSONPath() {
     const base = await window.API.invoke("games-data-dir");
-    const filename = this._info.name.replaceAll(" ", "").trim() + "_data.json";
+    let cleanFilename = this._info.name.replaceAll(" ", "");
+    cleanFilename = cleanFilename.replace(/[/\\?%*:|"<>]/g, "").trim(); // Remove invalid chars
+    const filename = `${cleanFilename}_data.json`;
     return window.API.join(base, filename);
   }
 
@@ -371,17 +373,17 @@ class GameCard extends HTMLElement {
       return false;
     }
 
-    // Rename the old path
+    // Prepare the directory paths
     const oldDirName = this.info.gameDir.split("\\").pop();
     const dirpath = this.info.gameDir.replace(oldDirName, "");
     const modVariant = this._updateInfo.isMod ? " [MOD]" : ""; // Leave the trailing space!
-    const dirname =
-      this._updateInfo.name +
-      " [v." +
-      this._updateInfo.version +
-      "]" +
-      modVariant;
+
+    // Clean the path
+    let dirname = `${this._updateInfo.name} [v.${this._updateInfo.version}] ${modVariant}`;
+    dirname = dirname.replace(/[/\\?%*:|"<>]/g, ' ').trim(); // Remove invalid chars
     const newpath = window.API.join(dirpath, dirname);
+
+    // Rename the old path
     if (await window.IO.pathExists(newpath)) return false;
     window.IO.renameDir(this.info.gameDir, newpath);
 

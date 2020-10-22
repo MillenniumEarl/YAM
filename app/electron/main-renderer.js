@@ -77,6 +77,11 @@ document
     // No folder selected
     if (data.filePaths.length === 0) return;
 
+    // Check if the game is already present
+    const gameFolderPaths = await getUnlistedGamesInArrayOfPath(data.filePaths);
+    if (gameFolderPaths.length === 0) return;
+    const gamePath = gameFolderPaths[0];
+
     // Ask the URL of the game
     translationDialog = await window.API.translate("MR insert game url");
     const promptDialogOptions = {
@@ -95,12 +100,12 @@ document
     const translation = await window.API.translate("MR adding game from url");
     sendToastToUser("info", translation);
 
-    // Add game to list
-    const cardPromise = await getGameFromPath(data.filePaths.pop());
-    if (!cardPromise.cardElement) return;
-
+    // Add game to list (does not check version)
+    const card = addGameCard();
     const info = await window.F95.getGameDataFromURL(url);
-    cardPromise.cardElement.info = info;
+    card.info = info;
+    card.info.gameDir = gamePath;
+    card.saveGameData();
   });
 
 document
@@ -113,15 +118,18 @@ document
       title: translationDialog,
       properties: ["openDirectory", "multiSelections"],
     };
-
     const data = await window.API.invoke("open-dialog", openDialogOptions);
+
     // No folder selected
     if (data.filePaths.length === 0) return;
+
+    // Check if the games are already present
+    const gameFolderPaths = await getUnlistedGamesInArrayOfPath(data.filePaths);
 
     // Obtain the data
     const translation = await window.API.translate("MR adding game from path");
     sendToastToUser("info", translation);
-    getGameFromPaths(data.filePaths);
+    getGameFromPaths(gameFolderPaths);
   });
 
 document
@@ -401,7 +409,7 @@ function addEventListenerToGameCard(gamecard) {
       // Delete also game files
       if (data.response === 1) {
         const gameDir = e.detail.gameDir;
-        window.IO.deleteFolder(gameDir);
+        await window.IO.deleteFolder(gameDir);
       }
 
       // Remove the game data
@@ -612,10 +620,10 @@ async function getGameFromPaths(paths) {
           "warning",
           "Game not detected",
           result.message,
-          result.details
+          result.detail
         );
         window.API.log.warn(
-          "Cannot detect game: " + result.message + ", " + result.details
+          "Cannot detect game: " + result.message + ", " + result.detail
         );
       })
       .catch(function (error) {
@@ -670,7 +678,7 @@ async function getGameFromPath(path) {
   const version = getGameVersionFromName(unparsedName);
 
   // Get only the game title
-  name = cleanGameName(unparsedName);
+  const name = cleanGameName(unparsedName);
 
   // Search and add the game
   const promiseResult = await window.F95.getGameData(name, includeMods);
@@ -714,7 +722,7 @@ async function getGameFromPath(path) {
   return {
     result: true,
     message: name + " added correctly",
-    details: "",
+    detail: "",
     cardElement: card,
   };
 }
@@ -745,7 +753,7 @@ function cleanGameName(name) {
   ]);
 
   // Remove mod tag and version
-  const rx = /\[(.*?)\]/g;
+  const rx = /[/\\?%*:|"<>]/g;
   name = name.replaceAll(rx, "").trim();
 
   return name;
@@ -851,6 +859,40 @@ async function getUserDataFromF95() {
   // Update component
   document.getElementById("user-info").userdata = userdata;
 }
+
+/**
+ * @async
+ * @private
+ * Check that the specified paths do not belong to games already in the application.
+ * @param {String[]} paths List of game paths to check
+ * @returns {Promise<String[]>} List of valid paths
+ */
+async function getUnlistedGamesInArrayOfPath(paths) {
+  // Local variables
+  let gameFolderPaths = [];
+  let listedGameNames = [];
+
+  // Check if the game(s) is (are) already present
+  const cardGames = document.querySelectorAll("game-card");
+  cardGames.forEach(card => listedGameNames.push(cleanGameName(card.info.name).toUpperCase()));
+
+  for (const path of paths) {
+    // Get the clean game name
+    const unparsedName = path.split("\\").pop();
+    const newGameName = cleanGameName(unparsedName);
+
+    // Check if it's already present
+    if (listedGameNames.includes(newGameName.toUpperCase())) {
+      const translationWarn = await window.API.translate("MR game already listed"); // This game is already present: ...
+      sendToastToUser("warning", translationWarn + newGameName);
+    }
+    // ... else add it to the list
+    else gameFolderPaths.push(path);
+  }
+
+  return gameFolderPaths;
+}
+
 //#endregion Private methods
 
 //#region IPC receive

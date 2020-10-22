@@ -52,6 +52,7 @@
         "MR update game step 2 message": "Drücken Sie 'Update abgeschlossen', um das Spiel als aktualisiert einzustellen.",
         "MR update game step 2 detail": "Wenn Sie auf 'Update abgeschlossen' klicken, wird das Spielverzeichnis umbenannt. Stellen Sie sicher, dass es nicht von einem anderen Prozess verwendet wird!",
         "MR update completed": "Update abgeschlossen",
-        "MR cannot find game path": "Der Spielpfad kann nicht gefunden werden"
+        "MR cannot find game path": "Der Spielpfad kann nicht gefunden werden",
+        "MR game already listed": "Das Spiel ist bereits vorhanden: "
     }
 }

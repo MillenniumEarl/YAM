@@ -52,6 +52,7 @@
         "MR update game step 2 message": "Press 'Update complete' to set the game as updated.",
         "MR update game step 2 detail": "By clicking on 'Update completed', the game directory will be renamed, make sure it is not used by any other process!",
         "MR update completed": "Update completed",
-        "MR cannot find game path": "The game path cannot be found"
+        "MR cannot find game path": "The game path cannot be found",
+        "MR game already listed": "The game is already present: "
     }
 }
