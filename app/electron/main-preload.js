@@ -135,10 +135,11 @@ contextBridge.exposeInMainWorld("API", {
   /**
    * Translate a key into a message in the language specified by the user.
    * @param {String} key Unique key of the message
+   * @param {Object} interpolation Dictionary containing the interpolation values
    * @returns {Promise<String>}
    */
-  translate: async function (key) {
-    return ipcRenderer.invoke("translate", key);
+  translate: async function (key, interpolation) {
+    return ipcRenderer.invoke("translate", key, interpolation);
   },
   /**
    * Change the displayed language in the app.

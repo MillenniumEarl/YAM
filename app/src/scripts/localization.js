@@ -28,8 +28,8 @@ module.exports.getCurrentLanguage = function () {
   return i18next.language;
 };
 
-module.exports.getTranslation = function (key) {
-  return i18next.t(key);
+module.exports.getTranslation = function (key, interpolation) {
+  return interpolation ? i18next.t(key, interpolation) : i18next.t(key);
 };
 
 module.exports.changeLanguage = async function (lang) {

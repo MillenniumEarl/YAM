@@ -53,6 +53,9 @@
         "MR update game step 2 detail": "Wenn Sie auf 'Update abgeschlossen' klicken, wird das Spielverzeichnis umbenannt. Stellen Sie sicher, dass es nicht von einem anderen Prozess verwendet wird!",
         "MR update completed": "Update abgeschlossen",
         "MR cannot find game path": "Der Spielpfad kann nicht gefunden werden",
-        "MR game already listed": "Das Spiel ist bereits vorhanden: "
+        "MR game already listed": "Das Spiel ist bereits vorhanden: ",
+        "MR no game found": "Informationen für {{gamename}} können nicht abgerufen werden, ob das Spiel vorhanden ist oder ob der Name des Spielverzeichnisses im richtigen Format vorliegt",
+        "MR multiple games found": "Es wurden mehrere Vorkommen von {{gamename}} gefunden. Spiel über URL hinzufügen",
+        "MR game successfully added": "{{gamename}} hinzugefügt"
     }
 }

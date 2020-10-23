@@ -3,6 +3,8 @@
 /* Global variables */
 let lastGameCardID = 0;
 let logged = false;
+const MAX_PROMISES_TO_F95_AT_A_TIME = 3;
+let promisesToF95 = [];
 
 //#region Events
 document.addEventListener("DOMContentLoaded", async function () {
@@ -605,53 +607,50 @@ function login() {
  * @param {String[]} paths Path of the directories containg games
  */
 async function getGameFromPaths(paths) {
-  // Allow max 3 searched at the time
-  let promiseList = [];
-  const MAX_PROMISE_AT_TIME = 3;
-
   // Parse the game dir name(s)
   for (const path of paths) {
     const promise = getGameFromPath(path)
-      .then(function (result) {
-        if (result.result) return;
-        // Send the error message to the user if the game is not found
-        sendMessageToUserWrapper(
-          "warning",
-          "Game not detected",
-          result.message,
-          result.detail
-        );
-        window.API.log.warn(
-          "Cannot detect game: " + result.message + ", " + result.detail
-        );
-      })
       .catch(function (error) {
         // Send error message
         sendMessageToUserWrapper(
           "error",
           "Unexpected error",
-          "Cannot retrieve game data (" +
-            path +
-            "), unexpected error: " +
-            error,
+          `Cannot retrieve game data (${path}), unexpected error: ${error}`,
           ""
         );
         window.API.log.error(
-          "Unexpected error while retrieving game data from path: " +
-            path +
-            ". " +
-            error
+          `Unexpected error while retrieving game data from path: ${path}. ${error}`
         );
       });
 
-    promiseList.push(promise);
-    if (promiseList.length === MAX_PROMISE_AT_TIME) {
-      window.API.log.silly(
-        "Waiting for promises for game data from multiple paths to finish..."
-      );
-      await Promise.all(promiseList);
-      promiseList = [];
-    }
+    // Limit the number of concurrent requests
+    await addRequestForDataFromF95(promise);
+  }
+}
+
+
+/**
+ * @async
+ * @private
+ * When you need to API request a resource from the F95 platform, 
+ * use this method to impose a cap on the number of concurrent requests.
+ * @param {Promise<Any>} promise Promise of desired request
+ */
+async function addRequestForDataFromF95(promise) {
+  //TODO: Yep, this is not so useful (cannot return value for single promise), 
+  // need to improve this function
+  
+  // Add the promise to the list
+  promisesToF95.push(promise);
+
+  // Check how many request to F95 there are
+  if (promisesToF95.length >= MAX_PROMISES_TO_F95_AT_A_TIME) {
+    // Too many request at a time! Wait...
+    window.API.log.silly("Waiting for promises to F95 to finish...");
+    await Promise.all(promisesToF95);
+
+    // Clear array
+    promisesToF95 = [];
   }
 }
 
@@ -661,7 +660,7 @@ async function getGameFromPaths(paths) {
  * Given a directory path, parse the dirname, get the
  * game (if exists) info and add a *game-card* in the DOM.
  * @param {String} path Game directory path
- * @returns {Promise<Object>} Dictionary containing the result of the operation: {result, message}
+ * @returns {Promise<Object>} GameCard created or null if no game was detected
  */
 async function getGameFromPath(path) {
   // After the splitting, the last name is the directory name
@@ -681,26 +680,20 @@ async function getGameFromPath(path) {
 
   // Search and add the game
   const promiseResult = await window.F95.getGameData(name, includeMods);
-
+  
   // No game found
   if (promiseResult.length === 0) {
-    return {
-      result: false,
-      message: "Cannot retrieve information for " + unparsedName,
-      detail:
-        "Check the network connection, check if the game exists or verify that the game directory name is in the format: game name [v. Game Version] [MOD]\n(Case insensitive, use [MOD] only if necessary)",
-      cardElement: null,
-    };
+    const translation = await window.API.translate("MR no game found", {
+      "gamename": name
+    })
+    sendToastToUser("warning", translation);
+    return null;
   } else if (promiseResult.length !== 1) {
-    return {
-      result: false,
-      message: "Cannot retrieve information for " + unparsedName,
-      detail:
-        "Multiple occurrences of '" +
-        unparsedName +
-        "' detected. Add the game via URL",
-      cardElement: null,
-    };
+    const translation = await window.API.translate("MR multiple games found", {
+      "gamename": name
+    })
+    sendToastToUser("warning", translation);
+    return null;
   }
 
   // Add data to the parsed game info
@@ -718,12 +711,12 @@ async function getGameFromPath(path) {
     card.notificateUpdate(copy);
   }
 
-  return {
-    result: true,
-    message: name + " added correctly",
-    detail: "",
-    cardElement: card,
-  };
+  // Game added correctly
+  const translation = await window.API.translate("MR game successfully added", {
+    "gamename": name
+  })
+  sendToastToUser("info", translation);
+  return card;
 }
 
 /**

@@ -181,8 +181,8 @@ ipcMain.handle("cwd", function (e) {
 });
 
 // Return the value localized of the specified key
-ipcMain.handle("translate", function (e, key) {
-  return localization.getTranslation(key);
+ipcMain.handle("translate", function (e, key, interpolation) {
+  return localization.getTranslation(key, interpolation);
 });
 
 // Change language and save user choice
