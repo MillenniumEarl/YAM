@@ -512,13 +512,11 @@ function removeSpecials(str, allowedChars) {
   const lower = str.toLowerCase();
   const upper = str.toUpperCase();
 
+  if (!allowedChars) allowedChars = [];
+
   let res = "";
   for (let i = 0; i < lower.length; ++i) {
-    if (
-      lower[i] !== upper[i] ||
-      lower[i].trim() === "" ||
-      allowedChars.includes(lower[i])
-    )
+    if (lower[i] !== upper[i] || lower[i].trim() === "" || allowedChars.includes(lower[i]))
       res += str[i];
   }
   return res;
@@ -753,8 +751,9 @@ function cleanGameName(name) {
   ]);
 
   // Remove mod tag and version
-  const rx = /[/\\?%*:|"<>]/g;
-  name = name.replaceAll(rx, "").trim();
+  const rxTags = /\[(.*?)\]/g;
+  const rxSpecials = /[/\\?%*:|"<>]/g;
+  name = name.replace(rxTags, "").replace(rxSpecials, "").trim();
 
   return name;
 }
