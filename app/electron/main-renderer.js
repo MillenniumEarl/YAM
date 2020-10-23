@@ -125,6 +125,7 @@ document
 
     // Check if the games are already present
     const gameFolderPaths = await getUnlistedGamesInArrayOfPath(data.filePaths);
+    if (gameFolderPaths.length === 0) return;
 
     // Obtain the data
     const translation = await window.API.translate("MR adding game from path");
@@ -519,7 +520,7 @@ function removeSpecials(str, allowedChars) {
     if (lower[i] !== upper[i] || lower[i].trim() === "" || allowedChars.includes(lower[i]))
       res += str[i];
   }
-  return res;
+  return res.trim();
 }
 
 /**
@@ -702,16 +703,16 @@ async function getGameFromPath(path) {
     };
   }
 
-  // Add the game
+  // Add data to the parsed game info
   const copy = Object.assign({}, promiseResult[0]); // Copy reference to object
-  const firstGame = promiseResult[0];
-  const card = addGameCard();
-  const onlineVersion = firstGame.version;
-
+  const onlineGame = promiseResult[0];
+  const onlineVersion = onlineGame.version;
+  onlineGame.gameDir = path;
+  onlineGame.version = version;
+  
   // Update local data
-  firstGame.gameDir = path;
-  firstGame.version = version;
-  card.info = firstGame;
+  const card = addGameCard();
+  card.info = onlineGame;
   card.saveGameData();
   if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
     card.notificateUpdate(copy);
@@ -771,8 +772,7 @@ function getGameVersionFromName(name) {
 
   // Search the version tag, if any
   if (name.toUpperCase().includes(PREFIX_VERSION)) {
-    const startIndex =
-      name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
+    const startIndex = name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
     const endIndex = name.indexOf("]", startIndex);
     version = name.substr(startIndex, endIndex - startIndex);
   }
@@ -873,9 +873,10 @@ async function getUnlistedGamesInArrayOfPath(paths) {
 
   // Check if the game(s) is (are) already present
   const cardGames = document.querySelectorAll("game-card");
-  cardGames.forEach((card) =>
-    listedGameNames.push(cleanGameName(card.info.name).toUpperCase())
-  );
+  cardGames.forEach((card) => {
+    const gamename = cleanGameName(card.info.name);
+    listedGameNames.push(gamename.toUpperCase());
+  });
 
   for (const path of paths) {
     // Get the clean game name
