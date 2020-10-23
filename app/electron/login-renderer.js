@@ -78,6 +78,7 @@ async function translateElementsInDOM() {
     else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
   }
 }
+
 /**
  * Check if a string is null, empty or composed only of white spaces.
  * @param {String} input
@@ -102,20 +103,21 @@ async function manageLoginResult(result, username, password) {
     };
     const json = JSON.stringify(credentials);
 
-    window.API.invoke("credentials-path").then(function (path) {
-      window.IO.write(path, json).then(function () {
-        // Close F95 browser
-        window.F95.logout();
+    const path = await window.API.invoke("credentials-path");
+    await window.IO.write(path, json);
+    
+    // Close F95 browser
+    await window.F95.logout();
 
-        // Close the window
-        window.API.send("auth-result", "AUTHENTICATED", username, password);
-        window.API.send("login-window-closing");
-      });
-    });
+    // Close the window
+    window.API.send("auth-result", "AUTHENTICATED", username, password);
+    window.API.send("login-window-closing");
   } else {
     // Show error message
-    let prefix = await window.API.translate("LR error during authentication");
-    setMessage(prefix + ": " + result.message, "error");
+    const translation = await window.API.translate("LR error during authentication", {
+      "error": result.message
+    });
+    setMessage(translation, "error");
 
     // Unblock elements and hide the progress bar
     document.getElementById("login-login-btn").classList.remove("disabled");
@@ -137,9 +139,8 @@ async function login(username, password) {
   document.getElementById("login-progressbar").style.display = "block";
 
   // Try to log-in
-  window.F95.login(username, password).then((result) =>
-    manageLoginResult(result, username, password)
-  );
+  const result = await window.F95.login(username, password)
+  manageLoginResult(result, username, password);
 }
 
 /**
