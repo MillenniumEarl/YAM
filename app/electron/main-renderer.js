@@ -53,6 +53,7 @@ document.querySelector("#search-game-name").addEventListener("input", () => {
   // Hide the column which the game-card belong
   // if it's games with a title that not match the search query
   for (const gameCard of gameCards) {
+    if (!gameCard.info.name) continue;
     if (!gameCard.info.name.toUpperCase().startsWith(searchText)) {
       gameCard.parentNode.style.display = "none";
     } else {
@@ -867,6 +868,7 @@ async function getUnlistedGamesInArrayOfPath(paths) {
   // Check if the game(s) is (are) already present
   const cardGames = document.querySelectorAll("game-card");
   cardGames.forEach((card) => {
+    if(!card.info.name) return;
     const gamename = cleanGameName(card.info.name);
     listedGameNames.push(gamename.toUpperCase());
   });
@@ -903,9 +905,9 @@ window.API.receive("window-closing", function () {
     promiseList.push(promise);
   }
 
-  Promise.all(promiseList).then(function () {
+  Promise.all(promiseList).then(async function () {
     // Close F95 browser
-    window.F95.logout();
+    await window.F95.logout();
 
     // Tell the main process to close this BrowserWindow
     window.API.send("main-window-closing");
@@ -913,7 +915,7 @@ window.API.receive("window-closing", function () {
 });
 
 // Called when the result of the authentication are ready
-window.API.receive("auth-result", (args) => {
+window.API.receive("auth-result", async function (args) {
   // Parse args
   const result = args[0];
   const username = args[1];
@@ -930,31 +932,31 @@ window.API.receive("auth-result", (args) => {
   }
 
   // Load data (session not shared between windows)
-  window.F95.login(username, password)
-    .then(function () {
-      window.API.translate("MR login successful").then((translation) =>
-        sendToastToUser("info", translation)
-      );
-      logged = true;
+  try {
+    await window.F95.login(username, password);
 
-      // Load F95 base data
-      window.F95.loadF95BaseData();
+    const translation = await window.API.translate("MR login successful");
+    sendToastToUser("info", translation);
+    logged = true;
 
-      // Load user data
-      getUserDataFromF95();
+    // Load F95 base data
+    await window.F95.loadF95BaseData();
 
-      // Check games updates
-      checkVersionCachedGames();
+    // Load user data
+    getUserDataFromF95();
 
-      // Show "new game" button
-      document.querySelector("#fab-add-game-btn").style.display = "block";
-    })
-    .catch(function (error) {
-      // Send error message
-      window.API.translate("MR cannot login").then((translation) =>
-        sendToastToUser("error", translation + ": " + error)
-      );
-      window.API.log.error("Cannot login: " + error);
+    // Check games updates
+    checkVersionCachedGames();
+
+    // Show "new game" button
+    document.querySelector("#fab-add-game-btn").style.display = "block";
+  } catch (e) {
+    // Send error message
+    const translation = await window.API.translate("MR cannot login", {
+      "error": e
     });
+    sendToastToUser("error", translation)
+    window.API.log.error(`Cannot login: ${e}`);
+  }
 });
 //#endregion IPC receive

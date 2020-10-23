@@ -224,7 +224,9 @@ class GameCard extends HTMLElement {
     // Get image extension
     const splitted = previewSource.split(".");
     const extension = splitted.pop();
-    const imageName = name.replaceAll(" ", "") + "_preview." + extension;
+    let imageName = name.replaceAll(" ", "") + "_preview." + extension;
+    const rx = /[/\\?%*:|"<>]/g; // Remove invalid chars
+    imageName = imageName.replace(rx, "");
 
     // Download image
     const path = await window.API.downloadImage(
