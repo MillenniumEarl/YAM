@@ -39,12 +39,12 @@ document.querySelector("#login-login-btn").addEventListener("click", async funct
 
   // Check credentials
   if (isNullOrWhitespace(username)) {
-    let message = await window.API.translate("LR invalid username");
+    const message = await window.API.translate("LR invalid username");
     setMessage(message, "warning");
     return;
   }
   if (isNullOrWhitespace(password)) {
-    let message = await window.API.translate("LR invalid password");
+    const message = await window.API.translate("LR invalid password");
     setMessage(message, "warning");
     return;
   }
@@ -71,7 +71,7 @@ async function translateElementsInDOM() {
   const elements = document.querySelectorAll(".localizable");
 
   // Translate elements
-  for(let e of elements) {
+  for(const e of elements) {
     // Change text if no child elements are presents...
     if(e.childNodes.length === 0) e.textContent = await window.API.translate(e.id);
     // ... or change only the last child (the text)
