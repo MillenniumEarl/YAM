@@ -22,7 +22,7 @@ The graphical interface is reduced to the bare minimum:
 + Notification of updates when available
 + Game update wizard
 + Game folders are renamed to reflect the installed version
-+ Support for the following languages: :it: :uk: :es: :portugal: :de: :cn:
++ Support for the following languages: :it: :uk: :es: :portugal: :de: :cn: :ru:
 + It is possible to save/export game saves (*not yet implemented*)
 
 ## Adding a game
@@ -48,7 +48,11 @@ When adding a game or starting the application, updates of installed games are c
 
 ## Known Issues
 1. Sometimes the application does not connect to the F95Zone platform, forcing it to restart
+    1. **Solution**: Restart the application
 2. Some translations may be totally or partially inaccurate, this is because they are machine translations
+    1. **Solution**: Open an issue with the wrong translation, the correct one and where / when the wrong translation occurs
+3. Games added even if already present
+    1. **Solution**: Rename the directory with the exact name of the game
 
 ## How to contribute
 + **Translations**: If you know a language that is not available, you can contribute by creating a .json file with the same format as these files. Create a fork and pull request to share it.
