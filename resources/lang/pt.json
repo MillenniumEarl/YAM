@@ -53,8 +53,8 @@
         "MR update completed": "Atualização concluída",
         "MR cannot find game path": "O caminho do jogo não pode ser encontrado",
         "MR game already listed": "O jogo já está presente: ",
-        "MR no game found": "Não foi possível recuperar as informações de {{gamename}}, verifique se o jogo existe ou verifique se o nome do diretório do jogo está no formato correto",
-        "MR multiple games found": "Várias ocorrências de {{gamename}} foram encontradas, adicionar jogo via URL",
+        "MR no game found": "Não foi possível recuperar as informações de {{gamename}}",
+        "MR multiple games found": "Várias ocorrências de {{gamename}} foram encontradas",
         "MR game successfully added": "{{gamename}} adicionado"
     }
 }

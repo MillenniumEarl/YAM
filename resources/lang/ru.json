@@ -53,8 +53,8 @@
         "MR update completed": "Обновление завершено",
         "MR cannot find game path": "Не удается найти путь к игре",
         "MR game already listed": "Игра уже указана:",
-        "MR no game found": "Не удалось получить информацию о {{gamename}}, проверьте, существует ли игра или убедитесь, то имя каталога игры имеет правильный формат",
-        "MR multiple games found": "Обнаружено несколько вхождений {{gamename}}, добавьте игру по URL",
+        "MR no game found": "Не удалось получить информацию о {{gamename}}",
+        "MR multiple games found": "Обнаружено несколько вхождений {{gamename}}",
         "MR game successfully added": "{{gamename}} добавлено"
     }
 }

@@ -53,8 +53,8 @@
        "MR update completed": "更新完成",
        "MR cannot find game path": "找不到游戏路径",
        "MR game already listed": "游戏已经存在：",
-       "MR no game found": "无法检索{{gamename}}的信息,检查游戏是否存在或验证游戏目录名称的格式正确",
-       "MR multiple games found": "已发现{{gamename}}的多次出现,通过URL添加游戏",
+       "MR no game found": "无法检索{{gamename}}的信息",
+       "MR multiple games found": "已发现{{gamename}}的多次出现",
        "MR game successfully added": "已添加{{gamename}}"
     }
 }
