@@ -3,8 +3,6 @@
 /* Global variables */
 let lastGameCardID = 0;
 let logged = false;
-const MAX_PROMISES_TO_F95_AT_A_TIME = 3;
-let promisesToF95 = [];
 
 //#region Events
 document.addEventListener("DOMContentLoaded", async function () {
@@ -608,7 +606,7 @@ function login() {
 async function getGameFromPaths(paths) {
   // Parse the game dir name(s)
   for (const path of paths) {
-    const promise = getGameFromPath(path)
+    await getGameFromPath(path)
       .catch(function (error) {
         // Send error message
         sendMessageToUserWrapper(
@@ -621,35 +619,6 @@ async function getGameFromPaths(paths) {
           `Unexpected error while retrieving game data from path: ${path}. ${error}`
         );
       });
-
-    // Limit the number of concurrent requests
-    await addRequestForDataFromF95(promise);
-  }
-}
-
-
-/**
- * @async
- * @private
- * When you need to API request a resource from the F95 platform, 
- * use this method to impose a cap on the number of concurrent requests.
- * @param {Promise<Any>} promise Promise of desired request
- */
-async function addRequestForDataFromF95(promise) {
-  //TODO: Yep, this is not so useful (cannot return value for single promise), 
-  // need to improve this function
-  
-  // Add the promise to the list
-  promisesToF95.push(promise);
-
-  // Check how many request to F95 there are
-  if (promisesToF95.length >= MAX_PROMISES_TO_F95_AT_A_TIME) {
-    // Too many request at a time! Wait...
-    window.API.log.silly("Waiting for promises to F95 to finish...");
-    await Promise.all(promisesToF95);
-
-    // Clear array
-    promisesToF95 = [];
   }
 }
 

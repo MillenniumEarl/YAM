@@ -39,7 +39,7 @@ class GameCard extends HTMLElement {
 
     // Set HTML elements
     this.querySelector("#gc-name").innerText = value.isMod
-unifing       ? `[MOD] ${value.name}`
+      ? `[MOD] ${value.name}`
       : value.name;
     this.querySelector("#gc-author").innerText = value.author;
     this.querySelector("#gc-f95-url").setAttribute("href", value.f95url);
