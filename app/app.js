@@ -165,14 +165,17 @@ ipcMain.on("login-window-closing", function (e) {
 
 // Receive the result of the login operation
 ipcMain.on("auth-result", function (e, result, username, password) {
-  logger.info("Authentication result: " + result[0]);
   mainWindow.webContents.send("auth-result", result, username, password);
 });
 
 // Execute the file passed as parameter
 ipcMain.on("exec", function (e, filename) {
-  logger.info("Executing " + filename[0]);
-  runApplication(filename[0]);
+  logger.info(`Executing ${filename[0]}`);
+  runApplication(filename[0])
+  .then((err) => {
+      if (err) logger.error(`Failed to start subprocess: ${err}`);
+  })
+  .catch((err) => logger.error(`Failed to start subprocess: ${err}`));;
 });
 
 // Return the current root dir path (Current Working Directory)
@@ -188,7 +191,7 @@ ipcMain.handle("translate", function (e, key, interpolation) {
 // Change language and save user choice
 ipcMain.handle("change-language", function (e, iso) {
   store.set("language-iso", iso);
-  logger.log("Language changed: " + iso);
+  logger.log(`Language changed: ${iso}`);
   return localization.changeLanguage(iso);
 });
 

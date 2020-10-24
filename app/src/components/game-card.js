@@ -39,7 +39,7 @@ class GameCard extends HTMLElement {
 
     // Set HTML elements
     this.querySelector("#gc-name").innerText = value.isMod
-      ? "[MOD] " + value.name
+unifing       ? `[MOD] ${value.name}`
       : value.name;
     this.querySelector("#gc-author").innerText = value.author;
     this.querySelector("#gc-f95-url").setAttribute("href", value.f95url);
@@ -194,7 +194,7 @@ class GameCard extends HTMLElement {
     else return null;
 
     // Find the launcher
-    let files = await window.IO.filter("*." + extension, gameDir);
+    let files = await window.IO.filter(`*.${extension}`, gameDir);
 
     // Try with HTML
     if (files.length === 0) files = await window.IO.filter("*.html", gameDir);
@@ -224,7 +224,7 @@ class GameCard extends HTMLElement {
     // Get image extension
     const splitted = previewSource.split(".");
     const extension = splitted.pop();
-    let imageName = name.replaceAll(" ", "") + "_preview." + extension;
+    let imageName = `${name.replaceAll(" ", "")}_preview.${extension}`;
     const rx = /[/\\?%*:|"<>]/g; // Remove invalid chars
     imageName = imageName.replace(rx, "");
 
@@ -353,10 +353,10 @@ class GameCard extends HTMLElement {
     this.querySelector(".update-p").style.display = "block";
 
     // Change the text of the button
-    const translation = await window.API.translate("GC update");
     const lenght = this.updateBtn.childNodes.length;
     const element = this.updateBtn.childNodes[lenght - 1];
-    element.textContent = translation + " (" + info.version + ")";
+    const translation = await window.API.translate("GC update", {"version": info.version});
+    element.textContent = translation
 
     // Set update data
     this._updateInfo = info;

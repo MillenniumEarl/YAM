@@ -308,7 +308,7 @@ function addGameCard() {
   // 3 - Lastly. we can change the "gamedata" property
   const gameCard = document.createElement("game-card");
   addEventListenerToGameCard(gameCard);
-  gameCard.setAttribute("id", "game-card-" + lastGameCardID);
+  gameCard.setAttribute("id", `game-card-${lastGameCardID}`);
   lastGameCardID += 1;
 
   // Create a simil-table layout wit materialize-css
@@ -340,9 +340,9 @@ function addEventListenerToGameCard(gamecard) {
 
     // Check if the path exists
     const exists = await window.IO.pathExists(launcherPath);
-    const translation = await window.API.translate("MR cannot find game path");
     if (!exists) {
-      window.API.log.error("Cannot find game path: " + launcherPath);
+      const translation = await window.API.translate("MR cannot find game path");
+      window.API.log.error(`Cannot find game path: ${launcherPath}`);
       sendToastToUser("error", translation);
       return;
     }
@@ -421,7 +421,7 @@ function addEventListenerToGameCard(gamecard) {
 
       // Remove the column div containing the card
       const id = gamecard.getAttribute("id");
-      document.querySelector("#" + id).parentNode.remove();
+      document.querySelector(`#${id}`).parentNode.remove();
     }
   });
 }
@@ -434,7 +434,7 @@ function addEventListenerToGameCard(gamecard) {
  * @param {String} gameurl  URL of the game
  */
 async function guidedGameUpdate(gamecard, gamedir, gameurl) {
-  window.API.log.info("Update of " + gamecard.info.name + ", step 1");
+  window.API.log.info(`Update of ${gamecard.info.name}, step 1`);
 
   // Open first dialog
   let titleTranslation = await window.API.translate(
@@ -443,9 +443,7 @@ async function guidedGameUpdate(gamecard, gamedir, gameurl) {
   let messageTranslation = await window.API.translate(
     "MR update game step 1 message"
   );
-  let detailTranslation = await window.API.translate(
-    "MR update game step 1 detail"
-  );
+  let detailTranslation = await window.API.translate("MR update game step 1 detail");
   let buttonTranslation = await window.API.translate("MR open f95 page");
   const cancelTranslation = await window.API.translate("MR cancel button");
   const optionsStepOne = {
@@ -454,7 +452,7 @@ async function guidedGameUpdate(gamecard, gamedir, gameurl) {
     defaultId: 1, // Cancel
     title: titleTranslation,
     message: messageTranslation,
-    detail: detailTranslation + ":\n" + gamecard.changelog,
+    detail: `${detailTranslation}:\n ${gamecard.changelog}`,
   };
 
   let data = await window.API.invoke("message-dialog", optionsStepOne);
@@ -484,7 +482,7 @@ async function guidedGameUpdate(gamecard, gamedir, gameurl) {
     message: messageTranslation,
     detail: detailTranslation,
   };
-  window.API.log.info("Update of " + gamecard.info.name + ", step 2");
+  window.API.log.info(`Update of ${gamecard.info.name}, step 2`);
 
   data = await window.API.invoke("message-dialog", optionsStepTwo);
   if (!data) return;
@@ -817,15 +815,10 @@ function sendToastToUser(type, message) {
     timer = 15000;
   }
 
-  const htmlToast =
-    "<i class='material-icons' style='padding-right: 10px'>" +
-    icon +
-    "</i><span>" +
-    message +
-    "</span>";
+  const htmlToast = `<i class='material-icons' style='padding-right: 10px'>${icon}</i><span>${message}</span>`;
   M.toast({
     html: htmlToast,
-    displayLength: 5000,
+    displayLength: timer,
     classes: htmlColor,
   });
 }
@@ -880,9 +873,7 @@ async function getUnlistedGamesInArrayOfPath(paths) {
 
     // Check if it's already present
     if (listedGameNames.includes(newGameName.toUpperCase())) {
-      const translationWarn = await window.API.translate(
-        "MR game already listed"
-      ); // This game is already present: ...
+      const translationWarn = await window.API.translate("MR game already listed"); // This game is already present: ...
       sendToastToUser("warning", translationWarn + newGameName);
     }
     // ... else add it to the list
@@ -921,7 +912,7 @@ window.API.receive("auth-result", async function (args) {
   const username = args[1];
   const password = args[2];
 
-  window.API.log.info("Authentication result: " + result);
+  window.API.log.info(`Authentication result: ${result}`);
   if (result !== "AUTHENTICATED") {
     // Hide "new game" button
     document.querySelector("#fab-add-game-btn").style.display = "none";
