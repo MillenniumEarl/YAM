@@ -19,8 +19,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       const password = credentials.password;
 
       // "Select" the textboxes to not overlap textual values and placeholder text
-      document.querySelector("label[for='login-username']").classList.add("active");
-      document.querySelector("label[for='login-password']").classList.add("active");
+      document
+        .querySelector("label[for='login-username']")
+        .classList.add("active");
+      document
+        .querySelector("label[for='login-password']")
+        .classList.add("active");
 
       // Insert credentials in textboxes
       document.getElementById("login-username").value = username;
@@ -32,32 +36,36 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 });
 
-document.querySelector("#login-login-btn").addEventListener("click", async function () {
-  // Get the credentials inserted by the user
-  const username = document.getElementById("login-username").value;
-  const password = document.getElementById("login-password").value;
+document
+  .querySelector("#login-login-btn")
+  .addEventListener("click", async function () {
+    // Get the credentials inserted by the user
+    const username = document.getElementById("login-username").value;
+    const password = document.getElementById("login-password").value;
 
-  // Check credentials
-  if (isNullOrWhitespace(username)) {
-    let message = await window.API.translate("LR invalid username");
-    setMessage(message, "warning");
-    return;
-  }
-  if (isNullOrWhitespace(password)) {
-    let message = await window.API.translate("LR invalid password");
-    setMessage(message, "warning");
-    return;
-  }
+    // Check credentials
+    if (isNullOrWhitespace(username)) {
+      const message = await window.API.translate("LR invalid username");
+      setMessage(message, "warning");
+      return;
+    }
+    if (isNullOrWhitespace(password)) {
+      const message = await window.API.translate("LR invalid password");
+      setMessage(message, "warning");
+      return;
+    }
 
-  // Try to log-in
-  login(username, password);
-});
+    // Try to log-in
+    login(username, password);
+  });
 
-document.querySelector("#login-cancel-btn").addEventListener("click", function () {
-  // Close the current window witouth authentication
-  window.API.send("auth-result", "CANCELLED", null, null);
-  window.API.send("login-window-closing");
-});
+document
+  .querySelector("#login-cancel-btn")
+  .addEventListener("click", function () {
+    // Close the current window witouth authentication
+    window.API.send("auth-result", "CANCELLED", null, null);
+    window.API.send("login-window-closing");
+  });
 
 //#endregion Events
 
@@ -71,11 +79,15 @@ async function translateElementsInDOM() {
   const elements = document.querySelectorAll(".localizable");
 
   // Translate elements
-  for(let e of elements) {
+  for (const e of elements) {
     // Change text if no child elements are presents...
-    if(e.childNodes.length === 0) e.textContent = await window.API.translate(e.id);
+    if (e.childNodes.length === 0)
+      e.textContent = await window.API.translate(e.id);
     // ... or change only the last child (the text)
-    else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
+    else
+      e.childNodes[
+        e.childNodes.length - 1
+      ].textContent = await window.API.translate(e.id);
   }
 }
 
@@ -105,7 +117,7 @@ async function manageLoginResult(result, username, password) {
 
     const path = await window.API.invoke("credentials-path");
     await window.IO.write(path, json);
-    
+
     // Close F95 browser
     await window.F95.logout();
 
@@ -114,9 +126,12 @@ async function manageLoginResult(result, username, password) {
     window.API.send("login-window-closing");
   } else {
     // Show error message
-    const translation = await window.API.translate("LR error during authentication", {
-      "error": result.message
-    });
+    const translation = await window.API.translate(
+      "LR error during authentication",
+      {
+        error: result.message,
+      }
+    );
     setMessage(translation, "error");
 
     // Unblock elements and hide the progress bar
@@ -139,7 +154,7 @@ async function login(username, password) {
   document.getElementById("login-progressbar").style.display = "block";
 
   // Try to log-in
-  const result = await window.F95.login(username, password)
+  const result = await window.F95.login(username, password);
   manageLoginResult(result, username, password);
 }
 
