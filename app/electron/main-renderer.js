@@ -163,6 +163,8 @@ document
 //#endregion Events
 
 //#region Private methods
+
+//#region Language
 /**
  * @private
  * Translate the DOM elements in the current language.
@@ -225,6 +227,135 @@ async function listAvailableLanguages() {
 }
 
 /**
+ * @private
+ * @async
+ * @event
+ * Triggered when the user select a language from the <select> element.
+ * Change the language for the elements in the DOM.
+ */
+async function updateLanguage() {
+  // Parse user choice
+  const e = document.getElementById("main-language-select");
+  const selectedISO = e.options[e.selectedIndex].value;
+
+  // Change language via IPC
+  await window.API.changeLanguage(selectedISO);
+
+  // Refresh strings
+  await translateElementsInDOM();
+}
+//#endregion Language
+
+//#region Utility
+/**
+ * @private
+ * Remove all the special characters from a string.
+ * It remove all the characters (spaced excluded) that have the same "value" in upper and lower case.
+ * @param {String} str String to parse
+ * @param {String[]} allowedChars List of allowed special chars
+ * @returns {String} Parsed string
+ */
+function removeSpecials(str, allowedChars) {
+  const lower = str.toLowerCase();
+  const upper = str.toUpperCase();
+
+  if (!allowedChars) allowedChars = [];
+
+  let res = "";
+  for (let i = 0; i < lower.length; ++i) {
+    if (lower[i] !== upper[i] || lower[i].trim() === "" || allowedChars.includes(lower[i]))
+      res += str[i];
+  }
+  return res.trim();
+}
+
+/**
+ * @private
+ * Given a game name, remove all the special characters and various tag (*[tag]*).
+ * @param {String} name
+ * @returns {String}
+ */
+function cleanGameName(name) {
+  // Remove special chars except for version and specific tag chars
+  name = removeSpecials(name, [
+    "-",
+    "[",
+    "]",
+    ".",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+  ]);
+
+  // Remove mod tag and version
+  const rxTags = /\[(.*?)\]/g;
+  const rxSpecials = /[/\\?%*:|"<>]/g;
+  name = name.replace(rxTags, "").replace(rxSpecials, "").trim();
+
+  return name;
+}
+
+/**
+ * @private
+ * Wrapper to show a plain message box to the user.
+ * @param {String} type Type of message (*error/warning/...*)
+ * @param {String} title Title of the window
+ * @param {String} message Message to the user
+ * @param {String} detail Submessage to the user
+ */
+function sendMessageToUserWrapper(type, title, message, detail) {
+  // Send the error message to the user if the game is not found
+  const warningDialogOptions = {
+    type: type,
+    buttons: ["OK"],
+    defaultId: 0,
+    title: title,
+    message: message,
+    detail: detail,
+  };
+
+  // Send a message to the user
+  window.API.invoke("message-dialog", warningDialogOptions);
+}
+
+/**
+ * Show a toast in the top-right of the screen.
+ * @param {String} type Type of message (*error/warning/...*)
+ * @param {String} message Message to the user
+ */
+function sendToastToUser(type, message) {
+  // Select various data based on the type of message
+  let icon = "info";
+  let htmlColor = "blue";
+  let timer = 3000;
+  if (type === "error") {
+    icon = "error_outline";
+    htmlColor = "red";
+    timer = 25000;
+  } else if (type === "warning") {
+    icon = "warning";
+    htmlColor = "orange";
+    timer = 15000;
+  }
+
+  const htmlToast = `<i class='material-icons' style='padding-right: 10px'>${icon}</i><span>${message}</span>`;
+  M.toast({
+    html: htmlToast,
+    displayLength: timer,
+    classes: htmlColor,
+  });
+}
+//#endregion Utility
+
+//#region Authentication
+/**
  * @async
  * @private
  * Load credentials in the settings input fields.
@@ -253,47 +384,30 @@ async function loadCredentials() {
 
 /**
  * @private
- * @async
- * @event
- * Triggered when the user select a language from the <select> element.
- * Change the language for the elements in the DOM.
+ * It checks if a network connection is available
+ * and notifies the main process to perform
+ * the login procedure.
  */
-async function updateLanguage() {
-  // Parse user choice
-  const e = document.getElementById("main-language-select");
-  const selectedISO = e.options[e.selectedIndex].value;
-
-  // Change language via IPC
-  await window.API.changeLanguage(selectedISO);
-
-  // Refresh strings
-  await translateElementsInDOM();
-}
-
-/**
- * @private
- * Select the tab with the specified ID in DOM.
- * @param {String} pageID
- */
-function openPage(pageID) {
-  // Local variables
-  let i;
-
-  // Hide all elements with class="tabcontent" by default
-  const tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
+function login() {
+  // Check network connection
+  if (!window.API.isOnline) {
+    window.API.translate("MR no network connection").then((translation) =>
+      sendToastToUser("warning", translation)
+    );
+    window.API.log.warn("No network connection, cannot login");
+    return;
   }
 
-  // Show the specific tab content
-  document.getElementById(pageID).style.display = "block";
+  // Show the spinner in the avatar component
+  document.getElementById("user-info").showSpinner();
 
-  // Hide/show the add game button
-  if (pageID === "main-games-tab" && logged)
-    document.querySelector("#fab-add-game-btn").style.display = "block";
-  else document.querySelector("#fab-add-game-btn").style.display = "none";
+  // Request user input
+  window.API.log.info("Send API to main process for auth request");
+  window.API.send("login-required");
 }
+//#endregion Authentication
 
+//#region Adding game
 /**
  * @private
  * Create an empty *game-card* and add it in the DOM.
@@ -425,6 +539,232 @@ function addEventListenerToGameCard(gamecard) {
 }
 
 /**
+ * @async
+ * @private
+ * Given a directory listing, it gets information about the games contained in them.
+ * @param {String[]} paths Path of the directories containg games
+ */
+async function getGameFromPaths(paths) {
+  // Parse the game dir name(s)
+  for (const path of paths) {
+    await getGameFromPath(path)
+      .catch(function (error) {
+        // Send error message
+        sendMessageToUserWrapper(
+          "error",
+          "Unexpected error",
+          `Cannot retrieve game data (${path}), unexpected error: ${error}`,
+          ""
+        );
+        window.API.log.error(
+          `Unexpected error while retrieving game data from path: ${path}. ${error}`
+        );
+      });
+  }
+}
+
+/**
+ * @async
+ * @private
+ * Given a directory path, parse the dirname, get the
+ * game (if exists) info and add a *game-card* in the DOM.
+ * @param {String} path Game directory path
+ * @returns {Promise<Object>} GameCard created or null if no game was detected
+ */
+async function getGameFromPath(path) {
+  // After the splitting, the last name is the directory name
+  const unparsedName = path.split("\\").pop();
+
+  // Check if it is a mod
+  const MOD_TAG = "[MOD]";
+  const includeMods = unparsedName.toUpperCase().includes(MOD_TAG) ?
+    true :
+    false;
+
+  // Find game version
+  const version = getGameVersionFromName(unparsedName);
+
+  // Get only the game title
+  const name = cleanGameName(unparsedName);
+
+  // Search and add the game
+  const promiseResult = await window.F95.getGameData(name, includeMods);
+
+  // No game found
+  if (promiseResult.length === 0) {
+    const translation = await window.API.translate("MR no game found", {
+      "gamename": name
+    })
+    sendToastToUser("warning", translation);
+    return null;
+  } else if (promiseResult.length !== 1) {
+    const translation = await window.API.translate("MR multiple games found", {
+      "gamename": name
+    })
+    sendToastToUser("warning", translation);
+    return null;
+  }
+
+  // Add data to the parsed game info
+  const copy = Object.assign({}, promiseResult[0]); // Copy reference to object
+  const onlineGame = promiseResult[0];
+  const onlineVersion = onlineGame.version;
+  onlineGame.gameDir = path;
+  onlineGame.version = version;
+
+  // Update local data
+  const card = addGameCard();
+  card.info = onlineGame;
+  card.saveGameData();
+  if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
+    card.notificateUpdate(copy);
+  }
+
+  // Game added correctly
+  const translation = await window.API.translate("MR game successfully added", {
+    "gamename": name
+  })
+  sendToastToUser("info", translation);
+  return card;
+}
+
+/**
+ * @private
+ * Given a non-parsed game name, extract the version if a tag **[v.version]** is specified.
+ * @example [v.1.2.3.4], [V.somevalue]
+ * @param {String} name
+ */
+function getGameVersionFromName(name) {
+  // Local variables
+  let version = "Unknown";
+  const PREFIX_VERSION = "[V."; // i.e. namegame [v.1.2.3.4]
+
+  // Search the version tag, if any
+  if (name.toUpperCase().includes(PREFIX_VERSION)) {
+    const startIndex = name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
+    const endIndex = name.indexOf("]", startIndex);
+    version = name.substr(startIndex, endIndex - startIndex);
+  }
+
+  return version;
+}
+
+/**
+ * @async
+ * @private
+ * Check that the specified paths do not belong to games already in the application.
+ * @param {String[]} paths List of game paths to check
+ * @returns {Promise<String[]>} List of valid paths
+ */
+async function getUnlistedGamesInArrayOfPath(paths) {
+  // Local variables
+  const gameFolderPaths = [];
+  const listedGameNames = [];
+
+  // Check if the game(s) is (are) already present
+  const cardGames = document.querySelectorAll("game-card");
+  cardGames.forEach((card) => {
+    if (!card.info.name) return;
+    const gamename = cleanGameName(card.info.name);
+    listedGameNames.push(gamename.toUpperCase());
+  });
+
+  for (const path of paths) {
+    // Get the clean game name
+    const unparsedName = path.split("\\").pop();
+    const newGameName = cleanGameName(unparsedName);
+
+    // Check if it's already present
+    if (listedGameNames.includes(newGameName.toUpperCase())) {
+      const translationWarn = await window.API.translate("MR game already listed"); // This game is already present: ...
+      sendToastToUser("warning", translationWarn + newGameName);
+    }
+    // ... else add it to the list
+    else gameFolderPaths.push(path);
+  }
+
+  return gameFolderPaths;
+}
+//#endregion Adding game
+
+//#region Cached games
+/**
+ * @private
+ * Load the data of the cached game and display them in the main window.
+ */
+async function loadCachedGames() {
+  window.API.log.info("Load cached games...");
+
+  // Get all the .json files in the game dir and create a <game-card> for each of them
+  const gamesDir = await window.API.invoke("games-data-dir");
+  const files = await window.IO.filter("*.json", gamesDir);
+
+  // Load data in game-cards
+  const promisesList = [];
+  for (const filename of files) {
+    const card = addGameCard();
+    const gameJSONPath = window.API.join(gamesDir, filename);
+
+    const promise = card.loadGameData(gameJSONPath);
+    promisesList.push(promise);
+  }
+
+  // Write end log
+  Promise.all(promisesList).then(function () {
+    window.API.log.info("Cached games loaded");
+  });
+}
+
+/**
+ * @private
+ * Check the version of the listed games
+ * in the game-card components in DOM.
+ */
+async function checkVersionCachedGames() {
+  window.API.log.info("Checking for game updates...");
+  const translation = await window.API.translate("MR checking games update");
+  sendToastToUser("info", translation);
+
+  // Get all the gamecards in DOM
+  const cardGames = document.querySelectorAll("game-card");
+  for (const card of cardGames) {
+    // Get version
+    const update = await window.F95.checkGameUpdates(card.info);
+
+    // Trigger the component
+    if (update) {
+      const promise = window.F95.getGameDataFromURL(card.info.f95url);
+      card.notificateUpdateOnPromise(promise);
+    }
+  }
+}
+//#endregion Cached games
+
+/**
+ * @private
+ * Select the tab with the specified ID in DOM.
+ * @param {String} pageID
+ */
+function openPage(pageID) {
+  // Local variables
+  let i;
+
+  // Hide all elements with class="tabcontent" by default
+  const tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+
+  // Show the specific tab content
+  document.getElementById(pageID).style.display = "block";
+
+  // Hide/show the add game button
+  if (pageID === "main-games-tab" && logged)
+    document.querySelector("#fab-add-game-btn").style.display = "block";
+  else document.querySelector("#fab-add-game-btn").style.display = "none";
+}
+
+/**
  * @private
  * Guide the user in the game update.
  * @param {HTMLElement} gamecard GameCard of the game to update
@@ -502,298 +842,6 @@ async function guidedGameUpdate(gamecard, gamedir, gameurl) {
 
 /**
  * @private
- * Remove all the special characters from a string.
- * It remove all the characters (spaced excluded) that have the same "value" in upper and lower case.
- * @param {String} str String to parse
- * @param {String[]} allowedChars List of allowed special chars
- * @returns {String} Parsed string
- */
-function removeSpecials(str, allowedChars) {
-  const lower = str.toLowerCase();
-  const upper = str.toUpperCase();
-
-  if (!allowedChars) allowedChars = [];
-
-  let res = "";
-  for (let i = 0; i < lower.length; ++i) {
-    if (lower[i] !== upper[i] || lower[i].trim() === "" || allowedChars.includes(lower[i]))
-      res += str[i];
-  }
-  return res.trim();
-}
-
-/**
- * @private
- * Load the data of the cached game and display them in the main window.
- */
-async function loadCachedGames() {
-  window.API.log.info("Load cached games...");
-
-  // Get all the .json files in the game dir and create a <game-card> for each of them
-  const gamesDir = await window.API.invoke("games-data-dir");
-  const files = await window.IO.filter("*.json", gamesDir);
-
-  // Load data in game-cards
-  const promisesList = [];
-  for (const filename of files) {
-    const card = addGameCard();
-    const gameJSONPath = window.API.join(gamesDir, filename);
-
-    const promise = card.loadGameData(gameJSONPath);
-    promisesList.push(promise);
-  }
-
-  // Write end log
-  Promise.all(promisesList).then(function () {
-    window.API.log.info("Cached games loaded");
-  });
-}
-
-/**
- * @private
- * Check the version of the listed games
- * in the game-card components in DOM.
- */
-async function checkVersionCachedGames() {
-  window.API.log.info("Checking for game updates...");
-  const translation = await window.API.translate("MR checking games update");
-  sendToastToUser("info", translation);
-
-  // Get all the gamecards in DOM
-  const cardGames = document.querySelectorAll("game-card");
-  for (const card of cardGames) {
-    // Get version
-    const update = await window.F95.checkGameUpdates(card.info);
-
-    // Trigger the component
-    if (update) {
-      const promise = window.F95.getGameDataFromURL(card.info.f95url);
-      card.notificateUpdateOnPromise(promise);
-    }
-  }
-}
-
-/**
- * @private
- * It checks if a network connection is available
- * and notifies the main process to perform
- * the login procedure.
- */
-function login() {
-  // Check network connection
-  if (!window.API.isOnline) {
-    window.API.translate("MR no network connection").then((translation) =>
-      sendToastToUser("warning", translation)
-    );
-    window.API.log.warn("No network connection, cannot login");
-    return;
-  }
-
-  // Show the spinner in the avatar component
-  document.getElementById("user-info").showSpinner();
-
-  // Request user input
-  window.API.log.info("Send API to main process for auth request");
-  window.API.send("login-required");
-}
-
-/**
- * @async
- * @private
- * Given a directory listing, it gets information about the games contained in them.
- * @param {String[]} paths Path of the directories containg games
- */
-async function getGameFromPaths(paths) {
-  // Parse the game dir name(s)
-  for (const path of paths) {
-    await getGameFromPath(path)
-      .catch(function (error) {
-        // Send error message
-        sendMessageToUserWrapper(
-          "error",
-          "Unexpected error",
-          `Cannot retrieve game data (${path}), unexpected error: ${error}`,
-          ""
-        );
-        window.API.log.error(
-          `Unexpected error while retrieving game data from path: ${path}. ${error}`
-        );
-      });
-  }
-}
-
-/**
- * @async
- * @private
- * Given a directory path, parse the dirname, get the
- * game (if exists) info and add a *game-card* in the DOM.
- * @param {String} path Game directory path
- * @returns {Promise<Object>} GameCard created or null if no game was detected
- */
-async function getGameFromPath(path) {
-  // After the splitting, the last name is the directory name
-  const unparsedName = path.split("\\").pop();
-
-  // Check if it is a mod
-  const MOD_TAG = "[MOD]";
-  const includeMods = unparsedName.toUpperCase().includes(MOD_TAG)
-    ? true
-    : false;
-
-  // Find game version
-  const version = getGameVersionFromName(unparsedName);
-
-  // Get only the game title
-  const name = cleanGameName(unparsedName);
-
-  // Search and add the game
-  const promiseResult = await window.F95.getGameData(name, includeMods);
-  
-  // No game found
-  if (promiseResult.length === 0) {
-    const translation = await window.API.translate("MR no game found", {
-      "gamename": name
-    })
-    sendToastToUser("warning", translation);
-    return null;
-  } else if (promiseResult.length !== 1) {
-    const translation = await window.API.translate("MR multiple games found", {
-      "gamename": name
-    })
-    sendToastToUser("warning", translation);
-    return null;
-  }
-
-  // Add data to the parsed game info
-  const copy = Object.assign({}, promiseResult[0]); // Copy reference to object
-  const onlineGame = promiseResult[0];
-  const onlineVersion = onlineGame.version;
-  onlineGame.gameDir = path;
-  onlineGame.version = version;
-  
-  // Update local data
-  const card = addGameCard();
-  card.info = onlineGame;
-  card.saveGameData();
-  if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
-    card.notificateUpdate(copy);
-  }
-
-  // Game added correctly
-  const translation = await window.API.translate("MR game successfully added", {
-    "gamename": name
-  })
-  sendToastToUser("info", translation);
-  return card;
-}
-
-/**
- * @private
- * Given a game name, remove all the special characters and various tag (*[tag]*).
- * @param {String} name
- * @returns {String}
- */
-function cleanGameName(name) {
-  // Remove special chars except for version and specific tag chars
-  name = removeSpecials(name, [
-    "-",
-    "[",
-    "]",
-    ".",
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-  ]);
-
-  // Remove mod tag and version
-  const rxTags = /\[(.*?)\]/g;
-  const rxSpecials = /[/\\?%*:|"<>]/g;
-  name = name.replace(rxTags, "").replace(rxSpecials, "").trim();
-
-  return name;
-}
-
-/**
- * @private
- * Given a non-parsed game name, extract the version if a tag **[v.version]** is specified.
- * @example [v.1.2.3.4], [V.somevalue]
- * @param {String} name
- */
-function getGameVersionFromName(name) {
-  // Local variables
-  let version = "Unknown";
-  const PREFIX_VERSION = "[V."; // i.e. namegame [v.1.2.3.4]
-
-  // Search the version tag, if any
-  if (name.toUpperCase().includes(PREFIX_VERSION)) {
-    const startIndex = name.toUpperCase().indexOf(PREFIX_VERSION) + PREFIX_VERSION.length;
-    const endIndex = name.indexOf("]", startIndex);
-    version = name.substr(startIndex, endIndex - startIndex);
-  }
-
-  return version;
-}
-
-/**
- * @private
- * Wrapper to show a plain message box to the user.
- * @param {String} type Type of message (*error/warning/...*)
- * @param {String} title Title of the window
- * @param {String} message Message to the user
- * @param {String} detail Submessage to the user
- */
-function sendMessageToUserWrapper(type, title, message, detail) {
-  // Send the error message to the user if the game is not found
-  const warningDialogOptions = {
-    type: type,
-    buttons: ["OK"],
-    defaultId: 0,
-    title: title,
-    message: message,
-    detail: detail,
-  };
-
-  // Send a message to the user
-  window.API.invoke("message-dialog", warningDialogOptions);
-}
-
-/**
- * Show a toast in the top-right of the screen.
- * @param {String} type Type of message (*error/warning/...*)
- * @param {String} message Message to the user
- */
-function sendToastToUser(type, message) {
-  // Select various data based on the type of message
-  let icon = "info";
-  let htmlColor = "blue";
-  let timer = 3000;
-  if (type === "error") {
-    icon = "error_outline";
-    htmlColor = "red";
-    timer = 25000;
-  } else if (type === "warning") {
-    icon = "warning";
-    htmlColor = "orange";
-    timer = 15000;
-  }
-
-  const htmlToast = `<i class='material-icons' style='padding-right: 10px'>${icon}</i><span>${message}</span>`;
-  M.toast({
-    html: htmlToast,
-    displayLength: timer,
-    classes: htmlColor,
-  });
-}
-
-/**
- * @private
  * Obtain data of the logged user and show them in the custom element "user-info".
  */
 async function getUserDataFromF95() {
@@ -815,42 +863,6 @@ async function getUserDataFromF95() {
   document.getElementById("user-info").userdata = userdata;
 }
 
-/**
- * @async
- * @private
- * Check that the specified paths do not belong to games already in the application.
- * @param {String[]} paths List of game paths to check
- * @returns {Promise<String[]>} List of valid paths
- */
-async function getUnlistedGamesInArrayOfPath(paths) {
-  // Local variables
-  const gameFolderPaths = [];
-  const listedGameNames = [];
-
-  // Check if the game(s) is (are) already present
-  const cardGames = document.querySelectorAll("game-card");
-  cardGames.forEach((card) => {
-    if(!card.info.name) return;
-    const gamename = cleanGameName(card.info.name);
-    listedGameNames.push(gamename.toUpperCase());
-  });
-
-  for (const path of paths) {
-    // Get the clean game name
-    const unparsedName = path.split("\\").pop();
-    const newGameName = cleanGameName(unparsedName);
-
-    // Check if it's already present
-    if (listedGameNames.includes(newGameName.toUpperCase())) {
-      const translationWarn = await window.API.translate("MR game already listed"); // This game is already present: ...
-      sendToastToUser("warning", translationWarn + newGameName);
-    }
-    // ... else add it to the list
-    else gameFolderPaths.push(path);
-  }
-
-  return gameFolderPaths;
-}
 
 //#endregion Private methods
 
@@ -902,14 +914,14 @@ window.API.receive("auth-result", async function (args) {
     // Load F95 base data
     await window.F95.loadF95BaseData();
 
+    // Show "new game" button
+    document.querySelector("#fab-add-game-btn").style.display = "block";
+
     // Load user data
     getUserDataFromF95();
 
     // Check games updates
     checkVersionCachedGames();
-
-    // Show "new game" button
-    document.querySelector("#fab-add-game-btn").style.display = "block";
   } catch (e) {
     // Send error message
     const translation = await window.API.translate("MR cannot login", {

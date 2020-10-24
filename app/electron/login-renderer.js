@@ -8,32 +8,30 @@ document.addEventListener("DOMContentLoaded", async function () {
   const credentialsPath = await window.API.invoke("credentials-path");
 
   // Load credentials if saved on disk
-  window.IO.fileExists(credentialsPath).then(function (exists) {
-    if (!exists) return;
+  const exists = await window.IO.fileExists(credentialsPath);
+  if (!exists) return;
 
-    // Read and parse credentials
-    window.IO.read(credentialsPath).then(function (json) {
-      const credentials = JSON.parse(json);
+  // Read and parse credentials
+  const json = await window.IO.read(credentialsPath);
+  const credentials = JSON.parse(json);
 
-      const username = credentials.username;
-      const password = credentials.password;
+  const username = credentials.username;
+  const password = credentials.password;
 
-      // "Select" the textboxes to not overlap textual values and placeholder text
-      document
-        .querySelector("label[for='login-username']")
-        .classList.add("active");
-      document
-        .querySelector("label[for='login-password']")
-        .classList.add("active");
+  // "Select" the textboxes to not overlap textual values and placeholder text
+  document
+    .querySelector("label[for='login-username']")
+    .classList.add("active");
+  document
+    .querySelector("label[for='login-password']")
+    .classList.add("active");
 
-      // Insert credentials in textboxes
-      document.getElementById("login-username").value = username;
-      document.getElementById("login-password").value = password;
+  // Insert credentials in textboxes
+  document.getElementById("login-username").value = username;
+  document.getElementById("login-password").value = password;
 
-      // Try to log-in
-      login(username, password);
-    });
-  });
+  // Try to log-in
+  login(username, password);
 });
 
 document
