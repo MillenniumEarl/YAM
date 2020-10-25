@@ -1,48 +1,74 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Login</title>
 
     <!-- Local resources link -->
     <!-- Material icons loaded in ./login.css -->
-    <link type="text/css" href="../../node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" />
+    <link
+      type="text/css"
+      href="../../node_modules/materialize-css/dist/css/materialize.min.css"
+      rel="stylesheet"
+    />
     <link type="text/css" href="../src/styles/login.css" rel="stylesheet" />
-    <link type="text/css" href="../src/styles/material-button.css" rel="stylesheet" />
+    <link
+      type="text/css"
+      href="../src/styles/material-button.css"
+      rel="stylesheet"
+    />
 
     <!-- Load local script -->
-    <script type="text/javascript" src="../../node_modules/materialize-css/dist/js/materialize.min.js" defer></script>
-    <script type="text/javascript" src="../electron/login-renderer.js" defer></script>
-</head>
+    <script
+      type="text/javascript"
+      src="../../node_modules/materialize-css/dist/js/materialize.min.js"
+      defer
+    ></script>
+    <script
+      type="text/javascript"
+      src="../electron/login-renderer.js"
+      defer
+    ></script>
+  </head>
 
-<body>
+  <body>
     <div class="progress" id="login-progressbar">
-        <div class="indeterminate"></div>
+      <div class="indeterminate"></div>
     </div>
     <div class="input-field col s12">
-        <i class="material-icons prefix">person</i>
-        <input id="login-username" type="text" />
-        <label for="login-username" class="localizable" id="login-username-label">Username</label>
+      <i class="material-icons prefix">person</i>
+      <input id="login-username" type="text" />
+      <label for="login-username" class="localizable" id="login-username-label"
+        >Username</label
+      >
     </div>
     <div class="input-field col s12">
-        <i class="material-icons prefix">vpn_key</i>
-        <input id="login-password" type="password" />
-        <label for="login-password" class="localizable" id="login-password-label">Password</label>
+      <i class="material-icons prefix">vpn_key</i>
+      <input id="login-password" type="password" />
+      <label for="login-password" class="localizable" id="login-password-label"
+        >Password</label
+      >
     </div>
-    <p id="login-error-message" class="localizable">Authentication on F95Zone</p>
+    <p id="login-error-message" class="localizable">
+      Authentication on F95Zone
+    </p>
     <div id="outer">
-        <div id="inner">
-            <a class="waves-effect waves-light btn localizable" id="login-login-btn">
-                <i class="material-icons left">exit_to_app</i>
-                Login F95
-            </a>
-            <a class="waves-effect waves-light btn localizable" id="login-cancel-btn">
-                <i class="material-icons left">cancel</i>
-                Cancel
-            </a>
-        </div>
+      <div id="inner">
+        <a
+          class="waves-effect waves-light btn localizable"
+          id="login-login-btn"
+        >
+          <i class="material-icons left">exit_to_app</i>
+          Login F95
+        </a>
+        <a
+          class="waves-effect waves-light btn localizable"
+          id="login-cancel-btn"
+        >
+          <i class="material-icons left">cancel</i>
+          Cancel
+        </a>
+      </div>
     </div>
-</body>
-
+  </body>
 </html>

@@ -1,93 +1,93 @@
 {
-    "main": "./app/app.js",
-    "name": "f95-game-updater",
-    "version": "1.0.0",
-    "author": {
-        "name": "Millennium Earl"
-    },
-    "description": "Unoffical Game Updater for the F95Zone platform",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/MillenniumEarl/F95GameUpdater.git"
-    },
-    "license": "UNLICENSED",
-    "private": true,
-    "keywords": [
-        "game",
-        "games",
-        "updater",
-        "f95zone",
-        "f95"
+  "main": "./app/app.js",
+  "name": "f95-game-updater",
+  "version": "1.0.0",
+  "author": {
+    "name": "Millennium Earl"
+  },
+  "description": "Unoffical Game Updater for the F95Zone platform",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MillenniumEarl/F95GameUpdater.git"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "keywords": [
+    "game",
+    "games",
+    "updater",
+    "f95zone",
+    "f95"
+  ],
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux",
+    "dist:all": "electron-builder -mwl"
+  },
+  "engines": {
+    "node": ">=10.0"
+  },
+  "dependencies": {
+    "download-chromium": "^2.2.1",
+    "electron-is-dev": "^1.2.0",
+    "electron-log": "^4.2.4",
+    "electron-online": "^1.0.0",
+    "electron-prompt": "^1.6.0",
+    "electron-store": "^6.0.1",
+    "f95api": "MillenniumEarl/F95API#master",
+    "glob": "^7.1.6",
+    "i18next": "^19.8.2",
+    "i18next-electron-language-detector": "0.0.10",
+    "image-downloader": "^4.0.1",
+    "material-design-icons": "^3.0.1",
+    "materialize-css": "materializecss/materialize#v1-dev",
+    "string-similarity": "^4.0.2"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "electron": "^10.1.1",
+    "electron-builder": "^22.8.1",
+    "eslint": "^7.12.0"
+  },
+  "build": {
+    "appId": "com.electron.${name}",
+    "productName": "F95 Game Updater",
+    "copyright": "Copyright © year ${author}",
+    "files": [
+      "**/*",
+      "!.github${/*}",
+      "!.vscode${/*}",
+      "!cache${/*}",
+      "!docs${/*}",
+      "!node_modules/puppeteer/.local-chromium${/*}",
+      "!resources/images/github${/*}"
     ],
-    "scripts": {
-        "start": "electron .",
-        "pack": "electron-builder --dir",
-        "dist:win": "electron-builder --win",
-        "dist:mac": "electron-builder --mac",
-        "dist:linux": "electron-builder --linux",
-        "dist:all": "electron-builder -mwl"
+    "directories": {
+      "output": "./dist"
     },
-    "engines": {
-        "node": ">=10.0"
+    "win": {
+      "target": {
+        "target": "zip",
+        "arch": [
+          "ia32",
+          "x64"
+        ]
+      },
+      "icon": "./resources/images/icon.ico",
+      "publisherName": "${author}"
     },
-    "dependencies": {
-        "download-chromium": "^2.2.1",
-        "electron-is-dev": "^1.2.0",
-        "electron-log": "^4.2.4",
-        "electron-online": "^1.0.0",
-        "electron-prompt": "^1.6.0",
-        "electron-store": "^6.0.1",
-        "f95api": "MillenniumEarl/F95API#master",
-        "glob": "^7.1.6",
-        "i18next": "^19.8.2",
-        "i18next-electron-language-detector": "0.0.10",
-        "image-downloader": "^4.0.1",
-        "material-design-icons": "^3.0.1",
-        "materialize-css": "materializecss/materialize#v1-dev",
-        "string-similarity": "^4.0.2"
+    "mac": {
+      "category": "public.app-category.games",
+      "target": "default",
+      "icon": "./resources/images/icon.icns",
+      "type": "development"
     },
-    "devDependencies": {
-        "babel-eslint": "^10.1.0",
-        "electron": "^10.1.1",
-        "electron-builder": "^22.8.1",
-        "eslint": "^7.12.0"
-    },
-    "build": {
-        "appId": "com.electron.${name}",
-        "productName": "F95 Game Updater",
-        "copyright": "Copyright © year ${author}",
-        "files": [
-            "**/*",
-            "!.github${/*}",
-            "!.vscode${/*}",
-            "!cache${/*}",
-            "!docs${/*}",
-            "!node_modules/puppeteer/.local-chromium${/*}",
-            "!resources/images/github${/*}"
-        ],
-        "directories": {
-            "output": "./dist"
-        },
-        "win": {
-            "target": {
-                "target": "zip",
-                "arch": [
-                    "ia32",
-                    "x64"
-                ]
-            },
-            "icon": "./resources/images/icon.ico",
-            "publisherName": "${author}"
-        },
-        "mac": {
-            "category": "public.app-category.games",
-            "target": "default",
-            "icon": "./resources/images/icon.icns",
-            "type": "development"
-        },
-        "linux": {
-            "target": "AppImage",
-            "icon": "./resources/images/icon.icns"
-        }
+    "linux": {
+      "target": "AppImage",
+      "icon": "./resources/images/icon.icns"
     }
+  }
 }
