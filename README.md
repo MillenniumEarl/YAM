@@ -10,12 +10,9 @@ Made with :heart: using :electron:
 
 F95 game updater is an unofficial game manager for the [F95Zone platform](https://f95zone.to/), great for managing the games installed on your device. It will allow you to play, delete, read information and above all notify you of updates to your games.
 
-The graphical interface is reduced to the bare minimum:
-
-- A search bar
-- One button to add games
-- The settings page
-- And above all the list of installed games!
+<p align="center">
+  <img src="/resources/images/github/preview.gif">
+</p>
 
 **Note**: This application requires an active account on the platform. Two-factor authentication is not supported.
 
@@ -27,7 +24,8 @@ The graphical interface is reduced to the bare minimum:
 - Game update wizard
 - Game folders are renamed to reflect the installed version
 - Support for the following languages: :it: :uk: :es: :portugal: :de: :cn: :ru:
-- It is possible to save/export game saves (_not yet implemented_)
+- It is possible to save/export game saves
+  - **Beta**: only works for games tagged Ren'Py and RPGM
 
 ## Adding a game
 
@@ -38,7 +36,7 @@ Adding a game is possible via the ![add_game](/resources/images/github/plus-butt
 
 **Warning!** In order to correctly detect the games, the folders must be in the format: _GAME NAME [V.VERSION] [MOD]_
 
-- **GAME NAME**: The game name, including any special characters (excluding non-usable characters such as /,%,:, etc ...), case insensitive
+- **GAME NAME**: The game name, including any special characters (excluding non-usable characters such as /, %, :, etc ...), case insensitive
 - **VERSION**: The exact version of the game (case insensitive). Make sure directory name is present "v."
 - **MOD**: If it's not a game but a mod add this tag
 
