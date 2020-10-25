@@ -20,6 +20,7 @@ const {
   readFileSync,
   exists,
 } = require("../src/scripts/io-operations.js");
+const savesFinder = require("../src/scripts/save-files-finder.js");
 
 // Set F95 cache
 ipcRenderer.invoke("browser-data-dir").then(function (browserDir) {
@@ -50,6 +51,7 @@ const validSendChannels = [
   "cache-dir",
   "browser-data-dir",
   "games-data-dir",
+  "savegames-data-dir",
   "credentials-path",
   "translate",
 ];
@@ -223,6 +225,32 @@ contextBridge.exposeInMainWorld("IO", {
   renameDir: function (currPath, newPath) {
     fs.renameSync(currPath, newPath);
   },
+  /**
+   * Obtain the saves path for a specific game.
+   * @param {F95API.GameInfo} gameinfo 
+   * @returns {Promise<String[]>}
+   */
+  findSavesPath: async function(gameinfo) {
+    return savesFinder.findSavesPath(gameinfo);
+  },
+  /**
+   * Create a directory.
+   * @param {String} dirname Path to new dir
+   */
+  mkdir: async function(dirname) {
+    if (!fs.existsSync(dirname))
+      fs.mkdirSync(dirname, {
+        recursive: true,
+      });
+  },
+  /**
+   * Copy a file.
+   * @param {String} src Path to origin
+   * @param {String} dest Path to new destination
+   */
+  copy: async function(src, dest) {
+    fs.copyFileSync(src, dest);
+  }
 });
 
 // Expose the F95API

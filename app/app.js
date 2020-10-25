@@ -237,6 +237,18 @@ ipcMain.handle("games-data-dir", function (e) {
   return dirname;
 });
 
+ipcMain.handle("savegames-data-dir", function (e) {
+  const dirname = path.resolve(".", shared.exportedGameSavesDirName);
+
+  // Create directory if not existent
+  if (!fs.existsSync(dirname))
+    fs.mkdirSync(dirname, {
+      recursive: true,
+    });
+
+  return dirname;
+});
+
 ipcMain.handle("credentials-path", function (e) {
   return shared.credentialsPath;
 });

@@ -24,6 +24,11 @@ class Shared {
    */
   static #_browserDirName = "browserdata";
   /**
+   * Name of the directory containing the exported game saves.
+   * @type String
+   */
+  static #_exportedGameSavesDirName = "gamesaves";
+  /**
    * Name of the file to save the credentials for accessing the F95Zone portal.
    * @type String
    */
@@ -56,6 +61,13 @@ class Shared {
    */
   static get browserDataDir() {
     return join(this.#_cacheDir, this.#_browserDirName);
+  }
+  /**
+   * Name of the directory containing the exported game saves.
+   * @returns {String}
+   */
+  static get exportedGameSavesDirName() {
+    return join(this.#_cacheDir, this.#_exportedGameSavesDirName);
   }
   /**
    * Name of the file to save the credentials for accessing the F95Zone portal.

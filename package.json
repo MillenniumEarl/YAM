@@ -43,7 +43,8 @@
     "i18next-electron-language-detector": "0.0.10",
     "image-downloader": "^4.0.1",
     "material-design-icons": "^3.0.1",
-    "materialize-css": "materializecss/materialize#v1-dev"
+    "materialize-css": "materializecss/materialize#v1-dev",
+    "string-similarity": "^4.0.2"
   },
   "devDependencies": {
     "electron": "^10.1.1",

@@ -481,6 +481,7 @@ function addEventListenerToGameCard(gamecard) {
 
   gamecard.addEventListener("delete", async function (e) {
     if (!e.target) return;
+    const savesExists = e.detail.savePaths.length !== 0 ? true : false;
 
     // Ask the confirmation
     const titleTranslation = await window.API.translate("MR confirm deletion");
@@ -497,7 +498,7 @@ function addEventListenerToGameCard(gamecard) {
       "MR delete also button"
     );
     const cancelTranslation = await window.API.translate("MR cancel button");
-    const dialogOptions = {
+    let dialogOptions = {
       type: "question",
       buttons: [
         removeOnlyTranslation,
@@ -507,34 +508,45 @@ function addEventListenerToGameCard(gamecard) {
       defaultId: 2, // Cancel
       title: titleTranslation,
       message: messageTranslation,
-      checkboxLabel: checkboxTranslation,
-      checkboxChecked: true,
     };
+
+    if(savesExists) {
+      // Add option for save savegames
+      dialogOptions.checkboxLabel = checkboxTranslation;
+      dialogOptions.checkboxChecked = true;
+    }
 
     const data = await window.API.invoke("message-dialog", dialogOptions);
     if (!data) return;
 
     // Cancel button
     if (data.response === 2) return;
-    else {
-      // Copy saves
-      if (data.checkboxChecked) {
-        // TODO...
-      }
-
-      // Delete also game files
-      if (data.response === 1) {
-        const gameDir = e.detail.gameDir;
-        await window.IO.deleteFolder(gameDir);
-      }
-
-      // Remove the game data
-      gamecard.deleteGameData();
-
-      // Remove the column div containing the card
-      const id = gamecard.getAttribute("id");
-      document.querySelector(`#${id}`).parentNode.remove();
+    
+    // Copy saves
+    if (data.checkboxChecked && e.detail.savePaths && gamecard.info.name) {
+      const savePaths = e.detail.savePaths;
+      const exportedSavesDir = await window.API.invoke("savegames-data-dir");
+      const gameDir = window.API.join(exportedSavesDir, cleanGameName(gamecard.info.name));
+      await window.IO.mkdir(gameDir);
+      savePaths.forEach(async function(path) {
+        const name = path.split("\\").pop();
+        const newName = window.API.join(gameDir, name);
+        await window.IO.copy(path, newName);
+      });
     }
+
+    // Delete also game files
+    if (data.response === 1) {
+      const gameDir = e.detail.gameDir;
+      await window.IO.deleteFolder(gameDir);
+    }
+
+    // Remove the game data
+    gamecard.deleteGameData();
+
+    // Remove the column div containing the card
+    const id = gamecard.getAttribute("id");
+    document.querySelector(`#${id}`).parentNode.remove();
   });
 }
 
@@ -617,7 +629,8 @@ async function getGameFromPath(path) {
   card.info = onlineGame;
   card.saveGameData();
   if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
-    card.notificateUpdate(copy);
+    const promise = new Promise((resolve) => resolve(copy));
+    card.notificateUpdate(promise);
   }
 
   // Game added correctly
@@ -734,7 +747,7 @@ async function checkVersionCachedGames() {
     // Trigger the component
     if (update) {
       const promise = window.F95.getGameDataFromURL(card.info.f95url);
-      card.notificateUpdateOnPromise(promise);
+      card.notificateUpdate(promise);
     }
   }
 }

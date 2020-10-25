@@ -15,6 +15,7 @@ const { shell } = require("electron");
 module.exports.runApplication = async function (path) {
   shell.openPath(path);
 };
+
 /**
  * @protected
  * Recursively delete a folder.

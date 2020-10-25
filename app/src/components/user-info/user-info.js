@@ -74,6 +74,7 @@ class UserInfo extends HTMLElement {
       window.API.appDir,
       "src",
       "components",
+      "user-info",
       "user-info.html"
     );
     template.innerHTML = window.IO.readSync(pathHTML);

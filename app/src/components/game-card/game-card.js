@@ -14,7 +14,7 @@ class GameCard extends HTMLElement {
    */
   connectedCallback() {
     // Prepare DOM
-    this.prepareDOM();
+    this._prepareDOM();
 
     /* Set events listeners for the buttons */
     this.playBtn.addEventListener("click", this.play);
@@ -50,7 +50,7 @@ class GameCard extends HTMLElement {
     this.querySelector("#gc-installed-version").innerText = value.version;
 
     // Parse the relative path of the image (asynchronusly)
-    this.parsePreviewPath(value.previewSource).then((source) => {
+    this._parsePreviewPath(value.previewSource).then((source) => {
       this.querySelector("#gc-preview").setAttribute("src", source);
     });
   }
@@ -74,7 +74,7 @@ class GameCard extends HTMLElement {
    */
   async play() {
     // Get the game launcher
-    const launcherPath = await this.getGameLauncher(this._info.gameDir);
+    const launcherPath = await this._getGameLauncher(this._info.gameDir);
 
     // Raise the event
     const playClickEvent = new CustomEvent("play", {
@@ -105,11 +105,12 @@ class GameCard extends HTMLElement {
    * @event
    * Triggered when user wants to delete the game.
    */
-  delete() {
+  async delete() {
     // Raise the event
     const deleteClickEvent = new CustomEvent("delete", {
       detail: {
         gameDir: this._info.gameDir,
+        savePaths: await window.IO.findSavesPath(this._info),
       },
     });
     this.dispatchEvent(deleteClickEvent);
@@ -120,7 +121,7 @@ class GameCard extends HTMLElement {
   /**
    * Load the HTML file and define the buttons of the custom component.
    */
-  prepareDOM() {
+  _prepareDOM() {
     /* Defines the HTML code of the custom element */
     const template = document.createElement("template");
 
@@ -129,6 +130,7 @@ class GameCard extends HTMLElement {
       window.API.appDir,
       "src",
       "components",
+      "game-card",
       "game-card.html"
     );
     template.innerHTML = window.IO.readSync(pathHTML);
@@ -143,24 +145,23 @@ class GameCard extends HTMLElement {
     /* Bind function to use this */
     this.loadGameData = this.loadGameData.bind(this);
     this.saveGameData = this.saveGameData.bind(this);
-    this.getDataJSONPath = this.getDataJSONPath.bind(this);
+    this._getDataJSONPath = this._getDataJSONPath.bind(this);
     this.deleteGameData = this.deleteGameData.bind(this);
     this.notificateUpdate = this.notificateUpdate.bind(this);
-    this.notificateUpdateOnPromise = this.notificateUpdateOnPromise.bind(this);
     this.finalizeUpdate = this.finalizeUpdate.bind(this);
     this.play = this.play.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
 
     // Translate DOM
-    this.translateElementsInDOM();
+    this._translateElementsInDOM();
   }
 
   /**
    * @private
    * Translate the DOM elements in the current language.
    */
-  async translateElementsInDOM() {
+  async _translateElementsInDOM() {
     // Get only the localizable elements
     const elements = this.querySelectorAll(".localizable");
 
@@ -182,7 +183,7 @@ class GameCard extends HTMLElement {
    * @param {String} gameDir Directory where looking for the launcher
    * @returns {Promise<String>} Launcher of the game or null if no file are found
    */
-  async getGameLauncher(gameDir) {
+  async _getGameLauncher(gameDir) {
     // Get the extension matching the current OS
     let extension = "";
 
@@ -211,7 +212,7 @@ class GameCard extends HTMLElement {
    * @param {String} previewSource Current URL of the image
    * @returns {Promise<String>} Name of the image or null if it was not downloaded
    */
-  async downloadGamePreview(name, previewSource) {
+  async _downloadGamePreview(name, previewSource) {
     // Check if it's possible to download the image
     if (previewSource.trim() === "") return null;
     if (previewSource.trim() === "../../resources/images/f95-logo.jpg")
@@ -242,7 +243,7 @@ class GameCard extends HTMLElement {
    * @private
    * Obtain the save data path for the game info.
    */
-  async getDataJSONPath() {
+  async _getDataJSONPath() {
     const base = await window.API.invoke("games-data-dir");
     let cleanFilename = this._info.name.replaceAll(" ", "");
     cleanFilename = cleanFilename.replace(/[/\\?%*:|"<>]/g, "").trim(); // Remove invalid chars
@@ -255,7 +256,7 @@ class GameCard extends HTMLElement {
    * @param {String} src Saved preview source in the game's data
    * @returns {String} Path to the preview (online or offline)
    */
-  async parsePreviewPath(src) {
+  async _parsePreviewPath(src) {
     // First check if the source is valid, if not return the default image
     if (!src) return "../../resources/images/f95-logo.jpg";
 
@@ -276,6 +277,10 @@ class GameCard extends HTMLElement {
       else return "../../resources/images/f95-logo.jpg";
     }
   }
+
+  async getSaveGameDataPaths() {
+
+  }
   //#endregion Private methods
 
   //#region Public methods
@@ -286,7 +291,7 @@ class GameCard extends HTMLElement {
   async saveGameData() {
     // Download preview image
     if (this._info.previewSource) {
-      const imageName = await this.downloadGamePreview(
+      const imageName = await this._downloadGamePreview(
         this._info.name,
         this._info.previewSource
       );
@@ -294,7 +299,7 @@ class GameCard extends HTMLElement {
     }
 
     // Save the serialized JSON
-    window.IO.write(await this.getDataJSONPath(), JSON.stringify(this._info));
+    window.IO.write(await this._getDataJSONPath(), JSON.stringify(this._info));
   }
   /**
    * @public
@@ -315,40 +320,28 @@ class GameCard extends HTMLElement {
    */
   async deleteGameData() {
     // Delete the file data
-    window.IO.deleteFile(await this.getDataJSONPath());
+    window.IO.deleteFile(await this._getDataJSONPath());
 
     // Check the cached preview
     if (!this.info.previewSource) return;
 
     // Delete the cached preview
-    const previewPath = this.parsePreviewPath(this.info.previewSource);
+    const previewPath = this._parsePreviewPath(this.info.previewSource);
     const exists = await window.IO.pathExists(previewPath);
     if (exists) window.IO.deleteFile(previewPath);
   }
   /**
    * @public
    * Used to notificate the GameCard of a new version of the game.
-   * @param {Promise<GameInfo>} promise Promise of the game data scraping
+   * @param {Promise<GameInfo>} promise promise Promise of the game data scraping
    */
-  async notificateUpdateOnPromise(promise) {
+  async notificateUpdate(promise) {
     // Show the progress bar
     this.progressbar.style.display = "block";
 
     // Await game data
     const info = await promise;
 
-    // Refresh data
-    await this.notificateUpdate(info);
-
-    // Hide progressbar
-    this.progressbar.style.display = "none";
-  }
-  /**
-   * @public
-   * Used to notificate the GameCard of a new version of the game.
-   * @param {GameInfo} promise Game data updated
-   */
-  async notificateUpdate(info) {
     // An update is available, show the button
     this.querySelector(".update-p").style.display = "block";
 
@@ -360,6 +353,9 @@ class GameCard extends HTMLElement {
 
     // Set update data
     this._updateInfo = info;
+
+    // Hide progressbar
+    this.progressbar.style.display = "none";
   }
   /**
    * @public
@@ -377,7 +373,7 @@ class GameCard extends HTMLElement {
     // Prepare the directory paths
     const oldDirName = this.info.gameDir.split("\\").pop();
     const dirpath = this.info.gameDir.replace(oldDirName, "");
-    const modVariant = this._updateInfo.isMod ? " [MOD]" : ""; // Leave the trailing space!
+    const modVariant = this._updateInfo.isMod ? "[MOD]" : "";
 
     // Clean the path
     let dirname = `${this._updateInfo.name} [v.${this._updateInfo.version}] ${modVariant}`;
