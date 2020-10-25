@@ -39,7 +39,7 @@
         "electron-store": "^6.0.1",
         "f95api": "MillenniumEarl/F95API#master",
         "glob": "^7.1.6",
-        "i18next": "^19.8.2",
+        "i18next": "^19.8.3",
         "i18next-electron-language-detector": "0.0.10",
         "image-downloader": "^4.0.1",
         "material-design-icons": "^3.0.1",
