@@ -7,7 +7,3 @@ enabled = true
   [analyzers.meta]
   environment = ["nodejs"]
   style_guide = "standard"
-  
-[[transformers]]
-name = "prettier"
-enabled = true
