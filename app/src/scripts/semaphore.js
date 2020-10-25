@@ -1,10 +1,10 @@
-"use strict"
+"use strict";
 
 // Core modules
 const {
     promisify
-} = require('util')
-const sleep = promisify(setTimeout)
+} = require("util");
+const sleep = promisify(setTimeout);
 
 class Semaphore {
     constructor(tokens = 1) {
@@ -48,7 +48,7 @@ class Semaphore {
      */
     give(amount) {
         console.log(`Free tokens: ${this.free}`);
-        if(amount <= 0) {
+        if (amount <= 0) {
             throw new Error("Amount should be greater than 0");
         }
 
@@ -62,7 +62,7 @@ class Semaphore {
     /**
      * Returns a promise that resolves when a token becomes free.
      * @returns {Promise}
-     */    
+     */
     _wait() {
         return new Promise((resolve) => {
             while (this._taken === this.tokens) {

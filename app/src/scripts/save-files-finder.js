@@ -1,10 +1,12 @@
-"use strict"
+"use strict";
 
 // Core modules
 const path = require("path");
-const fs = require('fs');
-const util = require('util');
-const { glob } = require("glob");
+const fs = require("fs");
+const util = require("util");
+const {
+    glob
+} = require("glob");
 
 // Public modules from npm
 const stringSimilarity = require("string-similarity");
@@ -30,7 +32,7 @@ const userDataDir =
 module.exports.findSavesPath = async function (gameinfo) {
     // Get savegame directory
     const dir = await _getSaveDir(gameinfo);
-    if(!dir) return [];
+    if (!dir) return [];
 
     // Get savegame extension
     const extension = _getSaveExtension(gameinfo.engine);
@@ -49,7 +51,7 @@ module.exports.findSavesPath = async function (gameinfo) {
     });
 
     return savePaths;
-}
+};
 
 /**
  * @private
@@ -59,22 +61,23 @@ module.exports.findSavesPath = async function (gameinfo) {
  */
 async function _getSaveDir(gameinfo) {
     switch (gameinfo.engine) {
-        case "REN'PY":
-            const renpyDir = path.join(userDataDir, "RenPy");
-            const gamesDirs = await readDirPromisify(renpyDir);
-            const match = stringSimilarity.findBestMatch(gameinfo.name, gamesDirs);
+    case "REN'PY": {
+        const renpyDir = path.join(userDataDir, "RenPy");
+        const gamesDirs = await readDirPromisify(renpyDir);
+        const match = stringSimilarity.findBestMatch(gameinfo.name, gamesDirs);
 
-            // Must be quite confident in the result
-            if(match.bestMatch.rating <= 0.75) return null;
+        // Must be quite confident in the result
+        if (match.bestMatch.rating <= 0.75) return null;
 
-            const bestMatchName = match.bestMatch.target;
-            return path.join(renpyDir, bestMatchName);
-        case "RPGM":
-            // Saves stored in the same folder
-            return gameinfo.gameDir;
-        default:
-            // Unsupported engine or "OTHERS"
-            return null;
+        const bestMatchName = match.bestMatch.target;
+        return path.join(renpyDir, bestMatchName);
+    }
+    case "RPGM":
+        // Saves stored in the same folder
+        return gameinfo.gameDir;
+    default:
+        // Unsupported engine or "OTHERS"
+        return null;
     }
 }
 
@@ -85,9 +88,12 @@ async function _getSaveDir(gameinfo) {
  * @returns {String} Extension of the saves
  */
 function _getSaveExtension(engine) {
-    switch(engine) {
-        case "REN'PY": return "save";
-        case "RPGM": return "rvdata2";
-        default: return nul;
+    switch (engine) {
+    case "REN'PY":
+        return "save";
+    case "RPGM":
+        return "rvdata2";
+    default:
+        return null;
     }
 }

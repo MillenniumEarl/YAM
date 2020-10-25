@@ -1,127 +1,106 @@
 ﻿<!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <!--<meta http-equiv="Content-Security-Policy" content="script-src 'self'">-->
     <title>F95 Game Updater</title>
 
     <!-- Local resources link -->
     <!-- Material icons loaded in ./main-style.css -->
-    <link
-      type="text/css"
-      href="../../node_modules/materialize-css/dist/css/materialize.min.css"
-      rel="stylesheet"
-    />
+    <link type="text/css" href="../../node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" />
     <link type="text/css" href="../src/styles/main.css" rel="stylesheet" />
-    <link
-      type="text/css"
-      href="../src/styles/material-button.css"
-      rel="stylesheet"
-    />
+    <link type="text/css" href="../src/styles/material-button.css" rel="stylesheet" />
     <link type="text/css" href="../src/styles/navbar.css" rel="stylesheet" />
 
     <!-- Load local script -->
-    <script
-      type="text/javascript"
-      src="../electron/main-renderer.js"
-      defer
-    ></script>
-    <script
-      type="text/javascript"
-      src="../../node_modules/materialize-css/dist/js/materialize.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="../src/components/game-card/game-card.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="../src/components/user-info/user-info.js"
-    ></script>
-  </head>
-  
-  <body>
+    <script type="text/javascript" src="../electron/main-renderer.js" defer></script>
+    <script type="text/javascript" src="../../node_modules/materialize-css/dist/js/materialize.min.js"></script>
+    <script type="text/javascript" src="../src/components/game-card/game-card.js"></script>
+    <script type="text/javascript" src="../src/components/user-info/user-info.js"></script>
+</head>
+
+<body>
     <!-- Navigation toolbar -->
     <div class="row navbar">
-      <div class="col s12">
-        <ul class="tabs" id="tab-navigator">
-          <li id="default-open-tab" class="tab col s3 tablinks">
-            <a href="#" class="localizable" id="main-navbar-games" onclick="openPage('main-games-tab')"> Games </a>
-          </li>
-          <li class="tab col s3 tablinks">
-            <a href="#" class="localizable" id="main-navbar-settings" onclick="openPage('main-settings-tab')"> Settings
-            </a>
-          </li>
-          <li class="col s3 offset-s3 user-info-col">
-            <user-info id="user-info"></user-info>
-          </li>
-        </ul>
-      </div>
+        <div class="col s12">
+            <ul class="tabs" id="tab-navigator">
+                <li id="default-open-tab" class="tab col s3 tablinks">
+                    <a href="#" class="localizable" id="main-navbar-games" onclick="openPage('main-games-tab')"> Games
+                    </a>
+                </li>
+                <li class="tab col s3 tablinks">
+                    <a href="#" class="localizable" id="main-navbar-settings" onclick="openPage('main-settings-tab')">
+                        Settings
+                    </a>
+                </li>
+                <li class="col s3 offset-s3 user-info-col">
+                    <user-info id="user-info"></user-info>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <!-- Tab content -->
     <div id="main-games-tab" class="tabcontent" hidden>
-      <!-- Search game name -->
-      <div class="input-field col s9">
-        <i class="material-icons prefix">search_white</i>
-        <input id="search-game-name" type="text" />
-        <label for="search-game-name" id="main-search-game-name-label" class="localizable">Search game name</label>
-      </div>
-      <div class="row" id="game-cards-container">
-        <!-- Game cards goes here -->
-      </div>
+        <!-- Search game name -->
+        <div class="input-field col s9">
+            <i class="material-icons prefix">search_white</i>
+            <input id="search-game-name" type="text" />
+            <label for="search-game-name" id="main-search-game-name-label" class="localizable">Search game name</label>
+        </div>
+        <div class="row" id="game-cards-container">
+            <!-- Game cards goes here -->
+        </div>
     </div>
 
     <div id="main-settings-tab" class="tabcontent" hidden>
-      <!-- Credentials -->
-      <div class="row">
-        <div class="input-field col s12 m5 l5 xl5">
-          <input id="settings-username-txt" type="text">
-          <label for="settings-username-txt" id="settings-username-txt-label" class="localizable">Username</label>
+        <!-- Credentials -->
+        <div class="row">
+            <div class="input-field col s12 m5 l5 xl5">
+                <input id="settings-username-txt" type="text">
+                <label for="settings-username-txt" id="settings-username-txt-label" class="localizable">Username</label>
+            </div>
+            <div class="input-field col s11 m4 l4 xl4">
+                <input id="settings-password-txt" type="password">
+                <label for="settings-password-txt" id="settings-password-txt-label" class="localizable">Password</label>
+            </div>
+            <div class="col s1 m1 l1 xl1 padding-correction-textinput">
+                <a class="btn-flat" id="settings-password-toggle">
+                    <i class="material-icons left">remove_red_eye</i>
+                </a>
+            </div>
+            <div class="col s12 m2 l2 xl2 padding-correction-textinput">
+                <a class="waves-effect waves-light btn localizable" id="settings-save-credentials-btn">
+                    <i class="material-icons left">save</i>
+                    Save
+                </a>
+            </div>
         </div>
-        <div class="input-field col s11 m4 l4 xl4">
-          <input id="settings-password-txt" type="password">
-          <label for="settings-password-txt" id="settings-password-txt-label" class="localizable">Password</label>
+        <!-- Language -->
+        <div class="row">
+            <div class="input-field col s6 m4">
+                <select class="icons" id="main-language-select" onchange="updateLanguage()">
+                </select>
+                <label id="main-select-language-label" class="localizable">Select language</label>
+            </div>
         </div>
-        <div class="col s1 m1 l1 xl1 padding-correction-textinput">
-          <a class="btn-flat" id="settings-password-toggle">
-            <i class="material-icons left">remove_red_eye</i>
-          </a>
-        </div>
-        <div class="col s12 m2 l2 xl2 padding-correction-textinput">
-          <a class="waves-effect waves-light btn localizable" id="settings-save-credentials-btn">
-            <i class="material-icons left">save</i>
-            Save
-          </a>
-        </div>
-      </div>
-      <!-- Language -->
-      <div class="row">
-        <div class="input-field col s6 m4">
-          <select class="icons" id="main-language-select" onchange="updateLanguage()">
-          </select>
-          <label id="main-select-language-label" class="localizable">Select language</label>
-        </div>
-      </div>
     </div>
 
     <!-- Floating button (FAB) for adding games -->
     <div class="fixed-action-btn" id="fab-add-game-btn">
-      <a class="btn-floating btn-large waves-effect waves-light fab">
-        <i class="material-icons">add</i>
-      </a>
-      <ul>
-        <li>
-          <a class="btn-floating fab-option" id="add-local-game-btn"
-            ><i class="material-icons">folder</i></a
-          >
-        </li>
-        <li>
-          <a class="btn-floating fab-option" id="add-remote-game-btn"
-            ><i class="material-icons">language</i></a
-          >
-        </li>
-      </ul>
+        <a class="btn-floating btn-large waves-effect waves-light fab">
+            <i class="material-icons">add</i>
+        </a>
+        <ul>
+            <li>
+                <a class="btn-floating fab-option" id="add-local-game-btn"><i class="material-icons">folder</i></a>
+            </li>
+            <li>
+                <a class="btn-floating fab-option" id="add-remote-game-btn"><i class="material-icons">language</i></a>
+            </li>
+        </ul>
     </div>
-  </body>
+</body>
+
 </html>
