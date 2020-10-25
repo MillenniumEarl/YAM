@@ -14,7 +14,7 @@ const {
  * Run a file from disk.
  * @param {String} path Path of the application to run
  */
-module.exports.runApplication = async function (path) {
+module.exports.runApplication = async function runApplication(path) {
     shell.openPath(path);
 };
 
@@ -23,7 +23,7 @@ module.exports.runApplication = async function (path) {
  * Recursively delete a folder.
  * @param {String} dirpath Path to the directory to be deleted
  */
-module.exports.deleteFolderRecursive = async function (dirpath) {
+module.exports.deleteFolderRecursive = async function deleteFolderRecursive(dirpath) {
     // First check if the path exists
     if (!fs.existsSync(dirpath)) return;
 
@@ -46,7 +46,7 @@ module.exports.deleteFolderRecursive = async function (dirpath) {
  * @param {String} filename Path to the file
  * @returns {String} Text read
  */
-module.exports.readFileSync = function (filename) {
+module.exports.readFileSync = function readFileSync(filename) {
     if (!fs.existsSync(filename)) return null;
     else return fs.readFileSync(filename, "utf-8");
 };
@@ -55,6 +55,6 @@ module.exports.readFileSync = function (filename) {
  * Check if a file/directory exists on disk.
  * @param {String} filename Path to the file/directory
  */
-module.exports.exists = async function (filename) {
+module.exports.exists = async function exists(filename) {
     return fs.existsSync(filename);
 };

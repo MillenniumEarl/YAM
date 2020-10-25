@@ -1,7 +1,7 @@
 "use strict";
 
 //#region Events
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded() {
     // This function runs when the DOM is ready, i.e. when the document has been parsed
     await translateElementsInDOM();
 
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 document
     .querySelector("#login-login-btn")
-    .addEventListener("click", async function () {
+    .addEventListener("click", async function onLoginButtonClick() {
     // Get the credentials inserted by the user
         const username = document.getElementById("login-username").value;
         const password = document.getElementById("login-password").value;
@@ -59,7 +59,7 @@ document
 
 document
     .querySelector("#login-cancel-btn")
-    .addEventListener("click", function () {
+    .addEventListener("click", function onCancelButtonClick() {
     // Close the current window witouth authentication
         window.API.send("auth-result", "CANCELLED", null, null);
         window.API.send("login-window-closing");

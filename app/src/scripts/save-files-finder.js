@@ -29,7 +29,7 @@ const userDataDir =
  * @param {GameInfo} gameinfo Data of the game
  * @returns {Promise<String[]>} List of paths
  */
-module.exports.findSavesPath = async function (gameinfo) {
+module.exports.findSavesPath = async function findSavesPath(gameinfo) {
     // Get savegame directory
     const dir = await _getSaveDir(gameinfo);
     if (!dir) return [];

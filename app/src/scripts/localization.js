@@ -16,7 +16,7 @@ const isDev = require("electron-is-dev");
  * @param {String} resourcesPath Path to the directory containing the translation files
  * @param {String} language ISO code of the language
  */
-module.exports.initLocalization = async function ({
+module.exports.initLocalization = async function initLocalization({
     resourcesPath,
     language
 }) {
@@ -38,7 +38,7 @@ module.exports.initLocalization = async function ({
  * Obtain the current language ISO code.
  * @return {String} ISO code for the current language
  */
-module.exports.getCurrentLanguage = function () {
+module.exports.getCurrentLanguage = function getCurrentLanguage() {
     return i18next.language;
 };
 
@@ -48,7 +48,7 @@ module.exports.getCurrentLanguage = function () {
  * @param {String} key Key to use in the translation
  * @param {Object} interpolation Dictionary containing the interpolation key and the value to interpolate
  */
-module.exports.getTranslation = function (key, interpolation) {
+module.exports.getTranslation = function getTranslation(key, interpolation) {
     return interpolation ? i18next.t(key, interpolation) : i18next.t(key);
 };
 
@@ -57,7 +57,7 @@ module.exports.getTranslation = function (key, interpolation) {
  * Change the current language.
  * @param {String} lang ISO code of the new language 
  */
-module.exports.changeLanguage = async function (lang) {
+module.exports.changeLanguage = async function changeLanguage(lang) {
     await i18next.changeLanguage(lang);
 };
 

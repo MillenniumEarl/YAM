@@ -11,12 +11,12 @@ const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
 
 // Set F95 cache
-ipcRenderer.invoke("browser-data-dir").then(function (browserDir) {
+ipcRenderer.invoke("browser-data-dir").then(function onGetBrowserDataDir(browserDir) {
     F95API.setCacheDir(browserDir);
 });
 
 // Set F95 chromium path
-ipcRenderer.invoke("chromium-path").then(function (path) {
+ipcRenderer.invoke("chromium-path").then(function onGetChromiumPath(path) {
     F95API.setChromiumPath(path);
 });
 
@@ -63,7 +63,7 @@ contextBridge.exposeInMainWorld("API", {
    * @param {Object} interpolation Dictionary containing the interpolation values
    * @returns {Promise<String>}
    */
-    translate: async function (key, interpolation) {
+    translate: async function apiTranslate(key, interpolation) {
         return ipcRenderer.invoke("translate", key, interpolation);
     },
 });
@@ -75,7 +75,7 @@ contextBridge.exposeInMainWorld("IO", {
    * @param {String} path
    * @returns {Any}
    */
-    read: async function (path) {
+    read: async function ioRead(path) {
         return readFileSync(path);
     },
     /**
@@ -83,7 +83,7 @@ contextBridge.exposeInMainWorld("IO", {
    * @param {String} path
    * @param {Any} value
    */
-    write: async function (path, value) {
+    write: async function ioWrite(path, value) {
         fs.writeFileSync(path, value);
     },
     /**
@@ -91,7 +91,7 @@ contextBridge.exposeInMainWorld("IO", {
    * @param {String} filename 
    * @returns {Boolean}
    */
-    fileExists: async function (filename) {
+    fileExists: async function ioFileExists(filename) {
         return exists(filename);
     },
 });

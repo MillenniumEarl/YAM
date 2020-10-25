@@ -14,7 +14,7 @@ const download = require("download-chromium");
  * depending on the current OS.
  * @returns {Promise<String>} Chromium executable path
  */
-module.exports.installChromium = async function () {
+module.exports.installChromium = async function installChromium() {
     // Parse the UserData dir based on the current OS
     const userData =
         process.env.APPDATA ||

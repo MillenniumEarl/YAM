@@ -5,7 +5,7 @@ let lastGameCardID = 0;
 let logged = false;
 
 //#region Events
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded() {
     // This function runs when the DOM is ready, i.e. when the document has been parsed
     window.API.log.info("DOM loaded, initializing elements");
     await translateElementsInDOM();
@@ -13,10 +13,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Initialize the navigator-tab
     const tabNavigator = document.getElementById("tab-navigator");
+    // eslint-disable-next-line no-undef
     M.Tabs.init(tabNavigator, {});
 
     // Initialize the floating button
     const fabs = document.querySelectorAll(".fixed-action-btn");
+    // eslint-disable-next-line no-undef
     M.FloatingActionButton.init(fabs, {
         direction: "left",
         hoverEnabled: false,
@@ -24,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Initialize the <select> for languages
     const selects = document.querySelectorAll("select");
+    // eslint-disable-next-line no-undef
     M.FormSelect.init(selects, {});
 
     // Select the default page
@@ -39,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     login();
 });
 
-document.querySelector("#search-game-name").addEventListener("input", () => {
+document.querySelector("#search-game-name").addEventListener("input", function onSearchGameName() {
     // Obtain the text
     const searchText = document
         .getElementById("search-game-name")
@@ -64,7 +67,7 @@ document.querySelector("#user-info").addEventListener("login", login);
 
 document
     .querySelector("#add-remote-game-btn")
-    .addEventListener("click", async function () {
+    .addEventListener("click", async function onAddRemoteGame() {
         let translationDialog = await window.API.translate(
             "MR select game directory"
         );
@@ -111,7 +114,7 @@ document
 
 document
     .querySelector("#add-local-game-btn")
-    .addEventListener("click", async function () {
+    .addEventListener("click", async function onAddLocalGame() {
         const translationDialog = await window.API.translate(
             "MR select game directory"
         );
@@ -136,7 +139,7 @@ document
 
 document
     .querySelector("#settings-password-toggle")
-    .addEventListener("click", () => {
+    .addEventListener("click", function onPasswordToggle() {
         const input = document.getElementById("settings-password-txt");
 
         if (input.type === "password") input.type = "text";
@@ -145,7 +148,7 @@ document
 
 document
     .querySelector("#settings-save-credentials-btn")
-    .addEventListener("click", async function () {
+    .addEventListener("click", async function onSaveCredentialsFromSettings() {
         const credPath = await window.API.invoke("credentials-path");
         const username = document.getElementById("settings-username-txt").value;
         const password = document.getElementById("settings-password-txt").value;
@@ -233,6 +236,7 @@ async function listAvailableLanguages() {
  * Triggered when the user select a language from the <select> element.
  * Change the language for the elements in the DOM.
  */
+// eslint-disable-next-line no-unused-vars
 async function updateLanguage() {
     // Parse user choice
     const e = document.getElementById("main-language-select");
@@ -346,6 +350,7 @@ function sendToastToUser(type, message) {
     }
 
     const htmlToast = `<i class='material-icons' style='padding-right: 10px'>${icon}</i><span>${message}</span>`;
+    // eslint-disable-next-line no-undef
     M.toast({
         html: htmlToast,
         displayLength: timer,
@@ -446,7 +451,7 @@ function addGameCard() {
  * @param {GameCard} gamecard Object to add the listeners to
  */
 function addEventListenerToGameCard(gamecard) {
-    gamecard.addEventListener("play", async function (e) {
+    gamecard.addEventListener("play", async function gameCardPlay(e) {
         if (!e.target) return;
         const launcherPath = e.detail.launcher;
 
@@ -463,7 +468,7 @@ function addEventListenerToGameCard(gamecard) {
         window.API.send("exec", launcherPath);
     });
 
-    gamecard.addEventListener("update", function (e) {
+    gamecard.addEventListener("update", function gameCardUpdate(e) {
         if (!e.target) return;
 
         guidedGameUpdate(gamecard, e.detail.gameDir, e.detail.url);
@@ -479,7 +484,7 @@ function addEventListenerToGameCard(gamecard) {
         // }
     });
 
-    gamecard.addEventListener("delete", async function (e) {
+    gamecard.addEventListener("delete", async function gameCardDelete(e) {
         if (!e.target) return;
         const savesExists = e.detail.savePaths.length !== 0 ? true : false;
 
@@ -528,7 +533,7 @@ function addEventListenerToGameCard(gamecard) {
             const exportedSavesDir = await window.API.invoke("savegames-data-dir");
             const gameDir = window.API.join(exportedSavesDir, cleanGameName(gamecard.info.name));
             await window.IO.mkdir(gameDir);
-            savePaths.forEach(async function (path) {
+            savePaths.forEach(async function copySaveGame(path) {
                 const name = path.split("\\").pop();
                 const newName = window.API.join(gameDir, name);
                 await window.IO.copy(path, newName);
@@ -560,7 +565,7 @@ async function getGameFromPaths(paths) {
     // Parse the game dir name(s)
     for (const path of paths) {
         await getGameFromPath(path)
-            .catch(function (error) {
+            .catch(function catchErrorWhenAddingGameFromPath(error) {
                 // Send error message
                 sendMessageToUserWrapper(
                     "error",
@@ -606,13 +611,13 @@ async function getGameFromPath(path) {
     if (promiseResult.length === 0) {
         const translation = await window.API.translate("MR no game found", {
             "gamename": name
-        })
+        });
         sendToastToUser("warning", translation);
         return null;
     } else if (promiseResult.length !== 1) {
         const translation = await window.API.translate("MR multiple games found", {
             "gamename": name
-        })
+        });
         sendToastToUser("warning", translation);
         return null;
     }
@@ -636,7 +641,7 @@ async function getGameFromPath(path) {
     // Game added correctly
     const translation = await window.API.translate("MR game successfully added", {
         "gamename": name
-    })
+    });
     sendToastToUser("info", translation);
     return card;
 }
@@ -723,7 +728,7 @@ async function loadCachedGames() {
     }
 
     // Write end log
-    Promise.all(promisesList).then(function () {
+    Promise.all(promisesList).then(function onAllCachedGamesLoaded() {
         window.API.log.info("Cached games loaded");
     });
 }
@@ -881,7 +886,7 @@ async function getUserDataFromF95() {
 
 //#region IPC receive
 // Called when the window is being closed
-window.API.receive("window-closing", function () {
+window.API.receive("window-closing", function onWindowClosing() {
     // Save data game
     const cardGames = document.querySelectorAll("game-card");
     const promiseList = [];
@@ -890,7 +895,7 @@ window.API.receive("window-closing", function () {
         promiseList.push(promise);
     }
 
-    Promise.all(promiseList).then(async function () {
+    Promise.all(promiseList).then(async function onAllGameCardsDataSaved() {
         // Close F95 browser
         await window.F95.logout();
 
@@ -900,7 +905,7 @@ window.API.receive("window-closing", function () {
 });
 
 // Called when the result of the authentication are ready
-window.API.receive("auth-result", async function (args) {
+window.API.receive("auth-result", async function onAuthResult(args) {
     // Parse args
     const result = args[0];
     const username = args[1];
@@ -940,7 +945,7 @@ window.API.receive("auth-result", async function (args) {
         const translation = await window.API.translate("MR cannot login", {
             "error": e
         });
-        sendToastToUser("error", translation)
+        sendToastToUser("error", translation);
         window.API.log.error(`Cannot login: ${e}`);
     }
 });

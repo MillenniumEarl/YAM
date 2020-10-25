@@ -32,12 +32,12 @@ const {
 const savesFinder = require("../src/scripts/save-files-finder.js");
 
 // Set F95 cache
-ipcRenderer.invoke("browser-data-dir").then(function (browserDir) {
+ipcRenderer.invoke("browser-data-dir").then(function onGetBrowserDataDir(browserDir) {
     F95API.setCacheDir(browserDir);
 });
 
 // Set F95 chromium path
-ipcRenderer.invoke("chromium-path").then(function (path) {
+ipcRenderer.invoke("chromium-path").then(function onGetChromiumPath(path) {
     F95API.setChromiumPath(path);
 });
 
@@ -128,7 +128,7 @@ contextBridge.exposeInMainWorld("API", {
      * @param {String} dest Path where save the image
      * @returns {Promise<Any>}
      */
-    downloadImage: function (url, dest) {
+    downloadImage: function apiDownloadImage(url, dest) {
         return download.image({
             url: url,
             dest: dest
@@ -139,7 +139,7 @@ contextBridge.exposeInMainWorld("API", {
      * @param {String} path
      * @returns {String}
      */
-    getDirName: function (path) {
+    getDirName: function apiGetDirName(path) {
         return basename(dirname(path));
     },
     /**
@@ -152,20 +152,20 @@ contextBridge.exposeInMainWorld("API", {
      * @param {Object} interpolation Dictionary containing the interpolation values
      * @returns {Promise<String>}
      */
-    translate: async function (key, interpolation) {
+    translate: async function apiTranslate(key, interpolation) {
         return ipcRenderer.invoke("translate", key, interpolation);
     },
     /**
      * Change the displayed language in the app.
      * @param {String} iso ISO 639-1 language
      */
-    changeLanguage: async function (iso) {
+    changeLanguage: async function apiChangeLanguage(iso) {
         return ipcRenderer.invoke("change-language", iso);
     },
     /**
      * Get the current app language ISO-code
      */
-    currentLanguage: async function () {
+    currentLanguage: async function apiCurrentLanguage() {
         return ipcRenderer.invoke("current-language");
     },
 });
@@ -177,7 +177,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @param {String} path
      * @returns {Any}
      */
-    readSync: function (path) {
+    readSync: function ioReadSync(path) {
         return readFileSync(path);
     },
     /**
@@ -185,7 +185,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @param {String} path
      * @returns {Any}
      */
-    read: async function (path) {
+    read: async function ioRead(path) {
         return readFileSync(path);
     },
     /**
@@ -193,7 +193,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @param {String} path
      * @param {Any} value
      */
-    write: async function (path, value) {
+    write: async function ioWrite(path, value) {
         fs.writeFileSync(path, value);
     },
     /**
@@ -202,7 +202,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @param {String} basedir Path to the directory where starting using the filter
      * @returns {Promise<String[]>} List of files matching the filter
      */
-    filter: async function (filter, basedir) {
+    filter: async function ioFilter(filter, basedir) {
         return glob.sync(filter, {
             cwd: basedir,
         });
@@ -211,14 +211,14 @@ contextBridge.exposeInMainWorld("IO", {
      * Remove a single file from disk.
      * @param {String} filename Path to the file
      */
-    deleteFile: function (filename) {
+    deleteFile: function ioDeleteFile(filename) {
         fs.unlinkSync(filename);
     },
     /**
      * Remove a dirctory recursively, unlinking also the content.
      * @param {String} dirname Path of the directory
      */
-    deleteFolder: async function (dirname) {
+    deleteFolder: async function ioDeleteFolder(dirname) {
         deleteFolderRecursive(dirname);
     },
     /**
@@ -226,7 +226,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @param {String} path
      * @returns {Boolean}
      */
-    pathExists: async function (path) {
+    pathExists: async function ioPathExists(path) {
         return exists(path);
     },
     /**
@@ -234,7 +234,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @param {String} currPath Current path of the directory
      * @param {String} newPath Path of the directory with the new name
      */
-    renameDir: function (currPath, newPath) {
+    renameDir: function ioRenameDir(currPath, newPath) {
         fs.renameSync(currPath, newPath);
     },
     /**
@@ -242,14 +242,14 @@ contextBridge.exposeInMainWorld("IO", {
      * @param {F95API.GameInfo} gameinfo 
      * @returns {Promise<String[]>}
      */
-    findSavesPath: async function (gameinfo) {
+    findSavesPath: async function ioFindSavesPath(gameinfo) {
         return savesFinder.findSavesPath(gameinfo);
     },
     /**
      * Create a directory.
      * @param {String} dirname Path to new dir
      */
-    mkdir: async function (dirname) {
+    mkdir: async function ioMkdir(dirname) {
         if (!fs.existsSync(dirname))
             fs.mkdirSync(dirname, {
                 recursive: true,
@@ -260,7 +260,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @param {String} src Path to origin
      * @param {String} dest Path to new destination
      */
-    copy: async function (src, dest) {
+    copy: async function ioCopy(src, dest) {
         fs.copyFileSync(src, dest);
     }
 });
