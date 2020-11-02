@@ -751,7 +751,7 @@ async function checkVersionCachedGames() {
 
         // Trigger the component
         if (update) {
-            const promise = window.F95.getGameDataFromURL(card.info.f95url);
+            const promise = window.F95.getGameDataFromURL(card.info.url);
             card.notificateUpdate(promise);
         }
     }
