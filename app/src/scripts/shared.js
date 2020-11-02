@@ -19,7 +19,7 @@ class Shared {
      * Base directory where to save the application cache.
      * @type String
      */
-    static #_cacheDir = join(app.getAppPath("userData"), "appcache");
+    static #_cacheDir = join(app.getPath("userData"), "appcache");
     /**
      * Name of the directory to save the game cache.
      * @type String
