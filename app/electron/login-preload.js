@@ -10,16 +10,6 @@ const fs = require("fs");
 const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
 
-// Set F95 cache
-ipcRenderer.invoke("browser-data-dir").then(function onGetBrowserDataDir(browserDir) {
-    F95API.setCacheDir(browserDir);
-});
-
-// Set F95 chromium path
-ipcRenderer.invoke("chromium-path").then(function onGetChromiumPath(path) {
-    F95API.setChromiumPath(path);
-});
-
 // Modules from file
 const { readFileSync, exists } = require("../src/scripts/io-operations.js");
 
@@ -99,5 +89,4 @@ contextBridge.exposeInMainWorld("IO", {
 // Expose the F95API
 contextBridge.exposeInMainWorld("F95", {
     login: (username, password) => F95API.login(username, password),
-    logout: () => F95API.logout(),
 });

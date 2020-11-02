@@ -90,6 +90,7 @@ async function translateElementsInDOM() {
 }
 
 /**
+ * @private
  * Check if a string is null, empty or composed only of white spaces.
  * @param {String} input
  * @returns {Boolean}
@@ -99,6 +100,7 @@ function isNullOrWhitespace(input) {
 }
 
 /**
+ * @private
  * Manage the result of the login into the platform.
  * @param {LoginResult} result Result of the login operation
  * @param {String} username Username used during authentication
@@ -116,14 +118,11 @@ async function manageLoginResult(result, username, password) {
         const path = await window.API.invoke("credentials-path");
         await window.IO.write(path, json);
 
-        // Close F95 browser
-        await window.F95.logout();
-
         // Close the window
         window.API.send("auth-result", "AUTHENTICATED", username, password);
         window.API.send("login-window-closing");
     } else {
-    // Show error message
+        // Show error message
         const translation = await window.API.translate(
             "LR error during authentication",
             {
@@ -140,6 +139,7 @@ async function manageLoginResult(result, username, password) {
 }
 
 /**
+ * @private
  * Try to log-in to the platform and manage result.
  * Save the credentials and close the window if the authentication is successfull.
  * @param {String} username
@@ -157,6 +157,7 @@ async function login(username, password) {
 }
 
 /**
+ * @private
  * Set a message to show to the user.
  * @param {String} message Message to show
  * @param {String} type Type of message, can only be *error/warning/information*

@@ -31,19 +31,6 @@ const {
 } = require("../src/scripts/io-operations.js");
 const savesFinder = require("../src/scripts/save-files-finder.js");
 
-// Set F95 cache
-ipcRenderer.invoke("browser-data-dir").then(function onGetBrowserDataDir(browserDir) {
-    F95API.setCacheDir(browserDir);
-});
-
-// Set F95 chromium path
-ipcRenderer.invoke("chromium-path").then(function onGetChromiumPath(path) {
-    F95API.setChromiumPath(path);
-});
-
-// Set F95 isolation
-F95API.setIsolation(false);
-
 // Array of valid main-to-render channels
 const validReceiveChannels = ["window-closing", "auth-result"];
 
@@ -58,7 +45,6 @@ const validSendChannels = [
     "prompt-dialog",
     "cwd",
     "cache-dir",
-    "browser-data-dir",
     "games-data-dir",
     "savegames-data-dir",
     "credentials-path",
@@ -271,9 +257,8 @@ contextBridge.exposeInMainWorld("F95", {
     GameInfo: new F95API.GameInfo(),
     login: (username, password) => F95API.login(username, password),
     getUserData: () => F95API.getUserData(),
-    getGameData: (name, includeMods) => F95API.getGameData(name, includeMods),
+    getGameData: (name, searchMod) => F95API.getGameData(name, searchMod),
     getGameDataFromURL: (url) => F95API.getGameDataFromURL(url),
-    checkGameUpdates: (gameinfo) => F95API.chekIfGameHasUpdate(gameinfo),
-    loadF95BaseData: () => F95API.loadF95BaseData(),
-    logout: () => F95API.logout(),
+    checkGameUpdates: (gameinfo) => F95API.checkIfGameHasUpdate(gameinfo),
+    deserialize:(json) => F95API.GameInfo.fromJSON(json),
 });

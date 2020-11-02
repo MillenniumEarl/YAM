@@ -42,15 +42,16 @@ class GameCard extends HTMLElement {
             `[MOD] ${value.name}` :
             value.name;
         this.querySelector("#gc-author").innerText = value.author;
-        this.querySelector("#gc-f95-url").setAttribute("href", value.f95url);
+        this.querySelector("#gc-f95-url").setAttribute("href", value.url);
         this.querySelector("#gc-overview").innerText = value.overview;
         this.querySelector("#gc-engine").innerText = value.engine;
         this.querySelector("#gc-status").innerText = value.status;
-        this.querySelector("#gc-last-update").innerText = value.lastUpdate;
+        this.querySelector("#gc-last-update").innerText = 
+            value.lastUpdate.toISOString().replace(/T/, " ").replace(/\..+/, "");
         this.querySelector("#gc-installed-version").innerText = value.version;
 
         // Parse the relative path of the image (asynchronusly)
-        this._parsePreviewPath(value.previewSource).then((source) => {
+        this._parsePreviewPath(value.previewSrc).then((source) => {
             this.querySelector("#gc-preview").setAttribute("src", source);
         });
     }
@@ -94,7 +95,7 @@ class GameCard extends HTMLElement {
         const updateClickEvent = new CustomEvent("update", {
             detail: {
                 downloadInfo: this._updateInfo.downloadInfo,
-                url: this._info.f95url,
+                url: this._info.url,
                 gameDir: this._info.gameDir,
             },
         });
@@ -209,21 +210,21 @@ class GameCard extends HTMLElement {
      * @private
      * Download the game cover image.
      * @param {String} name Game name
-     * @param {String} previewSource Current URL of the image
+     * @param {String} previewSrc Current URL of the image
      * @returns {Promise<String>} Name of the image or null if it was not downloaded
      */
-    async _downloadGamePreview(name, previewSource) {
+    async _downloadGamePreview(name, previewSrc) {
         // Check if it's possible to download the image
-        if (previewSource.trim() === "") return null;
-        if (previewSource.trim() === "../../resources/images/f95-logo.jpg")
+        if (previewSrc.trim() === "") return null;
+        if (previewSrc.trim() === "../../resources/images/f95-logo.jpg")
             return null;
 
         const gameCacheDir = await window.API.invoke("games-data-dir");
-        const localPath = window.API.join(gameCacheDir, previewSource);
+        const localPath = window.API.join(gameCacheDir, previewSrc);
         if (await window.IO.pathExists(localPath)) return null; // Already downloaded
 
         // Get image extension
-        const splitted = previewSource.split(".");
+        const splitted = previewSrc.split(".");
         const extension = splitted.pop();
         let imageName = `${name.replaceAll(" ", "")}_preview.${extension}`;
         const rx = /[/\\?%*:|"<>]/g; // Remove invalid chars
@@ -231,7 +232,7 @@ class GameCard extends HTMLElement {
 
         // Download image
         const path = await window.API.downloadImage(
-            previewSource,
+            previewSrc,
             window.API.join(gameCacheDir, imageName)
         );
 
@@ -273,6 +274,7 @@ class GameCard extends HTMLElement {
             // Check if the image exists
             const exists = await window.IO.pathExists(previewPath);
             if (exists) return previewPath;
+
             // Something wrong, return the default image
             else return "../../resources/images/f95-logo.jpg";
         }
@@ -290,12 +292,12 @@ class GameCard extends HTMLElement {
      */
     async saveGameData() {
         // Download preview image
-        if (this._info.previewSource) {
+        if (this._info.previewSrc) {
             const imageName = await this._downloadGamePreview(
                 this._info.name,
-                this._info.previewSource
+                this._info.previewSrc
             );
-            if (imageName) this._info.previewSource = imageName;
+            if (imageName) this._info.previewSrc = imageName;
         }
 
         // Save the serialized JSON
@@ -309,7 +311,7 @@ class GameCard extends HTMLElement {
     async loadGameData(path) {
         // Load the serialized JSON
         const json = await window.IO.read(path);
-        const obj = JSON.parse(json);
+        const obj = window.F95.deserialize(json);
 
         // Load object
         this.info = obj;
@@ -323,10 +325,10 @@ class GameCard extends HTMLElement {
         window.IO.deleteFile(await this._getDataJSONPath());
 
         // Check the cached preview
-        if (!this.info.previewSource) return;
+        if (!this.info.previewSrc) return;
 
         // Delete the cached preview
-        const previewPath = this._parsePreviewPath(this.info.previewSource);
+        const previewPath = this._parsePreviewPath(this.info.previewSrc);
         const exists = await window.IO.pathExists(previewPath);
         if (exists) window.IO.deleteFile(previewPath);
     }

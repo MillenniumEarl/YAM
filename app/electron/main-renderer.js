@@ -881,7 +881,6 @@ async function getUserDataFromF95() {
     document.getElementById("user-info").userdata = userdata;
 }
 
-
 //#endregion Private methods
 
 //#region IPC receive
@@ -895,13 +894,11 @@ window.API.receive("window-closing", function onWindowClosing() {
         promiseList.push(promise);
     }
 
-    Promise.all(promiseList).then(async function onAllGameCardsDataSaved() {
-        // Close F95 browser
-        await window.F95.logout();
-
-        // Tell the main process to close this BrowserWindow
-        window.API.send("main-window-closing");
-    });
+    Promise.all(promiseList)
+        .then(async function onAllGameCardsDataSaved() {
+            // Tell the main process to close this BrowserWindow
+            window.API.send("main-window-closing");
+        });
 });
 
 // Called when the result of the authentication are ready
@@ -928,9 +925,6 @@ window.API.receive("auth-result", async function onAuthResult(args) {
         const translation = await window.API.translate("MR login successful");
         sendToastToUser("info", translation);
         logged = true;
-
-        // Load F95 base data
-        await window.F95.loadF95BaseData();
 
         // Show "new game" button
         document.querySelector("#fab-add-game-btn").style.display = "block";

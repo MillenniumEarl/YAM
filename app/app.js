@@ -14,7 +14,6 @@ const Store = require("electron-store");
 // Modules from file
 const { runApplication } = require("./src/scripts/io-operations.js");
 const shared = require("./src/scripts/shared.js");
-const { installChromium } = require("./src/scripts/chromium.js");
 const localization = require("./src/scripts/localization.js");
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -213,18 +212,6 @@ ipcMain.handle("cache-dir", function ipcMainHandleCacheDir() {
     return dirname;
 });
 
-ipcMain.handle("browser-data-dir", function ipcMainHandleBrowserDataDir() {
-    const dirname = path.resolve(".", shared.browserDataDir);
-
-    // Create directory if not existent
-    if (!fs.existsSync(dirname))
-        fs.mkdirSync(dirname, {
-            recursive: true,
-        });
-
-    return dirname;
-});
-
 ipcMain.handle("games-data-dir", function ipcMainHandleGamesDataDir() {
     const dirname = path.resolve(".", shared.gamesDataDir);
 
@@ -251,10 +238,6 @@ ipcMain.handle("savegames-data-dir", function ipcMainHandleSaveGamesDataDir() {
 
 ipcMain.handle("credentials-path", function ipcMainHandleCredentialsPath() {
     return shared.credentialsPath;
-});
-
-ipcMain.handle("chromium-path", function ipcMainHandleChromiumPath() {
-    return shared.chromiumPath;
 });
 
 //#endregion shared app variables
@@ -297,10 +280,6 @@ app.whenReady().then(async function appOnReady() {
         language: lang,
     });
     logger.info("Languages initialized");
-
-    shared.chromiumPath = await installChromium();
-    if (shared.chromiumPath) logger.info("Chromium installed");
-    else logger.error("Something wrong with Chromium");
 
     logger.silly("Creating main window");
     createMainWindow();

@@ -5,6 +5,11 @@ const {
     join
 } = require("path");
 
+// Public modules from npm
+const {
+    app
+} = require("electron");
+
 /**
  * Class containing variables shared between modules.
  */
@@ -14,17 +19,12 @@ class Shared {
      * Base directory where to save the application cache.
      * @type String
      */
-    static #_cacheDir = "cache";
+    static #_cacheDir = join(app.getAppPath("userData"), "appcache");
     /**
      * Name of the directory to save the game cache.
      * @type String
      */
     static #_gamesDirName = "gamedata";
-    /**
-     * Name of the directory to save the browser cache.
-     * @type String
-     */
-    static #_browserDirName = "browserdata";
     /**
      * Name of the directory containing the exported game saves.
      * @type String
@@ -35,11 +35,6 @@ class Shared {
      * @type String
      */
     static #_credentialsName = "credentials.json";
-    /**
-     * Path to the local version of chromium.
-     * @type String
-     */
-    static #_chromiumLocalPath = null;
     //#endregion Private static properties
 
     //#region Getters
@@ -58,13 +53,6 @@ class Shared {
         return join(this.#_cacheDir, this.#_gamesDirName);
     }
     /**
-     * Name of the directory to save the browser cache.
-     * @returns {String}
-     */
-    static get browserDataDir() {
-        return join(this.#_cacheDir, this.#_browserDirName);
-    }
-    /**
      * Name of the directory containing the exported game saves.
      * @returns {String}
      */
@@ -78,21 +66,11 @@ class Shared {
     static get credentialsPath() {
         return join(this.#_cacheDir, this.#_credentialsName);
     }
-    /**
-     * Path to the local version of chromium.
-     * @returns {String}
-     */
-    static get chromiumPath() {
-        return this.#_chromiumLocalPath;
-    }
     //#endregion Getters
 
     //#region Setters
     static set cacheDir(val) {
         this.#_cacheDir = val;
-    }
-    static set chromiumPath(val) {
-        this.#_chromiumLocalPath = val;
     }
     //#endregion Setters
 }
