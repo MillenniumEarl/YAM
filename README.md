@@ -55,11 +55,9 @@ When adding a game or starting the application, updates of installed games are c
 
 ## Known Issues
 
-1. Sometimes the application does not connect to the F95Zone platform, forcing it to restart
-   1. **Solution**: Restart the application
-2. Some translations may be totally or partially inaccurate, this is because they are machine translations
+1. Some translations may be totally or partially inaccurate, this is because they are machine translations
    1. **Solution**: Open an issue with the wrong translation, the correct one and where / when the wrong translation occurs
-3. Games added even if already present
+2. Games added even if already present
    1. **Solution**: Rename the directory with the exact name of the game
 
 ## How to contribute
