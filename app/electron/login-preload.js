@@ -9,9 +9,7 @@ const fs = require("fs");
 // Public modules from npm
 const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
-
-// Modules from file
-const { readFileSync, exists } = require("../src/scripts/io-operations.js");
+const logger = require("electron-log");
 
 // Array of valid render-to-main channels
 const validSendChannels = [
@@ -25,11 +23,11 @@ const validSendChannels = [
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
     /**
-   * Send an asynchronous request via IPC and wait for a response.
-   * @param {String} channel Communication channel
-   * @param {Any[]} data Data to send to main process
-   * @returns {Promise<Any>} Result from the main process
-   */
+     * Send an asynchronous request via IPC and wait for a response.
+     * @param {String} channel Communication channel
+     * @param {Any[]} data Data to send to main process
+     * @returns {Promise<Any>} Result from the main process
+     */
     invoke: (channel, ...data) => {
     // Send a custom message
         if (validSendChannels.includes(channel)) {
@@ -37,10 +35,10 @@ contextBridge.exposeInMainWorld("API", {
         }
     },
     /**
-   * Send an asynchronous request via IPC.
-   * @param {String} channel Communication channel
-   * @param {Any[]} data Data to send to main process
-   */
+     * Send an asynchronous request via IPC.
+     * @param {String} channel Communication channel
+     * @param {Any[]} data Data to send to main process
+     */
     send: (channel, ...data) => {
     // Send a custom message
         if (validSendChannels.includes(channel)) {
@@ -48,45 +46,54 @@ contextBridge.exposeInMainWorld("API", {
         }
     },
     /**
-   * Translate a key into a message in the language specified by the user.
-   * @param {String} key Unique key of the message
-   * @param {Object} interpolation Dictionary containing the interpolation values
-   * @returns {Promise<String>}
-   */
+     * Translate a key into a message in the language specified by the user.
+     * @param {String} key Unique key of the message
+     * @param {Object} interpolation Dictionary containing the interpolation values
+     * @returns {Promise<String>}
+     */
     translate: async function apiTranslate(key, interpolation) {
         return ipcRenderer.invoke("translate", key, interpolation);
     },
+    /**
+     * Provide access to logger methods.
+     */
+    log: logger.functions,
 });
 
 // Expose the I/O operations
 contextBridge.exposeInMainWorld("IO", {
     /**
-   * Read data from a file asynchronously.
-   * @param {String} path
-   * @returns {Any}
-   */
+     * Read data from a file asynchronously.
+     * @param {String} path
+     * @returns {Promise<String>}
+     */
     read: async function ioRead(path) {
-        return readFileSync(path);
+        return fs.readFileSync(path, "utf-8");
     },
     /**
-   * Write data in a file.
-   * @param {String} path
-   * @param {Any} value
-   */
+     * Write data in a file asynchronously.
+     * @param {String} path
+     * @param {Any} value
+     */
     write: async function ioWrite(path, value) {
         fs.writeFileSync(path, value);
     },
     /**
-   * Check if the specified file exists on disk.
-   * @param {String} filename 
-   * @returns {Boolean}
-   */
-    fileExists: async function ioFileExists(filename) {
-        return exists(filename);
+     * Check if the specified file exists on disk asynchronously.
+     * @param {String} filename 
+     * @returns {Boolean}
+     */
+    exists: async function ioFileExists(filename) {
+        fs.existsSync(filename);
     },
 });
 
 // Expose the F95API
 contextBridge.exposeInMainWorld("F95", {
+    /**
+     * Login to the F95Zone platform.
+     * @param {String} username
+     * @param {String} password
+     */
     login: (username, password) => F95API.login(username, password),
 });

@@ -1,5 +1,10 @@
 "use strict";
 
+// Manage unhandled errors
+window.onerror = function (message, source, lineno, colno, error) {
+    window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
+};
+
 //#region Events
 document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded() {
     // This function runs when the DOM is ready, i.e. when the document has been parsed
@@ -8,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded(
     const credentialsPath = await window.API.invoke("credentials-path");
 
     // Load credentials if saved on disk
-    const exists = await window.IO.fileExists(credentialsPath);
+    const exists = await window.IO.exists(credentialsPath);
     if (!exists) return;
 
     // Read and parse credentials
@@ -124,8 +129,7 @@ async function manageLoginResult(result, username, password) {
     } else {
         // Show error message
         const translation = await window.API.translate(
-            "LR error during authentication",
-            {
+            "LR error during authentication", {
                 error: result.message,
             }
         );

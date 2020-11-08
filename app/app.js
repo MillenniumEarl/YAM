@@ -12,14 +12,24 @@ const logger = require("electron-log");
 const Store = require("electron-store");
 
 // Modules from file
-const { runApplication } = require("./src/scripts/io-operations.js");
+const { run } = require("./src/scripts/io-operations.js");
 const shared = require("./src/scripts/shared.js");
 const localization = require("./src/scripts/localization.js");
 
+// Manage unhandled errors
+process.on("uncaughtException", function (error) {
+    logger.error(`Uncaught error in the main process.\n${error}`);
+});
+
+//#region Global variables
+const baseColor = "#262626";
+const preloadDir = path.join(app.getAppPath(), "app", "electron");
+const htmlDir = path.join(app.getAppPath(), "app", "src");
+const appIcon = path.join(app.getAppPath(), "resources", "images", "icon.ico");
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
-let loginWindow;
+let mainWindow, loginWindow;
 
 // Variable used to close the main windows
 let closeMainWindow = false;
@@ -27,21 +37,37 @@ let closeMainWindow = false;
 // Global store, keep user-settings
 const store = new Store();
 
-//#region Windows creation methods
-async function createMainWindow() {
-    // Local variables
-    const width = store.has("main-width") ? store.get("main-width") : 1024;
-    const height = store.has("main-height") ? store.get("main-height") : 600;
+//#endregion Global variables
 
+//#region Windows creation methods
+/**
+ * @private
+ * Create a window.
+ * @param {Object.<string, number>} size Default size of the window
+ * @param {Object.<string, number>} minSize Minimum size of the window
+ * @param {Boolean} hasFrame Set if the window has a non-Chrome contourn
+ * @param {Boolean} isModal Set if the window is a modal window
+ * @param {String} preloadPath Path to the preload script
+ */
+function createWindow(size, minSize, preloadPath, hasFrame, isModal) {
     // Create the browser window.
-    mainWindow = new BrowserWindow({
-        width: width,
-        height: height,
-        minWidth: 1024,
-        minHeight: 600,
+    return new BrowserWindow({
+        // Set window size
+        width: size.width,
+        height: size.height,
+        minWidth: minSize.width,
+        minHeight: minSize.height,
         useContentSize: true,
-        icon: path.join(app.getAppPath(), "resources", "images", "icon.ico"),
-        backgroundColor: "#262626", // Used to simulate loading and not make the user wait
+
+        // Set "style" settings
+        icon: appIcon,
+        backgroundColor: baseColor, // Used to simulate loading and not make the user wait
+        frame: hasFrame !== undefined ? hasFrame : true,
+
+        // Set window behaviour
+        modal: isModal !== undefined ? isModal : false,
+
+        // Set security settings
         webPreferences: {
             allowRunningInsecureContent: false,
             worldSafeExecuteJavaScript: true,
@@ -49,23 +75,43 @@ async function createMainWindow() {
             contextIsolation: true,
             webSecurity: true,
             nodeIntegration: false,
-            preload: path.join(
-                app.getAppPath(),
-                "app",
-                "electron",
-                "main-preload.js"
-            ),
+            preload: preloadPath,
         },
     });
+}
+
+/**
+ * @private
+ * Create the main window of the application.
+ * @returns {BrowserWindow} The main window object
+ */
+function createMainWindow() {
+    // Local variables
+    const preload = path.join(preloadDir, "main-preload.js");
+
+    // Set size
+    const width = store.has("main-width") ? store.get("main-width") : 1024;
+    const height = store.has("main-height") ? store.get("main-height") : 600;
+    const size = {
+        "width": width,
+        "height": height,
+    };
+    const minSize = {
+        "width": 1024,
+        "height": 600,
+    };
+
+    // Create the browser window
+    const w = createWindow(size, minSize, preload);
 
     // Detect if the user maximized the window in a previous session
     const maximize = store.has("main-maximized")
         ? store.get("main-maximized")
         : false;
-    if (maximize) mainWindow.maximize();
+    if (maximize) w.maximize();
 
     // Whatever URL the user clicks will open the default browser for viewing
-    mainWindow.webContents.on("new-window", function mainWindowOnNewWindow(e, url) {
+    w.webContents.on("new-window", function mainWindowOnNewWindow(e, url) {
         e.preventDefault();
         shell.openExternal(url);
     });
@@ -73,55 +119,54 @@ async function createMainWindow() {
     // When the user try to close the main window,
     // this method intercept the default behaviour
     // Used to save the game data in the GameCards
-    mainWindow.on("close", function mainWindowOnClose(e) {
-        if (mainWindow && !closeMainWindow) {
+    w.on("close", function mainWindowOnClose(e) {
+        if (w && !closeMainWindow) {
             e.preventDefault();
             closeMainWindow = true;
-            mainWindow.webContents.send("window-closing");
+            w.webContents.send("window-closing");
         }
     });
 
     // Disable default menu
-    if (!isDev) mainWindow.setMenu(null);
+    if (!isDev) w.setMenu(null);
 
     // Load the index.html of the app.
-    const htmlPath = path.join(app.getAppPath(), "app", "src", "index.html");
-    mainWindow.loadFile(htmlPath);
+    const htmlPath = path.join(htmlDir, "index.html");
+    w.loadFile(htmlPath);
+
+    return w;
 }
 
-async function createLoginWindow() {
-    // Create the login window.
-    loginWindow = new BrowserWindow({
-        width: 400,
-        height: 250,
-        resizable: false,
-        icon: path.join(app.getAppPath(), "resources", "images", "icon.ico"),
-        backgroundColor: "#262626", // Used to simulate loading and not make the user wait
-        frame: false,
-        parent: mainWindow,
-        modal: true,
-        webPreferences: {
-            allowRunningInsecureContent: false,
-            worldSafeExecuteJavaScript: true,
-            enableRemoteModule: false,
-            contextIsolation: true,
-            webSecurity: true,
-            nodeIntegration: false,
-            preload: path.join(
-                app.getAppPath(),
-                "app",
-                "electron",
-                "login-preload.js"
-            ),
-        },
-    });
+/**
+ * @private
+ * Create the login window for the application.
+ * @returns {BrowserWindow} The login window object
+ */
+function createLoginWindow(parent) {
+    // Local variables
+    const preload = path.join(preloadDir, "login-preload.js");
 
+    // Set size
+    const size = {
+        width: 400,
+        height: 250
+    };
+
+    // Create the browser window (minSize = size)
+    const w = createWindow(size, size, preload, false, true);
+
+    // Set window properties
+    w.setResizable(false);
+    w.setParentWindow(parent);
+    
     // Disable default menu
-    if (!isDev) loginWindow.setMenu(null);
+    if (!isDev) w.setMenu(null);
 
     // Load the html file
-    const htmlPath = path.join(app.getAppPath(), "app", "src", "login.html");
-    loginWindow.loadFile(htmlPath);
+    const htmlPath = path.join(htmlDir, "login.html");
+    w.loadFile(htmlPath);
+
+    return w;
 }
 //#endregion Windows creation methods
 
@@ -135,7 +180,7 @@ ipcMain.on("login-required", function ipcMainOnLoginRequired() {
     if (loginWindow) {
         logger.warn("Login window already active");
         return;
-    } else createLoginWindow();
+    } else loginWindow = createLoginWindow(mainWindow);
 });
 
 // Called when the main window has saved all
@@ -151,15 +196,13 @@ ipcMain.on("main-window-closing", function ipcMainOnMainWindowClosing() {
     // Check is the window is maximized
     store.set("main-maximized", mainWindow.isMaximized());
 
-    mainWindow.close();
-    mainWindow = null;
+    closeWindow(mainWindow);
 });
 
 // Called when the login widnow want to be closed
 ipcMain.on("login-window-closing", function ipcMainOnLoginWindowClosing() {
-    logger.silly("Closing main window");
-    loginWindow.close();
-    loginWindow = null;
+    logger.silly("Closing login window");
+    closeWindow(loginWindow);
 });
 
 // Receive the result of the login operation
@@ -170,7 +213,7 @@ ipcMain.on("auth-result", function ipcMainOnAuthResult(e, result, username, pass
 // Execute the file passed as parameter
 ipcMain.on("exec", function ipcMainOnExec(e, filename) {
     logger.info(`Executing ${filename[0]}`);
-    runApplication(filename[0])
+    run(filename[0])
         .then((err) => {
             if (err) logger.error(`Failed to start subprocess: ${err}`);
         })
@@ -239,7 +282,6 @@ ipcMain.handle("savegames-data-dir", function ipcMainHandleSaveGamesDataDir() {
 ipcMain.handle("credentials-path", function ipcMainHandleCredentialsPath() {
     return shared.credentialsPath;
 });
-
 //#endregion shared app variables
 
 //#region IPC dialog for main window
@@ -282,12 +324,12 @@ app.whenReady().then(async function appOnReady() {
     logger.info("Languages initialized");
 
     logger.silly("Creating main window");
-    createMainWindow();
+    mainWindow = createMainWindow();
 
     app.on("activate", function appOnActivate() {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
+        if (BrowserWindow.getAllWindows().length === 0) mainWindow = createMainWindow();
     });
 });
 
@@ -299,3 +341,15 @@ app.on("window-all-closed", function appOnWindowAllClosed() {
     if (process.platform !== "darwin") app.quit();
 });
 //#endregion App-related events
+
+//#region Private methods
+/**
+ * @private
+ * Close the window and remove the reference.
+ * @param {BrowserWindow} w Window to close
+ */
+function closeWindow(w) {
+    w.close();
+    w = null;
+}
+//#endregion

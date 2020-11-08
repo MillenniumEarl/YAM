@@ -4,6 +4,11 @@
 let lastGameCardID = 0;
 let logged = false;
 
+// Manage unhandled errors
+window.onerror = function (message, source, lineno, colno, error) {
+    window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
+};
+
 //#region Events
 document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded() {
     // This function runs when the DOM is ready, i.e. when the document has been parsed

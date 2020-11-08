@@ -14,7 +14,7 @@ const {
  * Run a file from disk.
  * @param {String} path Path of the application to run
  */
-module.exports.runApplication = async function runApplication(path) {
+module.exports.run = async function run(path) {
     shell.openPath(path);
 };
 
@@ -42,9 +42,10 @@ module.exports.deleteFolderRecursive = async function deleteFolderRecursive(dirp
 };
 
 /**
+ * @protected
  * Read a file from disk.
  * @param {String} filename Path to the file
- * @returns {String} Text read
+ * @returns {String} Text read or `null` if the file doesn't exists
  */
 module.exports.readFileSync = function readFileSync(filename) {
     if (!fs.existsSync(filename)) return null;
@@ -52,6 +53,7 @@ module.exports.readFileSync = function readFileSync(filename) {
 };
 
 /**
+ * @protected
  * Check if a file/directory exists on disk.
  * @param {String} filename Path to the file/directory
  */
