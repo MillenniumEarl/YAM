@@ -52,9 +52,11 @@
         "MR update game step 2 detail": "By clicking on 'Update completed', the game directory will be renamed, make sure it is not used by any other process!",
         "MR update completed": "Update completed",
         "MR cannot find game path": "The game path cannot be found",
-        "MR game already listed": "The game is already present: ",
         "MR no game found": "Could not retrieve information for {{gamename}}",
         "MR multiple games found": "Multiple occurrences of {{gamename}} have been found",
-        "MR game successfully added": "{{gamename}} added"
+        "MR game successfully added": "{{gamename}} added",
+        "MR game already listed": "The game already exists: {{gamename}}",
+        "MR multiple duplicate games": "{{number}} games are already present",
+        "MR no directory selected": "No directory selected"
     }
 }

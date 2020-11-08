@@ -84,7 +84,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @returns {Boolean}
      */
     exists: async function ioFileExists(filename) {
-        fs.existsSync(filename);
+        return fs.existsSync(filename);
     },
 });
 

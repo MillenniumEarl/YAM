@@ -124,7 +124,7 @@ async function manageLoginResult(result, username, password) {
         await window.IO.write(path, json);
 
         // Close the window
-        window.API.send("auth-result", "AUTHENTICATED", username, password);
+        window.API.send("auth-result", "AUTHENTICATED");
         window.API.send("login-window-closing");
     } else {
         // Show error message

@@ -255,7 +255,6 @@ contextBridge.exposeInMainWorld("IO", {
 contextBridge.exposeInMainWorld("F95", {
     UserData: new F95API.UserData(),
     GameInfo: new F95API.GameInfo(),
-    login: (username, password) => F95API.login(username, password),
     getUserData: () => F95API.getUserData(),
     getGameData: (name, searchMod) => F95API.getGameData(name, searchMod),
     getGameDataFromURL: (url) => F95API.getGameDataFromURL(url),

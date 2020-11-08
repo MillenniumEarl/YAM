@@ -196,18 +196,20 @@ ipcMain.on("main-window-closing", function ipcMainOnMainWindowClosing() {
     // Check is the window is maximized
     store.set("main-maximized", mainWindow.isMaximized());
 
-    closeWindow(mainWindow);
+    mainWindow.close();
+    mainWindow = null;
 });
 
 // Called when the login widnow want to be closed
 ipcMain.on("login-window-closing", function ipcMainOnLoginWindowClosing() {
     logger.silly("Closing login window");
-    closeWindow(loginWindow);
+    loginWindow.close();
+    loginWindow = null;
 });
 
 // Receive the result of the login operation
-ipcMain.on("auth-result", function ipcMainOnAuthResult(e, result, username, password) {
-    mainWindow.webContents.send("auth-result", result, username, password);
+ipcMain.on("auth-result", function ipcMainOnAuthResult(e, result) {
+    mainWindow.webContents.send("auth-result", ...result);
 });
 
 // Execute the file passed as parameter
@@ -341,15 +343,3 @@ app.on("window-all-closed", function appOnWindowAllClosed() {
     if (process.platform !== "darwin") app.quit();
 });
 //#endregion App-related events
-
-//#region Private methods
-/**
- * @private
- * Close the window and remove the reference.
- * @param {BrowserWindow} w Window to close
- */
-function closeWindow(w) {
-    w.close();
-    w = null;
-}
-//#endregion

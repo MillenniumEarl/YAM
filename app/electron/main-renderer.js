@@ -73,26 +73,13 @@ document.querySelector("#user-info").addEventListener("login", login);
 document
     .querySelector("#add-remote-game-btn")
     .addEventListener("click", async function onAddRemoteGame() {
-        let translationDialog = await window.API.translate(
-            "MR select game directory"
-        );
-        const openDialogOptions = {
-            title: translationDialog,
-            properties: ["openDirectory"],
-        };
-
-        const data = await window.API.invoke("open-dialog", openDialogOptions);
-
-        // No folder selected
-        if (data.filePaths.length === 0) return;
-
-        // Check if the game is already present
-        const gameFolderPaths = await getUnlistedGamesInArrayOfPath(data.filePaths);
+        // The user select a single folder
+        const gameFolderPaths = await selectGameDirectories(false);
         if (gameFolderPaths.length === 0) return;
         const gamePath = gameFolderPaths[0];
 
         // Ask the URL of the game
-        translationDialog = await window.API.translate("MR insert game url");
+        const translationDialog = await window.API.translate("MR insert game url");
         const promptDialogOptions = {
             title: translationDialog,
             label: "URL:",
@@ -120,20 +107,8 @@ document
 document
     .querySelector("#add-local-game-btn")
     .addEventListener("click", async function onAddLocalGame() {
-        const translationDialog = await window.API.translate(
-            "MR select game directory"
-        );
-        const openDialogOptions = {
-            title: translationDialog,
-            properties: ["openDirectory", "multiSelections"],
-        };
-        const data = await window.API.invoke("open-dialog", openDialogOptions);
-
-        // No folder selected
-        if (data.filePaths.length === 0) return;
-
-        // Check if the games are already present
-        const gameFolderPaths = await getUnlistedGamesInArrayOfPath(data.filePaths);
+        // The user select a single folder
+        const gameFolderPaths = await selectGameDirectories(false);
         if (gameFolderPaths.length === 0) return;
 
         // Obtain the data
@@ -145,6 +120,7 @@ document
 document
     .querySelector("#settings-password-toggle")
     .addEventListener("click", function onPasswordToggle() {
+        // Show/hide the password
         const input = document.getElementById("settings-password-txt");
 
         if (input.type === "password") input.type = "text";
@@ -163,7 +139,7 @@ document
             password: password,
         };
         const json = JSON.stringify(credentials);
-        window.IO.write(credPath, json);
+        await window.IO.write(credPath, json);
         const translation = await window.API.translate("MR credentials edited");
         sendToastToUser("info", translation);
     });
@@ -418,6 +394,35 @@ function login() {
 //#endregion Authentication
 
 //#region Adding game
+/**
+ * @private
+ * Let the user select one (or more) directory containing games.
+ * @param {Boolean} multipleSelection If the user can select more than one directory
+ * @returns {Promise<String[]>} List of directories
+ */
+async function selectGameDirectories(multipleSelection) {
+    // Local variables
+    const props = multipleSelection ? ["openDirectory", "multiSelections"] : ["openDirectory"];
+
+    // The user selects one (or more) folders
+    const openDialogOptions = {
+        title: await window.API.translate("MR select game directory"),
+        properties: props,
+    };
+    const data = await window.API.invoke("open-dialog", openDialogOptions);
+
+    // No folder selected
+    if (data.filePaths.length === 0) {
+        const translation = await window.API.translate("MR no directory selected");
+        sendToastToUser("warning", translation);
+        return [];
+    }
+
+    // Check if the game(s) is already present
+    const gameFolderPaths = await getUnlistedGamesInArrayOfPath(data.filePaths);
+    if (gameFolderPaths.length === 0) return [];
+}
+
 /**
  * @private
  * Create an empty *game-card* and add it in the DOM.
@@ -681,8 +686,10 @@ function getGameVersionFromName(name) {
  */
 async function getUnlistedGamesInArrayOfPath(paths) {
     // Local variables
+    const MAX_NUMBER_OF_PRESENT_GAMES_FOR_MESSAGES = 5;
     const gameFolderPaths = [];
     const listedGameNames = [];
+    const alreadyPresentGames = [];
 
     // Check if the game(s) is (are) already present
     const cardGames = document.querySelectorAll("game-card");
@@ -697,13 +704,25 @@ async function getUnlistedGamesInArrayOfPath(paths) {
         const unparsedName = path.split("\\").pop();
         const newGameName = cleanGameName(unparsedName);
 
-        // Check if it's already present
-        if (listedGameNames.includes(newGameName.toUpperCase())) {
-            const translationWarn = await window.API.translate("MR game already listed"); // This game is already present: ...
-            sendToastToUser("warning", translationWarn + newGameName);
+        // Check if it's not already present and add it to the list
+        if (!listedGameNames.includes(newGameName.toUpperCase())) gameFolderPaths.push(path);
+        else alreadyPresentGames.push(newGameName);
+    }
+
+    if (alreadyPresentGames.length <= MAX_NUMBER_OF_PRESENT_GAMES_FOR_MESSAGES) {
+        // List the game names only if there are few duplicated games
+        for (const gamename of alreadyPresentGames) {
+            // This game is already present: ...
+            const translation = await window.API.translate("MR game already listed", {
+                "gamename": gamename
+            });
+            sendToastToUser("warning", translation);
         }
-        // ... else add it to the list
-        else gameFolderPaths.push(path);
+    } else {
+        const translation = await window.API.translate("MR multiple duplicate games", {
+            "number": alreadyPresentGames.length
+        });
+        sendToastToUser("warning", translation);
     }
 
     return gameFolderPaths;
@@ -873,7 +892,7 @@ async function getUserDataFromF95() {
     const userdata = await window.F95.getUserData();
 
     // Check user data
-    if (userdata === null || !userdata) {
+    if (!userdata) {
         // Send error message
         const translation = await window.API.translate(
             "MR cannot retrieve user data"
@@ -907,12 +926,7 @@ window.API.receive("window-closing", function onWindowClosing() {
 });
 
 // Called when the result of the authentication are ready
-window.API.receive("auth-result", async function onAuthResult(args) {
-    // Parse args
-    const result = args[0];
-    const username = args[1];
-    const password = args[2];
-
+window.API.receive("auth-result", async function onAuthResult(result) {
     window.API.log.info(`Authentication result: ${result}`);
     if (result !== "AUTHENTICATED") {
         // Hide "new game" button
@@ -925,8 +939,6 @@ window.API.receive("auth-result", async function onAuthResult(args) {
 
     // Load data (session not shared between windows)
     try {
-        await window.F95.login(username, password);
-
         const translation = await window.API.translate("MR login successful");
         sendToastToUser("info", translation);
         logged = true;
