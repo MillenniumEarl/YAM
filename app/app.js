@@ -29,7 +29,7 @@ const appIcon = path.join(app.getAppPath(), "resources", "images", "icon.ico");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow, loginWindow;
+let mainWindow, loginWindow, messageBox;
 
 // Variable used to close the main windows
 let closeMainWindow = false;
@@ -46,12 +46,12 @@ const store = new Store();
  * @param {Object.<string, number>} size Default size of the window
  * @param {Object.<string, number>} minSize Minimum size of the window
  * @param {Boolean} hasFrame Set if the window has a non-Chrome contourn
- * @param {Boolean} isModal Set if the window is a modal window
+ * @param {BrowserWindow} parent Parent window for modal dialog
  * @param {String} preloadPath Path to the preload script
  */
-function createWindow(size, minSize, preloadPath, hasFrame, isModal) {
+function createWindow(size, minSize, preloadPath, hasFrame, parent) {
     // Create the browser window.
-    return new BrowserWindow({
+    const w = new BrowserWindow({
         // Set window size
         width: size.width,
         height: size.height,
@@ -65,7 +65,8 @@ function createWindow(size, minSize, preloadPath, hasFrame, isModal) {
         frame: hasFrame !== undefined ? hasFrame : true,
 
         // Set window behaviour
-        modal: isModal !== undefined ? isModal : false,
+        parent: parent !== undefined ? parent : null,
+        modal: parent !== undefined,
 
         // Set security settings
         webPreferences: {
@@ -78,6 +79,13 @@ function createWindow(size, minSize, preloadPath, hasFrame, isModal) {
             preload: preloadPath,
         },
     });
+    
+    // Show the window when is fully loaded (set the listener)
+    w.webContents.on("did-finish-loading", function () {
+        w.show();
+    });
+
+    return w;
 }
 
 /**
@@ -153,17 +161,49 @@ function createLoginWindow(parent) {
     };
 
     // Create the browser window (minSize = size)
-    const w = createWindow(size, size, preload, false, true);
+    const w = createWindow(size, size, preload, false, parent);
 
     // Set window properties
     w.setResizable(false);
-    w.setParentWindow(parent);
     
     // Disable default menu
     if (!isDev) w.setMenu(null);
 
     // Load the html file
     const htmlPath = path.join(htmlDir, "login.html");
+    w.loadFile(htmlPath);
+
+    return w;
+}
+
+function createMessagebox(parent, type, title, message) {
+    // Local variables
+    const preload = path.join(preloadDir, "messagebox-preload.js");
+
+    // Set size
+    const size = {
+        width: 450,
+        height: 150
+    };
+
+    // Create the browser window (minSize = size)
+    const w = createWindow(size, size, preload, false, parent);
+
+    // Set window properties
+    w.setResizable(false);
+
+    // Disable default menu
+    if (!isDev) w.setMenu(null);
+
+    w.webContents.once("dom-ready", () => {
+        w.webContents.send("messagebox-arguments", type, title, message);
+        ipcMain.once("messagebox-resize", (e, args) => {
+            w.setSize(args[0], args[1], false);
+        });
+    });
+
+    // Load the html file
+    const htmlPath = path.join(htmlDir, "messagebox.html");
     w.loadFile(htmlPath);
 
     return w;
@@ -205,6 +245,18 @@ ipcMain.on("login-window-closing", function ipcMainOnLoginWindowClosing() {
     logger.silly("Closing login window");
     loginWindow.close();
     loginWindow = null;
+});
+
+// Called when a messagebox is closed
+ipcMain.on("messagebox-closing", function ipcMainOnMessageboxClosing() {
+    logger.silly("Closing messagebox");
+    messageBox.close();
+    messageBox = null;
+});
+
+// Called when the main window require a new messagebox
+ipcMain.on("require-messagebox", function onRequireMessagebox(e, type, title, message) {
+    messageBox = createMessagebox(mainWindow, type, title, message);
 });
 
 // Receive the result of the login operation

@@ -50,7 +50,7 @@ const validSendChannels = [
     "credentials-path",
     "translate",
 ];
-
+ipcRenderer.send("require-messagebox", "warning", "Questo è un titolo particolarmente lungo che dovrebbe venir troncato", "Questo è un messaggio molto lungo che dovrebbe andare a capo una volta raggiunta la dimensione massima del container.");
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
