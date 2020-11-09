@@ -4,21 +4,23 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src
+        https://f95zone.to;">
     <title>F95 Game Updater</title>
 
     <!-- Local resources link -->
     <!-- Material icons loaded in ./main-style.css -->
-    <link type="text/css" href="../../node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" />
+    <link type="text/css" href="../../node_modules/@materializecss/materialize/dist/css/materialize.min.css" rel="stylesheet" />
     <link type="text/css" href="../src/styles/main.css" rel="stylesheet" />
     <link type="text/css" href="../src/styles/material-button.css" rel="stylesheet" />
     <link type="text/css" href="../src/styles/navbar.css" rel="stylesheet" />
 
     <!-- Load local script -->
     <script type="text/javascript" src="../electron/main-renderer.js" defer></script>
-    <script type="text/javascript" src="../../node_modules/materialize-css/dist/js/materialize.min.js"></script>
-    <script type="text/javascript" src="../src/components/game-card/game-card.js"></script>
-    <script type="text/javascript" src="../src/components/user-info/user-info.js"></script>
+    <script type="text/javascript" src="../../node_modules/@materializecss/materialize/dist/js/materialize.min.js" defer>
+    </script>
+    <script type="text/javascript" src="../src/components/game-card/game-card.js" defer></script>
+    <script type="text/javascript" src="../src/components/user-info/user-info.js" defer></script>
 </head>
 
 <body>

@@ -202,7 +202,7 @@ class GameCard extends HTMLElement {
     async _downloadGamePreview(name, previewSrc) {
         // Check if it's possible to download the image
         if (previewSrc.trim() === "") return null;
-        if (previewSrc.trim() === "../../resources/images/f95-logo.jpg")
+        if (previewSrc.trim() === "../../resources/images/f95-logo.webp")
             return null;
 
         const gameCacheDir = await window.API.invoke("games-data-dir");
@@ -247,7 +247,7 @@ class GameCard extends HTMLElement {
      */
     async _parsePreviewPath(src) {
         // First check if the source is valid, if not return the default image
-        if (!src) return "../../resources/images/f95-logo.jpg";
+        if (!src) return "../../resources/images/f95-logo.webp";
 
         // Then check if it's a URL
         try {
@@ -264,7 +264,7 @@ class GameCard extends HTMLElement {
             if (exists) return previewPath;
 
             // Something wrong, return the default image
-            else return "../../resources/images/f95-logo.jpg";
+            else return "../../resources/images/f95-logo.webp";
         }
     }
     //#endregion Private methods

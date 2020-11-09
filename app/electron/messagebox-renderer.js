@@ -13,13 +13,13 @@ window.API.once("messagebox-arguments", async function (type, title, message) {
     const iconElement = document.getElementById("icon");
     switch (type) {
     case "info":
-        iconElement.setAttribute("src", window.API.join(imagesPath, "info.png"));
+        iconElement.setAttribute("src", window.API.join(imagesPath, "info.webp"));
         break;
     case "warning":
-        iconElement.setAttribute("src", window.API.join(imagesPath, "warning.png"));
+        iconElement.setAttribute("src", window.API.join(imagesPath, "warning.webp"));
         break;
     case "error":
-        iconElement.setAttribute("src", window.API.join(imagesPath, "error.png"));
+        iconElement.setAttribute("src", window.API.join(imagesPath, "error.webp"));
         break;
     default:
         return;

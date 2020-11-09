@@ -203,7 +203,7 @@ async function listAvailableLanguages() {
             "resources",
             "images",
             "flags",
-            iso + ".png"
+            `${iso}.webp`
         );
         option.setAttribute("data-icon", flagPath);
         option.textContent = iso.toUpperCase();

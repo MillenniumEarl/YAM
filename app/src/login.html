@@ -4,17 +4,19 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src
+        https://f95zone.to;">
     <title>Login</title>
 
     <!-- Local resources link -->
     <!-- Material icons loaded in ./login.css -->
-    <link type="text/css" href="../../node_modules/materialize-css/dist/css/materialize.min.css" rel="stylesheet" />
+    <link type="text/css" href="../../node_modules/@materializecss/materialize/dist/css/materialize.min.css"
+        rel="stylesheet" />
     <link type="text/css" href="../src/styles/login.css" rel="stylesheet" />
     <link type="text/css" href="../src/styles/material-button.css" rel="stylesheet" />
 
     <!-- Load local script -->
-    <script type="text/javascript" src="../../node_modules/materialize-css/dist/js/materialize.min.js" defer></script>
+    <script type="text/javascript" src="../../node_modules/@materializecss/materialize/dist/js/materialize.min.js" defer></script>
     <script type="text/javascript" src="../electron/login-renderer.js" defer></script>
 </head>
 
