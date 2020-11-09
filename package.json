@@ -31,6 +31,7 @@
         "node": ">=10.0"
     },
     "dependencies": {
+        "@materializecss/materialize": "^1.0.0",
         "electron-is-dev": "^1.2.0",
         "electron-log": "^4.2.4",
         "electron-online": "^1.0.0",
@@ -42,7 +43,6 @@
         "i18next-electron-language-detector": "0.0.10",
         "image-downloader": "^4.0.1",
         "material-design-icons": "^3.0.1",
-        "materialize-css": "materializecss/materialize#v1-dev",
         "string-similarity": "^4.0.2"
     },
     "devDependencies": {
