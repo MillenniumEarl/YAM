@@ -115,7 +115,7 @@ document
     .querySelector("#add-local-game-btn")
     .addEventListener("click", async function onAddLocalGame() {
         // The user select a single folder
-        const gameFolderPaths = await selectGameDirectories(false);
+        const gameFolderPaths = await selectGameDirectories(true);
         if (gameFolderPaths.length === 0) return;
 
         // Obtain the data
@@ -405,6 +405,7 @@ async function selectGameDirectories(multipleSelection) {
     // Check if the game(s) is already present
     const gameFolderPaths = await getUnlistedGamesInArrayOfPath(data.filePaths);
     if (gameFolderPaths.length === 0) return [];
+    else return gameFolderPaths;
 }
 
 /**
@@ -464,7 +465,6 @@ function addEventListenerToGameCard(gamecard) {
 
     gamecard.addEventListener("update", function gameCardUpdate(e) {
         if (!e.target) return;
-
         guidedGameUpdate(gamecard, e.detail.gameDirectory, e.detail.url);
     });
 
@@ -605,7 +605,7 @@ async function getGameFromPath(path) {
     }
 
     // Add data to the parsed game info
-    const copy = Object.assign({}, promiseResult[0]); // Copy reference to object
+    const converted = window.GIE.convert(promiseResult[0]);
     const onlineGame = promiseResult[0];
     const onlineVersion = onlineGame.version;
     onlineGame.gameDirectory = path;
@@ -616,8 +616,7 @@ async function getGameFromPath(path) {
     card.info = onlineGame;
     card.saveGameData();
     if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
-        const promise = new Promise((resolve) => resolve(copy));
-        card.notificateUpdate(promise);
+        card.notificateUpdate(converted);
     }
 
     // Game added correctly
@@ -747,8 +746,9 @@ async function checkVersionCachedGames() {
 
         // Trigger the component
         if (update) {
-            const promise = window.F95.getGameDataFromURL(card.info.url);
-            card.notificateUpdate(promise);
+            const gameinfo = await window.F95.getGameDataFromURL(card.info.url);
+            const extended = window.GIE.convert(gameinfo);
+            card.notificateUpdate(extended);
         }
     }
 }
@@ -911,6 +911,17 @@ window.API.receive("auth-result", async function onAuthResult(result) {
 
     // Load data (session not shared between windows)
     try {
+        // Check path
+        const credPath = await window.API.invoke("credentials-path");
+        if (!window.IO.pathExists(credPath)) return;
+
+        // Parse credentials
+        const json = await window.IO.read(credPath);
+        const credentials = JSON.parse(json);
+        
+        const res = await window.F95.login(credentials.username, credentials.password);
+        if(!res.success) return;
+
         const translation = await window.API.translate("MR login successful");
         sendToastToUser("info", translation);
 

@@ -315,14 +315,11 @@ class GameCard extends HTMLElement {
     /**
      * @public
      * Used to notificate the GameCard of a new version of the game.
-     * @param {Promise<GameInfo>} promise promise Promise of the game data scraping
+     * @param {GameInfoExtended} promise promise Promise of the game data scraping
      */
-    async notificateUpdate(promise) {
+    async notificateUpdate(gameinfo) {
         // Show the progress bar
         this.progressbar.style.display = "block";
-
-        // Await game data
-        const info = await promise;
 
         // An update is available, show the button
         this.querySelector(".update-p").style.display = "block";
@@ -331,12 +328,12 @@ class GameCard extends HTMLElement {
         const lenght = this.updateBtn.childNodes.length;
         const element = this.updateBtn.childNodes[lenght - 1];
         const translation = await window.API.translate("GC update", {
-            "version": info.version
+            "version": gameinfo.version
         });
         element.textContent = translation;
 
         // Set update data
-        this._updateInfo = info;
+        this._updateInfo = gameinfo;
 
         // Hide progressbar
         this.progressbar.style.display = "none";

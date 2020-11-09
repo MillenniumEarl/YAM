@@ -11,6 +11,9 @@ const { contextBridge, ipcRenderer } = require("electron");
 const F95API = require("f95api");
 const logger = require("electron-log");
 
+// Set F95API logger level
+F95API.loggerLevel = "warn";
+
 // Array of valid render-to-main channels
 const validSendChannels = [
     "auth-result",

@@ -31,6 +31,9 @@ const {
 } = require("../src/scripts/io-operations.js");
 const GameInfoExtended = require("../src/scripts/classes/game-info-extended.js");
 
+// Set F95API logger level
+F95API.loggerLevel = "warn";
+
 // Array of valid main-to-render channels
 const validReceiveChannels = ["window-closing", "auth-result"];
 
@@ -244,6 +247,7 @@ contextBridge.exposeInMainWorld("IO", {
 contextBridge.exposeInMainWorld("F95", {
     UserData: new F95API.UserData(),
     logged: F95API.isLogged,
+    login: (username, password) => F95API.login(username, password),
     getUserData: () => F95API.getUserData(),
     getGameData: (name, searchMod) => F95API.getGameData(name, searchMod),
     getGameDataFromURL: (url) => F95API.getGameDataFromURL(url),
@@ -259,6 +263,10 @@ contextBridge.exposeInMainWorld("F95", {
 // Expose the GameInfoExtended custom class
 contextBridge.exposeInMainWorld("GIE", {
     gamedata: new GameInfoExtended(),
+    convert: function convert(gameinfo) {
+        // Create a new object from the data
+        return Object.assign(new GameInfoExtended(), gameinfo);
+    },
     save: function saveGameInfo(data, path) {
         // Create a new object from the data
         const gameinfo = Object.assign(new GameInfoExtended(), data);
