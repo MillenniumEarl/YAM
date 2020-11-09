@@ -42,7 +42,7 @@ const store = new Store();
 //#region Windows creation methods
 /**
  * @private
- * Create a window.
+ * Create a simple window.
  * @param {Object.<string, number>} size Default size of the window
  * @param {Object.<string, number>} minSize Minimum size of the window
  * @param {Boolean} hasFrame Set if the window has a non-Chrome contourn
@@ -148,6 +148,7 @@ function createMainWindow() {
 /**
  * @private
  * Create the login window for the application.
+ * @param {BrowserWindow} parent The parent window
  * @returns {BrowserWindow} The login window object
  */
 function createLoginWindow(parent) {
@@ -176,6 +177,15 @@ function createLoginWindow(parent) {
     return w;
 }
 
+/**
+ * @private
+ * Create a messagebox with the specified parameters.
+ * @param {BrowserWindow} parent The parent window
+ * @param {String} type Select the icon of the messagebox between `info`/`warning`/`error`
+ * @param {String} title Title of the window
+ * @param {String} message Message of the window
+ * @returns {BrowserWindow} The messagebox
+ */
 function createMessagebox(parent, type, title, message) {
     // Local variables
     const preload = path.join(preloadDir, "messagebox-preload.js");

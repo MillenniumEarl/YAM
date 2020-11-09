@@ -288,29 +288,6 @@ function cleanGameName(name) {
 }
 
 /**
- * @private
- * Wrapper to show a plain message box to the user.
- * @param {String} type Type of message (*error/warning/...*)
- * @param {String} title Title of the window
- * @param {String} message Message to the user
- * @param {String} detail Submessage to the user
- */
-function sendMessageToUserWrapper(type, title, message, detail) {
-    // Send the error message to the user if the game is not found
-    const warningDialogOptions = {
-        type: type,
-        buttons: ["OK"],
-        defaultId: 0,
-        title: title,
-        message: message,
-        detail: detail,
-    };
-
-    // Send a message to the user
-    window.API.invoke("message-dialog", warningDialogOptions);
-}
-
-/**
  * Show a toast in the top-right of the screen.
  * @param {String} type Type of message (*error/warning/...*)
  * @param {String} message Message to the user
@@ -577,12 +554,10 @@ async function getGameFromPaths(paths) {
         await getGameFromPath(path)
             .catch(function catchErrorWhenAddingGameFromPath(error) {
                 // Send error message
-                sendMessageToUserWrapper(
-                    "error",
-                    "Unexpected error",
-                    `Cannot retrieve game data (${path}), unexpected error: ${error}`,
-                    ""
-                );
+                window.API.send("require-messagebox", 
+                    "error", 
+                    "Unexpected error", 
+                    `Cannot retrieve game data (${path}), unexpected error: ${error}`);
                 window.API.log.error(
                     `Unexpected error while retrieving game data from path: ${path}. ${error}`
                 );
