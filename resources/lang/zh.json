@@ -57,6 +57,7 @@
        "MR game successfully added": "已添加{{gamename}}",
        "MR game already listed": "游戏已经列出:{{gamename}}",
        "MR multiple duplicate games": "{{number}}个游戏已经存在",
-       "MR no directory selected": "未选择目录"
+       "MR no directory selected": "未选择目录",
+       "MBR close button": "关"
     }
 }

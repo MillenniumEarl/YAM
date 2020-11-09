@@ -57,6 +57,7 @@
         "MR game successfully added": "{{gamename}} ajouté",
         "MR game already listed": "Le jeu est déjà là: {{gamename}}",
         "MR multiple duplicate games": "{{number}} jeux sont déjà présents",
-        "MR no directory selected": "Aucun répertoire sélectionné"
+        "MR no directory selected": "Aucun répertoire sélectionné",
+        "MBR close button": "Proche"
     }
 }

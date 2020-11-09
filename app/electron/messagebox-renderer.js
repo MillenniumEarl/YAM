@@ -25,6 +25,10 @@ window.API.once("messagebox-arguments", async function (type, title, message) {
         return;
     }
 
+    // Translate the button
+    const translation = await window.API.translate("MBR close button");
+    document.getElementById("close-btn").innerText = translation;
+
     // Get the body size
     const PADDING_FOR_SIDE = 15;
     const width = document.body.clientWidth + 3 * PADDING_FOR_SIDE;

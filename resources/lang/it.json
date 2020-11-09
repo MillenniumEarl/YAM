@@ -57,6 +57,7 @@
         "MR no game found": "Impossibile recuperare le informazioni per {{gamename}}",
         "MR multiple games found": "Sono state rilevate più occorrenze di {{gamename}}",
         "MR game successfully added": "{{gamename}} aggiunto",
-        "MR no directory selected": "Nessuna cartella selezionata"
+        "MR no directory selected": "Nessuna cartella selezionata",
+        "MBR close button": "Chiudi"
     }
 }

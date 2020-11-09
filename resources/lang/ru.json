@@ -57,6 +57,7 @@
         "MR game successfully added": "{{gamename}} добавлено",
         "MR game already listed": "Игра уже присутствует: {{gamename}}",
         "MR multiple duplicate games": "{{number}} игр уже есть", 
-        "MR no directory selected": "Каталог не выбран"
+        "MR no directory selected": "Каталог не выбран",
+        "MBR close button": "близко"
     }
 }
