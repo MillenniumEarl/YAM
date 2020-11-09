@@ -13,7 +13,7 @@ const Store = require("electron-store");
 
 // Modules from file
 const { run } = require("./src/scripts/io-operations.js");
-const shared = require("./src/scripts/shared.js");
+const shared = require("./src/scripts/classes/shared.js");
 const localization = require("./src/scripts/localization.js");
 
 // Manage unhandled errors
