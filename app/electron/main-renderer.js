@@ -2,7 +2,6 @@
 
 /* Global variables */
 let lastGameCardID = 0;
-let logged = false;
 
 // Manage unhandled errors
 window.onerror = function (message, source, lineno, colno, error) {
@@ -108,7 +107,7 @@ document
         const card = addGameCard();
         const info = await window.F95.getGameDataFromURL(url);
         card.info = info;
-        card.info.gameDir = gamePath;
+        card.info.gameDirectory = gamePath;
         card.saveGameData();
     });
 
@@ -466,17 +465,7 @@ function addEventListenerToGameCard(gamecard) {
     gamecard.addEventListener("update", function gameCardUpdate(e) {
         if (!e.target) return;
 
-        guidedGameUpdate(gamecard, e.detail.gameDir, e.detail.url);
-
-        // Download and install (first hosting platoform in list)
-        // !!! Against the guidelines: DON'T DO IT !!!
-        // let downloadInfo = e.detail["downloadInfo"];
-        // for (let di of downloadInfo) {
-        //   if (di.supportedOS.includes(window.API.platform)) {
-        //     di.download(gameDir);
-        //     break;
-        //   }
-        // }
+        guidedGameUpdate(gamecard, e.detail.gameDirectory, e.detail.url);
     });
 
     gamecard.addEventListener("delete", async function gameCardDelete(e) {
@@ -526,19 +515,19 @@ function addEventListenerToGameCard(gamecard) {
         if (data.checkboxChecked && e.detail.savePaths && gamecard.info.name) {
             const savePaths = e.detail.savePaths;
             const exportedSavesDir = await window.API.invoke("savegames-data-dir");
-            const gameDir = window.API.join(exportedSavesDir, cleanGameName(gamecard.info.name));
-            await window.IO.mkdir(gameDir);
+            const gameDirectory = window.API.join(exportedSavesDir, cleanGameName(gamecard.info.name));
+            await window.IO.mkdir(gameDirectory);
             savePaths.forEach(async function copySaveGame(path) {
                 const name = path.split("\\").pop();
-                const newName = window.API.join(gameDir, name);
+                const newName = window.API.join(gameDirectory, name);
                 await window.IO.copy(path, newName);
             });
         }
 
         // Delete also game files
         if (data.response === 1) {
-            const gameDir = e.detail.gameDir;
-            await window.IO.deleteFolder(gameDir);
+            const gameDirectory = e.detail.gameDirectory;
+            await window.IO.deleteFolder(gameDirectory);
         }
 
         // Remove the game data
@@ -619,7 +608,7 @@ async function getGameFromPath(path) {
     const copy = Object.assign({}, promiseResult[0]); // Copy reference to object
     const onlineGame = promiseResult[0];
     const onlineVersion = onlineGame.version;
-    onlineGame.gameDir = path;
+    onlineGame.gameDirectory = path;
     onlineGame.version = version;
 
     // Update local data
@@ -784,7 +773,7 @@ function openPage(pageID) {
     document.getElementById(pageID).style.display = "block";
 
     // Hide/show the add game button
-    if (pageID === "main-games-tab" && logged)
+    if (pageID === "main-games-tab" && window.F95.logged)
         document.querySelector("#fab-add-game-btn").style.display = "block";
     else document.querySelector("#fab-add-game-btn").style.display = "none";
 }
@@ -924,7 +913,6 @@ window.API.receive("auth-result", async function onAuthResult(result) {
     try {
         const translation = await window.API.translate("MR login successful");
         sendToastToUser("info", translation);
-        logged = true;
 
         // Show "new game" button
         document.querySelector("#fab-add-game-btn").style.display = "block";

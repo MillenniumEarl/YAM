@@ -34,6 +34,11 @@
     color: var(--text-on-primary-gc);
 }
 
+/* Hide the card at first */
+#gc-card {
+    display: none;
+}
+
 /*### Class elements ###*/
 .inline {
     display: inline-block;
@@ -51,7 +56,6 @@
 /* Handles properties for the entire body */
 .card {
     max-width: 300px;
-    /*height: 300px; */
     background-color: var(--primary-gc);
     font-family: Roboto;
 }
@@ -69,6 +73,13 @@
     color: black;
 }
 
+.preload-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100%;
+}
+
 /*### Generic elements ###*/
 /*Manage the style for the preload bar*/
 div.progress {
@@ -81,7 +92,7 @@ div.progress {
     background-color: var(--secondary-app);
 }
 
-/* Set font family for <span> tag*/
+/* Set font family for <span> tag */
 pre {
     font-family: Roboto;
 }

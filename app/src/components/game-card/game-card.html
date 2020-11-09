@@ -13,7 +13,25 @@
 ></script>
 <script type="text/javascript" src="components/game-card.js"></script>
 
-<div class="card medium hoverable">
+<div class="card medium" id="gc-card-preloader">
+  <div class="card-content preload-container">
+    <div class="preloader-wrapper big active center-align">
+      <div class="spinner-layer spinner-red-only">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card medium hoverable" id="gc-card">
   <!-- Click on the image to show the hidden side of the card -->
   <div class="card-image waves-effect waves-block waves-light">
     <img

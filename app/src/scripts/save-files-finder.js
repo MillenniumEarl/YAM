@@ -26,7 +26,7 @@ const userDataDir =
 /**
  * @protected
  * Get the paths of the saves for a specific game.
- * @param {GameInfo} gameinfo Data of the game
+ * @param {GameInfoExtended} gameinfo Data of the game
  * @returns {Promise<String[]>} List of paths
  */
 module.exports.findSavesPath = async function findSavesPath(gameinfo) {
@@ -56,8 +56,8 @@ module.exports.findSavesPath = async function findSavesPath(gameinfo) {
 /**
  * @private
  * Obtain the dir containing the saves.
- * @param {GameInfo} gameinfo Data of the game
- * @returns {Promise<String>} Base directory where the saves are stored or null if no dir is available
+ * @param {GameInfoExtended} gameinfo Data of the game
+ * @returns {Promise<String>} Base directory where the saves are stored or `null` if no dir is available
  */
 async function _getSaveDir(gameinfo) {
     switch (gameinfo.engine) {

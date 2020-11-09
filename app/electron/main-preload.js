@@ -29,7 +29,7 @@ const {
     readFileSync,
     exists,
 } = require("../src/scripts/io-operations.js");
-const savesFinder = require("../src/scripts/save-files-finder.js");
+const GameInfoExtended = require("../src/scripts/classes/game-info-extended.js");
 
 // Array of valid main-to-render channels
 const validReceiveChannels = ["window-closing", "auth-result"];
@@ -59,10 +59,6 @@ contextBridge.exposeInMainWorld("API", {
      * Directory of the app.js file.
      */
     appDir: __dirname.replace("electron", ""),
-    /**
-     * OS platform of the current device.
-     */
-    platform: process.platform,
     /**
      * Send an asynchronous request via IPC and wait for a response.
      * @param {String} channel Communication channel
@@ -225,14 +221,6 @@ contextBridge.exposeInMainWorld("IO", {
         fs.renameSync(currPath, newPath);
     },
     /**
-     * Obtain the saves path for a specific game.
-     * @param {F95API.GameInfo} gameinfo 
-     * @returns {Promise<String[]>}
-     */
-    findSavesPath: async function ioFindSavesPath(gameinfo) {
-        return savesFinder.findSavesPath(gameinfo);
-    },
-    /**
      * Create a directory.
      * @param {String} dirname Path to new dir
      */
@@ -255,10 +243,47 @@ contextBridge.exposeInMainWorld("IO", {
 // Expose the F95API
 contextBridge.exposeInMainWorld("F95", {
     UserData: new F95API.UserData(),
-    GameInfo: new F95API.GameInfo(),
+    logged: F95API.isLogged,
     getUserData: () => F95API.getUserData(),
     getGameData: (name, searchMod) => F95API.getGameData(name, searchMod),
     getGameDataFromURL: (url) => F95API.getGameDataFromURL(url),
-    checkGameUpdates: (gameinfo) => F95API.checkIfGameHasUpdate(gameinfo),
-    deserialize:(json) => F95API.GameInfo.fromJSON(json),
+    checkGameUpdates: function checkGameUpdates(data) {
+        // Create a new object from the data
+        const gameinfo = Object.assign(new GameInfoExtended(), data);
+
+        // This method require GameInfo but GameInfoExtended is extended from GameInfo
+        return F95API.checkIfGameHasUpdate(gameinfo);
+    },
+});
+
+// Expose the GameInfoExtended custom class
+contextBridge.exposeInMainWorld("GIE", {
+    gamedata: new GameInfoExtended(),
+    save: function saveGameInfo(data, path) {
+        // Create a new object from the data
+        const gameinfo = Object.assign(new GameInfoExtended(), data);
+
+        // Save the data
+        gameinfo.save(path);
+    },
+    load: function loadGameInfo(path) {
+        // Load data
+        const gameinfo = new GameInfoExtended();
+        gameinfo.load(path);
+        
+        // Return data (will be frozen)
+        return gameinfo;
+    },
+    saves: async function getGameSaves(data) {
+        // Create a new object from the data
+        const gameinfo = Object.assign(new GameInfoExtended(), data);
+
+        return await gameinfo.getSaves();
+    },
+    launcher: function getGameLauncher(data) {
+        // Create a new object from the data
+        const gameinfo = Object.assign(new GameInfoExtended(), data);
+
+        return gameinfo.getGameLauncher();
+    }
 });
