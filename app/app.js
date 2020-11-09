@@ -209,6 +209,7 @@ function createMessagebox(parent, type, title, message) {
         w.webContents.send("messagebox-arguments", type, title, message);
         ipcMain.once("messagebox-resize", (e, args) => {
             w.setSize(args[0], args[1], false);
+            w.center();
         });
     });
 
@@ -265,8 +266,8 @@ ipcMain.on("messagebox-closing", function ipcMainOnMessageboxClosing() {
 });
 
 // Called when the main window require a new messagebox
-ipcMain.on("require-messagebox", function onRequireMessagebox(e, type, title, message) {
-    messageBox = createMessagebox(mainWindow, type, title, message);
+ipcMain.on("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
+    messageBox = createMessagebox(mainWindow, ...args);
 });
 
 // Receive the result of the login operation

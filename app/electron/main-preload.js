@@ -49,6 +49,7 @@ const validSendChannels = [
     "savegames-data-dir",
     "credentials-path",
     "translate",
+    "require-messagebox",
 ];
 
 // Expose protected methods that allow the renderer process to use

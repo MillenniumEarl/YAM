@@ -7,6 +7,14 @@ let logged = false;
 // Manage unhandled errors
 window.onerror = function (message, source, lineno, colno, error) {
     window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
+
+    window.API.send("require-messagebox",
+        "error",
+        "Unhandled error",
+        `${message} at line ${lineno}:${colno}.\n
+        It is advisable to terminate the application to avoid unpredictable behavior.\n
+        ${error.stack}\n
+        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`);
 };
 
 //#region Events
