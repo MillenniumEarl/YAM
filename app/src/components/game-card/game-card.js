@@ -60,7 +60,7 @@ class GameCard extends HTMLElement {
      */
     play() {
         // Save the current date as last played session
-        this.info.lastPlayed = new Date.now();
+        this.info.lastPlayed = Date.now();
 
         // Raise the event
         const playClickEvent = new CustomEvent("play", {
@@ -196,21 +196,21 @@ class GameCard extends HTMLElement {
      * @private
      * Download the game cover image.
      * @param {String} name Game name
-     * @param {String} previewSrc Current URL of the image
+     * @param {String} source Current URL of the image
      * @returns {Promise<String>} Name of the image or `null` if it was not downloaded
      */
-    async _downloadGamePreview(name, previewSrc) {
+    async _downloadGamePreview(name, source) {
         // Check if it's possible to download the image
-        if (previewSrc.trim() === "") return null;
-        if (previewSrc.trim() === "../../resources/images/f95-logo.webp")
+        if (source.trim() === "") return null;
+        if (source.trim() === "../../resources/images/f95-logo.webp")
             return null;
 
         const gameCacheDir = await window.API.invoke("games-data-dir");
-        const localPath = window.API.join(gameCacheDir, previewSrc);
+        const localPath = window.API.join(gameCacheDir, source);
         if (await window.IO.pathExists(localPath)) return null; // Already downloaded
 
         // Get image extension
-        const splitted = previewSrc.split(".");
+        const splitted = source.split(".");
         const extension = splitted.pop();
         let imageName = `${name.replaceAll(" ", "")}_preview.${extension}`;
         const rx = /[/\\?%*:|"<>]/g; // Remove invalid chars
@@ -218,7 +218,7 @@ class GameCard extends HTMLElement {
 
         // Download image
         const path = await window.API.downloadImage(
-            previewSrc,
+            source,
             window.API.join(gameCacheDir, imageName)
         );
 

@@ -760,12 +760,9 @@ async function checkVersionCachedGames() {
  * @param {String} pageID
  */
 function openPage(pageID) {
-    // Local variables
-    let i;
-
     // Hide all elements with class="tabcontent" by default
     const tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
+    for (let i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
     }
 
