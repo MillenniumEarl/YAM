@@ -37,7 +37,7 @@
         "MR cannot retrieve user data": "No se pueden recuperar los datos del usuario de F95",
         "MR login successful": "Autenticación exitosa",
         "MR cannot login": "No se puede autenticar: {{error}}",
-        "MR credentials editeds": "Credenciales editadas",
+        "MR credentials edited": "Credenciales editadas",
         "MR select game directory": "Seleccionar directorio de juegos",
         "MR confirm deletion": "Confirmar eliminación",
         "MR message confirm deletion": "¿Realmente quieres eliminar el juego?",

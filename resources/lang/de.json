@@ -1,7 +1,7 @@
 {
     "translation": {
-        "Login-username-label": "Benutzername",
-        "Login-password-label": "Passwort",
+        "login-username-label": "Benutzername",
+        "login-password-label": "Passwort",
         "login-error-message": "Authentifizierung in der F95Zone",
         "login-login-btn": "Anmelden bei F95",
         "login-cancel-btn": "Abbrechen",
