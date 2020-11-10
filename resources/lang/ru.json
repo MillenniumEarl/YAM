@@ -12,6 +12,9 @@
         "settings-username-txt-label": "Имя пользователя",
         "settings-password-txt-label": "Пароль",
         "settings-save-credentials-btn": "Сохранить",
+        "urli-title": "Введите URL игры на F95Zone",
+        "urli-accept-btn": "Подтверждение",
+        "urli-cancel-btn": "Отмена",
         "LR invalid username": "Недействительное имя пользователя",
         "LR invalid password": "Недействительный пароль",
         "LR error during authentication": "Ошибка во время аутентификации: {{error}}",
@@ -36,7 +39,6 @@
         "MR cannot login": "Невозможно войти в систему: {{error}}",
         "MR credentials edited": "Учетные данные отредактированы",
         "MR select game directory": "Выбрать каталог игры",
-        "MR insert game url": "Введите URL игры на F95Zone",
         "MR confirm deletion": "Подтвердить удаление",
         "MR message confirm deletion": "Вы действительно хотите удалить игру ? ",
         "MR keep saves checkbox": "Сохранить сохранения(если возможно)",
@@ -58,6 +60,7 @@
         "MR game already listed": "Игра уже присутствует: {{gamename}}",
         "MR multiple duplicate games": "{{number}} игр уже есть", 
         "MR no directory selected": "Каталог не выбран",
-        "MBR close button": "близко"
+        "MBR close button": "близко",
+        "UI invalid url": "Введенный URL недействителен"
     }
 }

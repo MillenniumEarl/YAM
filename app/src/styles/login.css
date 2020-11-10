@@ -33,19 +33,6 @@ div.input-field{
     color: var(--text-on-primary);
 }
 
-/*### Handles colors for buttons generated with materialize-css ###*/
-#login-login-btn,
-#login-login-btn:hover {
-    background-color: var(--button-accept-color);
-    color: var(--text-on-primary);
-}
-
-#login-cancel-btn,
-#login-cancel-btn:hover {
-    background-color: var(--button-neutral-color);
-    color: var(--text-on-primary);
-}
-
 /*### Input textbox ###*/
 #login-username,
 #login-password {

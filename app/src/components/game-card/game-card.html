@@ -1,9 +1,5 @@
 <!-- Local resources link -->
-<link
-  type="text/css"
-  href="../../node_modules/@materializecss/materialize/dist/css/materialize.min.css"
-  rel="stylesheet"
-/>
+<link type="text/css" href="styles/material-button.css" rel="stylesheet" />
 <link type="text/css" href="styles/game-card.css" rel="stylesheet" />
 
 <!-- Load local script -->
@@ -56,17 +52,17 @@
     <!-- Action buttons -->
     <div class="card-action">
       <div class="action-p">
-        <a class="waves-effect waves-light btn localizable" id="gc-play-game-btn">
+        <a class="waves-effect waves-light btn localizable accept-button" id="gc-play-game-btn">
           <i class="material-icons left">gamepad</i>
           Play
         </a>
-        <a class="waves-effect waves-light btn localizable" id="gc-delete-game-btn">
+        <a class="waves-effect waves-light btn localizable negative-button" id="gc-delete-game-btn">
           <i class="material-icons left">delete</i>
           Remove
         </a>
       </div>
       <div class="update-p">
-        <a class="waves-effect waves-light btn truncate" id="gc-update-game-btn">
+        <a class="waves-effect waves-light btn truncate neutral-button" id="gc-update-game-btn">
           <i class="material-icons left">file_download</i>
           Update (v.1.2.3.4)
         </a>

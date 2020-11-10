@@ -12,6 +12,9 @@
        "settings-username-txt-label": "用户名",
        "settings-password-txt-label": "密码",
        "settings-save-credentials-btn": "保存",
+       "urli-title": "在F95Zone上输入游戏网址",
+       "urli-accept-btn": "确认书",
+       "urli-cancel-btn": "取消",
        "LR invalid username": "无效的用户名",
        "LR invalid password": "无效密码",
        "LR error during authentication": "验证错误：{{error}}",
@@ -36,7 +39,6 @@
        "MR cannot login": "身份验证失败：{{error}}",
        "MR credentials edited": "凭证已编辑",
        "MR select game directory": "选择游戏目录",
-       "MR insert game url": "在F95Zone上输入游戏网址",
        "MR confirm deletion": "确认删除",
        "MR message confirm deletion": "您真的要删除游戏吗？",
        "MR keep saves checkbox": "保留保存（如果可能）",
@@ -58,6 +60,7 @@
        "MR game already listed": "游戏已经列出:{{gamename}}",
        "MR multiple duplicate games": "{{number}}个游戏已经存在",
        "MR no directory selected": "未选择目录",
-       "MBR close button": "关"
+       "MBR close button": "关",
+        "UI invalid url": "输入的网址无效"
     }
 }

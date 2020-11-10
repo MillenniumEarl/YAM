@@ -13,6 +13,24 @@ a.btn:focus {
     color: var(--text-on-secondary);
 }
 
+a.accept-button,
+a.accept-button:hover {
+    color: var(--text-on-primary-gc);
+    background-color: var(--button-accept-color);
+}
+
+a.neutral-button,
+a.neutral-button:hover {
+    color: var(--text-on-primary-gc);
+    background-color: var(--button-neutral-color);
+}
+
+a.negative-button,
+a.negative-button:hover {
+    color: var(--text-on-primary-gc);
+    background-color: var(--button-negative-color);
+}
+
 /*### Handle position for floating button ###*/
 a.fab,
 a.fab:hover,

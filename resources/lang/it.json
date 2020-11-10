@@ -12,6 +12,9 @@
         "settings-username-txt-label": "Nome utente",
         "settings-password-txt-label": "Password",
         "settings-save-credentials-btn": "Salva",
+        "urli-title": "Inserisci l'URL del gioco su F95Zone",
+        "urli-accept-btn": "Conferma",
+        "urli-cancel-btn": "Annulla",
         "LR invalid username": "Nome utente non valido",
         "LR invalid password": "Password non valida",
         "LR error during authentication": "Errore durante l'autenticazione: {{error}}",
@@ -36,7 +39,6 @@
         "MR cannot login": "Impossibile autenticarsi: {{error}}",
         "MR credentials edited": "Credenziali modificate",
         "MR select game directory": "Seleziona la directory di gioco",
-        "MR insert game url": "Inserisci l'URL del gioco su F95Zone",
         "MR confirm deletion": "Conferma eliminazione",
         "MR message confirm deletion": "Vuoi veramente eliminare il gioco?",
         "MR keep saves checkbox": "Mantieni salvataggi (se possibile)",
@@ -58,6 +60,7 @@
         "MR multiple games found": "Sono state rilevate più occorrenze di {{gamename}}",
         "MR game successfully added": "{{gamename}} aggiunto",
         "MR no directory selected": "Nessuna cartella selezionata",
-        "MBR close button": "Chiudi"
+        "MBR close button": "Chiudi",
+        "UI invalid url": "L'URL inserita non è valida"
     }
 }

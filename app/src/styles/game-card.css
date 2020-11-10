@@ -2,25 +2,6 @@
 @import "global.css";
 
 /*### ID elements ###*/
-/* Handles colors for buttons generated with materialize-css */
-#gc-play-game-btn,
-#gc-play-game-btn:hover {
-    color: var(--text-on-primary-gc);
-    background-color: var(--button-accept-color);
-}
-
-#gc-update-game-btn,
-#gc-update-game-btn:hover {
-    color: var(--text-on-primary-gc);
-    background-color: var(--button-neutral-color);
-}
-
-#gc-delete-game-btn,
-#gc-delete-game-btn:hover {
-    color: var(--text-on-primary-gc);
-    background-color: var(--button-negative-color);
-}
-
 /* Manage the attributes for the preview image */
 #gc-preview {
     background-color: var(--primary-gc);
@@ -90,9 +71,4 @@ div.progress {
 
 .progress .indeterminate {
     background-color: var(--secondary-app);
-}
-
-/* Set font family for <span> tag */
-pre {
-    font-family: Roboto;
 }

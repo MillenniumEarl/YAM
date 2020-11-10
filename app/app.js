@@ -5,9 +5,8 @@ const path = require("path");
 const fs = require("fs");
 
 // Public modules from npm
-const { app, BrowserWindow, shell, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const prompt = require("electron-prompt");
-const isDev = require("electron-is-dev");
 const logger = require("electron-log");
 const Store = require("electron-store");
 
@@ -15,6 +14,7 @@ const Store = require("electron-store");
 const { run } = require("./src/scripts/io-operations.js");
 const shared = require("./src/scripts/classes/shared.js");
 const localization = require("./src/scripts/localization.js");
+const windowCreator = require("./src/scripts/window-creator.js");
 
 // Manage unhandled errors
 process.on("uncaughtException", function (error) {
@@ -22,204 +22,15 @@ process.on("uncaughtException", function (error) {
 });
 
 //#region Global variables
-const baseColor = "#262626";
-const preloadDir = path.join(app.getAppPath(), "app", "electron");
-const htmlDir = path.join(app.getAppPath(), "app", "src");
-const appIcon = path.join(app.getAppPath(), "resources", "images", "icon.ico");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow, loginWindow, messageBox;
 
-// Variable used to close the main windows
-let closeMainWindow = false;
-
 // Global store, keep user-settings
 const store = new Store();
 
 //#endregion Global variables
-
-//#region Windows creation methods
-/**
- * @private
- * Create a simple window.
- * @param {Object.<string, number>} size Default size of the window
- * @param {Object.<string, number>} minSize Minimum size of the window
- * @param {Boolean} hasFrame Set if the window has a non-Chrome contourn
- * @param {BrowserWindow} parent Parent window for modal dialog
- * @param {String} preloadPath Path to the preload script
- */
-function createWindow(size, minSize, preloadPath, hasFrame, parent) {
-    // Create the browser window.
-    const w = new BrowserWindow({
-        // Set window size
-        width: size.width,
-        height: size.height,
-        minWidth: minSize.width,
-        minHeight: minSize.height,
-        useContentSize: true,
-
-        // Set "style" settings
-        icon: appIcon,
-        backgroundColor: baseColor, // Used to simulate loading and not make the user wait
-        frame: hasFrame !== undefined ? hasFrame : true,
-
-        // Set window behaviour
-        parent: parent !== undefined ? parent : null,
-        modal: parent !== undefined,
-
-        // Set security settings
-        webPreferences: {
-            allowRunningInsecureContent: false,
-            worldSafeExecuteJavaScript: true,
-            enableRemoteModule: false,
-            contextIsolation: true,
-            webSecurity: true,
-            nodeIntegration: false,
-            preload: preloadPath,
-        },
-    });
-    
-    // Show the window when is fully loaded (set the listener)
-    w.webContents.on("did-finish-loading", function () {
-        w.show();
-    });
-
-    return w;
-}
-
-/**
- * @private
- * Create the main window of the application.
- * @returns {BrowserWindow} The main window object
- */
-function createMainWindow() {
-    // Local variables
-    const preload = path.join(preloadDir, "main-preload.js");
-
-    // Set size
-    const width = store.has("main-width") ? store.get("main-width") : 1024;
-    const height = store.has("main-height") ? store.get("main-height") : 600;
-    const size = {
-        "width": width,
-        "height": height,
-    };
-    const minSize = {
-        "width": 1024,
-        "height": 600,
-    };
-
-    // Create the browser window
-    const w = createWindow(size, minSize, preload);
-
-    // Detect if the user maximized the window in a previous session
-    const maximize = store.has("main-maximized")
-        ? store.get("main-maximized")
-        : false;
-    if (maximize) w.maximize();
-
-    // Whatever URL the user clicks will open the default browser for viewing
-    w.webContents.on("new-window", function mainWindowOnNewWindow(e, url) {
-        e.preventDefault();
-        shell.openExternal(url);
-    });
-
-    // When the user try to close the main window,
-    // this method intercept the default behaviour
-    // Used to save the game data in the GameCards
-    w.on("close", function mainWindowOnClose(e) {
-        if (w && !closeMainWindow) {
-            e.preventDefault();
-            closeMainWindow = true;
-            w.webContents.send("window-closing");
-        }
-    });
-
-    // Disable default menu
-    if (!isDev) w.setMenu(null);
-
-    // Load the index.html of the app.
-    const htmlPath = path.join(htmlDir, "index.html");
-    w.loadFile(htmlPath);
-
-    return w;
-}
-
-/**
- * @private
- * Create the login window for the application.
- * @param {BrowserWindow} parent The parent window
- * @returns {BrowserWindow} The login window object
- */
-function createLoginWindow(parent) {
-    // Local variables
-    const preload = path.join(preloadDir, "login-preload.js");
-
-    // Set size
-    const size = {
-        width: 400,
-        height: 250
-    };
-
-    // Create the browser window (minSize = size)
-    const w = createWindow(size, size, preload, false, parent);
-
-    // Set window properties
-    w.setResizable(false);
-    
-    // Disable default menu
-    if (!isDev) w.setMenu(null);
-
-    // Load the html file
-    const htmlPath = path.join(htmlDir, "login.html");
-    w.loadFile(htmlPath);
-
-    return w;
-}
-
-/**
- * @private
- * Create a messagebox with the specified parameters.
- * @param {BrowserWindow} parent The parent window
- * @param {String} type Select the icon of the messagebox between `info`/`warning`/`error`
- * @param {String} title Title of the window
- * @param {String} message Message of the window
- * @returns {BrowserWindow} The messagebox
- */
-function createMessagebox(parent, type, title, message) {
-    // Local variables
-    const preload = path.join(preloadDir, "messagebox-preload.js");
-
-    // Set size
-    const size = {
-        width: 450,
-        height: 150
-    };
-
-    // Create the browser window (minSize = size)
-    const w = createWindow(size, size, preload, false, parent);
-
-    // Set window properties
-    w.setResizable(false);
-
-    // Disable default menu
-    if (!isDev) w.setMenu(null);
-
-    w.webContents.once("dom-ready", () => {
-        w.webContents.send("messagebox-arguments", type, title, message);
-        ipcMain.once("messagebox-resize", (e, args) => {
-            w.setSize(args[0], args[1], false);
-            w.center();
-        });
-    });
-
-    // Load the html file
-    const htmlPath = path.join(htmlDir, "messagebox.html");
-    w.loadFile(htmlPath);
-
-    return w;
-}
-//#endregion Windows creation methods
 
 //#region IPC Communication
 // This will be called when the main window
@@ -231,7 +42,7 @@ ipcMain.on("login-required", function ipcMainOnLoginRequired() {
     if (loginWindow) {
         logger.warn("Login window already active");
         return;
-    } else loginWindow = createLoginWindow(mainWindow);
+    } else loginWindow = windowCreator.createLoginWindow(mainWindow);
 });
 
 // Called when the main window has saved all
@@ -251,14 +62,14 @@ ipcMain.on("main-window-closing", function ipcMainOnMainWindowClosing() {
     mainWindow = null;
 });
 
-// Called when the login widnow want to be closed
+// Called when the login window want to be closed
 ipcMain.on("login-window-closing", function ipcMainOnLoginWindowClosing() {
     logger.silly("Closing login window");
     loginWindow.close();
     loginWindow = null;
 });
 
-// Called when a messagebox is closed
+// Called when a messagebox is closing
 ipcMain.on("messagebox-closing", function ipcMainOnMessageboxClosing() {
     logger.silly("Closing messagebox");
     messageBox.close();
@@ -267,7 +78,7 @@ ipcMain.on("messagebox-closing", function ipcMainOnMessageboxClosing() {
 
 // Called when the main window require a new messagebox
 ipcMain.on("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
-    messageBox = createMessagebox(mainWindow, ...args);
+    messageBox = windowCreator.createMessagebox(mainWindow, ...args);
 });
 
 // Receive the result of the login operation
@@ -365,6 +176,29 @@ ipcMain.handle("save-dialog", function ipcMainHandleSaveDialog(e, options) {
 ipcMain.handle("prompt-dialog", function ipcMainHandlePromptDialog(e, options) {
     return prompt(options[0], mainWindow);
 });
+
+ipcMain.handle("url-input", function ipcMainHandleURLInput() {
+    // Create the messagebox
+    let urlInput = windowCreator.createURLInputbox(mainWindow);
+
+    // We cannot return something from inside the callback, 
+    // so we create a new promise and return that.
+    // The result of the promise will be received by the original sender.
+    return new Promise((resolve) => {
+        // Manage the close event + URL inserted
+        ipcMain.once("url-response", function ipcMainOnURLInputReturnInput(_, args) {
+            resolve(args[0]); // args[0] is the returned URL
+        });
+
+        // Manage the close event
+        ipcMain.once("url-input-closing", function ipcMainOnURLInputWindowClosing() {
+            logger.silly("Closing URL input window");
+            urlInput.close();
+            urlInput = null;
+            resolve(null);
+        });
+    });
+});
 //#endregion IPC dialog for main window
 
 //#endregion IPC Communication
@@ -389,12 +223,12 @@ app.whenReady().then(async function appOnReady() {
     logger.info("Languages initialized");
 
     logger.silly("Creating main window");
-    mainWindow = createMainWindow();
+    mainWindow = windowCreator.createMainWindow();
 
     app.on("activate", function appOnActivate() {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0) mainWindow = createMainWindow();
+        if (BrowserWindow.getAllWindows().length === 0) mainWindow = windowCreator.createMainWindow();
     });
 });
 

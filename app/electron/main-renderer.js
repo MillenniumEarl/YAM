@@ -86,18 +86,7 @@ document
         const gamePath = gameFolderPaths[0];
 
         // Ask the URL of the game
-        const translationDialog = await window.API.translate("MR insert game url");
-        const promptDialogOptions = {
-            title: translationDialog,
-            label: "URL:",
-            value: "https://f95zone.to/threads/gamename/",
-            inputAttrs: {
-                type: "url",
-            },
-            type: "input",
-        };
-
-        const url = await window.API.invoke("prompt-dialog", promptDialogOptions);
+        const url = await window.API.invoke("url-input");
         if (!url) return;
 
         const translation = await window.API.translate("MR adding game from url");

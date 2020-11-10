@@ -53,6 +53,7 @@ const validSendChannels = [
     "credentials-path",
     "translate",
     "require-messagebox",
+    "url-input"
 ];
 
 // Expose protected methods that allow the renderer process to use
