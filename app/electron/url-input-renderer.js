@@ -23,7 +23,7 @@ document.querySelector("#urli-accept-btn").addEventListener("click", async funct
 
     // Validate the URL
     if (!isStringAValidURL(url)) {
-        const translation = await window.API.translate("UI invalid url");
+        const translation = await window.API.translate("URLI invalid url");
         document.getElementById("urli-url-msg-helper").innerText = translation;
         return;
     }
