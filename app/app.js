@@ -6,7 +6,6 @@ const fs = require("fs");
 
 // Public modules from npm
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
-const prompt = require("electron-prompt");
 const logger = require("electron-log");
 const Store = require("electron-store");
 
@@ -171,10 +170,6 @@ ipcMain.handle("open-dialog", function ipcMainHandleOpenDialog(e, options) {
 
 ipcMain.handle("save-dialog", function ipcMainHandleSaveDialog(e, options) {
     return dialog.showSaveDialog(mainWindow, options[0]);
-});
-
-ipcMain.handle("prompt-dialog", function ipcMainHandlePromptDialog(e, options) {
-    return prompt(options[0], mainWindow);
 });
 
 ipcMain.handle("url-input", function ipcMainHandleURLInput() {

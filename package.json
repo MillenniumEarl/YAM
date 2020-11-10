@@ -35,7 +35,6 @@
         "electron-is-dev": "^1.2.0",
         "electron-log": "^4.2.4",
         "electron-online": "^1.0.0",
-        "electron-prompt": "^1.6.0",
         "electron-store": "^6.0.1",
         "f95api": "MillenniumEarl/F95API#master",
         "glob": "^7.1.6",

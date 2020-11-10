@@ -45,7 +45,6 @@ const validSendChannels = [
     "message-dialog",
     "open-dialog",
     "save-dialog",
-    "prompt-dialog",
     "cwd",
     "cache-dir",
     "games-data-dir",
