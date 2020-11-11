@@ -118,6 +118,7 @@ class GameInfoExtended extends GameInfo {
      */
     toJSON() {
         return {
+            id: this.id,
             name: this.name,
             author: this.author,
             url: this.url,
