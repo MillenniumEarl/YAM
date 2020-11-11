@@ -42,3 +42,31 @@
     --button-negative-color: #C11313; /* Fire Brick */
     --button-neutral-color: #0A66BB; /* Denim */
 }
+
+/* Used to not highligh the non-input elements */
+:not(input):not(textarea),
+:not(input):not(textarea)::after,
+:not(input):not(textarea)::before {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    cursor: default !important;
+}
+
+input,
+button,
+textarea,
+:focus {
+    outline: none;
+}
+
+/* Used to avoid dragging image (but not links) */
+a:not([draggable=true]),
+img:not([draggable=true]) {
+    -webkit-user-drag: none;
+}
+
+a[href^="http://"],
+a[href^="https://"],
+a[href^="ftp://"] {
+    -webkit-user-drag: auto;
+}
