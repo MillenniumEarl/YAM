@@ -179,7 +179,7 @@ module.exports.createURLInputbox = function(parent) {
     const w = createBaseWindow(size, size, preload, false, parent);
     
     // Set window properties
-    //w.setResizable(false);
+    w.setResizable(false);
 
     // Disable default menu
     if (!isDev) w.setMenu(null);
@@ -242,7 +242,7 @@ function createBaseWindow(size, minSize, preloadPath, hasFrame, parent) {
     });
 
     // Show the window when is fully loaded (set the listener)
-    w.webContents.on("did-finish-loading", function () {
+    w.webContents.on("dom-ready", function () {
         w.show();
     });
 
