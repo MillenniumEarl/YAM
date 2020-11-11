@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded(
     openPage("main-games-tab");
 
     // Load credentials
-    loadCredentials();
+    await loadCredentials();
 
     // Load the cached games
     await loadCachedGames();
@@ -314,7 +314,6 @@ function sendToastToUser(type, message) {
 
 //#region Authentication
 /**
- * @async
  * @private
  * Load credentials in the settings input fields.
  */

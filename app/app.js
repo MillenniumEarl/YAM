@@ -31,6 +31,9 @@ const store = new Store();
 
 //#endregion Global variables
 
+// Disable hardware acceleration for better performance
+app.disableHardwareAcceleration();
+
 //#region IPC Communication
 // This will be called when the main window
 // require credentials, open the login windows
