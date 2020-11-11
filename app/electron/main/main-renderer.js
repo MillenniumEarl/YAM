@@ -155,20 +155,20 @@ async function translateElementsInDOM() {
 
     // Translate elements
     for (const e of elements) {
-        // Change text if no child elements are presents...
-        if (e.childNodes.length === 0)
-            e.textContent = await window.API.translate(e.id);
-        // ... or change only the last child (the text)
-        else
-            e.childNodes[
-                e.childNodes.length - 1
-            ].textContent = await window.API.translate(e.id);
+        // Select the element to translate
+        const toTranslate = e.childNodes.length === 0 ? 
+            // Change text if no child elements are presents...
+            e: 
+            // ... or change only the last child (the text)
+            e.childNodes[e.childNodes.length - 1]; 
+
+        // Translate
+        toTranslate.textContent = await window.API.translate(e.id);
     }
 }
 
 /**
  * @private
- * @async
  * Select all the available languages for the app and create a <select>.
  */
 async function listAvailableLanguages() {
@@ -208,8 +208,6 @@ async function listAvailableLanguages() {
 
 /**
  * @private
- * @async
- * @event
  * Triggered when the user select a language from the <select> element.
  * Change the language for the elements in the DOM.
  */
@@ -284,6 +282,7 @@ function cleanGameName(name) {
 }
 
 /**
+ * @private
  * Show a toast in the top-right of the screen.
  * @param {String} type Type of message (*error/warning/...*)
  * @param {String} message Message to the user
@@ -296,11 +295,11 @@ function sendToastToUser(type, message) {
     if (type === "error") {
         icon = "error_outline";
         htmlColor = "red";
-        timer = 25000;
+        timer = 15000;
     } else if (type === "warning") {
         icon = "warning";
         htmlColor = "orange";
-        timer = 15000;
+        timer = 10000;
     }
 
     const htmlToast = `<i class='material-icons' style='padding-right: 10px'>${icon}</i><span>${message}</span>`;
@@ -712,9 +711,8 @@ async function loadCachedGames() {
     }
 
     // Write end log
-    Promise.all(promisesList).then(function onAllCachedGamesLoaded() {
-        window.API.log.info("Cached games loaded");
-    });
+    await Promise.all(promisesList);
+    window.API.log.info("Cached games loaded");
 }
 
 /**
@@ -733,12 +731,12 @@ async function checkVersionCachedGames() {
         // Get version
         const update = await window.F95.checkGameUpdates(card.info);
 
+        if(!update) continue;
+
         // Trigger the component
-        if (update) {
-            const gameinfo = await window.F95.getGameDataFromURL(card.info.url);
-            const extended = window.GIE.convert(gameinfo);
-            card.notificateUpdate(extended);
-        }
+        const gameinfo = await window.F95.getGameDataFromURL(card.info.url);
+        const extended = window.GIE.convert(gameinfo);
+        card.notificateUpdate(extended);
     }
 }
 //#endregion Cached games
@@ -759,9 +757,9 @@ function openPage(pageID) {
     document.getElementById(pageID).style.display = "block";
 
     // Hide/show the add game button
-    if (pageID === "main-games-tab" && window.F95.logged)
-        document.querySelector("#fab-add-game-btn").style.display = "block";
-    else document.querySelector("#fab-add-game-btn").style.display = "none";
+    const fab = document.querySelector("#fab-add-game-btn");
+    if (pageID === "main-games-tab" && window.F95.logged) fab.style.display = "block";
+    else fab.style.display = "none";
 }
 
 /**
@@ -846,15 +844,17 @@ async function guidedGameUpdate(gamecard, gamedir, gameurl) {
  */
 async function getUserDataFromF95() {
     window.API.log.info("Retrieving user info from F95");
+
     // Retrieve user data
     const userdata = await window.F95.getUserData();
 
     // Check user data
     if (!userdata) {
+        // Hide spinner
+        document.getElementById("user-info").hideSpinner();
+
         // Send error message
-        const translation = await window.API.translate(
-            "MR cannot retrieve user data"
-        );
+        const translation = await window.API.translate("MR cannot retrieve user data");
         sendToastToUser("error", translation);
         window.API.log.error("Something wrong while retrieving user info from F95");
     }
@@ -867,20 +867,20 @@ async function getUserDataFromF95() {
 
 //#region IPC receive
 // Called when the window is being closed
-window.API.receive("window-closing", function onWindowClosing() {
+window.API.receive("window-closing", async function onWindowClosing() {
     // Save data game
     const cardGames = document.querySelectorAll("game-card");
     const promiseList = [];
-    for (const card of cardGames) {
+
+    // Save data of the cards
+    cardGames.forEach(function(card) {
         const promise = card.saveGameData();
         promiseList.push(promise);
-    }
+    });
+    await Promise.all(promiseList);
 
-    Promise.all(promiseList)
-        .then(async function onAllGameCardsDataSaved() {
-            // Tell the main process to close this BrowserWindow
-            window.API.send("main-window-closing");
-        });
+    // Tell the main process to close this BrowserWindow
+    window.API.send("main-window-closing");
 });
 
 // Called when the result of the authentication are ready

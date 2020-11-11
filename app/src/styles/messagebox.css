@@ -35,6 +35,7 @@ body {
     width: 100%;
     word-wrap: break-word;
     white-space: pre-line;
+    overflow-y: auto;
 }
 
 .button-container {
