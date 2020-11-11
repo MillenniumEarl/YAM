@@ -15,7 +15,7 @@
     <link type="text/css" href="../src/styles/navbar.css" rel="stylesheet" />
 
     <!-- Load local script -->
-    <script type="text/javascript" src="../electron/main-renderer.js" defer></script>
+    <script type="text/javascript" src="../electron/main/main-renderer.js" defer></script>
     <script type="text/javascript" src="../../node_modules/@materializecss/materialize/dist/js/materialize.min.js" defer>
     </script>
     <script type="text/javascript" src="../src/components/game-card/game-card.js" defer></script>
@@ -96,10 +96,14 @@
         </a>
         <ul>
             <li>
-                <a class="btn-floating fab-option" id="add-local-game-btn"><i class="material-icons">folder</i></a>
+                <a class="btn-floating fab-option" id="add-local-game-btn">
+                    <i class="material-icons">folder</i>
+                </a>
             </li>
             <li>
-                <a class="btn-floating fab-option" id="add-remote-game-btn"><i class="material-icons">language</i></a>
+                <a class="btn-floating fab-option" id="add-remote-game-btn">
+                    <i class="material-icons">language</i>
+                </a>
             </li>
         </ul>
     </div>

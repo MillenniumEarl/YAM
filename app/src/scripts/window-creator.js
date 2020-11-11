@@ -33,7 +33,7 @@ let closeMainWindow = false;
  */
 module.exports.createMainWindow = function () {
     // Local variables
-    const preload = path.join(PRELOAD_DIR, "main-preload.js");
+    const preload = path.join(PRELOAD_DIR, "main", "main-preload.js");
 
     // Set size
     const width = store.has("main-width") ? store.get("main-width") : 1024;
@@ -91,7 +91,7 @@ module.exports.createMainWindow = function () {
  */
 module.exports.createLoginWindow = function (parent) {
     // Local variables
-    const preload = path.join(PRELOAD_DIR, "login-preload.js");
+    const preload = path.join(PRELOAD_DIR, "login", "login-preload.js");
 
     // Set size
     const size = {
@@ -126,7 +126,7 @@ module.exports.createLoginWindow = function (parent) {
  */
 module.exports.createMessagebox = function (parent, type, title, message) {
     // Local variables
-    const preload = path.join(PRELOAD_DIR, "messagebox-preload.js");
+    const preload = path.join(PRELOAD_DIR, "messagebox", "messagebox-preload.js");
 
     // Set size
     const size = {
@@ -167,7 +167,7 @@ module.exports.createMessagebox = function (parent, type, title, message) {
  */
 module.exports.createURLInputbox = function(parent) {
     // Local variables
-    const preload = path.join(PRELOAD_DIR, "url-input-preload.js");
+    const preload = path.join(PRELOAD_DIR, "url-input", "url-input-preload.js");
 
     // Set size
     const size = {

@@ -15,30 +15,40 @@
 
     <!-- Load local script -->
     <script type="text/javascript" src="../../node_modules/@materializecss/materialize/dist/js/materialize.min.js" defer></script>
-    <script type="text/javascript" src="../electron/login-renderer.js" defer></script>
+    <script type="text/javascript" src="../electron/login/login-renderer.js" defer></script>
 </head>
 
 <body>
+    <!-- Indeterminate progressbar used during login check -->
     <div class="progress" id="login-progressbar">
         <div class="indeterminate"></div>
     </div>
+
+    <!-- Username text input -->
     <div class="input-field col s12">
         <i class="material-icons prefix">person</i>
         <input id="login-username" type="text" />
         <label for="login-username" class="localizable" id="login-username-label">Username</label>
     </div>
+
+    <!-- Password text input -->
     <div class="input-field col s12">
         <i class="material-icons prefix">vpn_key</i>
         <input id="login-password" type="password" />
         <label for="login-password" class="localizable" id="login-password-label">Password</label>
     </div>
+    <!-- Message showing errors during login (if any) -->
     <p id="login-error-message" class="localizable">Authentication on F95Zone</p>
+
+    <!-- outer/inner div are used to center the buttons -->
     <div id="outer">
         <div id="inner">
-            <a class="waves-effect waves-light btn localizable acept-button" id="login-login-btn">
+            <!-- Login button -->
+            <a class="waves-effect waves-light btn localizable accept-button" id="login-login-btn">
                 <i class="material-icons left">exit_to_app</i>
                 Login F95
             </a>
+            <!-- Close without login -->
             <a class="waves-effect waves-light btn localizable negative-button" id="login-cancel-btn">
                 <i class="material-icons left">cancel</i>
                 Cancel
