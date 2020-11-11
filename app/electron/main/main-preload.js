@@ -17,7 +17,7 @@ const {
 // Public modules from npm
 const {
     contextBridge,
-    ipcRenderer
+    ipcRenderer,
 } = require("electron");
 const F95API = require("f95api");
 const download = require("image-downloader");
@@ -28,8 +28,8 @@ const {
     deleteFolderRecursive,
     readFileSync,
     exists,
-} = require("../src/scripts/io-operations.js");
-const GameInfoExtended = require("../src/scripts/classes/game-info-extended.js");
+} = require("../../src/scripts/io-operations.js");
+const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
 
 // Set F95API logger level
 F95API.loggerLevel = "warn";
@@ -61,7 +61,7 @@ contextBridge.exposeInMainWorld("API", {
     /**
      * Directory of the app.js file.
      */
-    appDir: __dirname.replace("electron", ""),
+    appDir: __dirname.replace("electron", "").replace("main", ""),
     /**
      * Send an asynchronous request via IPC and wait for a response.
      * @param {String} channel Communication channel
