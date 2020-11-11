@@ -61,6 +61,12 @@
     "MR multiple duplicate games": "{{number}} juegos ya están presentes",
     "MR no directory selected": "Ningún directorio seleccionado",
     "MBR close button": "Cerrar",
-    "URLI invalid url": "La URL ingresada no es válida"
+    "URLI invalid url": "La URL ingresada no es válida",
+    "UM description": "Versión {{version}} disponible para {{title}}",
+    "um-close-btn": "Cerrar",
+    "um-finalize-btn": "Finalizar",
+    "um-open-folder-btn": "Directorio abierto",
+    "um-download-btn": "Hilo abierto",
+    "um-title": "Actualización disponible"
   }
 }

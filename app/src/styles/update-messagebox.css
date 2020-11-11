@@ -7,8 +7,8 @@ body {
     color: var(--text-on-primary);
 }
 
-#title {
-    font-size: 20px;
+#um-title {
+    font-size: 25px;
 }
 
 .container {
@@ -20,6 +20,7 @@ body {
     border-radius: 10px;
     padding: 10px;
     width: 100%;
+    max-height: 300px;
     word-wrap: break-word;
     white-space: pre-line;
     overflow-y: auto;
@@ -27,4 +28,5 @@ body {
 
 .button-container {
     margin-top: 10px;
+    white-space: nowrap;
 }

@@ -38,7 +38,7 @@ class GameCard extends HTMLElement {
         this._info = value;
 
         // Refresh data
-        this._refreshUX();
+        this._refreshUI();
     }
 
     get info() {
@@ -79,6 +79,8 @@ class GameCard extends HTMLElement {
         // Raise the event
         const updateClickEvent = new CustomEvent("update", {
             detail: {
+                version: this._updateInfo.version,
+                changelog: this._updateInfo.changelog,
                 url: this.info.url,
                 gameDirectory: this.info.gameDirectory,
             },
@@ -130,7 +132,7 @@ class GameCard extends HTMLElement {
         /* Bind function to use this */
         this.loadGameData = this.loadGameData.bind(this);
         this.saveGameData = this.saveGameData.bind(this);
-        this._refreshUX = this._refreshUX.bind(this);
+        this._refreshUI = this._refreshUI.bind(this);
         this.deleteGameData = this.deleteGameData.bind(this);
         this.notificateUpdate = this.notificateUpdate.bind(this);
         this.finalizeUpdate = this.finalizeUpdate.bind(this);
@@ -146,7 +148,7 @@ class GameCard extends HTMLElement {
      * @private
      * Update the data shown on the item.
      */
-    async _refreshUX() {
+    async _refreshUI() {
         // Show the preload circle and hide the data
         this.querySelector("#gc-card-preloader").style.display = "block";
         this.querySelector("#gc-card").style.display = "none";
@@ -160,9 +162,19 @@ class GameCard extends HTMLElement {
         this.querySelector("#gc-overview").innerText = this.info.overview;
         this.querySelector("#gc-engine").innerText = this.info.engine;
         this.querySelector("#gc-status").innerText = this.info.status;
-        this.querySelector("#gc-last-update").innerText = this.info.lastUpdate ?
-            this.info.lastUpdate.toISOString().split("T")[0] : // Date in format YYYY-mm-dd
-            "No info";
+
+        // Show/hide last ipdate date
+        const lastUpdateElement = this.querySelector("#gc-last-update");
+        if (this.info.lastUpdate) {
+            // Date in format YYYY-mm-dd
+            const datestring = this.info.lastUpdate.toISOString().split("T")[0];
+            lastUpdateElement.innerText = datestring;
+
+            // Show element
+            lastUpdateElement.style.display = "block";
+        }
+        else lastUpdateElement.style.display = "none";
+
         this.querySelector("#gc-installed-version").innerText = this.info.version;
 
         // Parse the relative path of the image (asynchronusly)
@@ -291,7 +303,7 @@ class GameCard extends HTMLElement {
      * Load component data from disk.
      * @param {String} path Path where the data to be loaded are located
      */
-    async loadGameData(path) {
+    loadGameData(path) {
         this.info = window.GIE.load(path);
     }
 

@@ -171,10 +171,6 @@ ipcMain.handle("open-dialog", function ipcMainHandleOpenDialog(e, options) {
     return dialog.showOpenDialog(mainWindow, options[0]);
 });
 
-ipcMain.handle("save-dialog", function ipcMainHandleSaveDialog(e, options) {
-    return dialog.showSaveDialog(mainWindow, options[0]);
-});
-
 ipcMain.handle("url-input", function ipcMainHandleURLInput() {
     // Create the messagebox
     let urlInput = windowCreator.createURLInputbox(mainWindow);
@@ -194,6 +190,32 @@ ipcMain.handle("url-input", function ipcMainHandleURLInput() {
             urlInput.close();
             urlInput = null;
             resolve(null);
+        });
+    });
+});
+
+ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
+    // Create the messagebox
+    let w = windowCreator.createUpdateMessagebox(mainWindow, ...options);
+
+    // We cannot return something from inside the callback, 
+    // so we create a new promise and return that.
+    // The result of the promise will be received by the original sender.
+    return new Promise((resolve) => {
+        // Manage the close event when the game is updated
+        ipcMain.once("um-finalized", function ipcMainOnUpdateWindowFinalizing() {
+            logger.silly("Update finalized by the user");
+            w.close();
+            w = null;
+            resolve(true);
+        });
+
+        // Manage the close event
+        ipcMain.once("um-closing", function ipcMainOnUpdateWindowClosing() {
+            logger.silly("Closing update window without finalizing the update");
+            w.close();
+            w = null;
+            resolve(false);
         });
     });
 });

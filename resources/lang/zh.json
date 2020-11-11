@@ -61,6 +61,12 @@
     "MR multiple duplicate games": "{{number}}个游戏已经存在",
     "MR no directory selected": "未选择目录",
     "MBR close button": "关",
-    "URLI invalid url": "输入的网址无效"
+    "URLI invalid url": "输入的网址无效",
+    "UM description": "{{title}}可用的{{version}}版本",
+    "um-close-btn": "关",
+    "um-finalize-btn": "完成",
+    "um-open-folder-btn": "打开目录",
+    "um-download-btn": "开螺纹",
+    "um-title": "有可用更新"
   }
 }

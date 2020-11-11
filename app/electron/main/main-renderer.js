@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded(
     await loadCachedGames();
 
     // Login after loading games to allow the games to search for updates
-    login();
+    await login();
 });
 
 document.querySelector("#search-game-name").addEventListener("input", function onSearchGameName() {
@@ -345,13 +345,12 @@ async function loadCredentials() {
  * and notifies the main process to perform
  * the login procedure.
  */
-function login() {
+async function login() {
     // Check network connection
     if (!window.API.isOnline) {
-        window.API.translate("MR no network connection").then((translation) =>
-            sendToastToUser("warning", translation)
-        );
         window.API.log.warn("No network connection, cannot login");
+        const translation = window.API.translate("MR no network connection");
+        sendToastToUser("warning", translation);
         return;
     }
 
@@ -450,9 +449,29 @@ function addEventListenerToGameCard(gamecard) {
         window.API.send("exec", launcherPath);
     });
 
-    gamecard.addEventListener("update", function gameCardUpdate(e) {
+    gamecard.addEventListener("update", async function gameCardUpdate(e) {
         if (!e.target) return;
-        guidedGameUpdate(gamecard, e.detail.gameDirectory, e.detail.url);
+
+        // Let the user update the game
+        const finalized = await window.API.invoke("update-messagebox",
+            gamecard.info.name,
+            e.detail.version,
+            e.detail.changelog,
+            e.detail.url,
+            e.detail.gameDirectory);
+
+        // The user didn't complete the procedure
+        if (!finalized) return;
+
+        // Finalize the update
+        const result = await gamecard.finalizeUpdate();
+        if(result) return;
+        
+        const translationError = await window.API.translate("MR error finalizing update");
+        sendToastToUser("error", translationError);
+        window.API.log.error(
+            "Cannot finalize the update, please check if another directory of the game exists"
+        );
     });
 
     gamecard.addEventListener("delete", async function gameCardDelete(e) {
@@ -700,17 +719,14 @@ async function loadCachedGames() {
     const files = await window.IO.filter("*.json", gamesDir);
 
     // Load data in game-cards
-    const promisesList = [];
     for (const filename of files) {
         const card = addGameCard();
         const gameJSONPath = window.API.join(gamesDir, filename);
 
-        const promise = card.loadGameData(gameJSONPath);
-        promisesList.push(promise);
+        card.loadGameData(gameJSONPath);
     }
 
     // Write end log
-    await Promise.all(promisesList);
     window.API.log.info("Cached games loaded");
 }
 
@@ -759,82 +775,6 @@ function openPage(pageID) {
     const fab = document.querySelector("#fab-add-game-btn");
     if (pageID === "main-games-tab" && window.F95.logged) fab.style.display = "block";
     else fab.style.display = "none";
-}
-
-/**
- * @private
- * Guide the user in the game update.
- * @param {HTMLElement} gamecard GameCard of the game to update
- * @param {String} gamedir Directory where the game is installed
- * @param {String} gameurl  URL of the game
- */
-async function guidedGameUpdate(gamecard, gamedir, gameurl) {
-    window.API.log.info(`Update of ${gamecard.info.name}, step 1`);
-
-    // Open first dialog
-    let titleTranslation = await window.API.translate(
-        "MR update game step 1 title"
-    );
-    let messageTranslation = await window.API.translate(
-        "MR update game step 1 message"
-    );
-    let detailTranslation = await window.API.translate("MR update game step 1 detail");
-    let buttonTranslation = await window.API.translate("MR open f95 page");
-    const cancelTranslation = await window.API.translate("MR cancel button");
-    const optionsStepOne = {
-        type: "info",
-        buttons: [buttonTranslation, cancelTranslation],
-        defaultId: 1, // Cancel
-        title: titleTranslation,
-        message: messageTranslation,
-        detail: `${detailTranslation}:\n ${gamecard.changelog}`,
-    };
-
-    let data = await window.API.invoke("message-dialog", optionsStepOne);
-    if (!data) return;
-    if (data.response !== 0) return;
-
-    // Open URL in default browser
-    window.API.send("exec", gameurl);
-
-    // Open the game directory
-    window.API.send("exec", gamedir);
-
-    // Mark the update as completed
-    titleTranslation = await window.API.translate("MR update game step 2 title");
-    messageTranslation = await window.API.translate(
-        "MR update game step 2 message"
-    );
-    detailTranslation = await window.API.translate(
-        "MR update game step 2 detail"
-    );
-    buttonTranslation = await window.API.translate("MR update completed");
-    const optionsStepTwo = {
-        type: "info",
-        buttons: [buttonTranslation, cancelTranslation],
-        defaultId: 1, // Cancel
-        title: titleTranslation,
-        message: messageTranslation,
-        detail: detailTranslation,
-    };
-    window.API.log.info(`Update of ${gamecard.info.name}, step 2`);
-
-    data = await window.API.invoke("message-dialog", optionsStepTwo);
-    if (!data) return;
-    if (data.response !== 0) return;
-
-    // Finalize the update
-    const result = await gamecard.finalizeUpdate();
-
-    if (!result) {
-        const translation = await window.API.translate(
-            "MR error finalizing update"
-        );
-        sendToastToUser("error", translation);
-        window.API.log.error(
-            "Cannot finalize the update, please check if another directory of the game exists"
-        );
-    }
 }
 
 /**

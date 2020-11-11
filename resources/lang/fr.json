@@ -61,6 +61,12 @@
     "MR multiple duplicate games": "{{number}} jeux sont déjà présents",
     "MR no directory selected": "Aucun répertoire sélectionné",
     "MBR close button": "Proche",
-    "URLI invalid url": "L'URL saisie n'est pas valide"
+    "URLI invalid url": "L'URL saisie n'est pas valide",
+    "UM description": "Version {{version}} disponible pour {{title}}",
+    "um-close-btn": "Proche",
+    "um-finalize-btn": "Finaliser",
+    "um-open-folder-btn": "Ouvrir le répertoire",
+    "um-download-btn": "Fil ouvert",
+    "um-title": "Mise à jour disponible"
   }
 }

@@ -14,14 +14,14 @@
     <!-- Load local script -->
     <script type="text/javascript" src="../../node_modules/@materializecss/materialize/dist/js/materialize.min.js"
         defer></script>
-    <script type="text/javascript" src="../electron/messagebox/um-renderer.js" defer></script>
+    <script type="text/javascript" src="../electron/update-messagebox/um-renderer.js" defer></script>
 </head>
 
 <body>
     <!-- The container is used to center the elements in the page -->
     <div class="container">
-        <h1 id="um-title" class="truncate"></h1>
-        <p id="um-version"></p>
+        <h1 id="um-title" class="truncate localizable">Update available</h1>
+        <p id="um-description"></p>
 
         <div class="rounded-container">
             <p id="um-changelog" class="left-align"></p>
@@ -29,25 +29,25 @@
 
         <div class="button-container center-align">
             <!-- Open thread for download -->
-            <a class="waves-effect waves-light btn localizable inline" id="um-download-btn">
+            <a class="waves-effect waves-light btn localizable neutral-button" id="um-download-btn">
                 <i class="material-icons left">cloud_download</i>
                 Download
             </a>
 
             <!-- Open folder -->
-            <a class="waves-effect waves-light btn localizable inline" id="um-open-folder-btn">
+            <a class="waves-effect waves-light btn localizable neutral-button" id="um-open-folder-btn">
                 <i class="material-icons left">folder_open</i>
                 Folder
             </a>
 
             <!-- Finalize update -->
-            <a class="waves-effect waves-light btn localizable inline" id="um-finalize-btn">
+            <a class="waves-effect waves-light btn localizable accept-button" id="um-finalize-btn">
                 <i class="material-icons left">done_all</i>
                 Finalize
             </a>
 
             <!-- Close without update -->
-            <a class="waves-effect waves-light btn localizable inline" id="um-close-btn">
+            <a class="waves-effect waves-light btn localizable" id="um-close-btn">
                 <i class="material-icons left">close</i>
                 Close
             </a>

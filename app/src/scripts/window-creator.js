@@ -199,6 +199,48 @@ module.exports.createURLInputbox = function(parent) {
 
     return w;
 };
+
+/**
+ * @public
+ * Create a messagebox with the specified parameters used for the game update.
+ * @param {BrowserWindow} parent The parent window
+ * @param {String} title Name of the game
+ * @param {String} version New version of the game
+ * @param {String} changelog Changelog for the new version of the game
+ * @param {String} url URL to the F95Zone thread of the game
+ * @param {String} folder Path to folder containing the game
+ * @returns {BrowserWindow} The messagebox
+ */
+module.exports.createUpdateMessagebox = function (parent, title, version, changelog, url, folder) {
+    // Local variables
+    const preload = path.join(PRELOAD_DIR, "update-messagebox", "um-preload.js");
+
+    // Set size
+    const size = {
+        width: 850,
+        height: 500
+    };
+
+    // Create the browser window (minSize = size)
+    const w = createBaseWindow(size, size, preload, false, parent);
+
+    // Set window properties
+    w.setResizable(false);
+
+    // Disable default menu
+    if (!isDev) w.setMenu(null);
+
+    // adapt size to content
+    w.webContents.once("dom-ready", () => {
+        w.webContents.send("um-arguments", title, version, changelog, url, folder);
+    });
+
+    // Load the html file
+    const htmlPath = path.join(HTML_DIR, "update-messagebox.html");
+    w.loadFile(htmlPath);
+
+    return w;
+};
 //#endregion Public methods
 
 //#region Private methods

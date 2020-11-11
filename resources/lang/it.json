@@ -61,6 +61,12 @@
     "MR game successfully added": "{{gamename}} aggiunto",
     "MR no directory selected": "Nessuna cartella selezionata",
     "MBR close button": "Chiudi",
-    "URLI invalid url": "L'URL inserita non è valida"
+    "URLI invalid url": "L'URL inserita non è valida",
+    "UM description": "Versione {{version}} disponibile per {{title}}",
+    "um-close-btn": "Chiudi",
+    "um-finalize-btn": "Finalizza",
+    "um-open-folder-btn": "Apri cartella",
+    "um-download-btn": "Apri thread",
+    "um-title": "Aggiornamento disponibile"
   }
 }

@@ -61,6 +61,12 @@
     "MR multiple duplicate games": "{{number}} игр уже есть",
     "MR no directory selected": "Каталог не выбран",
     "MBR close button": "близко",
-    "URLI invalid url": "Введенный URL недействителен"
+    "URLI invalid url": "Введенный URL недействителен",
+    "UM description": "Версия {{version}} доступна для {{title}}",
+    "um-close-btn": "близко",
+    "um-finalize-btn": "Завершить",
+    "um-open-folder-btn": "Открыть каталог",
+    "um-download-btn": "Открытая тема",
+    "um-title": "Обновления доступны"
   }
 }
