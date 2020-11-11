@@ -15,9 +15,10 @@ const Store = require("electron-store");
 
 // Global variables
 const BASE_COLOR = "#262626";
-const PRELOAD_DIR = path.join(app.getAppPath(), "app", "electron");
-const HTML_DIR = path.join(app.getAppPath(), "app", "src");
-const APP_ICON = path.join(app.getAppPath(), "resources", "images", "icon.ico");
+const APP_PATH = app.getAppPath();
+const PRELOAD_DIR = path.join(APP_PATH, "app", "electron");
+const HTML_DIR = path.join(APP_PATH, "app", "src");
+const APP_ICON = path.join(APP_PATH, "resources", "images", "icon.ico");
 
 // Global store, keep user-settings
 const store = new Store();
