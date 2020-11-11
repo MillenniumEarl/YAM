@@ -12,39 +12,39 @@ ul.tabs {
 /* Background color of the entire component */
 
 li.tab {
-    background-color: var(--primary-dark);
-    color: var(--text-on-primary);
+    background-color: var(--primary-dark) !important;
+    color: var(--text-on-primary) !important;
 }
 /* Colors of the single "tab" */
 
 .tabs .tab a {
-    color: var(--text-on-primary);
+    color: var(--text-on-primary) !important;
 }
 /* Text color when not selected*/
 
 li.tab:active,
 .tabs .tab a.active {
-    background-color: var(--primary-light);
-    color: var(--secondary-app);
+    background-color: var(--primary-light) !important;
+    color: var(--secondary-app) !important;
 }
 /* Colors of the single "tab" selected */
 
 li.tab:hover,
 .tabs .tab a:hover {
-    background-color: var(--primary-light);
-    color: var(--secondary-app);
+    background-color: var(--primary-light) !important;
+    color: var(--secondary-app) !important;
 }
 /* Colors of the single "tab" on mouseover */
 
 .tabs .indicator {
-    background-color: var(--secondary-app);
+    background-color: var(--secondary-app) !important;
 }
 /* Background color of the navigator tab indicator (lower bar) */
 
 .tabs .tab a:focus,
 .tabs .tab a:focus.active {
-    background-color: var(--primary-light);
-    color: var(--secondary-app);
+    background-color: var(--primary-light) !important;
+    color: var(--secondary-app) !important;
 }
 /* Color of the single "tab" (of the internal link) when selected */
 
