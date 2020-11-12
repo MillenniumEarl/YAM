@@ -272,7 +272,7 @@ function createBaseWindow(size, minSize, preloadPath, hasFrame, parent) {
     });
 
     // Show the window when is fully loaded (set the listener)
-    w.webContents.on("did-finish-load", w.show());
+    w.webContents.on("did-finish-load", () => w.show());
 
     // Intercept ipc messages for window command
     w.webContents.on("ipc-message", function ipcMessage(e, channel, args) {
