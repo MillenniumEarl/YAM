@@ -48,7 +48,7 @@ class GameInfoExtended extends GameInfo {
     getGameLauncher() {
         // Get the extension matching the current OS
         let extension = "";
-
+        
         switch (process.platform) {
         case "win32":
             extension = "exe";

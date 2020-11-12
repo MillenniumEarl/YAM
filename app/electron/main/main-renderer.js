@@ -65,14 +65,16 @@ document.querySelector("#search-game-name").addEventListener("input", function o
 
     // Hide the column which the game-card belong
     // if it's games with a title that not match the search query
-    for (const gameCard of gameCards) {
-        if (!gameCard.info.name) continue;
-        if (!gameCard.info.name.toUpperCase().startsWith(searchText)) {
-            gameCard.parentNode.style.display = "none";
-        } else {
-            gameCard.parentNode.style.display = "block";
+    window.requestAnimationFrame(function () {
+        for (const gameCard of gameCards) {
+            if (!gameCard.info.name) continue;
+            if (!gameCard.info.name.toUpperCase().startsWith(searchText)) {
+                gameCard.parentNode.style.display = "none";
+            } else {
+                gameCard.parentNode.style.display = "block";
+            }
         }
-    }
+    });
 });
 
 document.querySelector("#user-info").addEventListener("login", login);
@@ -434,19 +436,18 @@ function addGameCard() {
 function addEventListenerToGameCard(gamecard) {
     gamecard.addEventListener("play", async function gameCardPlay(e) {
         if (!e.target) return;
-        const launcherPath = e.detail.launcher;
 
         // Check if the path exists
+        const launcherPath = e.detail.launcher;
         const exists = await window.IO.pathExists(launcherPath);
-        if (!exists) {
-            const translation = await window.API.translate("MR cannot find game path");
-            window.API.log.error(`Cannot find game path: ${launcherPath}`);
-            sendToastToUser("error", translation);
-            return;
-        }
 
-        // Launch the game
-        window.API.send("exec", launcherPath);
+        // Launch the game if exists
+        if (exists) window.API.send("exec", launcherPath);
+        
+        // Show a message
+        const translation = await window.API.translate("MR cannot find game path");
+        window.API.log.error(`Cannot find game path: ${launcherPath}`);
+        sendToastToUser("error", translation);
     });
 
     gamecard.addEventListener("update", async function gameCardUpdate(e) {
@@ -655,7 +656,6 @@ function getGameVersionFromName(name) {
 }
 
 /**
- * @async
  * @private
  * Check that the specified paths do not belong to games already in the application.
  * @param {String[]} paths List of game paths to check
@@ -764,17 +764,23 @@ async function checkVersionCachedGames() {
 function openPage(pageID) {
     // Hide all elements with class="tabcontent" by default
     const tabcontent = document.getElementsByClassName("tabcontent");
-    for (let i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
 
-    // Show the specific tab content
-    document.getElementById(pageID).style.display = "block";
+    // Use requestAnimationFrame to reduce rendering time
+    // see: https://stackoverflow.com/questions/37494330/display-none-in-a-for-loop-and-its-affect-on-reflow
+    window.requestAnimationFrame(function () {
+        // Hide the unused tabs
+        for (let i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
 
-    // Hide/show the add game button
-    const fab = document.querySelector("#fab-add-game-btn");
-    if (pageID === "main-games-tab" && window.F95.logged) fab.style.display = "block";
-    else fab.style.display = "none";
+        // Show the specific tab content
+        document.getElementById(pageID).style.display = "block";
+
+        // Hide/show the add game button
+        const fab = document.querySelector("#fab-add-game-btn");
+        if (pageID === "main-games-tab" && window.F95.logged) fab.style.display = "block";
+        else fab.style.display = "none";
+    });
 }
 
 /**

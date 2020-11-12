@@ -204,6 +204,23 @@ class GameCard extends HTMLElement {
         }
     }
 
+    async _existsGamePreview(source) {
+        const gameCacheDir = await window.API.invoke("games-data-dir");
+        const localPath = window.API.join(gameCacheDir, source);
+        return await window.IO.pathExists(localPath);
+    }
+
+    _parseImageName(name, url, customExtension) {
+        // Get image extension
+        const splitted = url.split(".");
+        const extension = customExtension ? customExtension : splitted.pop();
+
+        // Parse the name
+        const imageName = `${name.replaceAll(" ", "")}_preview.${extension}`;
+        const rx = /[/\\?%*:|"<>]/g; // Remove invalid chars
+        return imageName.replace(rx, "");
+    }
+
     /**
      * @private
      * Download the game cover image.
@@ -217,25 +234,35 @@ class GameCard extends HTMLElement {
         if (source.trim() === "../../resources/images/f95-logo.webp")
             return null;
 
-        const gameCacheDir = await window.API.invoke("games-data-dir");
-        const localPath = window.API.join(gameCacheDir, source);
-        if (await window.IO.pathExists(localPath)) return null; // Already downloaded
-
-        // Get image extension
-        const splitted = source.split(".");
-        const extension = splitted.pop();
-        let imageName = `${name.replaceAll(" ", "")}_preview.${extension}`;
-        const rx = /[/\\?%*:|"<>]/g; // Remove invalid chars
-        imageName = imageName.replace(rx, "");
+        // Check if the image already exists
+        const exists = await this._existsGamePreview(source);
+        if (exists) return null; // Already downloaded
 
         // Download image
-        const path = await window.API.downloadImage(
-            source,
-            window.API.join(gameCacheDir, imageName)
-        );
+        const gameCacheDir = await window.API.invoke("games-data-dir");
+        const imageName = this._parseImageName(name, source);
+        const dest = window.API.join(gameCacheDir, imageName);
+        let path = null;
+        try {
+            path = await window.API.downloadImage(source, dest);
+            if (!path.filename) return null; // Something went wrong
+        }
+        catch(e) {
+            window.API.log.error(`Cannot download ${source}: ${e}`);
+            return null;
+        }
 
-        if (path) return imageName;
-        else return null;
+        // Compress image
+        const compressionResult = await window.API.compress(path.filename, gameCacheDir);
+
+        // Something wrong with compression
+        if (compressionResult.length !== 1) return imageName;
+
+        // Delete original image
+        if(compressionResult[0].sourcePath !== compressionResult[0].destinationPath) {
+            window.IO.deleteFile(path.filename);
+        }
+        return this._parseImageName(name, source, "webp");
     }
 
     /**
@@ -319,7 +346,7 @@ class GameCard extends HTMLElement {
         if (!this.info.localPreviewPath) return;
 
         // Delete the cached preview
-        const previewPath = this._parsePreviewPath(this.info.localPreviewPath);
+        const previewPath = await this._parsePreviewPath(this.info.localPreviewPath);
         const exists = await window.IO.pathExists(previewPath);
         if (exists) window.IO.deleteFile(previewPath);
     }
