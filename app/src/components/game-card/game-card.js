@@ -262,7 +262,10 @@ class GameCard extends HTMLElement {
         if(compressionResult[0].sourcePath !== compressionResult[0].destinationPath) {
             window.IO.deleteFile(path.filename);
         }
-        return this._parseImageName(name, source, "webp");
+
+        // Return image name
+        const isGIF = source.endsWith(".gif");
+        return isGIF ? imageName : this._parseImageName(name, source, "webp");
     }
 
     /**

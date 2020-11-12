@@ -94,12 +94,27 @@ document
         const translation = await window.API.translate("MR adding game from url");
         sendToastToUser("info", translation);
 
+        // Find game version
+        const unparsedName = gamePath.split("\\").pop();
+        const version = getGameVersionFromName(unparsedName);
+
         // Add game to list (does not check version)
         const card = addGameCard();
         const info = await window.F95.getGameDataFromURL(url);
+        const onlineVersion = info.version; // Save the online version
+        info.version = version; // Set the local version
         card.info = info;
         card.info.gameDirectory = gamePath;
         card.saveGameData();
+
+        // Now the game contains the data of the latest version BUT 
+        // the version number is the local version, now we try 
+        // to trigger the update (if any)
+        if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
+            // Re-change the version
+            info.version = onlineVersion;
+            card.notificateUpdate(info);
+        }
     });
 
 document
@@ -442,7 +457,10 @@ function addEventListenerToGameCard(gamecard) {
         const exists = await window.IO.pathExists(launcherPath);
 
         // Launch the game if exists
-        if (exists) window.API.send("exec", launcherPath);
+        if (exists) {
+            window.API.send("exec", launcherPath);
+            return;
+        }
         
         // Show a message
         const translation = await window.API.translate("MR cannot find game path");
