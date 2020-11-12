@@ -38,7 +38,7 @@ window.API.once("messagebox-arguments", async function (type, title, message) {
     const PADDING_FOR_SIDE = 15;
     const width = document.body.clientWidth + 3 * PADDING_FOR_SIDE;
     const height = document.body.clientHeight + 2 * PADDING_FOR_SIDE;
-    window.API.send("messagebox-resize", width, height);
+    window.API.send("window-resize", width, height);
 });
 
 document.querySelector("#close-btn").addEventListener("click", function close() {

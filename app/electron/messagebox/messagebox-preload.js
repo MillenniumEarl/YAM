@@ -13,7 +13,7 @@ const logger = require("electron-log");
 // Array of valid render-to-main channels
 const validSendChannels = [
     "messagebox-closing",
-    "messagebox-resize",
+    "window-resize",
     "translate",
 ];
 
