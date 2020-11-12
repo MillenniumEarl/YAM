@@ -13,7 +13,7 @@ class UserInfo extends HTMLElement {
      */
     connectedCallback() {
         // Prepare DOM
-        this.prepareDOM();
+        this._prepareDOM();
 
         /* Set events listeners for the buttons */
         this.loginBtn.addEventListener("click", this.login);
@@ -37,8 +37,7 @@ class UserInfo extends HTMLElement {
         this._userdata = val;
 
         // Update shadow DOM
-        if (val.avatarSrc)
-            this.querySelector("#ui-avatar").setAttribute("src", val.avatarSrc);
+        if (val.avatarSrc) this.querySelector("#ui-avatar").setAttribute("src", val.avatarSrc);
         this.querySelector("#ui-username").innerText = val.username;
         this.querySelector("div.col-username").style.display = "inline-block";
         this.querySelector("div.col-login").style.display = "none";
@@ -65,7 +64,7 @@ class UserInfo extends HTMLElement {
      * @private
      * Load the HTML file and define the buttons of the custom component.
      */
-    prepareDOM() {
+    _prepareDOM() {
         /* Defines the HTML code of the custom element */
         const template = document.createElement("template");
 
@@ -88,13 +87,14 @@ class UserInfo extends HTMLElement {
         this.showSpinner = this.showSpinner.bind(this);
 
         /* Translate DOM */
-        this.translateElementsInDOM();
+        this._translateElementsInDOM();
     }
+
     /**
      * @private
      * Translate the DOM elements in the current language.
      */
-    async translateElementsInDOM() {
+    async _translateElementsInDOM() {
         // Get only the localizable elements
         const elements = this.querySelectorAll(".localizable");
 
@@ -119,6 +119,7 @@ class UserInfo extends HTMLElement {
         this.querySelector("div.col-username").style.display = "none";
         this.querySelector("div.col-login").style.display = "none";
     }
+
     /**
      * @public
      * Hide the spinner in the component.
