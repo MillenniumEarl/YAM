@@ -346,6 +346,7 @@ class GameCard extends HTMLElement {
 
         // Set update data
         this._updateInfo = gameinfo;
+        this.info.updateAvailable = true;
 
         // Hide progressbar
         this.progressbar.style.display = "none";
@@ -381,6 +382,7 @@ class GameCard extends HTMLElement {
         // Update info
         this._updateInfo.gameDirectory = newpath;
         this.info = this._updateInfo;
+        this.info.updateAvailable = false;
 
         // Save info
         this.saveGameData();

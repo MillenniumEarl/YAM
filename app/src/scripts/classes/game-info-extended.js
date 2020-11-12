@@ -37,6 +37,11 @@ class GameInfoExtended extends GameInfo {
          * @type String
          */
         this.localPreviewPath = null;
+        /**
+         * Indicates if an update is available.
+         * @type Boolean
+         */
+        this.updateAvailable = false;
     }
 
     //#region Public methods
