@@ -719,12 +719,23 @@ async function loadCachedGames() {
     const files = await window.IO.filter("*.json", gamesDir);
 
     // Load data in game-cards
+    const cards = [];
     for (const filename of files) {
-        const card = addGameCard();
-        const gameJSONPath = window.API.join(gamesDir, filename);
+        // Create a new gamecard
+        const gameCard = document.createElement("game-card");
+        gameCard.setAttribute("id", `game-card-${lastGameCardID}`);
+        addEventListenerToGameCard(gameCard);
 
-        card.loadGameData(gameJSONPath);
+        // Load data to gamecard
+        const gameJSONPath = window.API.join(gamesDir, filename);
+        gameCard.loadGameData(gameJSONPath);
+
+        cards.push(gameCard);
+        lastGameCardID += 1;
     }
+    
+    // Load cards in the paginator
+    document.querySelector("card-paginator").paginate(cards);
 
     // Write end log
     window.API.log.info("Cached games loaded");

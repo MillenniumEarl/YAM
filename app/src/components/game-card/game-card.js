@@ -7,6 +7,7 @@ class GameCard extends HTMLElement {
         /* Use the F95API classes (Need main-preload.js) */
         this._info = window.GIE.gamedata;
         this._updateInfo = null; // Used only when is necessary to update a game
+        this._loadedDOM = false;
     }
 
     /**
@@ -15,11 +16,15 @@ class GameCard extends HTMLElement {
     connectedCallback() {
         // Prepare DOM
         this._prepareDOM();
+        this._loadedDOM = true;
 
         /* Set events listeners for the buttons */
         this.playBtn.addEventListener("click", this.play);
         this.updateBtn.addEventListener("click", this.update);
         this.deleteBtn.addEventListener("click", this.delete);
+
+        // Refresh data
+        window.requestAnimationFrame(() => this._refreshUI());
     }
 
     /**
@@ -37,8 +42,11 @@ class GameCard extends HTMLElement {
         if (!value) return;
         this._info = value;
 
+        // DOM not, ready cannot update information
+        if(!this._loadedDOM) return;
+
         // Refresh data
-        this._refreshUI();
+        window.requestAnimationFrame(() => this._refreshUI());
     }
 
     get info() {

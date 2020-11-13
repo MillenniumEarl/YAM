@@ -1,33 +1,90 @@
 "use strict";
 
-// Module from files
-const sorter = require("../cards-sorter.js");
-
-class CardPaginator {
+class CardPaginator extends HTMLElement {
     constructor() {
-        this.CARDS_FOR_PAGE = 12;
+        super();
+
+        this.CARDS_FOR_PAGE = 8;
         this.MAX_VISIBLE_PAGES = 5;
-        this._root = null;
         this._updated = false;
-        this._defaultSortFunction = sorter.alphabetically;
     }
+
+    /**
+     * Triggered once the element is added to the DOM
+     */
+    connectedCallback() {
+        // Prepare DOM
+        this._prepareDOM();
+    }
+
+    //#region Events
+    /**
+     * @private
+     * Select the page following the one currently active.
+     * @param {MouseEvent} e
+     */
+    _nextPage(e) {
+        // Ignore event if the button is disabled
+        if (e.target.parentNode.classList.contains("disabled")) return;
+
+        // Obtain the ID of the currently selected page selector
+        const id = this._getCurrentSelectorID();
+        if(id === -1) return;
+        this._switchPage(id + 1);
+    }
+
+    /**
+     * @private
+     * Select the page preceding the one currently active.
+     * @param {MouseEvent} e
+     */
+    _prevPage(e) {
+        // Ignore event if the button is disabled
+        if(e.target.parentNode.classList.contains("disabled")) return;
+
+        // Obtain the ID of the currently selected page selector
+        const id = this._getCurrentSelectorID();
+        if (id === -1) return;
+        this._switchPage(id - 1);
+    }
+
+    /**
+     * @private
+     * Generated when clicking on a selector, changes the displayed page.
+     * @param {MouseEvent} e
+     */
+    _selectPage(e) {
+        const selectorID = e.target.parentNode.id;
+        const index = parseInt(selectorID.replace("selector_", ""));
+        this._switchPage(index);
+    }
+    
+    //#endregion Events
 
     //#region Public methods
     /**
      * @public
      * Create a paged DIV containing the cards passed by parameter.
      * @param {GameCard} cards List of cards to paginate
-     * @returns {HTMLDivElement} Paginated DIV to add to DOM
      */
     paginate(cards) {
-        // If the root is not edited, avoid to reelaborate the pagination
-        if(!this._updated) return this._root;
+        // Obtain a list of list of cards
+        const chunks = this._chunkArray(cards, this.CARDS_FOR_PAGE);
+
+        // Iterate the chunks and create a page for every chunk
+        const pageList = [];
+        for (const chunk of chunks) {
+            const page = this._createPage();
+
+            // Add cards to page
+            chunk.forEach((card) => this._addGameCardToPage(card, page));
+
+            // Add page to list
+            pageList.push(page);
+        }
 
         // Create and return the entire structure
-        this._root = this._preparePaginationDiv(cards);
-        this._updated = false;
-
-        return this._root;
+        window.requestAnimationFrame(() => this._createIndexPage(pageList));
     }
 
     /**
@@ -40,7 +97,7 @@ class CardPaginator {
         this.order();
 
         // Select all the gamecard
-        const cards = this._root.querySelectorAll("game-card");
+        const cards = this.querySelectorAll("game-card");
 
         // Display all the gamecards
         window.requestAnimationFrame(() => cards.forEach((card) => card.style.display = "block"));
@@ -84,16 +141,13 @@ class CardPaginator {
     /**
      * @public
      * Sort the gamecards with the specified sort function. 
-     * If not specified, the sort is alphabetical by name.
      * @param {Function} sortFunction Sorting function
      */
     sort(sortFunction) {
-        if(!sortFunction) {
-            sortFunction = this._defaultSortFunction;
-        }
+        if (!sortFunction) throw new Error("Missing sorting function");
 
         // Select all the gamecard
-        const cards = this._root.querySelectorAll("game-card");
+        const cards = this.querySelectorAll("game-card");
 
         // Sort
         const sorted = Array.from(cards).sort((a, b) => sortFunction(a, b));
@@ -109,6 +163,42 @@ class CardPaginator {
     //#endregion Public methods
 
     //#region Private methods
+
+    /**
+     * Load the HTML file and define the buttons of the custom component.
+     */
+    _prepareDOM() {
+        /* Defines the HTML code of the custom element */
+        const template = document.createElement("template");
+        
+        /* Synchronous read of the HTML template */
+        const pathHTML = window.API.join(
+            window.API.appDir,
+            "src",
+            "components",
+            "card-paginator",
+            "card-paginator.html"
+        );
+        template.innerHTML = window.IO.readSync(pathHTML);
+        this.appendChild(template.content.cloneNode(true));
+
+        /* Define elements in DOM */
+        this.container = this.querySelector("#pagination-content");
+
+        /* Bind function to use this */
+        this._getCurrentSelectorID = this._getCurrentSelectorID.bind(this);
+        this._getMinIDMissingRight = this._getMinIDMissingRight.bind(this);
+        this._showNearSelectors = this._showNearSelectors.bind(this);
+        this._manageNextPrecButtons = this._manageNextPrecButtons.bind(this);
+        this._createSelectorButton = this._createSelectorButton.bind(this);
+        this._createIndexPage = this._createIndexPage.bind(this);
+        this._createPrevButton = this._createPrevButton.bind(this);
+        this._createNextButton = this._createNextButton.bind(this);
+        this._prevPage = this._prevPage.bind(this);
+        this._nextPage = this._nextPage.bind(this);
+        this._switchPage = this._switchPage.bind(this);
+        this._selectPage = this._selectPage.bind(this);
+    }
 
     //#region Utility
     /**
@@ -132,7 +222,8 @@ class CardPaginator {
      * Gets the ID of the currently selected page selector.
      */
     _getCurrentSelectorID() {
-        const activePage = document.getElementsByClassName("active")[0];
+        const activePage = this.querySelector("li.active");
+        if(!activePage) return -1;
         const currentSelectorID = parseInt(activePage.id.replace("selector_", ""), 10);
         return currentSelectorID;
     }
@@ -161,7 +252,7 @@ class CardPaginator {
      */
     _showNearSelectors(index) {
         // Local variables
-        const pageSelectors = document.querySelectorAll("li[id^='selector']");
+        const pageSelectors = this.querySelectorAll("li[id^='selector']");
         const MAX_VISIBLE_PAGES = 5;
         const elementForSide = Math.floor((MAX_VISIBLE_PAGES - 1) / 2);
         const leftMissing = index - elementForSide < 0;
@@ -196,11 +287,12 @@ class CardPaginator {
     _manageNextPrecButtons() {
         // Get the elements
         const id = this._getCurrentSelectorID();
-        const pageSelectors = document.querySelectorAll("li[id^='selector']");
-        const prevPageSelector = document.getElementById("prev-page");
-        const nextPageSelector = document.getElementById("next-page");
-        
+        if(id === -1) return;
 
+        const pageSelectors = this.querySelectorAll("li[id^='selector']");
+        const prevPageSelector = this.querySelector("#prev-page");
+        const nextPageSelector = this.querySelector("#next-page");
+        
         // Manage the prev button
         if(id === 0) {
             prevPageSelector.classList.remove("enabled");
@@ -230,7 +322,6 @@ class CardPaginator {
      * @author br4nnigan
      */
     _swapNodes(first, second) {
-
         const parentFirst = first.parentNode;
         const parentSecond = second.parentNode;
         let indexFirst, indexSecond;
@@ -268,6 +359,42 @@ class CardPaginator {
             parentSecond.insertBefore(first, parentSecond.children[indexSecond]);
         });
     }
+
+    /**
+     * @private
+     * Select the page with the index used as argument.
+     * @param {number} index Index of the page to select
+     */
+    _switchPage(index) {
+        // Obtain the selectors and the contents
+        const activePage = this.querySelector("li.active");
+        const currentPage = this.querySelector(`#selector_${index}`);
+        const activeContent = this.querySelector(".page-selected");
+        const currentContent = this.querySelector(`#page_${index}`);
+
+        // Show/hide elements in a optimized way
+        window.requestAnimationFrame(() => {
+            // First check if there is an active page
+            if (activePage) activePage.classList.remove("active");
+            if (activeContent) {
+                activeContent.classList.remove("page-selected");
+                activeContent.style.display = "none";
+            }
+
+            // Then select the current content
+            if (currentPage) currentPage.classList.add("active");
+            if (currentContent) {
+                currentContent.classList.add("page-selected");
+                currentContent.style.display = "block";
+            }
+
+            // Enable/disable the next/prev buttons
+            this._manageNextPrecButtons();
+
+            // Show the nearest page selectors
+            this._showNearSelectors(index);
+        });
+    }
     //#endregion Utility
 
     //#region Creation
@@ -279,7 +406,7 @@ class CardPaginator {
         const prev = document.createElement("li");
         prev.classList.add("waves-effect");
         prev.id = "prev-page";
-        prev.onclick = this._prevPage();
+        prev.onclick = this._prevPage;
 
         // Create and add the icon
         const icon = document.createElement("a");
@@ -298,7 +425,7 @@ class CardPaginator {
         const next = document.createElement("li");
         next.classList.add("waves-effect");
         next.id = "next-page";
-        next.onclick = this._nextPage();
+        next.onclick = this._nextPage;
 
         // Create and add the icon
         const icon = document.createElement("a");
@@ -307,6 +434,52 @@ class CardPaginator {
         next.appendChild(icon);
 
         return next;
+    }
+
+    /**
+     * @private
+     * Create a generic page selector.
+     * @param {number} index Index of the page associated with the selector
+     */
+    _createSelectorButton(index) {
+        const li = document.createElement("li");
+        li.id = `selector_${index}`;
+        li.classList.add("waves-effect");
+
+        // The first page is selected by default
+        //if (index === 0) li.classList.add("active");
+
+        // Create the page number
+        const a = document.createElement("a");
+        a.innerText = index + 1;
+        li.appendChild(a);
+
+        // Add the event listener
+        li.onclick = this._selectPage;
+        return li;
+    }
+
+    /**
+     * @private
+     * Adds a gamecard to the specified page by creating a new responsive column.
+     * @param {GameCard} card 
+     * @param {HTMLDivElement} page 
+     */
+    _addGameCardToPage(card, page) {
+        // Create a simil-table layout with materialize-css
+        // "s6" means that the element occupies 6 of 12 columns with small screens
+        // "m5" means that the element occupies 5 of 12 columns with medium screens
+        // "l4" means that the element occupies 4 of 12 columns with large screens
+        // "xl3" means that the element occupies 3 of 12 columns with very large screens
+        // The 12 columns are the base layout provided by materialize-css
+        const column = document.createElement("div");
+        column.setAttribute("class", "col s6 m5 l4 xl3");
+
+        // Append GameCard
+        column.appendChild(card);
+        
+        // Connect the new column in DOM
+        page.appendChild(column);
     }
 
     /**
@@ -327,142 +500,55 @@ class CardPaginator {
      * @private
      * Create the HTML structure for pagination, with selectors and contents.
      * @param {HTMLDivElement[]} pages Pages to add as content
-     * @returns {HTMLDivElement} DIV containing both the content and the selector
      */
     _createIndexPage(pages) {
         // Local variables
         let lastID = 0;
-        
-        // Create the root element
-        const root = document.createElement("div");
-        root.classList.add("card-paginator");
 
-        // No pages, return emtpy div
-        if (pages.length === 0) return root;
-
-        // Create the container element for the pages
-        const container = document.createElement("div");
-        container.id = "pagination-content";
+        // No pages, exit
+        if (pages.length === 0) return;
 
         // Create the selector element with materializecss
         const ul = document.createElement("ul");
         ul.classList.add("pagination", "center-align");
         
-        // Create and add the previous page selector
-        const prev = this._createPrevButton();
-        ul.appendChild(prev);
-
         // Add the single page
         for(const page of pages) {
-            // Create the selector
-            const li = document.createElement("li");
-            li.classList.add("waves-effect");
-            li.id = `selector_${lastID}`;
-            li.onclick = this._selectPage(lastID);
-
-            // Add the selector
-            ul.appendChild(li);
-
             // Prepare the page and append it
-            page.style.display = "none";
             page.id = `page_${lastID}`;
-            container.appendChild(page);
+
+            // Show the first page
+            page.style.display = "none";
+            this.container.appendChild(page);
+
+            // Create the selector
+            const li = this._createSelectorButton(lastID);
+            ul.appendChild(li);
 
             // Increment counter
             lastID += 1;
         }
 
-        // Create and add the next page selector
+        // Create the previous/next page selector
+        const prev = this._createPrevButton();
         const next = this._createNextButton();
+
+        // Add the previous page selector as first child
+        // then the next page selector
+        ul.insertBefore(prev, ul.firstChild);
         ul.appendChild(next);
+        
+        // Add the index to the root
+        const root = this.querySelector(".card-paginator");
+        root.appendChild(ul);
 
-        return root;
-    }
-
-    /**
-     * @private
-     * Create a paged DIV containing the cards passed by parameter.
-     * @param {GameCard} cards List of cards to paginate
-     * @returns {HTMLDivElement} Paginated struct
-     */
-    _preparePaginationDiv(cards) {
-        // Obtain a list of list of cards
-        const chunks = this._chunkArray(cards, this.CARDS_FOR_PAGE);
-
-        // Iterate the chunks and create a page for every chunk
-        const pageList = [];
-        for (const chunk of chunks) {
-            const page = this._createPage();
-
-            // Add cards to page
-            chunk.forEach((card) => page.appendChild(card));
-            
-            // Add page to list
-            pageList.push(page);
-        }
-
-        // Create and return the entire structure
-        return this._createIndexPage(pageList);
+        // Select the first page
+        this._switchPage(0);
     }
     //#endregion Creation
-
-    //#region Events
-    /**
-     * @private
-     * Select the page following the one currently active.
-     */
-    _nextPage() {
-        // Obtain the ID of the currently selected page selector
-        const id = this._getCurrentSelectorID();
-        this._selectPage(id + 1);
-    }
-
-    /**
-     * @private
-     * Select the page preceding the one currently active.
-     */
-    _prevPage() {
-        // Obtain the ID of the currently selected page selector
-        const id = this._getCurrentSelectorID();
-        this._selectPage(id - 1);
-    }
-
-    /**
-     * @private
-     * Select the page with the index used as argument.
-     * @param {number} index Index of the page to select
-     */
-    _selectPage(index) {
-        // Obtain the selectors and the contents
-        const activePage = document.getElementsByClassName("active")[0];
-        const currentPage = document.getElementById(`selector_${index}`);
-        const activeContent = document.getElementsByClassName("page-selected")[0];
-        const currentContent = document.getElementById(`page_${index}`);
-        
-        // Show/hide elements in a optimized way
-        window.requestAnimationFrame(() => {
-            // First check if there is an active page
-            if (activePage) activePage.classList.remove("active");
-            if (activeContent) {
-                activeContent.classList.remove("page-selected");
-                activeContent.style.display = "none";
-            }
-
-            // Then select the current content
-            currentPage.classList.add("active");
-            currentContent.classList.add("page-selected");
-            currentContent.style.display = "block";
-
-            // Enable/disable the next/prev buttons
-            this._manageNextPrecButtons();
-
-            // Show the nearest page selectors
-            this._showNearSelectors(index);
-        });
-    }
-    //#endregion Events
 
     //#endregion Private methods
 }
 
-module.exports = CardPaginator;
+// Let the browser know that <card-paginator> is served by our new class
+customElements.define("card-paginator", CardPaginator);
