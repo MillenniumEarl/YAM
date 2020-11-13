@@ -93,8 +93,8 @@ class CardPaginator extends HTMLElement {
      * @param {String} name 
      */
     search(value) {
-        // Order the gamecards
-        this.order();
+        // Order the gamecards TODO
+        //this.sort();
 
         // Select all the gamecard
         const cards = this.querySelectorAll("game-card");

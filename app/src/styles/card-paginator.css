@@ -1,3 +1,11 @@
 /*### Import base styles ###*/
 @import "global.css";
 
+ul.pagination > li {
+    border-radius: 50%;
+    color: var(--text-on-secondary);
+}
+
+ul.pagination > li.active {
+    background-color: var(--secondary-app);
+}
