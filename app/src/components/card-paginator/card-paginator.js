@@ -7,6 +7,7 @@ class CardPaginator extends HTMLElement {
         this.CARDS_FOR_PAGE = 8;
         this.MAX_VISIBLE_PAGES = 5;
         this._updated = false;
+        this._defaultSorter = null;
     }
 
     /**
@@ -16,6 +17,17 @@ class CardPaginator extends HTMLElement {
         // Prepare DOM
         this._prepareDOM();
     }
+
+    //#region Properties
+    /**
+     * Define the default sort function.
+     * @param {Function} f
+     */
+    set sortFunction(f) {
+        if(!f) throw new Error("Sort function is invalid");
+        this._defaultSorter = f;
+    }
+    //#endregion Properties
 
     //#region Events
     /**
@@ -90,23 +102,19 @@ class CardPaginator extends HTMLElement {
     /**
      * @public
      * Find all games that contain the specified value in the title.
-     * @param {String} name 
+     * @param {String} name Case-sensitive value to search
      */
     search(value) {
-        // Order the gamecards TODO
-        //this.sort();
-
         // Select all the gamecard
         const cards = this.querySelectorAll("game-card");
         
         // Search text
         let lastCompareIndex = cards.length;
         let cardMatches = 0;
-        const searchTerm = value.toUpperCase();
         for(let i = 0; i < cards.length; i++) {
             // In-loop variables
             const gamename = cards[i].info.name.toUpperCase();
-            const include = gamename.includes(searchTerm);
+            const include = gamename.includes(value);
 
             // Hide/show card
             const display = include ? "block" : "none";
@@ -123,7 +131,7 @@ class CardPaginator extends HTMLElement {
             let lastIndex = -1;
             for (let j = lastCompareIndex - 1; j > i; j--) {
                 const gamenameInternal = cards[j].info.name.toUpperCase();
-                if (gamenameInternal.includes(searchTerm)) {
+                if (gamenameInternal.includes(value)) {
                     lastIndex = j;
                     break;
                 }

@@ -44,6 +44,10 @@ document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded(
     // Select the default page
     openPage("main-games-tab");
 
+    // Set default sorter for paginator
+    const paginator = document.querySelector("card-paginator");
+    window.API.setPaginatorDefaultSorter(paginator, window.API.sorter.alphabetically);
+
     // Load credentials
     await loadCredentials();
 
@@ -61,21 +65,6 @@ document.querySelector("#search-game-name").addEventListener("input", function o
         .value.toUpperCase();
 
     document.querySelector("card-paginator").search(searchText);
-    return;
-
-    // Obtain all the available GameCard
-    const gameCards = document.querySelectorAll("game-card");
-
-    // Hide the column which the game-card belong
-    // if it's games with a title that not match the search query
-    for (const gameCard of gameCards) {
-        if (!gameCard.info.name) continue;
-        if (!gameCard.info.name.toUpperCase().startsWith(searchText)) {
-            gameCard.parentNode.style.display = "none";
-        } else {
-            gameCard.parentNode.style.display = "block";
-        }
-    }
 });
 
 document.querySelector("#user-info").addEventListener("login", login);

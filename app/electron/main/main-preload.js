@@ -64,6 +64,12 @@ contextBridge.exposeInMainWorld("API", {
      */
     sorter: sorter,
     /**
+     * Set the default sort function for search and sort.
+     * @param {CardPaginator} paginator
+     * @param {Function} f
+     */
+    setPaginatorDefaultSorter: (paginator, f) => paginator.sortFunction = f,
+    /**
      * Sort the cards in the paginator.
      * @param {CardPaginator} paginator
      * @param {Function} sortFunction
