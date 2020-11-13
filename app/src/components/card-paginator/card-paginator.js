@@ -98,25 +98,30 @@ class CardPaginator extends HTMLElement {
 
         // Select all the gamecard
         const cards = this.querySelectorAll("game-card");
-
-        // Display all the gamecards
-        window.requestAnimationFrame(() => cards.forEach((card) => card.style.display = "block"));
         
         // Search text
         let lastCompareIndex = cards.length;
+        let cardMatches = 0;
         const searchTerm = value.toUpperCase();
         for(let i = 0; i < cards.length; i++) {
+            // In-loop variables
             const gamename = cards[i].info.name.toUpperCase();
-            if(gamename.includes(searchTerm)) {
-                // Hide element
-                window.requestAnimationFrame(() => cards[i].style.display = "none");
+            const include = gamename.includes(searchTerm);
+
+            // Hide/show card
+            const display = include ? "block" : "none";
+            window.requestAnimationFrame(() => cards[i].style.display = display);
+
+            // The card match the search value, skip
+            if (include) {
+                cardMatches += 1;
                 continue;
             }
             
             // Find the index of the last card that match the search string
             // From end to start
-            let lastIndex = i + 1;
-            for (let j = lastCompareIndex; j > i; j--) {
+            let lastIndex = -1;
+            for (let j = lastCompareIndex - 1; j > i; j--) {
                 const gamenameInternal = cards[j].info.name.toUpperCase();
                 if (gamenameInternal.includes(searchTerm)) {
                     lastIndex = j;
@@ -126,8 +131,20 @@ class CardPaginator extends HTMLElement {
 
             // Swap nodes
             lastCompareIndex = lastIndex;
+            if (lastIndex === -1) continue;
             this._swapNodes(cards[i], cards[lastIndex]);
         }
+
+        // After the search, we nedd to hide the "empty" selectors
+        const pages = this.querySelectorAll("li[id^='selector_']");
+        const lastVisibleSelectorID = Math.ceil(cardMatches/this.CARDS_FOR_PAGE);
+        window.requestAnimationFrame(() => {
+            for (const page of pages) {
+                const id = parseInt(page.id.replace("selector_", ""));
+                const visibility = id < lastVisibleSelectorID ? "inline-block" : "none";
+                page.style.display = visibility;
+            }
+        });
     }
 
     add(card) {

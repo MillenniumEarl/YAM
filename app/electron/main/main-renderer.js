@@ -60,6 +60,9 @@ document.querySelector("#search-game-name").addEventListener("input", function o
         .getElementById("search-game-name")
         .value.toUpperCase();
 
+    document.querySelector("card-paginator").search(searchText);
+    return;
+
     // Obtain all the available GameCard
     const gameCards = document.querySelectorAll("game-card");
 

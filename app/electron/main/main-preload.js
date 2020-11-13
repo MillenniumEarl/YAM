@@ -30,6 +30,7 @@ const {
     exists,
 } = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
+const sorter = require("../../src/scripts/cards-sorter.js");
 
 // Set F95API logger level
 F95API.loggerLevel = "warn";
@@ -58,6 +59,16 @@ const validSendChannels = [
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
+    /**
+     * Expose sorter functions.
+     */
+    sorter: sorter,
+    /**
+     * Sort the cards in the paginator.
+     * @param {CardPaginator} paginator
+     * @param {Function} sortFunction
+     */
+    sortPaginator: (paginator, sortFunction) => paginator.sort(sortFunction),
     /**
      * Directory of the app.js file.
      */

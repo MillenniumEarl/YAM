@@ -15,7 +15,7 @@ class GameCard extends HTMLElement {
      */
     connectedCallback() {
         // Prepare DOM
-        this._prepareDOM();
+        if (!this._loadedDOM) this._prepareDOM();
         this._loadedDOM = true;
 
         /* Set events listeners for the buttons */
