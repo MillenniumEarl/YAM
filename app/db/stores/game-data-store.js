@@ -87,6 +87,14 @@ class GameDataStore {
 
     /**
      * @public
+     * Count the number of records in the database.
+     */
+    countAll() {
+        return this._db.count();
+    }
+
+    /**
+     * @public
      * Search for specific records in the database
      * @param {Object} query Dictionary used for search
      */

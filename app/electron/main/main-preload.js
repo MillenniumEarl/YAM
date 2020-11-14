@@ -323,4 +323,5 @@ contextBridge.exposeInMainWorld("DB", {
     readAll: () => dbstore.readAll(),
     write: (gameinfo) => dbstore.write(gameinfo),
     search: (query) => dbstore.search(query),
+    count: () => dbstore.countAll(),
 });
