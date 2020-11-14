@@ -79,14 +79,6 @@ class GameDataStore {
 
     /**
      * @public
-     * Reads all the records from the database.
-     */
-    readAll() {
-        return this._db.find();
-    }
-
-    /**
-     * @public
      * Count the number of records in the database.
      */
     countAll() {
@@ -96,7 +88,7 @@ class GameDataStore {
     /**
      * @public
      * Search for specific records in the database
-     * @param {Object} query Dictionary used for search
+     * @param {Object} query Dictionary used for search. If `{}` return all the records.
      */
     search(query) {
         return this._db.find(query);

@@ -6,7 +6,8 @@ class CardPaginator extends HTMLElement {
 
         this.CARDS_FOR_PAGE = 8;
         this.MAX_VISIBLE_PAGES = 5;
-        this._updated = false;
+        this._searchQuery = {};
+        this._sortQuery = {name: 1};
     }
 
     /**
@@ -28,9 +29,9 @@ class CardPaginator extends HTMLElement {
         if (e.target.parentNode.classList.contains("disabled")) return;
 
         // Obtain the ID of the currently selected page selector
-        const id = this._getCurrentSelectorID();
-        if(id === -1) return;
-        this._switchPage(id + 1);
+        const index = this._getCurrentIndex();
+        if (index === -1) return;
+        this._switchContext(index + 1);
     }
 
     /**
@@ -43,9 +44,9 @@ class CardPaginator extends HTMLElement {
         if(e.target.parentNode.classList.contains("disabled")) return;
 
         // Obtain the ID of the currently selected page selector
-        const id = this._getCurrentSelectorID();
-        if (id === -1) return;
-        this._switchPage(id - 1);
+        const index = this._getCurrentIndex();
+        if (index === -1) return;
+        this._switchContext(index - 1);
     }
 
     /**
@@ -56,38 +57,19 @@ class CardPaginator extends HTMLElement {
     _selectPage(e) {
         const selectorID = e.target.parentNode.id;
         const index = parseInt(selectorID.replace("selector_", ""));
-        this._switchPage(index);
+        this._switchContext(index);
     }
     
     //#endregion Events
 
     //#region Public methods
+    
     /**
      * @public
-     * Create a paged DIV containing the cards passed by parameter.
-     * @param {GameCard} cards List of cards to paginate
+     * Load and show the first page of the records in the database.
      */
-    async paginate() {
-        // Get all the games save din the database
-        const records = await window.DB.readAll().;
-
-        // Obtain a list of list of cards
-        const chunks = this._chunkArray(cards, this.CARDS_FOR_PAGE);
-
-        // Iterate the chunks and create a page for every chunk
-        const pageList = [];
-        for (const chunk of chunks) {
-            const page = this._createPage();
-
-            // Add cards to page
-            chunk.forEach((card) => this._addGameCardToPage(card, page));
-
-            // Add page to list
-            pageList.push(page);
-        }
-
-        // Create and return the entire structure
-        window.requestAnimationFrame(() => this._createIndexPage(pageList));
+    load() {
+        this._switchContext(0);
     }
 
     /**
@@ -96,86 +78,37 @@ class CardPaginator extends HTMLElement {
      * @param {String} name Case-sensitive value to search
      */
     search(value) {
-        // Select all the gamecard
-        const cards = this.querySelectorAll("game-card");
-        
-        // Search text
-        let lastCompareIndex = cards.length;
-        let cardMatches = 0;
-        for(let i = 0; i < cards.length; i++) {
-            // In-loop variables
-            const gamename = cards[i].info.name.toUpperCase();
-            const include = gamename.includes(value);
+        // Build the query
+        if(value.trim() !== "") {
+            const re = new RegExp(value);
+            this._searchQuery = {
+                name: re
+            };
+        } else this._searchQuery = {};
 
-            // Hide/show card
-            const display = include ? "block" : "none";
-            window.requestAnimationFrame(() => cards[i].style.display = display);
-
-            // The card match the search value, skip
-            if (include) {
-                cardMatches += 1;
-                continue;
-            }
-            
-            // Find the index of the last card that match the search string
-            // From end to start
-            let lastIndex = -1;
-            for (let j = lastCompareIndex - 1; j > i; j--) {
-                const gamenameInternal = cards[j].info.name.toUpperCase();
-                if (gamenameInternal.includes(value)) {
-                    lastIndex = j;
-                    break;
-                }
-            }
-
-            // Swap nodes
-            lastCompareIndex = lastIndex;
-            if (lastIndex === -1) continue;
-            this._swapNodes(cards[i], cards[lastIndex]);
-        }
-
-        // After the search, we nedd to hide the "empty" selectors
-        const pages = this.querySelectorAll("li[id^='selector_']");
-        const lastVisibleSelectorID = Math.ceil(cardMatches/this.CARDS_FOR_PAGE);
-        window.requestAnimationFrame(() => {
-            for (const page of pages) {
-                const id = parseInt(page.id.replace("selector_", ""));
-                const visibility = id < lastVisibleSelectorID ? "inline-block" : "none";
-                page.style.display = visibility;
-            }
-        });
-    }
-
-    add(card) {
-
-    }
-
-    remove(card) {
-
+        // Load the first page
+        this._switchContext(0);
     }
 
     /**
      * @public
-     * Sort the gamecards with the specified sort function. 
-     * @param {Function} sortFunction Sorting function
+     * Reload the current page.
+     * Useful after adding/removing a card.
      */
-    sort(sortFunction) {
-        if (!sortFunction) throw new Error("Missing sorting function");
-
-        // Select all the gamecard
-        const cards = this.querySelectorAll("game-card");
-
-        // Sort
-        const sorted = Array.from(cards).sort((a, b) => sortFunction(a, b));
-
-        for (let i = 0; i < cards.length; i++) {
-            // Ignore same element
-            if(cards[i].info.id === sorted[i].info.if) continue;
-
-            // Swap
-            this._swapNodes(cards[i], sorted[i]);
-        }
+    reload() {
+        const index = this._getCurrentIndex();
+        this._switchContext(index);
     }
+
+    /**
+     * @public
+     * Sort the gamecards with the specified method.
+     * @deprecated Need improvement
+     */
+    sort(method) {
+        if(!method) this._sortQuery = {name: 1};
+    }
+
     //#endregion Public methods
 
     //#region Private methods
@@ -199,100 +132,37 @@ class CardPaginator extends HTMLElement {
         this.appendChild(template.content.cloneNode(true));
 
         /* Define elements in DOM */
-        this.container = this.querySelector("#pagination-content");
+        this.root = this.querySelector("#paginator-root");
+        this.content = this.querySelector("#pagination-content");
+        this.pageSelectorsParent = this.querySelector("#pagination-page-selectors");
 
         /* Bind function to use this */
-        this._getCurrentSelectorID = this._getCurrentSelectorID.bind(this);
-        this._getMinIDMissingRight = this._getMinIDMissingRight.bind(this);
-        this._showNearSelectors = this._showNearSelectors.bind(this);
+        this._getCurrentIndex = this._getCurrentIndex.bind(this);
         this._manageNextPrecButtons = this._manageNextPrecButtons.bind(this);
         this._createSelectorButton = this._createSelectorButton.bind(this);
-        this._createIndexPage = this._createIndexPage.bind(this);
         this._createPrevButton = this._createPrevButton.bind(this);
         this._createNextButton = this._createNextButton.bind(this);
         this._prevPage = this._prevPage.bind(this);
         this._nextPage = this._nextPage.bind(this);
         this._switchPage = this._switchPage.bind(this);
         this._selectPage = this._selectPage.bind(this);
+        this._getStartEndPages = this._getStartEndPages.bind(this);
+        this._switchContext = this._switchContext.bind(this);
     }
 
     //#region Utility
-    /**
-     * @private
-     * Returns an array with arrays of the given size.
-     * @param {Array} array Array to split
-     * @param {number} size Size of every group
-     */
-    _chunkArray(array, size) {
-        const results = [];
-
-        while (array.length) {
-            results.push(array.splice(0, size));
-        }
-
-        return results;
-    }
-
+    
     /**
      * @private
      * Gets the ID of the currently selected page selector.
      */
-    _getCurrentSelectorID() {
+    _getCurrentIndex() {
+        // get the active page, if none is found return -1
         const activePage = this.querySelector("li.active");
         if(!activePage) return -1;
-        const currentSelectorID = parseInt(activePage.id.replace("selector_", ""), 10);
-        return currentSelectorID;
-    }
 
-    /**
-     * @private
-     * Calculates the minimum ID that an element must have to 
-     * be included in visible selectors when the desired selector 
-     * is near the last selector available
-     * @param {number} n Total number of page selectors
-     * @param {number} i Index of the selected page selector
-     */
-    _getMinIDMissingRight(n, i) {
-        // Number of elements to the right and
-        // to the left of the desired selector
-        const nRight = n - i - 1;
-        const nLeft = this.MAX_VISIBLE_PAGES - nRight - 1;
-        const minLeftID = i - nLeft;
-        return minLeftID;
-    }
-
-    /**
-     * @private
-     * Show page selectors next to the one indicated by `index`, hide the others.
-     * @param {number} index ID of the currently selected page selector
-     */
-    _showNearSelectors(index) {
-        // Local variables
-        const pageSelectors = this.querySelectorAll("li[id^='selector']");
-        const MAX_VISIBLE_PAGES = 5;
-        const elementForSide = Math.floor((MAX_VISIBLE_PAGES - 1) / 2);
-        const leftMissing = index - elementForSide < 0;
-        const rightMissing = index + elementForSide > pageSelectors.length - 1;
-        const minLeftID = this._getMinIDMissingRight(pageSelectors.length, index);
-
-        // Select the page selectors
-        for (const selector of pageSelectors) {
-            // Extract ID
-            const id = parseInt(selector.id.replace("selector_", ""), 10);
-
-            // Evaluate positional distance between 
-            // desired selector and current loop selector
-            const distance = Math.abs(index - id);
-
-            if (distance === 0) continue;
-            else if (distance <= elementForSide) {
-                selector.style.display = "inline-block";
-            } else if (leftMissing && id < MAX_VISIBLE_PAGES) {
-                selector.style.display = "inline-block";
-            } else if (rightMissing && id >= minLeftID) {
-                selector.style.display = "inline-block";
-            } else selector.style.display = "none";
-        }
+        // Parse and return the current index
+        return parseInt(activePage.id.replace("selector_", ""), 10);
     }
 
     /**
@@ -302,113 +172,123 @@ class CardPaginator extends HTMLElement {
      */
     _manageNextPrecButtons() {
         // Get the elements
-        const id = this._getCurrentSelectorID();
-        if(id === -1) return;
+        const index = this._getCurrentIndex();
+        if(index === -1) return;
 
-        const pageSelectors = this.querySelectorAll("li[id^='selector']");
+        // Get elements
+        const selectorsCount = this.querySelectorAll("li[id^='selector']").length;
         const prevPageSelector = this.querySelector("#prev-page");
         const nextPageSelector = this.querySelector("#next-page");
         
         // Manage the prev button
-        if(id === 0) {
-            prevPageSelector.classList.remove("enabled");
-            prevPageSelector.classList.add("disabled");
-        }
-        else {
-            prevPageSelector.classList.add("enabled");
-            prevPageSelector.classList.remove("disabled");
-        }
+        let toAdd = index === 0 ? "disabled" : "enabled";
+        let toRemove = index === 0 ? "enabled" : "disabled";
+        prevPageSelector.classList.remove(toRemove);
+        prevPageSelector.classList.add(toAdd);
 
         // Manage the next button
-        if (id === pageSelectors.length - 1) {
-            nextPageSelector.classList.remove("enabled");
-            nextPageSelector.classList.add("disabled");
-        } else {
-            nextPageSelector.classList.add("enabled");
-            nextPageSelector.classList.remove("disabled");
+        toAdd = index === selectorsCount - 1 ? "disabled" : "enabled";
+        toRemove = index === selectorsCount - 1 ? "enabled" : "disabled";
+        nextPageSelector.classList.remove(toRemove);
+        nextPageSelector.classList.add(toAdd);
+    }
+
+    /**
+     * @private
+     * Obtains the records of the page specified by `index`.
+     * @param {number} index Index of the page to prepare
+     * @param {number} size Size of each page
+     */
+    async _paginate(index, size) {
+        return await window.DB.search(this._searchQuery)
+            .skip(index * size) // Skip the first "index" pages
+            .limit(size) // Get the next "size" records
+            .sort(this._sortQuery); // Sort (default: alphabetically)
+    }
+
+    /**
+     * @private
+     * Load the page with the index used as argument.
+     * @param {number} index Index of the page to load
+     */
+    async _switchPage(index) {
+        // Get the properties of the selected records
+        const records = await this._paginate(index, this.CARDS_FOR_PAGE);
+
+        // Remove all columns containing game cards
+        this.content.querySelectorAll("div.col").forEach(n => n.remove());
+
+        // Create the game-cards
+        for (const r of records) {
+            // Create gamecard
+            const gamecard = document.createElement("game-card");
+
+            // Load info
+            gamecard.loadData(r._id);
+
+            // Add cards to page
+            this._addGameCardToPage(gamecard, this.content);
         }
     }
 
     /**
      * @private
-     * Swap two elements in the DOM.
-     * @param {Element} first First element to swap
-     * @param {Element} second Second element to swap
-     * @see https://preview.tinyurl.com/y3jq5aur
-     * @author br4nnigan
+     * Gets the range of page indexes to display "around" the index passed as a parameter.
+     * @param {number} index Index of the page to be displayed
      */
-    _swapNodes(first, second) {
-        const parentFirst = first.parentNode;
-        const parentSecond = second.parentNode;
-        let indexFirst, indexSecond;
+    async _getStartEndPages(index) {
+        // Local variables
+        const recordsNumber = await window.DB.countAll();
+        const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
 
-        // Return if parents are not defined or 
-        // if one of the arguments is a parent
-        if (!parentFirst || 
-            !parentSecond || 
-            parentFirst.isEqualNode(second) || 
-            parentSecond.isEqualNode(first)) 
-            return;
-
-        // Find the index of the element in the list of it's parent childrens
-        for (let i = 0; i < parentFirst.children.length; i++) {
-            if (parentFirst.children[i].isEqualNode(first)) {
-                indexFirst = i;
+        // If there aren't enough pages...
+        if (nPages < this.MAX_VISIBLE_PAGES) {
+            if (index < 0 || index > nPages) {
+                throw new Error(`index (${index}) must be between (0) and (${nPages})`);
             }
-        }
-        
-        // Find the index of the element in the list of it's parent childrens
-        for (let i = 0; i < parentSecond.children.length; i++) {
-            if (parentSecond.children[i].isEqualNode(second)) {
-                indexSecond = i;
-            }
+            return {
+                start: 0,
+                end: nPages - 1,
+            };
         }
 
-        // ?
-        if (parentFirst.isEqualNode(parentSecond) && indexFirst < indexSecond) {
-            indexSecond++;
+        // ...else, get the side number of visible page selectors
+        const pageSideRange = Math.floor((this.MAX_VISIBLE_PAGES / 2));
+        let start = index - pageSideRange;
+        let end = index + pageSideRange;
+
+        // Manage the "border" cases
+        if (start < 0) {
+            start = 0;
+            end = this.MAX_VISIBLE_PAGES - 1;
+        }
+        if (end > nPages) {
+            start = nPages - this.MAX_VISIBLE_PAGES;
+            end = nPages - 1;
         }
 
-        // Swap nodes
-        window.requestAnimationFrame(() => {
-            parentFirst.insertBefore(second, parentFirst.children[indexFirst]);
-            parentSecond.insertBefore(first, parentSecond.children[indexSecond]);
-        });
+        return {
+            start: start,
+            end: end,
+        };
     }
 
     /**
      * @private
-     * Select the page with the index used as argument.
-     * @param {number} index Index of the page to select
+     * Change the page, showing the content and setting the page selectors appropriately.
+     * @param {number} index Index of the page to be displayed
      */
-    _switchPage(index) {
-        // Obtain the selectors and the contents
-        const activePage = this.querySelector("li.active");
-        const currentPage = this.querySelector(`#selector_${index}`);
-        const activeContent = this.querySelector(".page-selected");
-        const currentContent = this.querySelector(`#page_${index}`);
+    _switchContext(index) {
+        window.requestAnimationFrame(async () => {
+            // Load the first page
+            await this._switchPage(index);
 
-        // Show/hide elements in a optimized way
-        window.requestAnimationFrame(() => {
-            // First check if there is an active page
-            if (activePage) activePage.classList.remove("active");
-            if (activeContent) {
-                activeContent.classList.remove("page-selected");
-                activeContent.style.display = "none";
-            }
-
-            // Then select the current content
-            if (currentPage) currentPage.classList.add("active");
-            if (currentContent) {
-                currentContent.classList.add("page-selected");
-                currentContent.style.display = "block";
-            }
+            // Prepare the page selectors
+            const limitPages = await this._getStartEndPages(index);
+            this._createPageSelectors(limitPages.start, limitPages.end, index);
 
             // Enable/disable the next/prev buttons
             this._manageNextPrecButtons();
-
-            // Show the nearest page selectors
-            this._showNearSelectors(index);
         });
     }
     //#endregion Utility
@@ -462,9 +342,6 @@ class CardPaginator extends HTMLElement {
         li.id = `selector_${index}`;
         li.classList.add("waves-effect");
 
-        // The first page is selected by default
-        //if (index === 0) li.classList.add("active");
-
         // Create the page number
         const a = document.createElement("a");
         a.innerText = index + 1;
@@ -500,49 +377,23 @@ class CardPaginator extends HTMLElement {
 
     /**
      * @private
-     * Create a DIV element used as a single page for cards pagination.
+     * Creates page selectors with index between `start` and `end`.
+     * @param {number} start Create pages from the one with this index
+     * @param {number} end Create pages up to this index (excluded)
+     * @param {number} selected Selector index to be selected from those created
      */
-    _createPage() {
-        // Create the div
-        const div = document.createElement("div");
+    _createPageSelectors(start, end, selected) {
+        // Validate selected index
+        if(selected < start || selected > end) 
+            throw new Error(`selected (${selected}) must be between start (${start}) and end (${end})`);
 
-        // Add the materializecss class "row"
-        div.classList.add("row");
-
-        return div;
-    }
-
-    /**
-     * @private
-     * Create the HTML structure for pagination, with selectors and contents.
-     * @param {HTMLDivElement[]} pages Pages to add as content
-     */
-    _createIndexPage(pages) {
-        // Local variables
-        let lastID = 0;
-
-        // No pages, exit
-        if (pages.length === 0) return;
-
-        // Create the selector element with materializecss
-        const ul = document.createElement("ul");
-        ul.classList.add("pagination", "center-align");
+        // Remove all the page selectors
+        this.pageSelectorsParent.querySelectorAll("li[id^='selector']").forEach(n => n.remove());
         
-        // Add the single page
-        for(const page of pages) {
-            // Prepare the page and append it
-            page.id = `page_${lastID}`;
-
-            // Show the first page
-            page.style.display = "none";
-            this.container.appendChild(page);
-
-            // Create the selector
-            const li = this._createSelectorButton(lastID);
-            ul.appendChild(li);
-
-            // Increment counter
-            lastID += 1;
+        // Create and adds the page selectors
+        for (let i = start; i < end; i++) {
+            const li = this._createSelectorButton(i);
+            this.pageSelectorsParent.appendChild(li);
         }
 
         // Create the previous/next page selector
@@ -551,15 +402,8 @@ class CardPaginator extends HTMLElement {
 
         // Add the previous page selector as first child
         // then the next page selector
-        ul.insertBefore(prev, ul.firstChild);
-        ul.appendChild(next);
-        
-        // Add the index to the root
-        const root = this.querySelector(".card-paginator");
-        root.appendChild(ul);
-
-        // Select the first page
-        this._switchPage(0);
+        this.pageSelectorsParent.insertBefore(prev, this.pageSelectorsParent.firstChild);
+        this.pageSelectorsParent.appendChild(next);
     }
     //#endregion Creation
 

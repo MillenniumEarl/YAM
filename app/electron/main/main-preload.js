@@ -320,7 +320,6 @@ contextBridge.exposeInMainWorld("DB", {
     insert: (gameinfo) => dbstore.insert(gameinfo.toJSON()),
     delete: (gameinfo) => dbstore.delete(gameinfo.dbid),
     read: (id) => dbstore.read(id),
-    readAll: () => dbstore.readAll(),
     write: (gameinfo) => dbstore.write(gameinfo),
     search: (query) => dbstore.search(query),
     count: () => dbstore.countAll(),
