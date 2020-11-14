@@ -5,9 +5,6 @@ const Datastore = require("nedb-promises");
 const Ajv = require("ajv");
 const gamedataSchema = require("../schemas/gamedata");
 
-// Modules from file
-const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
-
 /**
  * It allows you to store and get game data from a disk database.
  */
@@ -74,34 +71,26 @@ class GameDataStore {
      * @public
      * Reads a single record from the database.
      * @param {number} id ID of the record to read
-     * @returns {GameInfoExtended}
+     * @returns {Object} Dict of properties
      */
     read(id) {
-        const record = this._db.findOne({ id });
-        return Object.assign(new GameInfoExtended(), record);
+        return this._db.findOne({ id });
     }
 
     /**
      * @public
-     * Reads all the records in the database.
-     * @returns {GameInfoExtended[]}
+     * Reads all the records from the database.
      */
     readAll() {
-        const records = this._db.find();
-        const objects = [];
-        records.forEach(r => {
-            const o = Object.assign(new GameInfoExtended(), r);
-            objects.push(o);
-        });
-        return objects;
+        return this._db.find();
     }
 
     /**
-     * 
-     * @param {*} query 
+     * @public
+     * Search for specific records in the database
+     * @param {Object} query Dictionary used for search
      */
     search(query) {
-        //  { $regex: VALUE_TO_SEARCH} }
         return this._db.find(query);
     }
 

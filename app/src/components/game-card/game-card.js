@@ -331,7 +331,8 @@ class GameCard extends HTMLElement {
      * @param {number} id ID of the game as record in the database
      */
     async loadData(id) {
-        this.info = await window.DB.read(id);
+        const properties = await window.DB.read(id);
+        this.info = Object.assign(window.GIE.gamedata, properties);
     }
 
     /**

@@ -7,7 +7,6 @@ class CardPaginator extends HTMLElement {
         this.CARDS_FOR_PAGE = 8;
         this.MAX_VISIBLE_PAGES = 5;
         this._updated = false;
-        this._defaultSorter = null;
     }
 
     /**
@@ -17,17 +16,6 @@ class CardPaginator extends HTMLElement {
         // Prepare DOM
         this._prepareDOM();
     }
-
-    //#region Properties
-    /**
-     * Define the default sort function.
-     * @param {Function} f
-     */
-    set sortFunction(f) {
-        if(!f) throw new Error("Sort function is invalid");
-        this._defaultSorter = f;
-    }
-    //#endregion Properties
 
     //#region Events
     /**
@@ -79,7 +67,10 @@ class CardPaginator extends HTMLElement {
      * Create a paged DIV containing the cards passed by parameter.
      * @param {GameCard} cards List of cards to paginate
      */
-    paginate(cards) {
+    async paginate() {
+        // Get all the games save din the database
+        const records = await window.DB.readAll().;
+
         // Obtain a list of list of cards
         const chunks = this._chunkArray(cards, this.CARDS_FOR_PAGE);
 
