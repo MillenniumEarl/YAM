@@ -31,6 +31,7 @@ const {
 } = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
 const sorter = require("../../src/scripts/cards-sorter.js");
+const GameDataStore = require("../../db/stores/game-data-store.js");
 
 // Set F95API logger level
 F95API.loggerLevel = "warn";
@@ -311,4 +312,15 @@ contextBridge.exposeInMainWorld("GIE", {
 
         return gameinfo.getGameLauncher();
     }
+});
+
+// Expose the database methods
+const dbstore = new GameDataStore("");
+contextBridge.exposeInMainWorld("DB", {
+    insert: (gameinfo) => dbstore.insert(gameinfo.toJSON()),
+    delete: (gameinfo) => dbstore.delete(gameinfo.dbid),
+    read: (id) => dbstore.read(id),
+    readAll: () => dbstore.readAll(),
+    write: (gameinfo) => dbstore.write(gameinfo),
+    search: (query) => dbstore.search(query),
 });
