@@ -30,6 +30,7 @@ class GameDataStore {
         this._db = Datastore.create({
             filename: dbPath,
             timestampData: true,
+            autoload: true,
         });
     }
 
