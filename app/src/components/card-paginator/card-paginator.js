@@ -300,6 +300,9 @@ class CardPaginator extends HTMLElement {
             // Prepare the page selectors
             const limitPages = await this._getStartEndPages(index);
 
+            // Remove all the page selectors
+            this.pageSelectorsParent.querySelectorAll("li").forEach(n => n.remove());
+
             // Avoid creating selectors if:
             // + There are no pages
             if (limitPages.end - limitPages.start > 0) {
@@ -409,9 +412,6 @@ class CardPaginator extends HTMLElement {
         // Validate selected index
         if(selected < start || selected > end) 
             throw new Error(`selected (${selected}) must be between start (${start}) and end (${end})`);
-
-        // Remove all the page selectors
-        this.pageSelectorsParent.querySelectorAll("li").forEach(n => n.remove());
         
         // Create and adds the page selectors
         for (let i = start; i < end; i++) {
