@@ -1,8 +1,5 @@
 "use strict";
 
-/* Global variables */
-let lastGameCardID = 0;
-
 // Manage unhandled errors
 window.onerror = function (message, source, lineno, colno, error) {
     window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
@@ -45,7 +42,11 @@ document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded(
     openPage("main-games-tab");
 
     // Load cards in the paginator
-    document.querySelector("card-paginator").load();
+    const paginator = document.querySelector("card-paginator");
+    paginator.playListener = gameCardPlay;
+    paginator.updateListener = gameCardUpdate;
+    paginator.deleteListener = gameCardDelete;
+    paginator.load();
 
     // Load credentials
     await loadCredentials();
@@ -80,12 +81,20 @@ document
         const translation = await window.API.translate("MR adding game from url");
         sendToastToUser("info", translation);
 
-        // Add game to list (does not check version)
-        const card = addGameCard();
+        // Find game version
+        const unparsedName = gamePath.split("\\").pop();
+        const version = getGameVersionFromName(unparsedName);
+
+        // Add game to list
         const info = await window.F95.getGameDataFromURL(url);
-        card.info = info;
-        card.info.gameDirectory = gamePath;
-        card.saveGameData();
+
+        // Add data to the parsed game info
+        const converted = window.GIE.convert(info);
+        converted.version = version;
+        converted.gameDirectory = gamePath;
+
+        // Save data to database
+        await window.DB.insert(converted);
     });
 
 document
@@ -386,155 +395,116 @@ async function selectGameDirectories(multipleSelection) {
     else return gameFolderPaths;
 }
 
-/**
- * @private
- * Create an empty *game-card* and add it in the DOM.
- * @returns {HTMLElement} Created game-card element
- */
-function addGameCard() {
-    // Create a GameCard. The HTML is loaded when the custom element is connected to DOM, so:
-    // 1 - First we create the element
-    // 2 - When connect the element to DOM
-    // 3 - Lastly. we can change the "gamedata" property
-    const gameCard = document.createElement("game-card");
-    addEventListenerToGameCard(gameCard);
-    gameCard.setAttribute("id", `game-card-${lastGameCardID}`);
-    lastGameCardID += 1;
+async function gameCardPlay(e) {
+    if (!e.target) return;
+    const launcherPath = e.detail.launcher;
 
-    // Create a simil-table layout wit materialize-css
-    // "s6" means that the element occupies 6 of 12 columns with small screens
-    // "m5" means that the element occupies 5 of 12 columns with medium screens
-    // "l4" means that the element occupies 4 of 12 columns with large screens
-    // "xl3" means that the element occupies 3 of 12 columns with very large screens
-    // The 12 columns are the base layout provided by materialize-css
-    const column = document.createElement("div");
-    column.setAttribute("class", "col s6 m5 l4 xl3");
-    column.appendChild(gameCard);
+    // Check if the path exists
+    const exists = await window.IO.pathExists(launcherPath);
+    if (!exists) {
+        const translation = await window.API.translate("MR cannot find game path");
+        window.API.log.error(`Cannot find game path: ${launcherPath}`);
+        sendToastToUser("error", translation);
+        return;
+    }
 
-    // Connect the new column in DOM
-    const row = document.getElementById("game-cards-container");
-    row.appendChild(column);
-
-    return gameCard;
+    // Launch the game
+    window.API.send("exec", launcherPath);
 }
 
-/**
- * @private
- * Add the event listeners (play/update/delete) to a specific GameCard.
- * @param {GameCard} gamecard Object to add the listeners to
- */
-function addEventListenerToGameCard(gamecard) {
-    gamecard.addEventListener("play", async function gameCardPlay(e) {
-        if (!e.target) return;
-        const launcherPath = e.detail.launcher;
+async function gameCardUpdate(e) {
+    if (!e.target) return;
 
-        // Check if the path exists
-        const exists = await window.IO.pathExists(launcherPath);
-        if (!exists) {
-            const translation = await window.API.translate("MR cannot find game path");
-            window.API.log.error(`Cannot find game path: ${launcherPath}`);
-            sendToastToUser("error", translation);
-            return;
-        }
+    // Let the user update the game
+    const finalized = await window.API.invoke("update-messagebox",
+        e.detail.name,
+        e.detail.version,
+        e.detail.changelog,
+        e.detail.url,
+        e.detail.gameDirectory);
 
-        // Launch the game
-        window.API.send("exec", launcherPath);
-    });
+    // The user didn't complete the procedure
+    if (!finalized) return;
 
-    gamecard.addEventListener("update", async function gameCardUpdate(e) {
-        if (!e.target) return;
+    // Finalize the update
+    const result = await gamecard.finalizeUpdate();
+    if (result) return;
 
-        // Let the user update the game
-        const finalized = await window.API.invoke("update-messagebox",
-            gamecard.info.name,
-            e.detail.version,
-            e.detail.changelog,
-            e.detail.url,
-            e.detail.gameDirectory);
+    const translationError = await window.API.translate("MR error finalizing update");
+    sendToastToUser("error", translationError);
+    window.API.log.error(
+        "Cannot finalize the update, please check if another directory of the game exists"
+    );
+}
 
-        // The user didn't complete the procedure
-        if (!finalized) return;
+async function gameCardDelete(e) {
+    if (!e.target) return;
+    const savesExists = e.detail.savePaths.length !== 0 ? true : false;
 
-        // Finalize the update
-        const result = await gamecard.finalizeUpdate();
-        if(result) return;
-        
-        const translationError = await window.API.translate("MR error finalizing update");
-        sendToastToUser("error", translationError);
-        window.API.log.error(
-            "Cannot finalize the update, please check if another directory of the game exists"
-        );
-    });
+    // Ask the confirmation
+    const titleTranslation = await window.API.translate("MR confirm deletion");
+    const messageTranslation = await window.API.translate(
+        "MR message confirm deletion"
+    );
+    const checkboxTranslation = await window.API.translate(
+        "MR keep saves checkbox"
+    );
+    const removeOnlyTranslation = await window.API.translate(
+        "MR remove only game button"
+    );
+    const deleteAlsoTranslation = await window.API.translate(
+        "MR delete also button"
+    );
+    const cancelTranslation = await window.API.translate("MR cancel button");
+    let dialogOptions = {
+        type: "question",
+        buttons: [
+            removeOnlyTranslation,
+            deleteAlsoTranslation,
+            cancelTranslation,
+        ],
+        defaultId: 2, // Cancel
+        title: titleTranslation,
+        message: messageTranslation,
+    };
 
-    gamecard.addEventListener("delete", async function gameCardDelete(e) {
-        if (!e.target) return;
-        const savesExists = e.detail.savePaths.length !== 0 ? true : false;
+    if (savesExists) {
+        // Add option for save savegames
+        dialogOptions.checkboxLabel = checkboxTranslation;
+        dialogOptions.checkboxChecked = true;
+    }
 
-        // Ask the confirmation
-        const titleTranslation = await window.API.translate("MR confirm deletion");
-        const messageTranslation = await window.API.translate(
-            "MR message confirm deletion"
-        );
-        const checkboxTranslation = await window.API.translate(
-            "MR keep saves checkbox"
-        );
-        const removeOnlyTranslation = await window.API.translate(
-            "MR remove only game button"
-        );
-        const deleteAlsoTranslation = await window.API.translate(
-            "MR delete also button"
-        );
-        const cancelTranslation = await window.API.translate("MR cancel button");
-        let dialogOptions = {
-            type: "question",
-            buttons: [
-                removeOnlyTranslation,
-                deleteAlsoTranslation,
-                cancelTranslation,
-            ],
-            defaultId: 2, // Cancel
-            title: titleTranslation,
-            message: messageTranslation,
-        };
+    const data = await window.API.invoke("message-dialog", dialogOptions);
+    if (!data) return;
 
-        if (savesExists) {
-            // Add option for save savegames
-            dialogOptions.checkboxLabel = checkboxTranslation;
-            dialogOptions.checkboxChecked = true;
-        }
+    // Cancel button
+    if (data.response === 2) return;
 
-        const data = await window.API.invoke("message-dialog", dialogOptions);
-        if (!data) return;
+    // Copy saves
+    if (data.checkboxChecked && e.detail.savePaths && e.detail.name) {
+        const savePaths = e.detail.savePaths;
+        const exportedSavesDir = await window.API.invoke("savegames-data-dir");
+        const gameDirectory = window.API.join(exportedSavesDir, cleanGameName(e.detail.name));
+        await window.IO.mkdir(gameDirectory);
+        savePaths.forEach(async function copySaveGame(path) {
+            const name = path.split("\\").pop();
+            const newName = window.API.join(gameDirectory, name);
+            await window.IO.copy(path, newName);
+        });
+    }
 
-        // Cancel button
-        if (data.response === 2) return;
+    // Delete also game files
+    if (data.response === 1) {
+        const gameDirectory = e.detail.gameDirectory;
+        await window.IO.deleteFolder(gameDirectory);
+    }
 
-        // Copy saves
-        if (data.checkboxChecked && e.detail.savePaths && gamecard.info.name) {
-            const savePaths = e.detail.savePaths;
-            const exportedSavesDir = await window.API.invoke("savegames-data-dir");
-            const gameDirectory = window.API.join(exportedSavesDir, cleanGameName(gamecard.info.name));
-            await window.IO.mkdir(gameDirectory);
-            savePaths.forEach(async function copySaveGame(path) {
-                const name = path.split("\\").pop();
-                const newName = window.API.join(gameDirectory, name);
-                await window.IO.copy(path, newName);
-            });
-        }
+    // Remove the game data
+    gamecard.deleteGameData();
 
-        // Delete also game files
-        if (data.response === 1) {
-            const gameDirectory = e.detail.gameDirectory;
-            await window.IO.deleteFolder(gameDirectory);
-        }
-
-        // Remove the game data
-        gamecard.deleteGameData();
-
-        // Remove the column div containing the card
-        const id = gamecard.getAttribute("id");
-        document.querySelector(`#${id}`).parentNode.remove();
-    });
+    // Remove the column div containing the card
+    const id = gamecard.getAttribute("id");
+    document.querySelector(`#${id}`).parentNode.remove();
 }
 
 /**
