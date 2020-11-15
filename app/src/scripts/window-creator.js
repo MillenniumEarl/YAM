@@ -8,7 +8,6 @@ const {
     app,
     BrowserWindow,
     shell,
-    ipcMain,
 } = require("electron");
 const isDev = require("electron-is-dev");
 const Store = require("electron-store");
@@ -147,10 +146,6 @@ module.exports.createMessagebox = function (parent, type, title, message) {
     // adapt size to content
     w.webContents.once("dom-ready", () => {
         w.webContents.send("messagebox-arguments", type, title, message);
-        ipcMain.once("messagebox-resize", (e, args) => {
-            w.setSize(args[0], args[1], false);
-            w.center();
-        });
     });
 
     // Load the html file
@@ -184,14 +179,6 @@ module.exports.createURLInputbox = function(parent) {
 
     // Disable default menu
     if (!isDev) w.setMenu(null);
-
-    // Adapt size to content
-    w.webContents.once("dom-ready", () => {
-        ipcMain.once("window-resize", (e, args) => {
-            w.setSize(args[0], args[1], false);
-            w.center();
-        });
-    });
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "url-input.html");
@@ -285,8 +272,18 @@ function createBaseWindow(size, minSize, preloadPath, hasFrame, parent) {
     });
 
     // Show the window when is fully loaded (set the listener)
-    w.webContents.on("dom-ready", function () {
-        w.show();
+    w.webContents.on("did-finish-load", () => w.show());
+
+    // Intercept ipc messages for window command
+    w.webContents.on("ipc-message", function ipcMessage(e, channel, args) {
+        switch (channel) {
+        case "window-resize":
+            w.setSize(args[0], args[1], false);
+            w.center();
+            break;
+        default:
+            break;
+        }
     });
 
     return w;

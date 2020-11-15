@@ -41,9 +41,12 @@
         "glob": "^7.1.6",
         "i18next": "^19.8.3",
         "i18next-electron-language-detector": "0.0.10",
-        "image-downloader": "^4.0.1",
+        "imagemin": "^7.0.1",
+        "imagemin-gifsicle": "^7.0.0",
+        "imagemin-webp": "^6.0.0",
         "material-design-icons": "^3.0.1",
         "nedb-promises": "^4.1.0",
+        "simple-image-downloader": "^4.0.2",
         "string-similarity": "^4.0.2"
     },
     "devDependencies": {
