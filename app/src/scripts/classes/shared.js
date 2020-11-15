@@ -35,6 +35,11 @@ class Shared {
      * @type String
      */
     static #_credentialsName = "credentials.json";
+    /**
+     * Name of the database containing the data of the games.
+     * @type String
+     */
+    static #_databaseName = "games.db";
     //#endregion Private static properties
 
     //#region Getters
@@ -65,6 +70,14 @@ class Shared {
      */
     static get credentialsPath() {
         return join(this.#_cacheDir, this.#_credentialsName);
+    }
+
+    /**
+     * Name of the database containing the data of the games.
+     * @returns {String}
+     */
+    static get databasePath() {
+        return join(this.#_cacheDir, this.#_databaseName);
     }
     //#endregion Getters
 

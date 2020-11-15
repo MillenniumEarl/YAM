@@ -7,7 +7,6 @@ const {
 const {
     join
 } = require("path");
-const fs = require("fs");
 
 // Public module from npm
 const { GameInfo } = require("f95api");
@@ -21,7 +20,13 @@ const savesFinder = require("../save-files-finder.js");
  * used by the application.
  */
 class GameInfoExtended extends GameInfo {
-    super() {
+    constructor() {
+        super();
+        
+        /**
+         * Univoke ID of the game in the database.
+         */
+        this.dbid = -1;
         /**
          * Directory containing game files.
          * @type String
@@ -86,31 +91,10 @@ class GameInfoExtended extends GameInfo {
 
     /**
      * @public
-     * Save data to disk.
-     * @param {String} path 
-     */
-    save(path) {
-        const json = JSON.stringify(this.toJSON());
-        fs.writeFileSync(path, json);
-    }
-
-    /**
-     * @public
-     * Load data from disk.
-     * @param {String} path 
-     */
-    load(path) {
-        const json = fs.readFileSync(path, "utf-8");
-        const loadedInfo = this._fromJSON(json);
-        Object.assign(this, loadedInfo);
-    }
-
-    /**
-     * @public
      * Get game save files if development engine is supported.
      * @returns {Promise<String[]>} Paths to game save files
      */
-    async getSaves() {
+    getSaves() {
         return savesFinder.findSavesPath(this);
     }
     //#endregion Public methods

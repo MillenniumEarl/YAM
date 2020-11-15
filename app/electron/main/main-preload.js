@@ -31,6 +31,7 @@ const {
 } = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
 const sorter = require("../../src/scripts/cards-sorter.js");
+const GameDataStore = require("../../db/stores/game-data-store.js");
 
 // Set F95API logger level
 F95API.loggerLevel = "warn";
@@ -63,18 +64,6 @@ contextBridge.exposeInMainWorld("API", {
      * Expose sorter functions.
      */
     sorter: sorter,
-    /**
-     * Set the default sort function for search and sort.
-     * @param {CardPaginator} paginator
-     * @param {Function} f
-     */
-    setPaginatorDefaultSorter: (paginator, f) => paginator.sortFunction = f,
-    /**
-     * Sort the cards in the paginator.
-     * @param {CardPaginator} paginator
-     * @param {Function} sortFunction
-     */
-    sortPaginator: (paginator, sortFunction) => paginator.sort(sortFunction),
     /**
      * Directory of the app.js file.
      */
@@ -311,4 +300,18 @@ contextBridge.exposeInMainWorld("GIE", {
 
         return gameinfo.getGameLauncher();
     }
+});
+
+// Expose the database methods
+let dbstore = null;
+ipcRenderer.invoke("database-path").then(function (path) {
+    dbstore = new GameDataStore(path);
+});
+contextBridge.exposeInMainWorld("DB", {
+    insert: (gameinfo) => dbstore.insert(gameinfo),
+    delete: (gameinfo) => dbstore.delete(gameinfo.dbid),
+    read: (id) => dbstore.read(id),
+    write: (gameinfo) => dbstore.write(gameinfo),
+    search: (searchQuery, index, size, limit, sortQuery) => dbstore.search(searchQuery, index, size, limit, sortQuery),
+    count: () => dbstore.countAll(),
 });

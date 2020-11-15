@@ -44,25 +44,24 @@ document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded(
     // Select the default page
     openPage("main-games-tab");
 
-    // Set default sorter for paginator
-    const paginator = document.querySelector("card-paginator");
-    window.API.setPaginatorDefaultSorter(paginator, window.API.sorter.alphabetically);
+    // Load cards in the paginator
+    document.querySelector("card-paginator").load();
 
     // Load credentials
     await loadCredentials();
 
     // Load the cached games
-    await loadCachedGames();
+    //await loadCachedGames();
 
     // Login after loading games to allow the games to search for updates
-    await login();
+    login();
 });
 
 document.querySelector("#search-game-name").addEventListener("input", function onSearchGameName() {
     // Obtain the text
     const searchText = document
         .getElementById("search-game-name")
-        .value.toUpperCase();
+        .value;
 
     document.querySelector("card-paginator").search(searchText);
 });
@@ -102,7 +101,10 @@ document
         // Obtain the data
         const translation = await window.API.translate("MR adding game from path");
         sendToastToUser("info", translation);
-        getGameFromPaths(gameFolderPaths);
+        await getGameFromPaths(gameFolderPaths);
+
+        // Reload data in the paginator
+        document.querySelector("card-paginator").reload();
     });
 
 document
@@ -538,7 +540,6 @@ function addEventListenerToGameCard(gamecard) {
 }
 
 /**
- * @async
  * @private
  * Given a directory listing, it gets information about the games contained in them.
  * @param {String[]} paths Path of the directories containg games
@@ -574,12 +575,7 @@ async function getGameFromPath(path) {
 
     // Check if it is a mod
     const MOD_TAG = "[MOD]";
-    const includeMods = unparsedName.toUpperCase().includes(MOD_TAG) ?
-        true :
-        false;
-
-    // Find game version
-    const version = getGameVersionFromName(unparsedName);
+    const includeMods = unparsedName.toUpperCase().includes(MOD_TAG);
 
     // Get only the game title
     const name = cleanGameName(unparsedName);
@@ -587,42 +583,29 @@ async function getGameFromPath(path) {
     // Search and add the game
     const promiseResult = await window.F95.getGameData(name, includeMods);
 
-    // No game found
-    if (promiseResult.length === 0) {
-        const translation = await window.API.translate("MR no game found", {
+    // No/multiple game found
+    if(promiseResult.length !== 1) {
+        const key = promiseResult.length === 0 ? "MR no game found" : "MR multiple games found";
+        const translation = await window.API.translate(key, {
             "gamename": name
         });
         sendToastToUser("warning", translation);
-        return null;
-    } else if (promiseResult.length !== 1) {
-        const translation = await window.API.translate("MR multiple games found", {
-            "gamename": name
-        });
-        sendToastToUser("warning", translation);
-        return null;
+        return;
     }
 
     // Add data to the parsed game info
     const converted = window.GIE.convert(promiseResult[0]);
-    const onlineGame = promiseResult[0];
-    const onlineVersion = onlineGame.version;
-    onlineGame.gameDirectory = path;
-    onlineGame.version = version;
+    converted.version = getGameVersionFromName(unparsedName);
+    converted.gameDirectory = path;
 
-    // Update local data
-    const card = addGameCard();
-    card.info = onlineGame;
-    card.saveGameData();
-    if (onlineVersion.toUpperCase() !== version.toUpperCase()) {
-        card.notificateUpdate(converted);
-    }
+    // Save data to database
+    await window.DB.insert(converted);
 
     // Game added correctly
     const translation = await window.API.translate("MR game successfully added", {
         "gamename": name
     });
     sendToastToUser("info", translation);
-    return card;
 }
 
 /**
@@ -727,7 +710,7 @@ async function loadCachedGames() {
     }
     
     // Load cards in the paginator
-    document.querySelector("card-paginator").paginate(cards);
+    document.querySelector("card-paginator").load();
 
     // Write end log
     window.API.log.info("Cached games loaded");
@@ -811,12 +794,13 @@ async function getUserDataFromF95() {
 // Called when the window is being closed
 window.API.receive("window-closing", async function onWindowClosing() {
     // Save data game
-    const cardGames = document.querySelectorAll("game-card");
+    const paginator = document.querySelector("card-paginator");
+    const cardGames = paginator.querySelectorAll("game-card");
     const promiseList = [];
 
     // Save data of the cards
     cardGames.forEach(function(card) {
-        const promise = card.saveGameData();
+        const promise = card.saveData();
         promiseList.push(promise);
     });
     await Promise.all(promiseList);
