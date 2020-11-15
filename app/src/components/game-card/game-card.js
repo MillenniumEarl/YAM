@@ -171,12 +171,10 @@ class GameCard extends HTMLElement {
         this.progressbar = this.querySelector("#gc-card-progressbar");
 
         /* Bind function to use this */
-        this.loadGameData = this.loadGameData.bind(this);
-        this.saveGameData = this.saveGameData.bind(this);
+        this.loadData = this.loadData.bind(this);
+        this.saveData = this.saveData.bind(this);
         this._refreshUI = this._refreshUI.bind(this);
-        this.deleteGameData = this.deleteGameData.bind(this);
-        this.notificateUpdate = this.notificateUpdate.bind(this);
-        this.finalizeUpdate = this.finalizeUpdate.bind(this);
+        this.deleteData = this.deleteData.bind(this);
         this.play = this.play.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
@@ -331,8 +329,7 @@ class GameCard extends HTMLElement {
      * @param {number} id ID of the game as record in the database
      */
     async loadData(id) {
-        const properties = await window.DB.read(id);
-        this.info = Object.assign(window.GIE.gamedata, properties);
+        this.info = await window.DB.read(id);
     }
 
     /**

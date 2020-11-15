@@ -16,7 +16,6 @@ class GameDataStore {
     constructor(dbPath) {
         // Create the JSON validator
         const ajv = new Ajv({
-            allErrors: true,
             useDefaults: true
         });
 
@@ -49,13 +48,16 @@ class GameDataStore {
      * Save a `GameInfoExtended` object in the database.
      * @param {Object} data Dictionary of properties of a `GameInfoExtended` object
      */
-    insert(data) {
+    async insert(data) {
         // Validate schema
         const isValid = this.validate(data);
-        if (!isValid) throw new Error("Invalid schema");
+        if (!isValid) {
+            const error = this._schemaValidator.errors[0];
+            throw new Error(`Invalid schema: ${error.dataPath} ${error.message}`);
+        }
 
         // Insert data
-        return this._db.insert(data);
+        return await this._db.insert(data);
     }
 
     /**
@@ -63,8 +65,8 @@ class GameDataStore {
      * Remove a record from the database.
      * @param {number} id The ID of the record to be deleted
      */
-    delete(id) {
-        return this._db.remove({id});
+    async delete(id) {
+        return await this._db.remove({id});
     }
 
     /**
@@ -73,25 +75,35 @@ class GameDataStore {
      * @param {number} id ID of the record to read
      * @returns {Object} Dict of properties
      */
-    read(id) {
-        return this._db.findOne({ id });
+    async read(id) {
+        return await this._db.findOne({ _id: id });
     }
 
     /**
      * @public
      * Count the number of records in the database.
      */
-    countAll() {
-        return this._db.count();
+    async countAll() {
+        return await this._db.count();
     }
 
     /**
      * @public
      * Search for specific records in the database
      * @param {Object} query Dictionary used for search. If `{}` return all the records.
+     * @param {number} index (optional) Index of the page to prepare
+     * @param {number} size (optional) Size of each page
+     * @param {number} limit (Optional) Max number of element in the results
+     * @param {Object} sortQuery (Optional) Sort the results
      */
-    search(query) {
-        return this._db.find(query);
+    async search(searchQuery, index, size, limit, sortQuery) {
+        const results = this._db.find(searchQuery);
+
+        if (index && size) results.skip(index * size); // Skip the first "index" pages
+        if (limit) results.limit(limit); // Get the next "size" records
+        if (sortQuery) results.sort(sortQuery);
+
+        return await results.exec();
     }
 
     /**
@@ -99,14 +111,15 @@ class GameDataStore {
      * Write a single object in the database.
      * @param {GameInfoExtended} data 
      */
-    write(data) {
+    async write(data) {
+        // Validate schema
+        const isValid = this.validate(data);
+        if (!isValid) throw new Error(`Invalid schema: ${this._schemaValidator.errors[0]}`);
+
         // Set the update query
-        const selectQuery = {_id : data.dbid};
+        const selectQuery = {_id : data._id};
 
-        // Parse data from object to dict of properties
-        const updateData = data.toJSON();
-
-        return this._db.update(selectQuery, updateData);
+        return await this._db.update(selectQuery, data);
     }
 }
 

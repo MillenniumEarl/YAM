@@ -20,7 +20,9 @@ const savesFinder = require("../save-files-finder.js");
  * used by the application.
  */
 class GameInfoExtended extends GameInfo {
-    super() {
+    constructor() {
+        super();
+        
         /**
          * Univoke ID of the game in the database.
          */

@@ -18,6 +18,17 @@ class CardPaginator extends HTMLElement {
         this._prepareDOM();
     }
 
+    /**
+     * Triggered once the element is removed from the DOM
+     */
+    disconnectedCallback() {
+        // Remove all columns containing game cards (and save the cards)
+        const cards = this.content.querySelectorAll("game-card");
+        cards.forEach(async function (card) {
+            await card.saveData();
+        });
+    }
+
     //#region Events
     /**
      * @private
@@ -78,9 +89,9 @@ class CardPaginator extends HTMLElement {
      * @param {String} name Case-sensitive value to search
      */
     search(value) {
-        // Build the query
+        // Build the query (regex with case insensitive)
         if(value.trim() !== "") {
-            const re = new RegExp(value);
+            const re = new RegExp(value, "i");
             this._searchQuery = {
                 name: re
             };
@@ -96,7 +107,8 @@ class CardPaginator extends HTMLElement {
      * Useful after adding/removing a card.
      */
     reload() {
-        const index = this._getCurrentIndex();
+        const currentIndex = this._getCurrentIndex();
+        const index = currentIndex !== -1 ? currentIndex : 0;
         this._switchContext(index);
     }
 
@@ -200,10 +212,7 @@ class CardPaginator extends HTMLElement {
      * @param {number} size Size of each page
      */
     async _paginate(index, size) {
-        return await window.DB.search(this._searchQuery)
-            .skip(index * size) // Skip the first "index" pages
-            .limit(size) // Get the next "size" records
-            .sort(this._sortQuery); // Sort (default: alphabetically)
+        return await window.DB.search(this._searchQuery, index, size, size, this._sortQuery);
     }
 
     /**
@@ -215,8 +224,13 @@ class CardPaginator extends HTMLElement {
         // Get the properties of the selected records
         const records = await this._paginate(index, this.CARDS_FOR_PAGE);
 
-        // Remove all columns containing game cards
-        this.content.querySelectorAll("div.col").forEach(n => n.remove());
+        // Remove all columns containing game cards (and save the cards)
+        const columns = this.content.querySelectorAll("div.col");
+        columns.forEach(async function(n) {
+            const gamecard = n.querySelector("game-card");
+            await gamecard.saveData();
+            n.remove();
+        });
 
         // Create the game-cards
         for (const r of records) {
@@ -224,7 +238,7 @@ class CardPaginator extends HTMLElement {
             const gamecard = document.createElement("game-card");
 
             // Load info
-            gamecard.loadData(r._id);
+            await gamecard.loadData(r._id);
 
             // Add cards to page
             this._addGameCardToPage(gamecard, this.content);
@@ -238,7 +252,7 @@ class CardPaginator extends HTMLElement {
      */
     async _getStartEndPages(index) {
         // Local variables
-        const recordsNumber = await window.DB.countAll();
+        const recordsNumber = await window.DB.count();
         const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
 
         // If there aren't enough pages...
@@ -269,7 +283,7 @@ class CardPaginator extends HTMLElement {
 
         return {
             start: start,
-            end: end,
+            end: end - 1,
         };
     }
 
@@ -285,10 +299,19 @@ class CardPaginator extends HTMLElement {
 
             // Prepare the page selectors
             const limitPages = await this._getStartEndPages(index);
-            this._createPageSelectors(limitPages.start, limitPages.end, index);
 
-            // Enable/disable the next/prev buttons
-            this._manageNextPrecButtons();
+            // Avoid creating selectors if:
+            // + There are no pages
+            if (limitPages.end - limitPages.start > 0) {
+                this._createPageSelectors(limitPages.start, limitPages.end + 1, index);
+
+                // Set the current page as active
+                const current = this.pageSelectorsParent.querySelector(`#selector_${index}`);
+                current.classList.add("active");
+
+                // Enable/disable the next/prev buttons
+                this._manageNextPrecButtons();
+            }
         });
     }
     //#endregion Utility
@@ -388,7 +411,7 @@ class CardPaginator extends HTMLElement {
             throw new Error(`selected (${selected}) must be between start (${start}) and end (${end})`);
 
         // Remove all the page selectors
-        this.pageSelectorsParent.querySelectorAll("li[id^='selector']").forEach(n => n.remove());
+        this.pageSelectorsParent.querySelectorAll("li").forEach(n => n.remove());
         
         // Create and adds the page selectors
         for (let i = start; i < end; i++) {

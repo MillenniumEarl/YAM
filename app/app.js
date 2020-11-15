@@ -160,6 +160,11 @@ ipcMain.handle("savegames-data-dir", function ipcMainHandleSaveGamesDataDir() {
 ipcMain.handle("credentials-path", function ipcMainHandleCredentialsPath() {
     return shared.credentialsPath;
 });
+
+ipcMain.handle("database-path", function ipcMainHandleDatabasePath() {
+    return shared.databasePath;
+});
+
 //#endregion shared app variables
 
 //#region IPC dialog for main window

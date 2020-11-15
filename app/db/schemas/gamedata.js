@@ -3,25 +3,22 @@ const gameDataSchema = {
     properties: {
         id: {
             type: "integer",
-            default: -1
         },
         name: {
             type: "string",
         },
         author: {
             type: "string",
-            default: null
         },
         url: {
             type: "string",
-            default: null
         },
         overview: {
-            type: "string",
+            type: ["string", "null"],
             default: null
         },
         language: {
-            type: "string",
+            type: ["string", "null"],
             default: null
         },
         supportedOS: {
@@ -30,30 +27,29 @@ const gameDataSchema = {
         },
         censored: {
             type: "boolean",
-            default: false
-        },
-        engine: {
-            type: "string",
-            default: null
-        },
-        status: {
-            type: "string",
-            default: null
+            default: false,
         },
         tags: {
             type: "array",
             default: []
         },
+        engine: {
+            type: ["string", "null"],
+            default: null
+        },
+        status: {
+            type: ["string", "null"],
+            default: null
+        },
         previewSrc: {
-            type: "string",
+            type: ["string", "null"],
             default: null
         },
         version: {
             type: "string",
-            default: null
         },
         lastUpdate: {
-            type: "object",
+            type: ["object", "null"],
             default: null
         },
         isMod: {
@@ -61,19 +57,18 @@ const gameDataSchema = {
             default: false
         },
         changelog: {
-            type: "string",
+            type: ["string", "null"],
             default: null
         },
         gameDirectory: {
             type: "string",
-            default: null
         },
         lastPlayed: {
-            type: "object",
+            type: ["object", "null"],
             default: null
         },
         localPreviewPath: {
-            type: "string",
+            type: ["string", "null"],
             default: null
         }
     },
