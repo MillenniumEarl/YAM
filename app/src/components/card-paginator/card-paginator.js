@@ -294,6 +294,8 @@ class CardPaginator extends HTMLElement {
         }
 
         // Create the game-cards
+        const newColumns = [];
+        const cards = [];
         for (const r of records) {
             // Create gamecard
             const gamecard = document.createElement("game-card");
@@ -307,10 +309,19 @@ class CardPaginator extends HTMLElement {
             gamecard.addEventListener("delete", this._deleteEventListener);
 
             // Add cards to page
-            this._addGameCardToPage(gamecard, this.content);
+            const column = this._createGridColumn();
+            column.appendChild(gamecard);
+            
+            newColumns.push(column);
+            cards.push(gamecard);
+        }
 
-            // Check for game updates
-            gamecard.checkUpdate();
+        // Add all the new created columns to the page
+        this.content.append(...newColumns);
+
+        // Check for game updates AFTER the card is attached to DOM
+        for(const card of cards) {
+            card.checkUpdate();
         }
     }
 
@@ -453,11 +464,9 @@ class CardPaginator extends HTMLElement {
 
     /**
      * @private
-     * Adds a gamecard to the specified page by creating a new responsive column.
-     * @param {GameCard} card 
-     * @param {HTMLDivElement} page 
+     * Create a responsive column that will hold a single gamecard.
      */
-    _addGameCardToPage(card, page) {
+    _createGridColumn() {
         // Create a simil-table layout with materialize-css
         // "s6" means that the element occupies 6 of 12 columns with small screens
         // "m5" means that the element occupies 5 of 12 columns with medium screens
@@ -466,12 +475,7 @@ class CardPaginator extends HTMLElement {
         // The 12 columns are the base layout provided by materialize-css
         const column = document.createElement("div");
         column.setAttribute("class", "col s6 m5 l4 xl3");
-
-        // Append GameCard
-        column.appendChild(card);
-        
-        // Connect the new column in DOM
-        page.appendChild(column);
+        return column;
     }
 
     /**
