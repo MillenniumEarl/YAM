@@ -28,6 +28,12 @@ document.querySelector("#settings-password-toggle").addEventListener("click", on
 
 document.querySelector("#settings-save-credentials-btn").addEventListener("click", onSaveCredentialsFromSettings);
 
+document.querySelector("#main-language-select").addEventListener("change", updateLanguage);
+
+document.querySelector("#main-navbar-games").addEventListener("click", openPage);
+
+document.querySelector("#main-navbar-settings").addEventListener("click", openPage);
+
 //#region Events listeners
 
 /**
@@ -56,9 +62,6 @@ async function onDOMContentLoaded() {
     const selects = document.querySelectorAll("select");
     // eslint-disable-next-line no-undef
     M.FormSelect.init(selects, {});
-
-    // Select the default page
-    openPage("main-games-tab");
 
     // Load cards in the paginator
     const paginator = document.querySelector("card-paginator");
@@ -172,6 +175,53 @@ async function onSaveCredentialsFromSettings() {
     const translation = await window.API.translate("MR credentials edited");
     sendToastToUser("info", translation);
 }
+
+/**
+ * Triggered when the user select a language from the <select> element.
+ * Change the language for the elements in the DOM.
+ */
+async function updateLanguage() {
+    // Parse user choice
+    const e = document.getElementById("main-language-select");
+    const selectedISO = e.options[e.selectedIndex].value;
+
+    // Change language via IPC
+    await window.API.changeLanguage(selectedISO);
+
+    // Refresh strings
+    await translateElementsInDOM();
+}
+
+/**
+ * Select the tab with the specified ID in DOM.
+ * @param {MouseEvent} e
+ */
+function openPage(e) {
+    // Get the ID of the div to show
+    const id = e.target.id === "main-navbar-settings" ? 
+        "main-settings-tab" : 
+        "main-games-tab";
+
+    // Hide all elements with class="tabcontent" by default
+    const tabcontent = document.getElementsByClassName("tabcontent");
+
+    // Use requestAnimationFrame to reduce rendering time
+    // see: https://stackoverflow.com/questions/37494330/display-none-in-a-for-loop-and-its-affect-on-reflow
+    window.requestAnimationFrame(function () {
+        // Hide the unused tabs
+        for (let i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        // Show the specific tab content
+        document.getElementById(id).style.display = "block";
+
+        // Hide/show the add game button
+        const fab = document.querySelector("#fab-add-game-btn");
+        if (id === "main-games-tab" && window.F95.logged) fab.style.display = "block";
+        else fab.style.display = "none";
+    });
+}
 //#endregion
 
 //#endregion Events
@@ -238,24 +288,6 @@ async function listAvailableLanguages() {
         // Add the option
         document.getElementById("main-language-select").appendChild(option);
     }
-}
-
-/**
- * @private
- * Triggered when the user select a language from the <select> element.
- * Change the language for the elements in the DOM.
- */
-// eslint-disable-next-line no-unused-vars
-async function updateLanguage() {
-    // Parse user choice
-    const e = document.getElementById("main-language-select");
-    const selectedISO = e.options[e.selectedIndex].value;
-
-    // Change language via IPC
-    await window.API.changeLanguage(selectedISO);
-
-    // Refresh strings
-    await translateElementsInDOM();
 }
 //#endregion Language
 
@@ -680,33 +712,6 @@ async function getUnlistedGamesInArrayOfPath(paths) {
     return gameFolderPaths;
 }
 //#endregion Adding game
-
-/**
- * @private
- * Select the tab with the specified ID in DOM.
- * @param {String} pageID
- */
-function openPage(pageID) {
-    // Hide all elements with class="tabcontent" by default
-    const tabcontent = document.getElementsByClassName("tabcontent");
-
-    // Use requestAnimationFrame to reduce rendering time
-    // see: https://stackoverflow.com/questions/37494330/display-none-in-a-for-loop-and-its-affect-on-reflow
-    window.requestAnimationFrame(function () {
-        // Hide the unused tabs
-        for (let i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-        }
-
-        // Show the specific tab content
-        document.getElementById(pageID).style.display = "block";
-
-        // Hide/show the add game button
-        const fab = document.querySelector("#fab-add-game-btn");
-        if (pageID === "main-games-tab" && window.F95.logged) fab.style.display = "block";
-        else fab.style.display = "none";
-    });
-}
 
 /**
  * @private

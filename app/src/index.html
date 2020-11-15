@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src
         https://f95zone.to; img-src 'self' https://static.f95zone.to https://attachments.f95zone.to">
     <title>F95 Game Updater</title>
 
@@ -29,11 +29,12 @@
         <div class="col s12">
             <ul class="tabs" id="tab-navigator">
                 <li id="default-open-tab" class="tab col s3 tablinks">
-                    <a href="#" class="localizable" id="main-navbar-games" onclick="openPage('main-games-tab')"> Games
+                    <a href="#" class="localizable" id="main-navbar-games"> 
+                        Games
                     </a>
                 </li>
                 <li class="tab col s3 tablinks">
-                    <a href="#" class="localizable" id="main-navbar-settings" onclick="openPage('main-settings-tab')">
+                    <a href="#" class="localizable" id="main-navbar-settings">
                         Settings
                     </a>
                 </li>
@@ -45,7 +46,7 @@
     </div>
 
     <!-- Tab content -->
-    <div id="main-games-tab" class="tabcontent" hidden>
+    <div id="main-games-tab" class="tabcontent">
         <!-- Search game name -->
         <div class="input-field col s9">
             <i class="material-icons prefix">search_white</i>
@@ -83,7 +84,7 @@
         <!-- Language -->
         <div class="row">
             <div class="input-field col s6 m4">
-                <select class="icons" id="main-language-select" onchange="updateLanguage()">
+                <select class="icons" id="main-language-select">
                 </select>
                 <label id="main-select-language-label" class="localizable">Select language</label>
             </div>
