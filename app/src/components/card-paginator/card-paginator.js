@@ -24,7 +24,51 @@ class CardPaginator extends HTMLElement {
          * @type Object
          */
         this._sortQuery = {name: 1};
+        /**
+         * Function called when the `play` event occurs on a GameCard.
+         * @type function
+         */
+        this._playEventListener = null;
+        /**
+         * Function called when the `update` event occurs on a GameCard.
+         * @type function
+         */
+        this._updateEventListener = null;
+        /**
+         * Function called when the `delete` event occurs on a GameCard.
+         * @type function
+         */
+        this._deleteEventListener = null;
     }
+
+    //#region Properties
+    /**
+     * Sets the function called when the `play` 
+     * event occurs on a GameCard.
+     * @param {function} f
+     */
+    set playListener(f) {
+        this._playEventListener = f;
+    }
+
+    /**
+     * Sets the function called when the `update` 
+     * event occurs on a GameCard.
+     * @param {function} f
+     */
+    set updateListener(f) {
+        this._updateEventListener = f;
+    }
+
+    /**
+     * Sets the function called when the `delete` 
+     * event occurs on a GameCard.
+     * @param {function} f
+     */
+    set deleteListener(f) {
+        this._deleteEventListener = f;
+    }
+    //#endregion Properties
 
     /**
      * Triggered once the element is added to the DOM
@@ -176,6 +220,7 @@ class CardPaginator extends HTMLElement {
         this._selectPage = this._selectPage.bind(this);
         this._getStartEndPages = this._getStartEndPages.bind(this);
         this._switchContext = this._switchContext.bind(this);
+        this._createPageSelectors = this._createPageSelectors.bind(this);
     }
 
     //#region Utility
@@ -255,6 +300,11 @@ class CardPaginator extends HTMLElement {
 
             // Load info
             await gamecard.loadData(r._id);
+
+            // Add cards listeners
+            gamecard.addEventListener("play", this._playEventListener);
+            gamecard.addEventListener("update", this._updateEventListener);
+            gamecard.addEventListener("delete", this._deleteEventListener);
 
             // Add cards to page
             this._addGameCardToPage(gamecard, this.content);
