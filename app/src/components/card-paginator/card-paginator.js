@@ -293,7 +293,7 @@ class CardPaginator extends HTMLElement {
      * @param {number} index Index of the page to be displayed
      */
     _switchContext(index) {
-        window.requestAnimationFrame(async () => {
+        window.requestAnimationFrame(async function animationOnSwitchContext() {
             // Load the first page
             await this._switchPage(index);
 
