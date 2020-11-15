@@ -4,9 +4,25 @@ class CardPaginator extends HTMLElement {
     constructor() {
         super();
 
+        /**
+         * Maximum number of cards viewable per page, must be a multiple of 4.
+         */
         this.CARDS_FOR_PAGE = 8;
+        /**
+         * Maximum number of selectors available at any time 
+         * for the user to be used. It must be an odd value.
+         */
         this.MAX_VISIBLE_PAGES = 5;
+        /**
+         * Dictionary used by NeDB to filter results from the database.
+         * `{}` selects all records.
+         * @type Object
+         */
         this._searchQuery = {};
+        /**
+         * Dictionary used by NeDB to sort results from the database.
+         * @type Object
+         */
         this._sortQuery = {name: 1};
     }
 
