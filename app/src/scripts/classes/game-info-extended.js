@@ -24,10 +24,6 @@ class GameInfoExtended extends GameInfo {
         super();
         
         /**
-         * Univoke ID of the game in the database.
-         */
-        this.dbid = -1;
-        /**
          * Directory containing game files.
          * @type String
          */
