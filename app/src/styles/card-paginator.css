@@ -3,17 +3,16 @@
 
 ul.pagination > li {
     border-radius: 50%;
-    color: var(--text-on-secondary);
 }
 
-ul.pagination > li.active {
+ul.pagination > li.active{
     background-color: var(--secondary-app);
 }
 
-ul.pagination > li.disabled {
+ul.pagination > li.disabled > a{
     color: var(--primary-light);
 }
 
-ul.pagination > li.enabled {
+ul.pagination > li > a {
     color: var(--text-on-secondary);
 }
