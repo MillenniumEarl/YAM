@@ -98,7 +98,7 @@ class GameCard extends HTMLElement {
      */
     play() {
         // Save the current date as last played session
-        this.info.lastPlayed = Date.now();
+        this.info.lastPlayed = new Date(Date.now());
 
         // Raise the event
         const playClickEvent = new CustomEvent("play", {
