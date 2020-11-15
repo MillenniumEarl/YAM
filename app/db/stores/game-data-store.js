@@ -115,7 +115,10 @@ class GameDataStore {
     async write(data) {
         // Validate schema
         const isValid = this.validate(data);
-        if (!isValid) throw new Error(`Invalid schema: ${this._schemaValidator.errors[0]}`);
+        if (!isValid) {
+            const error = this._schemaValidator.errors[0];
+            throw new Error(`Invalid schema: ${error.dataPath} ${error.message}`);
+        }
 
         // Set the update query
         const selectQuery = {_id : data._id};
