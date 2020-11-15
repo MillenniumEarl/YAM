@@ -308,6 +308,9 @@ class CardPaginator extends HTMLElement {
 
             // Add cards to page
             this._addGameCardToPage(gamecard, this.content);
+
+            // Check for game updates
+            gamecard.checkUpdate();
         }
     }
 

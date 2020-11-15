@@ -461,7 +461,7 @@ async function gameCardUpdate(e) {
     if (!finalized) return;
 
     // Finalize the update
-    const result = await gamecard.finalizeUpdate();
+    const result = await e.target.update();
     if (result) return;
 
     const translationError = await window.API.translate("MR error finalizing update");
@@ -682,34 +682,6 @@ async function getUnlistedGamesInArrayOfPath(paths) {
 }
 //#endregion Adding game
 
-//#region Cached games
-
-/**
- * @private
- * Check the version of the listed games
- * in the game-card components in DOM.
- */
-async function checkVersionCachedGames() {
-    window.API.log.info("Checking for game updates...");
-    const translation = await window.API.translate("MR checking games update");
-    sendToastToUser("info", translation);
-
-    // Get all the gamecards in DOM
-    const cardGames = document.querySelectorAll("game-card");
-    for (const card of cardGames) {
-        // Get version
-        const update = await window.F95.checkGameUpdates(card.info);
-
-        if(!update) continue;
-
-        // Trigger the component
-        const gameinfo = await window.F95.getGameDataFromURL(card.info.url);
-        const extended = window.GIE.convert(gameinfo);
-        card.notificateUpdate(extended);
-    }
-}
-//#endregion Cached games
-
 /**
  * @private
  * Select the tab with the specified ID in DOM.
@@ -816,9 +788,6 @@ window.API.receive("auth-result", async function onAuthResult(result) {
 
         // Load user data
         getUserDataFromF95();
-
-        // Check games updates
-        checkVersionCachedGames();
     } catch (e) {
         // Send error message
         const translation = await window.API.translate("MR cannot login", {

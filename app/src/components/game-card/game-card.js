@@ -39,9 +39,9 @@ class GameCard extends HTMLElement {
         this._loadedDOM = true;
 
         /* Set events listeners for the buttons */
-        this.playBtn.addEventListener("click", this.play);
-        this.updateBtn.addEventListener("click", this.update);
-        this.deleteBtn.addEventListener("click", this.delete);
+        this.playBtn.addEventListener("click", this.playEvent);
+        this.updateBtn.addEventListener("click", this.updateEvent);
+        this.deleteBtn.addEventListener("click", this.deleteEvent);
 
         // Refresh data
         window.requestAnimationFrame(() => this._refreshUI());
@@ -52,9 +52,9 @@ class GameCard extends HTMLElement {
      */
     disconnectedCallback() {
         /* Remove events listeners for the buttons*/
-        this.playBtn.removeEventListener("click", this.play);
-        this.updateBtn.removeEventListener("click", this.update);
-        this.deleteBtn.removeEventListener("click", this.delete);
+        this.playBtn.removeEventListener("click", this.playEvent);
+        this.updateBtn.removeEventListener("click", this.updateEvent);
+        this.deleteBtn.removeEventListener("click", this.deleteEvent);
     }
 
     //#region Properties
@@ -96,7 +96,7 @@ class GameCard extends HTMLElement {
      * @event
      * Triggered when user wants to play the game.
      */
-    play() {
+    playEvent() {
         // Save the current date as last played session
         this.info.lastPlayed = new Date(Date.now());
 
@@ -114,7 +114,7 @@ class GameCard extends HTMLElement {
      * @event
      * Triggered when user wants to update the game (and an update is available).
      */
-    update() {
+    updateEvent() {
         // Raise the event
         const updateClickEvent = new CustomEvent("update", {
             detail: {
@@ -132,7 +132,7 @@ class GameCard extends HTMLElement {
      * @event
      * Triggered when user wants to delete the game.
      */
-    async delete() {
+    async deleteEvent() {
         // Raise the event
         const deleteClickEvent = new CustomEvent("delete", {
             detail: {
@@ -175,9 +175,9 @@ class GameCard extends HTMLElement {
         this.saveData = this.saveData.bind(this);
         this._refreshUI = this._refreshUI.bind(this);
         this.deleteData = this.deleteData.bind(this);
-        this.play = this.play.bind(this);
-        this.update = this.update.bind(this);
-        this.delete = this.delete.bind(this);
+        this.playEvent = this.playEvent.bind(this);
+        this.updateEvent = this.updateEvent.bind(this);
+        this.deleteEvent = this.deleteEvent.bind(this);
 
         // Translate DOM
         this._translateElementsInDOM();
@@ -380,17 +380,24 @@ class GameCard extends HTMLElement {
     }
 
     /**
-     * @public
-     * Used to notificate the GameCard of a new version of the game.
-     * @param {GameInfoExtended} promise promise Promise of the game data scraping
-     * @deprecated
+     * Check if there is an update for the game. 
+     * If so, the card will show the 'Update' button.
      */
-    async notificateUpdate(gameinfo) {
+    async checkUpdate() {
         // Show the progress bar
         this.progressbar.style.display = "block";
 
-        // An update is available, show the button
-        this.querySelector(".update-p").style.display = "block";
+        // Check for updates...
+        const update = await window.F95.checkGameUpdates(this.info);
+        if (!update) {
+            // Hide progressbar
+            this.progressbar.style.display = "none";
+            return;
+        }
+
+        // Update available, fetch data...
+        const result = await window.F95.getGameDataFromURL(this.info.url);
+        const gameinfo = window.GIE.convert(result);
 
         // Change the text of the button
         const lenght = this.updateBtn.childNodes.length;
@@ -406,21 +413,19 @@ class GameCard extends HTMLElement {
 
         // Hide progressbar
         this.progressbar.style.display = "none";
+
+        // Show the update button
+        this.querySelector(".update-p").style.display = "block";
     }
     
     /**
      * @public
-     * Finalize the update renaming the game folder and showing the new info.
+     * Update the game renaming the game folder and showing the new info.
      * @return {Boolean} Result of the operation
-     * @deprecated
      */
-    async finalizeUpdate() {
-        if (!this._updateInfo) {
-            window.API.log.warn(
-                "No need to finalize the GameCard, no update notified"
-            );
-            return false;
-        }
+    async update() {
+        // If no update available, return
+        if(!this.info.updateAvailable) return false;
 
         // Prepare the directory paths
         const oldDirName = this.info.gameDirectory.split("\\").pop();
@@ -433,7 +438,8 @@ class GameCard extends HTMLElement {
         const newpath = window.API.join(dirpath, dirname);
 
         // Rename the old path
-        if (await window.IO.pathExists(newpath)) return false;
+        const exists = await window.IO.pathExists(newpath);
+        if (exists) return false;
         window.IO.renameDir(this.info.gameDirectory, newpath);
 
         // Update info
@@ -442,9 +448,9 @@ class GameCard extends HTMLElement {
         this.info.updateAvailable = false;
 
         // Save info
-        this.saveGameData();
+        this.saveData();
 
-        // Hide the button
+        // Hide the update button
         this.querySelector(".update-p").style.display = "none";
         return true;
     }
