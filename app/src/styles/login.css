@@ -88,5 +88,5 @@ div.progress {
 }
 
 .progress .indeterminate {
-    background-color: var(--secondary-app);
+    background-color: var(--secondary-app) !important;
 }
