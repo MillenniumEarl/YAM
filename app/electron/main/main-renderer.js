@@ -14,7 +14,26 @@ window.onerror = function (message, source, lineno, colno, error) {
 };
 
 //#region Events
-document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded() {
+document.addEventListener("DOMContentLoaded", onDOMContentLoaded);
+
+document.querySelector("#search-game-name").addEventListener("input", onSearchGameName);
+
+document.querySelector("#user-info").addEventListener("login", login);
+
+document.querySelector("#add-remote-game-btn").addEventListener("click", onAddRemoteGame);
+
+document.querySelector("#add-local-game-btn").addEventListener("click", onAddLocalGame);
+
+document.querySelector("#settings-password-toggle").addEventListener("click", onPasswordToggle);
+
+document.querySelector("#settings-save-credentials-btn").addEventListener("click", onSaveCredentialsFromSettings);
+
+//#region Events listeners
+
+/**
+ * Initialize and perform preliminary operations once the DOM is fully loaded.
+ */
+async function onDOMContentLoaded() {
     // This function runs when the DOM is ready, i.e. when the document has been parsed
     window.API.log.info("DOM loaded, initializing elements");
     await translateElementsInDOM();
@@ -53,101 +72,107 @@ document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded(
 
     // Login after loading games to allow the games to search for updates
     login();
-});
+}
 
-document.querySelector("#search-game-name").addEventListener("input", function onSearchGameName() {
+/**
+ * Displays games whose titles contain the value the user entered in the search box.
+ */
+function onSearchGameName() {
     // Obtain the text
     const searchText = document
         .getElementById("search-game-name")
         .value;
 
     document.querySelector("card-paginator").search(searchText);
-});
+}
 
-document.querySelector("#user-info").addEventListener("login", login);
+/**
+ * Adds an undetectable game on the PC via the game URL.
+ */
+async function onAddRemoteGame() {
+    // The user select a single folder
+    const gameFolderPaths = await selectGameDirectories(false);
+    if (gameFolderPaths.length === 0) return;
+    const gamePath = gameFolderPaths[0];
 
-document
-    .querySelector("#add-remote-game-btn")
-    .addEventListener("click", async function onAddRemoteGame() {
-        // The user select a single folder
-        const gameFolderPaths = await selectGameDirectories(false);
-        if (gameFolderPaths.length === 0) return;
-        const gamePath = gameFolderPaths[0];
+    // Ask the URL of the game
+    const url = await window.API.invoke("url-input");
+    if (!url) return;
 
-        // Ask the URL of the game
-        const url = await window.API.invoke("url-input");
-        if (!url) return;
+    const translation = await window.API.translate("MR adding game from url");
+    sendToastToUser("info", translation);
 
-        const translation = await window.API.translate("MR adding game from url");
-        sendToastToUser("info", translation);
+    // Find game version
+    const unparsedName = gamePath.split("\\").pop();
+    const version = getGameVersionFromName(unparsedName);
 
-        // Find game version
-        const unparsedName = gamePath.split("\\").pop();
-        const version = getGameVersionFromName(unparsedName);
+    // Add game to list
+    const info = await window.F95.getGameDataFromURL(url);
 
-        // Add game to list
-        const info = await window.F95.getGameDataFromURL(url);
+    // Add data to the parsed game info
+    const converted = window.GIE.convert(info);
+    converted.version = version;
+    converted.gameDirectory = gamePath;
 
-        // Add data to the parsed game info
-        const converted = window.GIE.convert(info);
-        converted.version = version;
-        converted.gameDirectory = gamePath;
+    // Save data to database
+    await window.DB.insert(converted);
 
-        // Save data to database
-        await window.DB.insert(converted);
-
-        // Game added correctly
-        const translationSuccess = await window.API.translate("MR game successfully added", {
-            "gamename": converted.name
-        });
-        sendToastToUser("info", translationSuccess);
-
-        // Reload data in the paginator
-        document.querySelector("card-paginator").reload();
+    // Game added correctly
+    const translationSuccess = await window.API.translate("MR game successfully added", {
+        "gamename": converted.name
     });
+    sendToastToUser("info", translationSuccess);
 
-document
-    .querySelector("#add-local-game-btn")
-    .addEventListener("click", async function onAddLocalGame() {
-        // The user select a single folder
-        const gameFolderPaths = await selectGameDirectories(true);
-        if (gameFolderPaths.length === 0) return;
+    // Reload data in the paginator
+    document.querySelector("card-paginator").reload();
+}
 
-        // Obtain the data
-        const translation = await window.API.translate("MR adding game from path");
-        sendToastToUser("info", translation);
-        await getGameFromPaths(gameFolderPaths);
+/**
+ * Add one or more games on the PC.
+ */
+async function onAddLocalGame() {
+    // The user select a single folder
+    const gameFolderPaths = await selectGameDirectories(true);
+    if (gameFolderPaths.length === 0) return;
 
-        // Reload data in the paginator
-        document.querySelector("card-paginator").reload();
-    });
+    // Obtain the data
+    const translation = await window.API.translate("MR adding game from path");
+    sendToastToUser("info", translation);
+    await getGameFromPaths(gameFolderPaths);
 
-document
-    .querySelector("#settings-password-toggle")
-    .addEventListener("click", function onPasswordToggle() {
-        // Show/hide the password
-        const input = document.getElementById("settings-password-txt");
+    // Reload data in the paginator
+    document.querySelector("card-paginator").reload();
+}
 
-        if (input.type === "password") input.type = "text";
-        else input.type = "password";
-    });
+/**
+ * Show or hide the password when the user presses the appropriate button.
+ */
+function onPasswordToggle() {
+    // Show/hide the password
+    const input = document.getElementById("settings-password-txt");
 
-document
-    .querySelector("#settings-save-credentials-btn")
-    .addEventListener("click", async function onSaveCredentialsFromSettings() {
-        const credPath = await window.API.invoke("credentials-path");
-        const username = document.getElementById("settings-username-txt").value;
-        const password = document.getElementById("settings-password-txt").value;
+    if (input.type === "password") input.type = "text";
+    else input.type = "password";
+}
 
-        const credentials = {
-            username: username,
-            password: password,
-        };
-        const json = JSON.stringify(credentials);
-        await window.IO.write(credPath, json);
-        const translation = await window.API.translate("MR credentials edited");
-        sendToastToUser("info", translation);
-    });
+/**
+ * Save the credentials when the user changes them in the 'settings' tab.
+ */
+async function onSaveCredentialsFromSettings() {
+    const credPath = await window.API.invoke("credentials-path");
+    const username = document.getElementById("settings-username-txt").value;
+    const password = document.getElementById("settings-password-txt").value;
+
+    const credentials = {
+        username: username,
+        password: password,
+    };
+    const json = JSON.stringify(credentials);
+    await window.IO.write(credPath, json);
+    const translation = await window.API.translate("MR credentials edited");
+    sendToastToUser("info", translation);
+}
+//#endregion
 
 //#endregion Events
 
