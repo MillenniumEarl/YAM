@@ -311,7 +311,8 @@ function sendToastToUser(type, message) {
 async function loadCredentials() {
     // Check path
     const credPath = await window.API.invoke("credentials-path");
-    if (!window.IO.pathExists(credPath)) return;
+    const exists = await window.IO.pathExists(credPath);
+    if (!exists) return;
 
     // Parse credentials
     const json = await window.IO.read(credPath);
