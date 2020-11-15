@@ -50,9 +50,6 @@ document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded(
     // Load credentials
     await loadCredentials();
 
-    // Load the cached games
-    //await loadCachedGames();
-
     // Login after loading games to allow the games to search for updates
     login();
 });
@@ -682,39 +679,6 @@ async function getUnlistedGamesInArrayOfPath(paths) {
 //#endregion Adding game
 
 //#region Cached games
-/**
- * @private
- * Load the data of the cached game and display them in the main window.
- */
-async function loadCachedGames() {
-    window.API.log.info("Load cached games...");
-
-    // Get all the .json files in the game dir and create a <game-card> for each of them
-    const gamesDir = await window.API.invoke("games-data-dir");
-    const files = await window.IO.filter("*.json", gamesDir);
-
-    // Load data in game-cards
-    const cards = [];
-    for (const filename of files) {
-        // Create a new gamecard
-        const gameCard = document.createElement("game-card");
-        gameCard.setAttribute("id", `game-card-${lastGameCardID}`);
-        addEventListenerToGameCard(gameCard);
-
-        // Load data to gamecard
-        const gameJSONPath = window.API.join(gamesDir, filename);
-        gameCard.loadGameData(gameJSONPath);
-
-        cards.push(gameCard);
-        lastGameCardID += 1;
-    }
-    
-    // Load cards in the paginator
-    document.querySelector("card-paginator").load();
-
-    // Write end log
-    window.API.log.info("Cached games loaded");
-}
 
 /**
  * @private
