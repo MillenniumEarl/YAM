@@ -448,7 +448,7 @@ class GameCard extends HTMLElement {
         this.info.updateAvailable = false;
 
         // Save info
-        this.saveData();
+        await this.saveData();
 
         // Hide the update button
         this.querySelector(".update-p").style.display = "none";

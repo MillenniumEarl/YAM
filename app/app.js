@@ -208,7 +208,7 @@ ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
         let w = windowCreator.createUpdateMessagebox(mainWindow, ...options);
         
         // Manage the close event when the game is updated
-        ipcMain.once("um-finalized", function ipcMainOnUpdateWindowFinalizing() {
+        ipcMain.once("um-finalized", () => {
             logger.silly("Update finalized by the user");
             w.close();
             w = null;
