@@ -95,6 +95,15 @@ document
 
         // Save data to database
         await window.DB.insert(converted);
+
+        // Game added correctly
+        const translationSuccess = await window.API.translate("MR game successfully added", {
+            "gamename": converted.name
+        });
+        sendToastToUser("info", translationSuccess);
+
+        // Reload data in the paginator
+        document.querySelector("card-paginator").reload();
     });
 
 document
