@@ -252,7 +252,7 @@ class CardPaginator extends HTMLElement {
      */
     async _getStartEndPages(index) {
         // Local variables
-        const recordsNumber = await window.DB.count();
+        const recordsNumber = await window.DB.count(this._searchQuery);
         const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
 
         // If there aren't enough pages...
