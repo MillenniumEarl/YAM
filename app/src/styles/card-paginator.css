@@ -1,0 +1,18 @@
+/*### Import base styles ###*/
+@import "global.css";
+
+ul.pagination > li {
+    border-radius: 50%;
+}
+
+ul.pagination > li.active{
+    background-color: var(--secondary-app);
+}
+
+ul.pagination > li.disabled > a{
+    color: var(--primary-light);
+}
+
+ul.pagination > li > a {
+    color: var(--text-on-secondary);
+}

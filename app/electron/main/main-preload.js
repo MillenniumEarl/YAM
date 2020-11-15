@@ -33,6 +33,8 @@ const {
     exists,
 } = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
+const sorter = require("../../src/scripts/cards-sorter.js");
+const GameDataStore = require("../../db/stores/game-data-store.js");
 
 // Set F95API logger level
 F95API.loggerLevel = "warn";
@@ -49,18 +51,22 @@ const validSendChannels = [
     "open-dialog",
     "cwd",
     "cache-dir",
-    "games-data-dir",
     "savegames-data-dir",
     "credentials-path",
     "translate",
     "require-messagebox",
     "url-input",
-    "update-messagebox"
+    "update-messagebox",
+    "preview-dir"
 ];
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
+    /**
+     * Expose sorter functions.
+     */
+    sorter: sorter,
     /**
      * Directory of the app.js file.
      */
@@ -327,4 +333,18 @@ contextBridge.exposeInMainWorld("GIE", {
 
         return gameinfo.getGameLauncher();
     }
+});
+
+// Expose the database methods
+let dbstore = null;
+ipcRenderer.invoke("database-path").then(function (path) {
+    dbstore = new GameDataStore(path);
+});
+contextBridge.exposeInMainWorld("DB", {
+    insert: (gameinfo) => dbstore.insert(gameinfo),
+    delete: (gameinfo) => dbstore.delete(gameinfo.dbid),
+    read: (id) => dbstore.read(id),
+    write: (gameinfo) => dbstore.write(gameinfo),
+    search: (searchQuery, index, size, limit, sortQuery) => dbstore.search(searchQuery, index, size, limit, sortQuery),
+    count: (query) => dbstore.count(query),
 });

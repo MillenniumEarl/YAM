@@ -33,6 +33,11 @@ body {
   right: 25px;
 }
 
+card-paginator {
+  width: 100%;
+  height: 100%;
+}
+
 /* Set text color for the selected element in language selector */
 .select-dropdown {
   color: var(--text-on-primary);

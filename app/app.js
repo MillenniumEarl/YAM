@@ -133,8 +133,8 @@ ipcMain.handle("cache-dir", function ipcMainHandleCacheDir() {
     return dirname;
 });
 
-ipcMain.handle("games-data-dir", function ipcMainHandleGamesDataDir() {
-    const dirname = path.resolve(".", shared.gamesDataDir);
+ipcMain.handle("preview-dir", function ipcMainHandlePreviewDir() {
+    const dirname = path.resolve(".", shared.previewDir);
 
     // Create directory if not existent
     if (!fs.existsSync(dirname))
@@ -160,6 +160,11 @@ ipcMain.handle("savegames-data-dir", function ipcMainHandleSaveGamesDataDir() {
 ipcMain.handle("credentials-path", function ipcMainHandleCredentialsPath() {
     return shared.credentialsPath;
 });
+
+ipcMain.handle("database-path", function ipcMainHandleDatabasePath() {
+    return shared.databasePath;
+});
+
 //#endregion shared app variables
 
 //#region IPC dialog for main window

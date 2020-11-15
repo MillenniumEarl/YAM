@@ -1,12 +1,33 @@
 "use strict";
 
+/**
+ * This class deals with visualizing, managing, modifying 
+ * the data related to a game. It is also used to search 
+ * for updates on the same.
+ */
 class GameCard extends HTMLElement {
     constructor() {
         super();
 
-        /* Use the F95API classes (Need main-preload.js) */
-        this._info = window.GIE.gamedata;
-        this._updateInfo = null; // Used only when is necessary to update a game
+        /**
+         * @private
+         * Information about the game shown by this card.
+         * @type GameInfoExtended
+         */
+        this._info = null;
+        /**
+         * @private
+         * Information about the latest version of the game shown by this card.
+         * Used only when is necessary to update a game.
+         * @type GameInfoExtended
+         */
+        this._updateInfo = null;
+        /** 
+         * @private
+         * Indicates whether the DOM was successfully loaded.
+         * @type Boolean
+        */
+        this._loadedDOM = false;
     }
 
     /**
@@ -14,12 +35,16 @@ class GameCard extends HTMLElement {
      */
     connectedCallback() {
         // Prepare DOM
-        this._prepareDOM();
+        if (!this._loadedDOM) this._prepareDOM();
+        this._loadedDOM = true;
 
         /* Set events listeners for the buttons */
         this.playBtn.addEventListener("click", this.play);
         this.updateBtn.addEventListener("click", this.update);
         this.deleteBtn.addEventListener("click", this.delete);
+
+        // Refresh data
+        window.requestAnimationFrame(() => this._refreshUI());
     }
 
     /**
@@ -33,18 +58,31 @@ class GameCard extends HTMLElement {
     }
 
     //#region Properties
+    /**
+     * Game information shown on this card
+     */
     set info(value) {
-        if (!value) return;
+        if (!value) throw new Error("Invalid value");
         this._info = value;
 
+        // DOM not ready, cannot update information
+        if(!this._loadedDOM) return;
+
         // Refresh data
-        this._refreshUI();
+        window.requestAnimationFrame(() => this._refreshUI());
     }
 
+    /**
+     * Game information shown on this card.
+     */
     get info() {
         return this._info;
     }
 
+    /**
+     * Obtain the last changelog available for the game.
+     * @return {String}
+     */
     get changelog() {
         const value = this._updateInfo ?
             this._updateInfo.changelog :
@@ -60,11 +98,12 @@ class GameCard extends HTMLElement {
      */
     play() {
         // Save the current date as last played session
-        this.info.lastPlayed = Date.now();
+        this.info.lastPlayed = new Date(Date.now());
 
         // Raise the event
         const playClickEvent = new CustomEvent("play", {
             detail: {
+                name: this.info.name,
                 launcher: window.GIE.launcher(this.info),
             },
         });
@@ -79,6 +118,7 @@ class GameCard extends HTMLElement {
         // Raise the event
         const updateClickEvent = new CustomEvent("update", {
             detail: {
+                name: this.info.name,
                 version: this._updateInfo.version,
                 changelog: this._updateInfo.changelog,
                 url: this.info.url,
@@ -96,6 +136,7 @@ class GameCard extends HTMLElement {
         // Raise the event
         const deleteClickEvent = new CustomEvent("delete", {
             detail: {
+                name: this.info.name,
                 gameDirectory: this.info.gameDirectory,
                 savePaths: await window.GIE.saves(this.info),
             },
@@ -130,12 +171,10 @@ class GameCard extends HTMLElement {
         this.progressbar = this.querySelector("#gc-card-progressbar");
 
         /* Bind function to use this */
-        this.loadGameData = this.loadGameData.bind(this);
-        this.saveGameData = this.saveGameData.bind(this);
+        this.loadData = this.loadData.bind(this);
+        this.saveData = this.saveData.bind(this);
         this._refreshUI = this._refreshUI.bind(this);
-        this.deleteGameData = this.deleteGameData.bind(this);
-        this.notificateUpdate = this.notificateUpdate.bind(this);
-        this.finalizeUpdate = this.finalizeUpdate.bind(this);
+        this.deleteData = this.deleteData.bind(this);
         this.play = this.play.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
@@ -205,8 +244,8 @@ class GameCard extends HTMLElement {
     }
 
     async _existsGamePreview(source) {
-        const gameCacheDir = await window.API.invoke("games-data-dir");
-        const localPath = window.API.join(gameCacheDir, source);
+        const previewDir = await window.API.invoke("preview-dir");
+        const localPath = window.API.join(previewDir, source);
         return await window.IO.pathExists(localPath);
     }
 
@@ -254,7 +293,7 @@ class GameCard extends HTMLElement {
 
         // Compress image
         const compressionResult = await window.API.compress(path.filename, gameCacheDir);
-
+      
         // Something wrong with compression
         if (compressionResult.length !== 1) return imageName;
 
@@ -266,19 +305,6 @@ class GameCard extends HTMLElement {
         // Return image name
         const isGIF = source.endsWith(".gif");
         return isGIF ? imageName : this._parseImageName(name, source, "webp");
-    }
-
-    /**
-     * @private
-     * Obtain the save data path for the game info.
-     * @param {String} gamename
-     * @returns {Promise<String>} Path to JSON
-     */
-    async _getDataJSONPath(gamename) {
-        const base = await window.API.invoke("games-data-dir");
-        const cleanFilename = gamename.replace(/[/\\?%*:|"<> ]/g, "").trim(); // Remove invalid chars
-        const filename = `${cleanFilename}_data.json`;
-        return window.API.join(base, filename);
     }
 
     /**
@@ -298,8 +324,8 @@ class GameCard extends HTMLElement {
             return url.toString();
         } catch {
             // It's an image name
-            const gamesDir = await window.API.invoke("games-data-dir");
-            const previewPath = window.API.join(gamesDir, src);
+            const previewDir = await window.API.invoke("preview-dir");
+            const previewPath = window.API.join(previewDir, src);
 
             // Check if the image exists
             const exists = await window.IO.pathExists(previewPath);
@@ -314,36 +340,35 @@ class GameCard extends HTMLElement {
     //#region Public methods
     /**
      * @public
-     * Save component data to disk as a JSON string.
+     * Save game data in the database.
      */
-    async saveGameData() {
+    async saveData() {
         // Download preview image
         if (!this.info.localPreviewPath && this.info.previewSrc) {
             const imageName = await this._downloadGamePreview(this.info.name, this.info.previewSrc);
             if (imageName) this.info.localPreviewPath = imageName;
         }
         
-        // Save the serialized JSON
-        const savepath = await this._getDataJSONPath(this.info.name);
-        window.GIE.save(this.info, savepath);
+        // Save in the database
+        await window.DB.write(this.info);
     }
 
     /**
      * @public
-     * Load component data from disk.
-     * @param {String} path Path where the data to be loaded are located
+     * Load game data from database.
+     * @param {number} id ID of the game as record in the database
      */
-    loadGameData(path) {
-        this.info = window.GIE.load(path);
+    async loadData(id) {
+        this.info = await window.DB.read(id);
     }
 
     /**
      * @public
      * Delete the stored game data.
      */
-    async deleteGameData() {
-        // Delete the file data
-        window.IO.deleteFile(await this._getDataJSONPath(this.info.name));
+    async deleteData() {
+        // Delete the record in the database
+        await window.DB.delete(this.info.dbid);
 
         // Check the cached preview
         if (!this.info.localPreviewPath) return;
@@ -351,13 +376,14 @@ class GameCard extends HTMLElement {
         // Delete the cached preview
         const previewPath = await this._parsePreviewPath(this.info.localPreviewPath);
         const exists = await window.IO.pathExists(previewPath);
-        if (exists) window.IO.deleteFile(previewPath);
+        if (exists) await window.IO.deleteFile(previewPath);
     }
 
     /**
      * @public
      * Used to notificate the GameCard of a new version of the game.
      * @param {GameInfoExtended} promise promise Promise of the game data scraping
+     * @deprecated
      */
     async notificateUpdate(gameinfo) {
         // Show the progress bar
@@ -376,6 +402,7 @@ class GameCard extends HTMLElement {
 
         // Set update data
         this._updateInfo = gameinfo;
+        this.info.updateAvailable = true;
 
         // Hide progressbar
         this.progressbar.style.display = "none";
@@ -385,6 +412,7 @@ class GameCard extends HTMLElement {
      * @public
      * Finalize the update renaming the game folder and showing the new info.
      * @return {Boolean} Result of the operation
+     * @deprecated
      */
     async finalizeUpdate() {
         if (!this._updateInfo) {
@@ -411,6 +439,7 @@ class GameCard extends HTMLElement {
         // Update info
         this._updateInfo.gameDirectory = newpath;
         this.info = this._updateInfo;
+        this.info.updateAvailable = false;
 
         // Save info
         this.saveGameData();

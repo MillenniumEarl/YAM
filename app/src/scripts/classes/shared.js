@@ -21,10 +21,10 @@ class Shared {
      */
     static #_cacheDir = join(app.getPath("userData"), "appcache");
     /**
-     * Name of the directory to save the game cache.
+     * Name of the directory containing the preview of the games.
      * @type String
      */
-    static #_gamesDirName = "gamedata";
+    static #_previewDirName = "preview";
     /**
      * Name of the directory containing the exported game saves.
      * @type String
@@ -35,6 +35,11 @@ class Shared {
      * @type String
      */
     static #_credentialsName = "credentials.json";
+    /**
+     * Name of the database containing the data of the games.
+     * @type String
+     */
+    static #_databaseName = "games.db";
     //#endregion Private static properties
 
     //#region Getters
@@ -46,25 +51,33 @@ class Shared {
         return this.#_cacheDir;
     }
     /**
-     * Name of the directory to save the game cache.
+     * Path to directory containing the preview of the games.
      * @returns {String}
      */
-    static get gamesDataDir() {
-        return join(this.#_cacheDir, this.#_gamesDirName);
+    static get previewDir() {
+        return join(this.#_cacheDir, this.#_previewDirName);
     }
     /**
-     * Name of the directory containing the exported game saves.
+     * Path to directory containing the exported game saves.
      * @returns {String}
      */
     static get exportedGameSavesDirName() {
         return join(this.#_cacheDir, this.#_exportedGameSavesDirName);
     }
     /**
-     * Name of the file to save the credentials for accessing the F95Zone portal.
+     * Path to file containing the credentials for accessing the F95Zone portal.
      * @returns {String}
      */
     static get credentialsPath() {
         return join(this.#_cacheDir, this.#_credentialsName);
+    }
+
+    /**
+     * Path to database containing the data of the games.
+     * @returns {String}
+     */
+    static get databasePath() {
+        return join(this.#_cacheDir, this.#_databaseName);
     }
     //#endregion Getters
 

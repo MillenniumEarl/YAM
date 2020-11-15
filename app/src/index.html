@@ -18,6 +18,7 @@
     <script type="text/javascript" src="../electron/main/main-renderer.js" defer></script>
     <script type="text/javascript" src="../../node_modules/@materializecss/materialize/dist/js/materialize.min.js" defer>
     </script>
+    <script type="text/javascript" src="../src/components/card-paginator/card-paginator.js" defer></script>
     <script type="text/javascript" src="../src/components/game-card/game-card.js" defer></script>
     <script type="text/javascript" src="../src/components/user-info/user-info.js" defer></script>
 </head>
@@ -51,9 +52,9 @@
             <input id="search-game-name" type="text" />
             <label for="search-game-name" id="main-search-game-name-label" class="localizable">Search game name</label>
         </div>
-        <div class="row" id="game-cards-container">
+        <card-paginator>
             <!-- Game cards goes here -->
-        </div>
+        </card-paginator>
     </div>
 
     <div id="main-settings-tab" class="tabcontent" hidden>
