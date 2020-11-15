@@ -16,7 +16,7 @@ window.onerror = function (message, source, lineno, colno, error) {
 //#region Events
 document.addEventListener("DOMContentLoaded", onDOMContentLoaded);
 
-document.querySelector("#search-game-name").addEventListener("input", onSearchGameName);
+document.querySelector("#search-game-name").addEventListener("keyup", onSearchGameName);
 
 document.querySelector("#user-info").addEventListener("login", login);
 
@@ -79,8 +79,12 @@ async function onDOMContentLoaded() {
 
 /**
  * Displays games whose titles contain the value the user entered in the search box.
+ * @param {KeyboardEvent}
  */
-function onSearchGameName() {
+function onSearchGameName(e) {
+    // Search only if the user press "enter"
+    if(e.key !== "Enter") return;
+
     // Obtain the text
     const searchText = document
         .getElementById("search-game-name")
