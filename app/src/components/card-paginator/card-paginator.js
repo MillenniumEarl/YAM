@@ -82,7 +82,7 @@ class CardPaginator extends HTMLElement {
      * Triggered once the element is removed from the DOM
      */
     disconnectedCallback() {
-        // Remove all columns containing game cards (and save the cards)
+        // Save the paged cards when the paginator is removed from DOM
         const cards = this.content.querySelectorAll("game-card");
         cards.forEach(async function (card) {
             await card.saveData();

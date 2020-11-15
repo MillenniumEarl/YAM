@@ -22,9 +22,6 @@ const APP_ICON = path.join(APP_PATH, "resources", "images", "icon.ico");
 // Global store, keep user-settings
 const store = new Store();
 
-// Variable used to close the main windows
-let closeMainWindow = false;
-
 //#region Public methods
 /**
  * @public
@@ -60,17 +57,6 @@ module.exports.createMainWindow = function () {
     w.webContents.on("new-window", function mainWindowOnNewWindow(e, url) {
         e.preventDefault();
         shell.openExternal(url);
-    });
-
-    // When the user try to close the main window,
-    // this method intercept the default behaviour
-    // Used to save the game data in the GameCards
-    w.on("close", function mainWindowOnClose(e) {
-        if (w && !closeMainWindow) {
-            e.preventDefault();
-            closeMainWindow = true;
-            w.webContents.send("window-closing");
-        }
     });
 
     // Disable default menu

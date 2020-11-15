@@ -40,11 +40,10 @@ const GameDataStore = require("../../db/stores/game-data-store.js");
 F95API.loggerLevel = "warn";
 
 // Array of valid main-to-render channels
-const validReceiveChannels = ["window-closing", "auth-result"];
+const validReceiveChannels = ["auth-result"];
 
 // Array of valid render-to-main channels
 const validSendChannels = [
-    "main-window-closing",
     "login-required",
     "exec",
     "message-dialog",

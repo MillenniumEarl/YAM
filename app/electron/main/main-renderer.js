@@ -741,24 +741,6 @@ async function getUserDataFromF95() {
 //#endregion Private methods
 
 //#region IPC receive
-// Called when the window is being closed
-window.API.receive("window-closing", async function onWindowClosing() {
-    // Save data game
-    const paginator = document.querySelector("card-paginator");
-    const cardGames = paginator.querySelectorAll("game-card");
-    const promiseList = [];
-
-    // Save data of the cards
-    cardGames.forEach(function(card) {
-        const promise = card.saveData();
-        promiseList.push(promise);
-    });
-    await Promise.all(promiseList);
-
-    // Tell the main process to close this BrowserWindow
-    window.API.send("main-window-closing");
-});
-
 // Called when the result of the authentication are ready
 window.API.receive("auth-result", async function onAuthResult(result) {
     window.API.log.info(`Authentication result: ${result}`);
