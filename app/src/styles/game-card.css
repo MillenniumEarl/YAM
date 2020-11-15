@@ -20,16 +20,34 @@
     display: none;
 }
 
+#gc-update-game-btn {
+    width: 100%;
+}
+
 /*### Class elements ###*/
 .inline {
     display: inline-block;
 }
 
+.card .card-action {
+    padding: 16px 20px;
+}
+
+.action-p > * + * {
+    margin-left: 2px;
+}
+
 .action-p {
     padding-top: 5px;
+    display: flex;
+}
+
+.action-p > a {
+    flex-basis: 50%;
 }
 
 .update-p {
+    width: 100%;
     padding-top: 5px;
     display: none;
 }
