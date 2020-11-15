@@ -368,7 +368,7 @@ class GameCard extends HTMLElement {
      */
     async deleteData() {
         // Delete the record in the database
-        await window.DB.delete(this.info.dbid);
+        await window.DB.delete(this.info._id);
 
         // Check the cached preview
         if (!this.info.localPreviewPath) return;

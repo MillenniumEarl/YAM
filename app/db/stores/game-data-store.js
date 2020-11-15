@@ -67,7 +67,7 @@ class GameDataStore {
      * @param {number} id The ID of the record to be deleted
      */
     async delete(id) {
-        return await this._db.remove({id});
+        return await this._db.remove({_id:id});
     }
 
     /**

@@ -534,11 +534,10 @@ async function gameCardDelete(e) {
     }
 
     // Remove the game data
-    gamecard.deleteGameData();
+    await e.target.deleteData();
 
-    // Remove the column div containing the card
-    const id = gamecard.getAttribute("id");
-    document.querySelector(`#${id}`).parentNode.remove();
+    // Reload data in the paginator
+    document.querySelector("card-paginator").reload();
 }
 
 /**

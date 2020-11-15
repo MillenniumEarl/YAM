@@ -342,7 +342,7 @@ ipcRenderer.invoke("database-path").then(function (path) {
 });
 contextBridge.exposeInMainWorld("DB", {
     insert: (gameinfo) => dbstore.insert(gameinfo),
-    delete: (gameinfo) => dbstore.delete(gameinfo.dbid),
+    delete: (id) => dbstore.delete(id),
     read: (id) => dbstore.read(id),
     write: (gameinfo) => dbstore.write(gameinfo),
     search: (searchQuery, index, size, limit, sortQuery) => dbstore.search(searchQuery, index, size, limit, sortQuery),
