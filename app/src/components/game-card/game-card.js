@@ -270,7 +270,7 @@ class GameCard extends HTMLElement {
         // Download image
         const path = await window.API.downloadImage(
             source,
-            window.API.join(gameCacheDir, imageName)
+            window.API.join(previewDir, imageName)
         );
 
         if (path) return imageName;
