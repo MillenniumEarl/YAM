@@ -287,11 +287,11 @@ class CardPaginator extends HTMLElement {
 
         // Remove all columns containing game cards (and save the cards)
         const columns = this.content.querySelectorAll("div.col");
-        columns.forEach(async function(n) {
-            const gamecard = n.querySelector("game-card");
+        for(const column of columns) {
+            const gamecard = column.querySelector("game-card");
             await gamecard.saveData();
-            n.remove();
-        });
+            column.remove();
+        }
 
         // Create the game-cards
         for (const r of records) {

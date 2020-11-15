@@ -278,9 +278,9 @@ class GameCard extends HTMLElement {
         if (exists) return null; // Already downloaded
 
         // Download image
-        const gameCacheDir = await window.API.invoke("games-data-dir");
+        const previewDir = await window.API.invoke("preview-dir");
         const imageName = this._parseImageName(name, source);
-        const dest = window.API.join(gameCacheDir, imageName);
+        const dest = window.API.join(previewDir, imageName);
         let path = null;
         try {
             path = await window.API.downloadImage(source, dest);
@@ -292,7 +292,7 @@ class GameCard extends HTMLElement {
         }
 
         // Compress image
-        const compressionResult = await window.API.compress(path.filename, gameCacheDir);
+        const compressionResult = await window.API.compress(path.filename, previewDir);
       
         // Something wrong with compression
         if (compressionResult.length !== 1) return imageName;
