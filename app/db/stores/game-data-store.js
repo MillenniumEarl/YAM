@@ -81,10 +81,10 @@ class GameDataStore {
 
     /**
      * @public
-     * Count the number of records in the database.
+     * Count the number of records in the database that match the query.
      */
-    async countAll() {
-        return await this._db.count();
+    async count(query) {
+        return await this._db.count(query);
     }
 
     /**

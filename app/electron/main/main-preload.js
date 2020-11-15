@@ -313,5 +313,5 @@ contextBridge.exposeInMainWorld("DB", {
     read: (id) => dbstore.read(id),
     write: (gameinfo) => dbstore.write(gameinfo),
     search: (searchQuery, index, size, limit, sortQuery) => dbstore.search(searchQuery, index, size, limit, sortQuery),
-    count: () => dbstore.countAll(),
+    count: (query) => dbstore.count(query),
 });
