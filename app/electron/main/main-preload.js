@@ -48,13 +48,13 @@ const validSendChannels = [
     "open-dialog",
     "cwd",
     "cache-dir",
-    "games-data-dir",
     "savegames-data-dir",
     "credentials-path",
     "translate",
     "require-messagebox",
     "url-input",
-    "update-messagebox"
+    "update-messagebox",
+    "preview-dir"
 ];
 
 // Expose protected methods that allow the renderer process to use

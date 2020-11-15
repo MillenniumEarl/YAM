@@ -256,8 +256,8 @@ class GameCard extends HTMLElement {
         if (source.trim() === "../../resources/images/f95-logo.webp")
             return null;
 
-        const gameCacheDir = await window.API.invoke("games-data-dir");
-        const localPath = window.API.join(gameCacheDir, source);
+        const previewDir = await window.API.invoke("preview-dir");
+        const localPath = window.API.join(previewDir, source);
         if (await window.IO.pathExists(localPath)) return null; // Already downloaded
 
         // Get image extension
@@ -294,8 +294,8 @@ class GameCard extends HTMLElement {
             return url.toString();
         } catch {
             // It's an image name
-            const gamesDir = await window.API.invoke("games-data-dir");
-            const previewPath = window.API.join(gamesDir, src);
+            const previewDir = await window.API.invoke("preview-dir");
+            const previewPath = window.API.join(previewDir, src);
 
             // Check if the image exists
             const exists = await window.IO.pathExists(previewPath);

@@ -133,8 +133,8 @@ ipcMain.handle("cache-dir", function ipcMainHandleCacheDir() {
     return dirname;
 });
 
-ipcMain.handle("games-data-dir", function ipcMainHandleGamesDataDir() {
-    const dirname = path.resolve(".", shared.gamesDataDir);
+ipcMain.handle("preview-dir", function ipcMainHandlePreviewDir() {
+    const dirname = path.resolve(".", shared.previewDir);
 
     // Create directory if not existent
     if (!fs.existsSync(dirname))
