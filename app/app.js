@@ -200,13 +200,13 @@ ipcMain.handle("url-input", function ipcMainHandleURLInput() {
 });
 
 ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
-    // Create the messagebox
-    let w = windowCreator.createUpdateMessagebox(mainWindow, ...options);
-
     // We cannot return something from inside the callback, 
     // so we create a new promise and return that.
     // The result of the promise will be received by the original sender.
     return new Promise((resolve) => {
+        // Create the messagebox
+        let w = windowCreator.createUpdateMessagebox(mainWindow, ...options);
+        
         // Manage the close event when the game is updated
         ipcMain.once("um-finalized", function ipcMainOnUpdateWindowFinalizing() {
             logger.silly("Update finalized by the user");
