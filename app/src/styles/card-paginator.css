@@ -9,3 +9,11 @@ ul.pagination > li {
 ul.pagination > li.active {
     background-color: var(--secondary-app);
 }
+
+ul.pagination > li.disabled {
+    color: var(--primary-light);
+}
+
+ul.pagination > li.enabled {
+    color: var(--text-on-secondary);
+}
