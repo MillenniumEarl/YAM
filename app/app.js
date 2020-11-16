@@ -45,8 +45,8 @@ ipcMain.handle("login-required", function ipcMainOnLoginRequired() {
 });
 
 // Called when the main window require a new messagebox
-ipcMain.on("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
-    windowCreator.createMessagebox(mainWindow, ...args, messageBoxCloseCallback);
+ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
+    return windowCreator.createMessagebox(mainWindow, ...args, messageBoxCloseCallback).onclose;
 });
 
 // Execute the file passed as parameter

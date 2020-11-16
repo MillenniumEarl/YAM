@@ -41,10 +41,6 @@
     "MR select game directory": "Выбрать каталог игры",
     "MR confirm deletion": "Подтвердить удаление",
     "MR message confirm deletion": "Вы действительно хотите удалить игру ? ",
-    "MR keep saves checkbox": "Сохранить сохранения(если возможно)",
-    "MR remove only game button": "Удалить только",
-    "MR delete also button": "Также удалить с диска",
-    "MR cancel button": "Отмена",
     "MR open f95 page": "Открыть страницу в F95Zone",
     "MR update completed": "Обновление завершено",
     "MR cannot find game path": "Не удается найти путь к игре",
@@ -54,13 +50,18 @@
     "MR game already listed": "Игра уже присутствует: {{gamename}}",
     "MR multiple duplicate games": "{{number}} игр уже есть",
     "MR no directory selected": "Каталог не выбран",
-    "MBR close button": "близко",
     "URLI invalid url": "Введенный URL недействителен",
     "UM description": "Версия {{version}} доступна для {{title}}",
     "um-close-btn": "близко",
     "um-finalize-btn": "Завершить",
     "um-open-folder-btn": "Открыть каталог",
     "um-download-btn": "Открытая тема",
-    "um-title": "Обновления доступны"
+    "um-title": "Обновления доступны",
+    "default-button-cancel": "Отмена",
+    "default-checkbox-preserve-savegame": "Сохранить сохранения(если возможно)",
+    "default-button-close": "близко",
+    "default-button-delete": "Также удалить с диска",
+    "default-button-remove-only": "Удалить только",
+    "MR game removed": "{{gamename}} удалено"
   }
 }

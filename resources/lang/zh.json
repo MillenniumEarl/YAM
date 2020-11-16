@@ -41,10 +41,6 @@
     "MR select game directory": "选择游戏目录",
     "MR confirm deletion": "确认删除",
     "MR message confirm deletion": "您真的要删除游戏吗？",
-    "MR keep saves checkbox": "保留保存（如果可能）",
-    "MR remove only game button": "仅删除",
-    "MR delete also button": "还从磁盘删除",
-    "MR cancel button": "取消",
     "MR open f95 page": "F95Zone上的打开页面",
     "MR update completed": "更新完成",
     "MR cannot find game path": "找不到游戏路径",
@@ -54,13 +50,18 @@
     "MR game already listed": "游戏已经列出:{{gamename}}",
     "MR multiple duplicate games": "{{number}}个游戏已经存在",
     "MR no directory selected": "未选择目录",
-    "MBR close button": "关",
     "URLI invalid url": "输入的网址无效",
     "UM description": "{{title}}可用的{{version}}版本",
     "um-close-btn": "关",
     "um-finalize-btn": "完成",
     "um-open-folder-btn": "打开目录",
     "um-download-btn": "开螺纹",
-    "um-title": "有可用更新"
+    "um-title": "有可用更新",
+    "default-button-cancel": "取消",
+    "default-checkbox-preserve-savegame": "保留保存（如果可能）",
+    "default-button-close": "关",
+    "default-button-delete": "还从磁盘删除",
+    "default-button-remove-only": "仅删除",
+    "MR game removed": "{{gamename}}已删除"
   }
 }

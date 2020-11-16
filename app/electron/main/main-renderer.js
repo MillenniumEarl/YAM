@@ -4,13 +4,16 @@
 window.onerror = function (message, source, lineno, colno, error) {
     window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
 
-    window.API.send("require-messagebox", {
+    window.API.invoke("require-messagebox", {
         type: "error",
         title: "Unhandled error",
         message: `${message} at line ${lineno}:${colno}.\n
         It is advisable to terminate the application to avoid unpredictable behavior.\n
         ${error.stack}\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`
+        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
+        buttons: [{
+            name: "close"
+        }]
     });
 };
 
@@ -555,49 +558,38 @@ async function gameCardUpdate(e) {
 
 async function gameCardDelete(e) {
     if (!e.target) return;
-    const savesExists = e.detail.savePaths.length !== 0 ? true : false;
-
-    // Ask the confirmation
-    const titleTranslation = await window.API.translate("MR confirm deletion");
-    const messageTranslation = await window.API.translate(
-        "MR message confirm deletion"
-    );
-    const checkboxTranslation = await window.API.translate(
-        "MR keep saves checkbox"
-    );
-    const removeOnlyTranslation = await window.API.translate(
-        "MR remove only game button"
-    );
-    const deleteAlsoTranslation = await window.API.translate(
-        "MR delete also button"
-    );
-    const cancelTranslation = await window.API.translate("MR cancel button");
-    let dialogOptions = {
-        type: "question",
+    
+    // Prepare the options for the confirmation dialog
+    const dialogOptions = {
+        type: "warning",
+        title: await window.API.translate("MR confirm deletion"),
+        message: await window.API.translate("MR message confirm deletion"),
         buttons: [
-            removeOnlyTranslation,
-            deleteAlsoTranslation,
-            cancelTranslation,
+            {name: "remove-only"},
+            {name: "delete"},
+            {name: "cancel"},
         ],
-        defaultId: 2, // Cancel
-        title: titleTranslation,
-        message: messageTranslation,
     };
 
+    // Check for savegames
+    const savesExists = e.detail.savePaths.length !== 0 ? true : false;
     if (savesExists) {
         // Add option for save savegames
-        dialogOptions.checkboxLabel = checkboxTranslation;
-        dialogOptions.checkboxChecked = true;
+        dialogOptions.checkboxes = [
+            {name: "preserve-savegame"},
+        ];
     }
 
-    const data = await window.API.invoke("message-dialog", dialogOptions);
+    // Propt user
+    const data = await window.API.invoke("require-messagebox", dialogOptions);
     if (!data) return;
 
     // Cancel button
-    if (data.response === 2) return;
+    if (data.button === "cancel") return;
 
     // Copy saves
-    if (data.checkboxChecked && e.detail.savePaths && e.detail.name) {
+    const copySaves = savesExists ? data.checkboxes.include("preserve-savegame") : false;
+    if (copySaves && e.detail.savePaths && e.detail.name) {
         const savePaths = e.detail.savePaths;
         const exportedSavesDir = await window.API.invoke("savegames-data-dir");
         const gameDirectory = window.API.join(exportedSavesDir, cleanGameName(e.detail.name));
@@ -610,7 +602,7 @@ async function gameCardDelete(e) {
     }
 
     // Delete also game files
-    if (data.response === 1) {
+    if (data.button === "delete") {
         const gameDirectory = e.detail.gameDirectory;
         await window.IO.deleteFolder(gameDirectory);
     }
@@ -620,6 +612,10 @@ async function gameCardDelete(e) {
 
     // Reload data in the paginator
     document.querySelector("card-paginator").reload();
+
+    // Notificate the user
+    const translation = await window.API.translate("MR game removed", {gamename: e.detail.name}); 
+    sendToastToUser("info", translation);
 }
 
 /**
@@ -633,10 +629,13 @@ async function getGameFromPaths(paths) {
         await getGameFromPath(path)
             .catch(function catchErrorWhenAddingGameFromPath(error) {
                 // Send error message
-                window.API.send("require-messagebox", {
+                window.API.invoke("require-messagebox", {
                     type: "error",
                     title: "Unexpected error",
-                    message: `Cannot retrieve game data (${path}), unexpected error: ${error}`
+                    message: `Cannot retrieve game data (${path}), unexpected error: ${error}`,
+                    buttons: [{
+                        name: "close"
+                    }]
                 });
                 window.API.log.error(
                     `Unexpected error while retrieving game data from path: ${path}. ${error}`

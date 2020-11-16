@@ -41,10 +41,6 @@
     "MR select game directory": "Seleziona la directory di gioco",
     "MR confirm deletion": "Conferma eliminazione",
     "MR message confirm deletion": "Vuoi veramente eliminare il gioco?",
-    "MR keep saves checkbox": "Mantieni salvataggi (se possibile)",
-    "MR remove only game button": "Rimuovi solamente",
-    "MR delete also button": "Elimina anche da disco",
-    "MR cancel button": "Annulla",
     "MR open f95 page": "Apri pagina su F95Zone",
     "MR update completed": "Aggiornamento completato",
     "MR cannot find game path": "Impossibile trovare il percorso del gioco",
@@ -54,13 +50,18 @@
     "MR multiple games found": "Sono state rilevate più occorrenze di {{gamename}}",
     "MR game successfully added": "{{gamename}} aggiunto",
     "MR no directory selected": "Nessuna cartella selezionata",
-    "MBR close button": "Chiudi",
     "URLI invalid url": "L'URL inserita non è valida",
     "UM description": "Versione {{version}} disponibile per {{title}}",
     "um-close-btn": "Chiudi",
     "um-finalize-btn": "Finalizza",
     "um-open-folder-btn": "Apri cartella",
     "um-download-btn": "Apri thread",
-    "um-title": "Aggiornamento disponibile"
+    "um-title": "Aggiornamento disponibile",
+    "default-button-cancel": "Annulla",
+    "default-checkbox-preserve-savegame": "Mantieni salvataggi (se possibile)",
+    "default-button-close": "Chiudi",
+    "default-button-delete": "Elimina anche da disco",
+    "default-button-remove-only": "Rimuovi solamente",
+    "MR game removed": "{{gamename}} rimosso"
   }
 }
