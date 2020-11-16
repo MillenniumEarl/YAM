@@ -4,13 +4,14 @@
 window.onerror = function (message, source, lineno, colno, error) {
     window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
 
-    window.API.send("require-messagebox",
-        "error",
-        "Unhandled error",
-        `${message} at line ${lineno}:${colno}.\n
+    window.API.send("require-messagebox", {
+        type: "error",
+        title: "Unhandled error",
+        message: `${message} at line ${lineno}:${colno}.\n
         It is advisable to terminate the application to avoid unpredictable behavior.\n
         ${error.stack}\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`);
+        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`
+    });
 };
 
 //#region Events
@@ -530,12 +531,13 @@ async function gameCardUpdate(e) {
     if (!e.target) return;
 
     // Let the user update the game
-    const finalized = await window.API.invoke("update-messagebox",
-        e.detail.name,
-        e.detail.version,
-        e.detail.changelog,
-        e.detail.url,
-        e.detail.gameDirectory);
+    const finalized = await window.API.invoke("update-messagebox", {
+        title: e.detail.name,
+        version: e.detail.version,
+        changelog: e.detail.changelog,
+        url: e.detail.url,
+        folder: e.detail.gameDirectory
+    });
 
     // The user didn't complete the procedure
     if (!finalized) return;
@@ -631,10 +633,11 @@ async function getGameFromPaths(paths) {
         await getGameFromPath(path)
             .catch(function catchErrorWhenAddingGameFromPath(error) {
                 // Send error message
-                window.API.send("require-messagebox", 
-                    "error", 
-                    "Unexpected error", 
-                    `Cannot retrieve game data (${path}), unexpected error: ${error}`);
+                window.API.send("require-messagebox", {
+                    type: "error",
+                    title: "Unexpected error",
+                    message: `Cannot retrieve game data (${path}), unexpected error: ${error}`
+                });
                 window.API.log.error(
                     `Unexpected error while retrieving game data from path: ${path}. ${error}`
                 );
