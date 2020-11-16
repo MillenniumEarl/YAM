@@ -187,6 +187,9 @@ app.on("window-all-closed", function appOnWindowAllClosed() {
 //#endregion App-related events
 
 //#region Window close callbacks
+/**
+ * Callback used to log the closure of the main window e to store the size.
+ */
 function mainWindowCloseCallback() {
     logger.silly("Closing main window");
 
@@ -200,12 +203,19 @@ function mainWindowCloseCallback() {
     mainWindow = null;
 }
 
+/**
+ * Callback used to log the closure of a messagebox.
+ */
 function messageBoxCloseCallback() {
     logger.silly("Closing messagebox");
 }
 
-function updateMessageBoxCloseCallback(result) {
-    if(result) {
+/**
+ * Callback used to log the result of the update of a game.
+ * @param {Boolean} finalized 
+ */
+function updateMessageBoxCloseCallback(finalized) {
+    if (finalized) {
         logger.silly("Update finalized by the user");
     }
     else {
