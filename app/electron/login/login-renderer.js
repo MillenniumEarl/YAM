@@ -66,8 +66,7 @@ document
     .querySelector("#login-cancel-btn")
     .addEventListener("click", function onCancelButtonClick() {
     // Close the current window witouth authentication
-        window.API.send("auth-result", "CANCELLED", null, null);
-        window.API.send("login-window-closing");
+        window.API.send("window-close", "CANCELLED");
     });
 
 //#endregion Events
@@ -124,8 +123,7 @@ async function manageLoginResult(result, username, password) {
         await window.IO.write(path, json);
 
         // Close the window
-        window.API.send("auth-result", "AUTHENTICATED");
-        window.API.send("login-window-closing");
+        window.API.send("window-close", "AUTHENTICATED");
     } else {
         // Show error message
         const translation = await window.API.translate(

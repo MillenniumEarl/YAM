@@ -40,7 +40,6 @@ document.querySelector("#main-navbar-settings").addEventListener("click", openPa
  * Initialize and perform preliminary operations once the DOM is fully loaded.
  */
 async function onDOMContentLoaded() {
-    const url = await window.API.invoke("url-input");
     // This function runs when the DOM is ready, i.e. when the document has been parsed
     window.API.log.info("DOM loaded, initializing elements");
     await translateElementsInDOM();
@@ -431,7 +430,51 @@ async function login() {
 
     // Request user input
     window.API.log.info("Send API to main process for auth request");
-    window.API.send("login-required");
+    const result = await window.API.invoke("login-required");
+
+    window.API.log.info(`Authentication result: ${result}`);
+    if (result !== "AUTHENTICATED") {
+        // Hide "new game" button
+        document.querySelector("#fab-add-game-btn").style.display = "none";
+
+        // Hide spinner
+        document.getElementById("user-info").hideSpinner();
+        return;
+    }
+
+    // Load data (session not shared between windows)
+    try {
+        // Check path
+        const credPath = await window.API.invoke("credentials-path");
+        if (!window.IO.pathExists(credPath)) return;
+
+        // Parse credentials
+        const json = await window.IO.read(credPath);
+        const credentials = JSON.parse(json);
+
+        const res = await window.F95.login(credentials.username, credentials.password);
+        if (!res.success) return;
+
+        const translation = await window.API.translate("MR login successful");
+        sendToastToUser("info", translation);
+
+        // Show "new game" button
+        document.querySelector("#fab-add-game-btn").style.display = "block";
+
+        // Load user data
+        getUserDataFromF95();
+
+        // Reload paginator to allow search of updates
+        document.querySelector("card-paginator").reload();
+
+    } catch (e) {
+        // Send error message
+        const translation = await window.API.translate("MR cannot login", {
+            "error": e
+        });
+        sendToastToUser("error", translation);
+        window.API.log.error(`Cannot login: ${e}`);
+    }
 }
 //#endregion Authentication
 
@@ -744,52 +787,3 @@ async function getUserDataFromF95() {
 }
 
 //#endregion Private methods
-
-//#region IPC receive
-// Called when the result of the authentication are ready
-window.API.receive("auth-result", async function onAuthResult(result) {
-    window.API.log.info(`Authentication result: ${result}`);
-    if (result !== "AUTHENTICATED") {
-        // Hide "new game" button
-        document.querySelector("#fab-add-game-btn").style.display = "none";
-
-        // Hide spinner
-        document.getElementById("user-info").hideSpinner();
-        return;
-    }
-
-    // Load data (session not shared between windows)
-    try {
-        // Check path
-        const credPath = await window.API.invoke("credentials-path");
-        if (!window.IO.pathExists(credPath)) return;
-
-        // Parse credentials
-        const json = await window.IO.read(credPath);
-        const credentials = JSON.parse(json);
-        
-        const res = await window.F95.login(credentials.username, credentials.password);
-        if(!res.success) return;
-
-        const translation = await window.API.translate("MR login successful");
-        sendToastToUser("info", translation);
-
-        // Show "new game" button
-        document.querySelector("#fab-add-game-btn").style.display = "block";
-
-        // Load user data
-        getUserDataFromF95();
-
-        // Reload paginator to allow search of updates
-        document.querySelector("card-paginator").reload();
-        
-    } catch (e) {
-        // Send error message
-        const translation = await window.API.translate("MR cannot login", {
-            "error": e
-        });
-        sendToastToUser("error", translation);
-        window.API.log.error(`Cannot login: ${e}`);
-    }
-});
-//#endregion IPC receive

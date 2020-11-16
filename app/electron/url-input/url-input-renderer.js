@@ -29,8 +29,7 @@ document.querySelector("#urli-accept-btn").addEventListener("click", async funct
     }
 
     // Send the URL and close the window
-    window.API.send("url-response", url);
-    window.API.send("url-input-closing");
+    window.API.send("window-close", url);
 });
 
 document.querySelector("#urli-cancel-btn").addEventListener("click", function close() {

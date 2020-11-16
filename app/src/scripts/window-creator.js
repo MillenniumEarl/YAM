@@ -153,7 +153,7 @@ module.exports.createMessagebox = function (parent, type, title, message, onclos
 
     // adapt size to content
     w.window.webContents.once("dom-ready", () => {
-        w.webContents.send("messagebox-arguments", type, title, message);
+        w.window.webContents.send("messagebox-arguments", type, title, message);
     });
 
     // Load the html file
@@ -243,7 +243,7 @@ module.exports.createUpdateMessagebox = function (parent, title, version, change
 
     // adapt size to content
     w.window.webContents.once("dom-ready", () => {
-        w.webContents.send("um-arguments", title, version, changelog, url, folder);
+        w.window.webContents.send("um-arguments", title, version, changelog, url, folder);
     });
 
     // Load the html file
@@ -319,7 +319,7 @@ function createBaseWindow(options) {
 
                 // Closes the window explicitly
                 w.close();
-                if (options.onclose && args[0]) resolve(args[0]);
+                if (args[0]) resolve(args[0]);
                 else resolve();
                 break;
             default:

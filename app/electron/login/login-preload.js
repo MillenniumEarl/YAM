@@ -16,8 +16,7 @@ F95API.loggerLevel = "warn";
 
 // Array of valid render-to-main channels
 const validSendChannels = [
-    "auth-result",
-    "login-window-closing",
+    "window-close",
     "credentials-path",
     "translate",
 ];

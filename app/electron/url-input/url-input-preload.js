@@ -10,8 +10,7 @@ const logger = require("electron-log");
 // Array of valid render-to-main channels
 const validSendChannels = [
     "translate",
-    "url-response",
-    "url-input-closing",
+    "window-close",
     "window-resize"
 ];
 

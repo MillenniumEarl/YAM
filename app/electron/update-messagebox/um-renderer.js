@@ -6,7 +6,7 @@ window.onerror = function (message, source, lineno, colno, error) {
 };
 
 //#region Global variables
-var _url, _folder;
+let _url, _folder;
 //#endregion Global variables
 
 window.API.once("um-arguments", async function (title, version, changelog, url, folder) {
@@ -26,7 +26,7 @@ window.API.once("um-arguments", async function (title, version, changelog, url, 
 //#region Events
 document.querySelector("#um-close-btn").addEventListener("click", function close() {
     // Close the dialog without updating
-    window.API.send("um-closing");
+    window.API.send("window-close", false);
 });
 
 document.querySelector("#um-download-btn").addEventListener("click", function openDownloadLink() {
@@ -40,8 +40,7 @@ document.querySelector("#um-open-folder-btn").addEventListener("click", function
 });
 
 document.querySelector("#um-finalize-btn").addEventListener("click", function finalizeUpdate() {
-    // Rename the folder
-    window.API.send("um-finalized");
+    window.API.send("window-close", true);
 });
 //#endregion Events
 

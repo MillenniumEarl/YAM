@@ -42,5 +42,5 @@ window.API.once("messagebox-arguments", async function (type, title, message) {
 });
 
 document.querySelector("#close-btn").addEventListener("click", function close() {
-    window.API.send("messagebox-closing");
+    window.API.send("window-close");
 });

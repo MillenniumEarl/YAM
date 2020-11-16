@@ -12,10 +12,9 @@ const logger = require("electron-log");
 
 // Array of valid render-to-main channels
 const validSendChannels = [
-    "um-closing",
+    "window-close",
     "translate",
     "exec",
-    "um-finalized",
 ];
 
 // Array of valid main-to-render channels
