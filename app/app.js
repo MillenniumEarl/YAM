@@ -32,6 +32,8 @@ const store = new Store();
 //#endregion Global variables
 
 // Disable hardware acceleration for better performance
+// as we don't use animations. 
+// Fix also strange graphical artifacts
 app.disableHardwareAcceleration();
 
 //#region IPC Communication
@@ -147,23 +149,35 @@ ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
 //#endregion IPC Communication
 
 //#region App-related events
+/**
+ * Load the files containing the translations for the interface.
+ */
+async function initializeLocalization() {
+    logger.info("Initializing languages...");
+
+    // Obtain the language to display
+    const lang = store.has("language-iso") ?
+        store.get("language-iso") :
+        "DEFAULT";
+
+    // Get the data file
+    const langPath = path.join(app.getAppPath(), "resources", "lang");
+    await localization.initLocalization({
+        resourcesPath: langPath,
+        language: lang,
+    });
+
+    logger.info("Languages initialized");
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async function appOnReady() {
     logger.info("Application ready");
 
-    // Initialize language
-    logger.info("Initializing languages...");
-    const lang = store.has("language-iso")
-        ? store.get("language-iso")
-        : "DEFAULT";
-    const langPath = path.join(app.getAppPath(), "resources", "lang");
-    localization.initLocalization({
-        resourcesPath: langPath,
-        language: lang,
-    });
-    logger.info("Languages initialized");
+    // Wait for language initialization
+    await initializeLocalization();
 
     logger.silly("Creating main window");
     mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;
