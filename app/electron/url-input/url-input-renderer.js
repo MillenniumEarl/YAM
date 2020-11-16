@@ -33,7 +33,7 @@ document.querySelector("#urli-accept-btn").addEventListener("click", async funct
 });
 
 document.querySelector("#urli-cancel-btn").addEventListener("click", function close() {
-    window.API.send("url-input-closing");
+    window.API.send("window-close");
 });
 //#endregion Events
 

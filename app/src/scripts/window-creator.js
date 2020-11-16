@@ -302,6 +302,8 @@ function createBaseWindow(options) {
     w.webContents.on("did-finish-load", () => w.show());
 
     const promiseOnClose = new Promise((resolve) => {
+        let _closeWithIPC = false;
+
         // Intercept ipc messages for window command
         w.webContents.on("ipc-message", function ipcMessage(e, channel, args) {
             switch (channel) {
@@ -318,9 +320,11 @@ function createBaseWindow(options) {
                 }
 
                 // Closes the window explicitly
+                _closeWithIPC = true;
                 w.close();
-                if (args[0]) resolve(args[0]);
-                else resolve();
+
+                if (args[0] !== undefined) resolve(args[0]);
+                else resolve(null);
                 break;
             default:
                 break;
@@ -329,12 +333,12 @@ function createBaseWindow(options) {
 
         // Assign the function to perform when 
         // the window is closed (via standard button)
-        if (options.onclose) {
-            w.on("close", () => {
+        w.on("close", () => {
+            if (options.onclose && !_closeWithIPC) {
                 options.onclose(null);
-                resolve();
-            });
-        }
+                resolve(null);
+            }
+        });
     });
 
     return {
