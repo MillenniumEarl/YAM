@@ -103,7 +103,7 @@ module.exports.createLoginWindow = function (parent, onclose) {
     });
 
     // Set window properties
-    w.window.setResizable(false);
+    if (!isDev) w.window.setResizable(false);
 
     // Disable default menu
     if (!isDev) w.window.setMenu(null);
@@ -148,7 +148,7 @@ module.exports.createMessagebox = function (parent, args, onclose) {
     });
 
     // Set window properties
-    w.window.setResizable(false);
+    if (!isDev) w.window.setResizable(false);
 
     // Disable default menu
     if (!isDev) w.window.setMenu(null);
@@ -188,7 +188,7 @@ module.exports.createURLInputbox = function(parent, onclose) {
     });
     
     // Set window properties
-    w.window.setResizable(false);
+    if (!isDev) w.window.setResizable(false);
 
     // Disable default menu
     if (!isDev) w.window.setMenu(null);
@@ -235,7 +235,7 @@ module.exports.createUpdateMessagebox = function (parent, args, onclose) {
     });
 
     // Set window properties
-    w.window.setResizable(false);
+    if (!isDev) w.window.setResizable(false);
 
     // Disable default menu
     if (!isDev) w.window.setMenu(null);
