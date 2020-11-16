@@ -5,18 +5,18 @@ window.onerror = function (message, source, lineno, colno, error) {
     window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
 };
 
-window.API.once("messagebox-arguments", async function (type, title, message) {
+window.API.once("window-arguments", async function (args) {
     // Local variables
     const cwd = await window.API.cwd();
     const imagesPath = window.API.join(cwd, "resources", "images");
     
     // Set the data
-    document.getElementById("title").textContent = title;
-    document.getElementById("message").textContent = message;
+    document.getElementById("title").textContent = args.title;
+    document.getElementById("message").textContent = args.message;
 
     // Set the window icon
     const iconElement = document.getElementById("icon");
-    switch (type) {
+    switch (args.type) {
     case "info":
         iconElement.setAttribute("src", window.API.join(imagesPath, "info.webp"));
         break;

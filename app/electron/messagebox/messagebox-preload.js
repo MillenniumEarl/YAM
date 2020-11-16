@@ -18,7 +18,7 @@ const validSendChannels = [
 ];
 
 // Array of valid main-to-render channels
-const validReceiveChannels = ["messagebox-arguments"];
+const validReceiveChannels = ["window-arguments"];
 
 contextBridge.exposeInMainWorld("API", {
     /**
