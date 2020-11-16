@@ -36,7 +36,7 @@ Adding a game is possible via the ![add_game](/resources/images/github/plus-butt
 
 **Warning!** In order to correctly detect the games, the folders must be in the format: _GAME NAME [V.VERSION] [MOD]_
 
-- **GAME NAME**: The game name, including any special characters (excluding non-usable characters such as /, %, :, etc ...), case insensitive
+- **GAME NAME**: The game name, including any special characters (excluding non-usable characters such as /, %, :, etc...), case insensitive
 - **VERSION**: The exact version of the game (case insensitive). Make sure directory name is present "v."
 - **MOD**: If it's not a game but a mod add this tag
 
@@ -76,11 +76,16 @@ The project structure is managed as follows:
 project
 \app
 ..\app.js # Main electron process
+..\db
+..\..\schemas
+..\..\store
 ..\electron
+..\..\window # A folder for every window, containing preload and renderer
 ..\src
 ..\..\components
 ..\..\styles
 ..\..\scripts
+..\..\..\classes
 \docs
 \resources
 ```
