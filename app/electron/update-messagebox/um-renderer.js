@@ -9,18 +9,21 @@ window.onerror = function (message, source, lineno, colno, error) {
 let _url, _folder;
 //#endregion Global variables
 
-window.API.once("um-arguments", async function (title, version, changelog, url, folder) {
+window.API.once("window-arguments", async function (args) {
     // Translate the DOM
     await translateElementsInDOM();
 
     // Set the data
-    const translation = await window.API.translate("UM description", {"title": title, "version": version});
+    const translation = await window.API.translate("UM description", {
+        "title": args.title, 
+        "version": args.version
+    });
     document.getElementById("um-description").textContent = translation;
-    document.getElementById("um-changelog").textContent = changelog;
+    document.getElementById("um-changelog").textContent = args.changelog;
 
     // Set global variables
-    _url = url;
-    _folder = folder;
+    _url = args.url;
+    _folder = args.folder;
 });
 
 //#region Events
