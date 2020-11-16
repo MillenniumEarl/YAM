@@ -119,13 +119,14 @@ module.exports.createLoginWindow = function (parent, onclose) {
  * @public
  * Create a messagebox with the specified parameters.
  * @param {BrowserWindow} parent The parent window
- * @param {String} type Select the icon of the messagebox between `info`/`warning`/`error`
- * @param {String} title Title of the window
- * @param {String} message Message of the window
+ * @param {Object} args Arguments to pass to the window
+ * @param {String} args.type Select the icon of the messagebox between `info`/`warning`/`error`
+ * @param {String} args.title Title of the window
+ * @param {String} args.message Message of the window
  * @param {Function} onclose Callback executed when the window is closed
  * @returns Window created and promise fulfilled when the window is closed
  */
-module.exports.createMessagebox = function (parent, type, title, message, onclose) {
+module.exports.createMessagebox = function (parent, args, onclose) {
     // Local variables
     const preload = path.join(PRELOAD_DIR, "messagebox", "messagebox-preload.js");
 
@@ -142,6 +143,7 @@ module.exports.createMessagebox = function (parent, type, title, message, onclos
         preloadPath: preload,
         hasFrame: false,
         parent: parent,
+        args: args,
         onclose: onclose
     });
 
@@ -150,11 +152,6 @@ module.exports.createMessagebox = function (parent, type, title, message, onclos
 
     // Disable default menu
     if (!isDev) w.window.setMenu(null);
-
-    // adapt size to content
-    w.window.webContents.once("dom-ready", () => {
-        w.window.webContents.send("messagebox-arguments", type, title, message);
-    });
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "messagebox.html");
@@ -207,15 +204,16 @@ module.exports.createURLInputbox = function(parent, onclose) {
  * @public
  * Create a messagebox with the specified parameters used for the game update.
  * @param {BrowserWindow} parent The parent window
- * @param {String} title Name of the game
- * @param {String} version New version of the game
- * @param {String} changelog Changelog for the new version of the game
- * @param {String} url URL to the F95Zone thread of the game
- * @param {String} folder Path to folder containing the game
+ * @param {Object} args Arguments to pass to the window
+ * @param {String} args.title Name of the game
+ * @param {String} args.version New version of the game
+ * @param {String} args.changelog Changelog for the new version of the game
+ * @param {String} args.url URL to the F95Zone thread of the game
+ * @param {String} args.folder Path to folder containing the game
  * @param {Function} onclose Callback executed when the window is closed
  * @returns Window created and promise fulfilled when the window is closed
  */
-module.exports.createUpdateMessagebox = function (parent, title, version, changelog, url, folder, onclose) {
+module.exports.createUpdateMessagebox = function (parent, args, onclose) {
     // Local variables
     const preload = path.join(PRELOAD_DIR, "update-messagebox", "um-preload.js");
 
@@ -232,6 +230,7 @@ module.exports.createUpdateMessagebox = function (parent, title, version, change
         preloadPath: preload,
         hasFrame: false,
         parent: parent,
+        args: args,
         onclose: onclose
     });
 
@@ -240,11 +239,6 @@ module.exports.createUpdateMessagebox = function (parent, title, version, change
 
     // Disable default menu
     if (!isDev) w.window.setMenu(null);
-
-    // adapt size to content
-    w.window.webContents.once("dom-ready", () => {
-        w.window.webContents.send("um-arguments", title, version, changelog, url, folder);
-    });
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "update-messagebox.html");
@@ -264,6 +258,7 @@ module.exports.createUpdateMessagebox = function (parent, title, version, change
  * @param {String} options.preloadPath Path to the preload script
  * @param {Boolean} [options.hasFrame] Set if the window has a non-Chrome contourn
  * @param {BrowserWindow} [options.parent] Parent window for modal dialog
+ * @param {Object.<string,any>} [options.args] Dictionary of elements to pass to the window as arguments
  * @param {Function} [options.onclose] Callback executed when the window is closed. It receives a return value from the window as the only parameter
  * @returns The created window and a promise fulfilled when the window is closed
  */
@@ -300,6 +295,13 @@ function createBaseWindow(options) {
 
     // Show the window when is fully loaded (set the listener)
     w.webContents.on("did-finish-load", () => w.show());
+
+    // Send custom arguments to window
+    w.webContents.once("dom-ready", () => {
+        if(options.args) {
+            w.webContents.send("window-arguments", options.args);
+        }
+    });
 
     const promiseOnClose = new Promise((resolve) => {
         let _closeWithIPC = false;
