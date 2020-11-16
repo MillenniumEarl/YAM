@@ -443,9 +443,11 @@ class GameCard extends HTMLElement {
         window.IO.renameDir(this.info.gameDirectory, newpath);
 
         // Update info
+        const dbid = this.info._id;
         this._updateInfo.gameDirectory = newpath;
         this.info = this._updateInfo;
         this.info.updateAvailable = false;
+        this.info._id = dbid;
 
         // Save info
         await this.saveData();
