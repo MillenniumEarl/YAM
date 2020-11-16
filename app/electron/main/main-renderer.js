@@ -40,6 +40,7 @@ document.querySelector("#main-navbar-settings").addEventListener("click", openPa
  * Initialize and perform preliminary operations once the DOM is fully loaded.
  */
 async function onDOMContentLoaded() {
+    const url = await window.API.invoke("url-input");
     // This function runs when the DOM is ready, i.e. when the document has been parsed
     window.API.log.info("DOM loaded, initializing elements");
     await translateElementsInDOM();

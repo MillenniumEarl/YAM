@@ -24,7 +24,7 @@ process.on("uncaughtException", function (error) {
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow, loginWindow, messageBox;
+let mainWindow, loginWindow;
 
 // Global store, keep user-settings
 const store = new Store();
@@ -39,53 +39,18 @@ app.disableHardwareAcceleration();
 // require credentials, open the login windows
 ipcMain.on("login-required", function ipcMainOnLoginRequired() {
     logger.info("Login required from main window");
+    windowCreator.createLoginWindow(mainWindow, loginCloseCallback);
 
     // Avoid multiple instance of the login window
     if (loginWindow) {
         logger.warn("Login window already active");
         return;
-    } else loginWindow = windowCreator.createLoginWindow(mainWindow);
-});
-
-// Called when the main window has saved all
-// the data and is ready to be definitely closed
-ipcMain.on("main-window-closing", function ipcMainOnMainWindowClosing() {
-    logger.silly("Closing main window");
-
-    // Save the sizes of the window
-    const size = mainWindow.getSize();
-    store.set("main-width", size[0]);
-    store.set("main-height", size[1]);
-
-    // Check is the window is maximized
-    store.set("main-maximized", mainWindow.isMaximized());
-
-    mainWindow.close();
-    mainWindow = null;
-});
-
-// Called when the login window want to be closed
-ipcMain.on("login-window-closing", function ipcMainOnLoginWindowClosing() {
-    logger.silly("Closing login window");
-    loginWindow.close();
-    loginWindow = null;
-});
-
-// Called when a messagebox is closing
-ipcMain.on("messagebox-closing", function ipcMainOnMessageboxClosing() {
-    logger.silly("Closing messagebox");
-    messageBox.close();
-    messageBox = null;
+    } else loginWindow = windowCreator.createLoginWindow(mainWindow, loginCloseCallback).window;
 });
 
 // Called when the main window require a new messagebox
 ipcMain.on("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
-    messageBox = windowCreator.createMessagebox(mainWindow, ...args);
-});
-
-// Receive the result of the login operation
-ipcMain.on("auth-result", function ipcMainOnAuthResult(e, result) {
-    mainWindow.webContents.send("auth-result", ...result);
+    windowCreator.createMessagebox(mainWindow, ...args, messageBoxCloseCallback);
 });
 
 // Execute the file passed as parameter
@@ -177,13 +142,14 @@ ipcMain.handle("open-dialog", function ipcMainHandleOpenDialog(e, options) {
 });
 
 ipcMain.handle("url-input", function ipcMainHandleURLInput() {
-    // Create the messagebox
-    let urlInput = windowCreator.createURLInputbox(mainWindow);
-
+    return windowCreator.createURLInputbox(mainWindow).onclose;
     // We cannot return something from inside the callback, 
     // so we create a new promise and return that.
     // The result of the promise will be received by the original sender.
     return new Promise((resolve) => {
+        // Create the messagebox
+        let urlInput = windowCreator.createURLInputbox(mainWindow);
+
         // Manage the close event + URL inserted
         ipcMain.once("url-response", function ipcMainOnURLInputReturnInput(_, args) {
             resolve(args[0]); // args[0] is the returned URL
@@ -248,12 +214,14 @@ app.whenReady().then(async function appOnReady() {
     logger.info("Languages initialized");
 
     logger.silly("Creating main window");
-    mainWindow = windowCreator.createMainWindow();
+    mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;
 
     app.on("activate", function appOnActivate() {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0) mainWindow = windowCreator.createMainWindow();
+        if (BrowserWindow.getAllWindows().length === 0) {
+            mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;
+        }
     });
 });
 
@@ -265,3 +233,30 @@ app.on("window-all-closed", function appOnWindowAllClosed() {
     if (process.platform !== "darwin") app.quit();
 });
 //#endregion App-related events
+
+//#region Window close callbacks
+function mainWindowCloseCallback() {
+    logger.silly("Closing main window");
+
+    // Save the sizes of the window
+    const size = mainWindow.getSize();
+    store.set("main-width", size[0]);
+    store.set("main-height", size[1]);
+
+    // Check is the window is maximized
+    store.set("main-maximized", mainWindow.isMaximized());
+    mainWindow = null;
+}
+
+function loginCloseCallback(result) {
+    // Send the result to the main window
+    mainWindow.webContents.send("auth-result", ...result);
+
+    logger.silly("Closing login window");
+    loginWindow = null;
+}
+
+function messageBoxCloseCallback() {
+    logger.silly("Closing messagebox");
+}
+//#endregion Window close callbacks
