@@ -10,6 +10,11 @@ const { join } = require("path");
 const { ipcRenderer, contextBridge } = require("electron");
 const logger = require("electron-log");
 
+// Modules from file
+const {
+    readFileSync
+} = require("../../src/scripts/io-operations.js");
+
 // Array of valid render-to-main channels
 const validSendChannels = [
     "window-close",
@@ -64,4 +69,15 @@ contextBridge.exposeInMainWorld("API", {
      * Provide access to logger methods.
      */
     log: logger.functions,
+});
+
+contextBridge.exposeInMainWorld("IO", {
+    /**
+     * Read data from a file asynchronously.
+     * @param {String} path
+     * @returns {Any}
+     */
+    read: async function ioRead(path) {
+        return readFileSync(path);
+    }
 });

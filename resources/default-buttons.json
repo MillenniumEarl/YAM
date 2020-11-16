@@ -1,0 +1,30 @@
+{
+    "close": {
+        "name": "close",
+        "color": "",
+        "background": "",
+        "icon": "close",
+        "classes": ["neutral-button"]
+    },
+    "remove-only": {
+        "name": "remove-only",
+        "color": "",
+        "background": "",
+        "icon": "remove_circle_outline",
+        "classes": ["accept-button"]
+    },
+    "delete": {
+        "name": "delete",
+        "color": "",
+        "background": "",
+        "icon": "delete_forever",
+        "classes": ["negative-button"]
+    },
+    "cancel": {
+        "name": "cancel",
+        "color": "",
+        "background": "",
+        "icon": "cancel",
+        "classes": ["neutral-button"]
+    }
+}

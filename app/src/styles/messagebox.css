@@ -37,8 +37,17 @@ body {
     word-wrap: break-word;
     white-space: pre-line;
     overflow-y: auto;
+    display: block;
 }
 
-.button-container {
+.buttons-container {
     margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.checkboxes-container {
+    display: flex;
+    flex-direction: column;
 }
