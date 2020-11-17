@@ -96,21 +96,6 @@ class CardPaginator extends HTMLElement {
         window.API.log.info("Paginator connected to DOM");
     }
 
-    /**
-     * Triggered once the element is removed from the DOM
-     */
-    disconnectedCallback() {
-        window.API.log.info("Saving cards in paginator in disconnectCallback()");
-
-        // Save the paged cards when the paginator is removed from DOM
-        const cards = this.content.querySelectorAll("game-card");
-        cards.forEach(async function (card) {
-            await card.saveData();
-        });
-
-        window.API.log.info("Paginator disconnected from DOM");
-    }
-
     //#region Events
     /**
      * @private
@@ -335,11 +320,7 @@ class CardPaginator extends HTMLElement {
 
         // Remove all columns containing game cards (and save the cards)
         const columns = this.content.querySelectorAll("div.col");
-        for(const column of columns) {
-            const gamecard = column.querySelector("game-card");
-            await gamecard.saveData();
-            column.remove();
-        }
+        columns.forEach((column) => column.remove());
 
         // Create the game-cards
         const newColumns = [];
