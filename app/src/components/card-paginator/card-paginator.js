@@ -1,5 +1,22 @@
 "use strict";
 
+// Manage unhandled errors
+window.onerror = function (message, source, lineno, colno, error) {
+    window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
+
+    window.API.invoke("require-messagebox", {
+        type: "error",
+        title: "Unhandled error",
+        message: `${message} at line ${lineno}:${colno}.\n
+        It is advisable to terminate the application to avoid unpredictable behavior.\n
+        ${error.stack}\n
+        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
+        buttons: [{
+            name: "close"
+        }]
+    });
+};
+
 class CardPaginator extends HTMLElement {
     constructor() {
         super();
@@ -76,17 +93,22 @@ class CardPaginator extends HTMLElement {
     connectedCallback() {
         // Prepare DOM
         this._prepareDOM();
+        window.API.log.info("Paginator connected to DOM");
     }
 
     /**
      * Triggered once the element is removed from the DOM
      */
     disconnectedCallback() {
+        window.API.log.info("Saving cards in paginator in disconnectCallback()");
+
         // Save the paged cards when the paginator is removed from DOM
         const cards = this.content.querySelectorAll("game-card");
         cards.forEach(async function (card) {
             await card.saveData();
         });
+
+        window.API.log.info("Paginator disconnected from DOM");
     }
 
     //#region Events
@@ -103,6 +125,7 @@ class CardPaginator extends HTMLElement {
         const index = this._getCurrentIndex();
         if (index === -1) return;
         this._switchContext(index + 1);
+        window.API.log.info(`Switched context to ${index + 1} after user click (nextPage)`);
     }
 
     /**
@@ -118,6 +141,7 @@ class CardPaginator extends HTMLElement {
         const index = this._getCurrentIndex();
         if (index === -1) return;
         this._switchContext(index - 1);
+        window.API.log.info(`Switched context to ${index - 1} after user click (prevPage)`);
     }
 
     /**
@@ -129,6 +153,7 @@ class CardPaginator extends HTMLElement {
         const selectorID = e.target.parentNode.id;
         const index = parseInt(selectorID.replace("selector_", ""));
         this._switchContext(index);
+        window.API.log.info(`Switched context to ${index} after user click`);
     }
     
     //#endregion Events
@@ -138,9 +163,11 @@ class CardPaginator extends HTMLElement {
     /**
      * @public
      * Load and show the first page of the records in the database.
+     * @param {number} [index] Index of the page to show. Default: 0
      */
-    load() {
-        this._switchContext(0);
+    load(index=0) {
+        window.API.log.info(`Loading paginator at page ${index}`);
+        this._switchContext(index);
     }
 
     /**
@@ -149,6 +176,8 @@ class CardPaginator extends HTMLElement {
      * @param {String} name Case-sensitive value to search
      */
     search(value) {
+        window.API.log.info(`Searching for ${value} in paginator`);
+
         // Build the query (regex with case insensitive)
         if(value.trim() !== "") {
             const re = new RegExp(value, "i");
@@ -221,6 +250,7 @@ class CardPaginator extends HTMLElement {
         this._getStartEndPages = this._getStartEndPages.bind(this);
         this._switchContext = this._switchContext.bind(this);
         this._createPageSelectors = this._createPageSelectors.bind(this);
+        window.API.log.info("Paginator prepared");
     }
 
     //#region Utility
@@ -375,6 +405,8 @@ class CardPaginator extends HTMLElement {
     _switchContext(index) {
         // Define function
         const animationOnSwitchContext = (async () => {
+            // Show a circle preload
+
             // Load the first page
             await this._switchPage(index);
 
@@ -384,8 +416,7 @@ class CardPaginator extends HTMLElement {
             // Remove all the page selectors
             this.pageSelectorsParent.querySelectorAll("li").forEach(n => n.remove());
 
-            // Avoid creating selectors if:
-            // + There are no pages
+            // Avoid creating selectors if there are no pages
             if (limitPages.end - limitPages.start > 0) {
                 this._createPageSelectors(limitPages.start, limitPages.end + 1, index);
 
@@ -396,6 +427,8 @@ class CardPaginator extends HTMLElement {
                 // Enable/disable the next/prev buttons
                 this._manageNextPrecButtons();
             }
+
+            // Hide the circle preload
         });
 
         // Execute switch
