@@ -45,6 +45,10 @@ class GameCard extends HTMLElement {
          * @type Boolean
         */
         this._loadedDOM = false;
+        /**
+         * Default image to use when the game preview is not available.
+         */
+        this.DEFAULT_IMAGE = "../../resources/images/f95-logo.webp";
     }
 
     /**
@@ -83,9 +87,7 @@ class GameCard extends HTMLElement {
         this._info = value;
 
         // Prepare the preview (download and compress)
-        if (!this.info.localPreviewPath && this.info.previewSrc) {
-            this._preparePreview();
-        }
+        if (this.info.previewSrc) this._preparePreview();
 
         // DOM not ready, cannot update information
         if(!this._loadedDOM) return;
@@ -239,8 +241,7 @@ class GameCard extends HTMLElement {
         this.querySelector("#gc-installed-version").innerText = this.info.version;
 
         // Parse the relative path of the image (asynchronusly)
-        const path = this.info.localPreviewPath ? this.info.localPreviewPath : this.info.previewSrc;
-        const source = await this._parsePreviewPath(path);
+        const source = await this._parsePreviewPath();
         this.querySelector("#gc-preview").setAttribute("src", source);
 
         // Hide the preload circle and show the data
@@ -263,12 +264,6 @@ class GameCard extends HTMLElement {
             // ... or change only the last child (the text)
             else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
         }
-    }
-
-    async _existsGamePreview(source) {
-        const previewDir = await window.API.invoke("preview-dir");
-        const localPath = window.API.join(previewDir, source);
-        return await window.IO.pathExists(localPath);
     }
 
     /**
@@ -298,12 +293,8 @@ class GameCard extends HTMLElement {
     async _downloadGamePreview(source, dest) {
         // Check if it's possible to download the image
         if (source.trim() === "") return false;
-        if (source.trim() === "../../resources/images/f95-logo.webp")
+        if (source.trim() === this.DEFAULT_IMAGE)
             return false;
-
-        // Check if the image already exists
-        const exists = await this._existsGamePreview(source);
-        if (exists) return false; // Already downloaded
 
         // Download image
         let path = null;
@@ -354,29 +345,28 @@ class GameCard extends HTMLElement {
     /**
      * @private
      * Get the path to the preview source of the game.
-     * @param {String} src Saved preview source in the game's data
      * @returns {Promise<String>} Path to the preview (online or offline)
      */
-    async _parsePreviewPath(src) {
-        // First check if the source is valid, if not return the default image
-        if (!src) return "../../resources/images/f95-logo.webp";
-
-        // Then check if it's a URL
-        try {
-            // It's a URL
-            const url = new URL(src);
-            return url.toString();
-        } catch {
-            // It's an image name
+    async _parsePreviewPath() {
+        // First check the cached preview
+        if(this.info.localPreviewPath) {
             const previewDir = await window.API.invoke("preview-dir");
-            const previewPath = window.API.join(previewDir, src);
+            const previewPath = window.API.join(previewDir, this.info.localPreviewPath);
 
             // Check if the image exists
             const exists = await window.IO.pathExists(previewPath);
             if (exists) return previewPath;
+        }
 
-            // Something wrong, return the default image
-            else return "../../resources/images/f95-logo.webp";
+        // Then check the online preview
+        try {
+            // It's a URL
+            const url = new URL(this.info.previewSrc);
+            return url.toString();
+        }
+        catch {
+            // It's not a URL, return the default image
+            return this.DEFAULT_IMAGE;
         }
     }
 
@@ -387,8 +377,13 @@ class GameCard extends HTMLElement {
     async _preparePreview() {
         // Create the download path for the preview
         const previewDir = await window.API.invoke("preview-dir");
-        const imageName = this._parseImageName(name, this.info.previewSrc);
+        const imageName = this._parseImageName(this.info.name, this.info.previewSrc);
         const downloadDest = window.API.join(previewDir, imageName);
+
+        // Check if the image already exists
+        const localPath = window.API.join(previewDir, this.info.localPreviewPath);
+        const exists = await window.IO.pathExists(localPath);
+        if(exists) return true; // Preview already exists
 
         // Download the image
         const downloadResult = await this._downloadGamePreview(this.info.previewSrc, downloadDest);
@@ -397,7 +392,7 @@ class GameCard extends HTMLElement {
         // Compress the image
         const compressDest = await this._compressGamePreview(downloadDest, previewDir);
         if(!compressDest) return false;
-        const compressedImageName = this._parseImageName(name, compressDest);
+        const compressedImageName = this._parseImageName(this.info.name, compressDest);
 
         // All right, set the new preview path and save data
         if (compressedImageName) this.info.localPreviewPath = compressedImageName;
@@ -437,7 +432,7 @@ class GameCard extends HTMLElement {
         if (!this.info.localPreviewPath) return;
 
         // Delete the cached preview
-        const previewPath = await this._parsePreviewPath(this.info.localPreviewPath);
+        const previewPath = await this._parsePreviewPath();
         const exists = await window.IO.pathExists(previewPath);
         if (exists) await window.IO.deleteFile(previewPath);
     }
