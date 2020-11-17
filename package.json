@@ -71,11 +71,9 @@
         "directories": {
             "output": "./dist"
         },
-        "nsis": {
+        "win": {
             "icon": "./resources/images/icon.ico",
-            "publisherName": "${author}",
-            "allowToChangeInstallationDirectory": true,
-            "oneClick": false
+            "publisherName": "${author}"
         },
         "mac": {
             "category": "public.app-category.games",
