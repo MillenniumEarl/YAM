@@ -71,8 +71,7 @@
         "directories": {
             "output": "./dist"
         },
-        "win": {
-            "target": "nsis",
+        "nsis": {
             "icon": "./resources/images/icon.ico",
             "publisherName": "${author}",
             "allowToChangeInstallationDirectory": true,
@@ -82,7 +81,7 @@
             "category": "public.app-category.games",
             "target": "default",
             "icon": "./resources/images/icon.icns",
-            "type": "development"
+            "type": "distribution"
         },
         "linux": {
             "target": "AppImage",
