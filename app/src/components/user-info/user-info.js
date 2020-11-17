@@ -67,9 +67,6 @@ class UserInfo extends HTMLElement {
      * Triggered when user wants to play the game.
      */
     login() {
-        // Show the spinner
-        this.showSpinner();
-
         // Raise the event
         this.loginClickEvent = new Event("login");
         this.dispatchEvent(this.loginClickEvent);
