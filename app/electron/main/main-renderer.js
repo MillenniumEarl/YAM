@@ -66,6 +66,12 @@ async function onDOMContentLoaded() {
     const selects = document.querySelectorAll("select");
     // eslint-disable-next-line no-undef
     M.FormSelect.init(selects, {});
+    
+    // Load credentials
+    await loadCredentials();
+
+    // Login to F95Zone
+    await login();
 
     // Load cards in the paginator
     const paginator = document.querySelector("card-paginator");
@@ -73,12 +79,6 @@ async function onDOMContentLoaded() {
     paginator.updateListener = gameCardUpdate;
     paginator.deleteListener = gameCardDelete;
     paginator.load();
-    
-    // Load credentials
-    await loadCredentials();
-
-    // Login to F95Zone
-    login();
 }
 
 /**
@@ -467,10 +467,6 @@ async function login() {
 
         // Load user data
         getUserDataFromF95();
-
-        // Reload paginator to allow search of updates
-        document.querySelector("card-paginator").reload();
-
     } catch (e) {
         // Send error message
         const translation = await window.API.translate("MR cannot login", {
