@@ -236,6 +236,7 @@ class CardPaginator extends HTMLElement {
         this.root = this.querySelector("#paginator-root");
         this.content = this.querySelector("#pagination-content");
         this.pageSelectorsParent = this.querySelector("#pagination-page-selectors");
+        this.preload = document.querySelector(".pagination-preload");
 
         /* Bind function to use this */
         this._getCurrentIndex = this._getCurrentIndex.bind(this);
@@ -405,7 +406,9 @@ class CardPaginator extends HTMLElement {
     _switchContext(index) {
         // Define function
         const animationOnSwitchContext = (async () => {
-            // Show a circle preload
+            // Show a circle preload and hide the content
+            this.preload.style.display = "flex";
+            this.content.style.display = "none";
 
             // Load the first page
             await this._switchPage(index);
@@ -428,7 +431,9 @@ class CardPaginator extends HTMLElement {
                 this._manageNextPrecButtons();
             }
 
-            // Hide the circle preload
+            // Hide the circle preload and show the content
+            this.preload.style.display = "none";
+            this.content.style.display = "block";
         });
 
         // Execute switch

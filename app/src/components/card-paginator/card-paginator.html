@@ -5,11 +5,28 @@
 <!-- Load local script -->
 <script type="text/javascript" src="components/card-paginator.js"></script>
 
+<!-- This is the root of the componenet -->
 <div id="paginator-root">
-    <div id="pagination-content" class="row">
-        
+    <!-- This is a circular red preload used when switching pages -->
+    <div class="pagination-preload">
+        <div class="preloader-wrapper big active center-align">
+            <div class="spinner-layer spinner-red-only">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="gap-patch">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
     </div>
-    <ul id="pagination-page-selectors" class="pagination center-align">
 
-    </ul>
+    <!-- Thid DIV will contains the game cards -->
+    <div id="pagination-content" class="row"></div>
+
+    <!-- Here the page selectors will appear -->
+    <ul id="pagination-page-selectors" class="pagination center-align"></ul>
 </div>

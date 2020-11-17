@@ -16,3 +16,10 @@ ul.pagination > li.disabled > a{
 ul.pagination > li > a {
     color: var(--text-on-secondary);
 }
+
+.pagination-preload {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
