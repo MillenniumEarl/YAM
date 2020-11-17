@@ -82,6 +82,11 @@ class GameCard extends HTMLElement {
         if (!value) throw new Error("Invalid value");
         this._info = value;
 
+        // Prepare the preview (download and compress)
+        if (!this.info.localPreviewPath && this.info.previewSrc) {
+            this._preparePreview();
+        }
+
         // DOM not ready, cannot update information
         if(!this._loadedDOM) return;
 
@@ -266,9 +271,16 @@ class GameCard extends HTMLElement {
         return await window.IO.pathExists(localPath);
     }
 
-    _parseImageName(name, url, customExtension) {
+    /**
+     * @private
+     * Parse a path and return the name of that image.
+     * @param {String} name Custom name to prepend
+     * @param {String} source Path/URL of the image
+     * @param {String} [customExtension] Custom extension to set for the image name
+     */
+    _parseImageName(name, source, customExtension) {
         // Get image extension
-        const splitted = url.split(".");
+        const splitted = source.split(".");
         const extension = customExtension ? customExtension : splitted.pop();
 
         // Parse the name
@@ -280,48 +292,63 @@ class GameCard extends HTMLElement {
     /**
      * @private
      * Download the game cover image.
-     * @param {String} name Game name
      * @param {String} source Current URL of the image
-     * @returns {Promise<String>} Name of the image or `null` if it was not downloaded
+     * @param {String} dest Path where save the downloaded image
      */
-    async _downloadGamePreview(name, source) {
+    async _downloadGamePreview(source, dest) {
         // Check if it's possible to download the image
-        if (source.trim() === "") return null;
+        if (source.trim() === "") return false;
         if (source.trim() === "../../resources/images/f95-logo.webp")
-            return null;
+            return false;
 
         // Check if the image already exists
         const exists = await this._existsGamePreview(source);
-        if (exists) return null; // Already downloaded
+        if (exists) return false; // Already downloaded
 
         // Download image
-        const previewDir = await window.API.invoke("preview-dir");
-        const imageName = this._parseImageName(name, source);
-        const dest = window.API.join(previewDir, imageName);
         let path = null;
         try {
             path = await window.API.downloadImage(source, dest);
-            if (!path.filename) return null; // Something went wrong
+            if (!path.filename) {
+                window.API.log.error(`Something went wrong when downloading ${source}`);
+                return false; // Something went wrong
+            }
         }
         catch(e) {
             window.API.log.error(`Cannot download ${source}: ${e}`);
+            return false;
+        }
+
+        // Downloaded succesfully
+        return true;
+    }
+
+    /**
+     * @private
+     * Convert an image to Webp or compress it if it's a GIF.
+     * @param {*} source Path to the image to compress
+     * @param {*} folder Path to save folder
+     * @returns {Promise<String|null>} Path to the compressed file or `null` if something went wrong
+     */
+    async _compressGamePreview(source, folder) {
+        // Compress image (given path and destination folder)
+        const compressionResult = await window.API.compress(source, folder);
+
+        // Something wrong with compression
+        if (compressionResult.length !== 1) {
+            window.API.log.error(`Something went wrong when compressing ${source}`);
             return null;
         }
 
-        // Compress image
-        const compressionResult = await window.API.compress(path.filename, previewDir);
-      
-        // Something wrong with compression
-        if (compressionResult.length !== 1) return imageName;
-
         // Delete original image
-        if(compressionResult[0].sourcePath !== compressionResult[0].destinationPath) {
-            window.IO.deleteFile(path.filename);
+        if (compressionResult[0].sourcePath !== compressionResult[0].destinationPath) {
+            window.IO.deleteFile(source);
         }
 
         // Return image name
         const isGIF = source.endsWith(".gif");
-        return isGIF ? imageName : this._parseImageName(name, source, "webp");
+        const ext = isGIF ? "gif" : "webp";
+        return window.API.join(folder, this._parseImageName(name, source, ext));
     }
 
     /**
@@ -352,6 +379,31 @@ class GameCard extends HTMLElement {
             else return "../../resources/images/f95-logo.webp";
         }
     }
+
+    /**
+     * @private
+     * Prepare the preview of the game, download and compressing it.
+     */
+    async _preparePreview() {
+        // Create the download path for the preview
+        const previewDir = await window.API.invoke("preview-dir");
+        const imageName = this._parseImageName(name, this.info.previewSrc);
+        const downloadDest = window.API.join(previewDir, imageName);
+
+        // Download the image
+        const downloadResult = await this._downloadGamePreview(this.info.previewSrc, downloadDest);
+        if (!downloadResult) return false;
+
+        // Compress the image
+        const compressDest = await this._compressGamePreview(downloadDest, previewDir);
+        if(!compressDest) return false;
+        const compressedImageName = this._parseImageName(name, compressDest);
+
+        // All right, set the new preview path and save data
+        if (compressedImageName) this.info.localPreviewPath = compressedImageName;
+        await this.saveData();
+        return true;
+    }
     //#endregion Private methods
 
     //#region Public methods
@@ -360,12 +412,6 @@ class GameCard extends HTMLElement {
      * Save game data in the database.
      */
     async saveData() {
-        // Download preview image
-        if (!this.info.localPreviewPath && this.info.previewSrc) {
-            const imageName = await this._downloadGamePreview(this.info.name, this.info.previewSrc);
-            if (imageName) this.info.localPreviewPath = imageName;
-        }
-        
         // Save in the database
         await window.DB.write(this.info);
     }
