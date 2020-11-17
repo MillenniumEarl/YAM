@@ -22,7 +22,7 @@
     "scripts": {
         "start": "electron .",
         "pack": "electron-builder --dir",
-        "dist:win": "electron-builder --win",
+        "dist:win": "electron-builder --win --x64 --ia32",
         "dist:mac": "electron-builder --mac",
         "dist:linux": "electron-builder --linux",
         "dist:all": "electron-builder -mwl"
@@ -56,7 +56,7 @@
         "eslint": "^7.12.0"
     },
     "build": {
-        "appId": "com.electron.${name}",
+        "appId": "com.electron.yam",
         "productName": "F95 Game Updater",
         "copyright": "Copyright © year ${author}",
         "files": [
@@ -72,15 +72,11 @@
             "output": "./dist"
         },
         "win": {
-            "target": {
-                "target": "zip",
-                "arch": [
-                    "ia32",
-                    "x64"
-                ]
-            },
+            "target": "nsis",
             "icon": "./resources/images/icon.ico",
-            "publisherName": "${author}"
+            "publisherName": "${author}",
+            "allowToChangeInstallationDirectory": true,
+            "oneClick": false
         },
         "mac": {
             "category": "public.app-category.games",
