@@ -33,7 +33,7 @@ const {
     exists,
 } = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
-const sorter = require("../../src/scripts/cards-sorter.js");
+const {check} = require("../../src/scripts/internet-connection.js");
 const GameDataStore = require("../../db/stores/game-data-store.js");
 
 // Set F95API logger level
@@ -62,10 +62,6 @@ const validSendChannels = [
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
-    /**
-     * Expose sorter functions.
-     */
-    sorter: sorter,
     /**
      * Directory of the app.js file.
      */
@@ -113,9 +109,8 @@ contextBridge.exposeInMainWorld("API", {
     join: (...paths) => join(...paths),
     /**
      * Check if an Internet connection is available
-     * @returns {Boolean}
      */
-    isOnline: () => navigator.onLine,
+    isOnline: () => check(),
     /**
      * Download an image given a url.
      * @param {String} url URL to download the image from

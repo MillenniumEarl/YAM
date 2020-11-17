@@ -422,9 +422,10 @@ async function loadCredentials() {
  */
 async function login() {
     // Check network connection
-    if (!window.API.isOnline) {
+    const online = await window.API.isOnline();
+    if (!online) {
         window.API.log.warn("No network connection, cannot login");
-        const translation = window.API.translate("MR no network connection");
+        const translation = await window.API.translate("MR no network connection");
         sendToastToUser("warning", translation);
         return;
     }
