@@ -8,10 +8,15 @@ const { promisify } = require("util");
 const HOSTNAME = "www.google.com";
 const alookup = promisify(dns.lookup);
 
+/**
+ * @public
+ * Check if the PC is connected to Internet.
+ */
 module.exports.check = async function() {
     try {
-        await alookup(HOSTNAME);
-        return true;
+        // Should save the result in a variable to work (don't know why)
+        const ping = await alookup(HOSTNAME);
+        return ping.address !== "";
     }
     catch(err) {
         if(err.code === "ENOTFOUND") return false;
