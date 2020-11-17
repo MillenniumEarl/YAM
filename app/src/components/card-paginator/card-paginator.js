@@ -149,11 +149,14 @@ class CardPaginator extends HTMLElement {
      * Generated when clicking on a selector, changes the displayed page.
      * @param {MouseEvent} e
      */
-    _selectPage(e) {
+    async _selectPage(e) {
         const selectorID = e.target.parentNode.id;
         const index = parseInt(selectorID.replace("selector_", ""));
-        this._switchContext(index);
-        window.API.log.info(`Switched context to ${index} after user click`);
+        const shouldSwitch = await this._shouldISwitch(index);
+        if (shouldSwitch) {
+            this._switchContext(index);
+            window.API.log.info(`Switched context to ${index} after user click`);
+        }
     }
     
     //#endregion Events
@@ -165,9 +168,12 @@ class CardPaginator extends HTMLElement {
      * Load and show the first page of the records in the database.
      * @param {number} [index] Index of the page to show. Default: 0
      */
-    load(index=0) {
-        window.API.log.info(`Loading paginator at page ${index}`);
-        this._switchContext(index);
+    async load(index = 0) {
+        const shouldSwitch = await this._shouldISwitch(index);
+        if (shouldSwitch) {
+            window.API.log.info(`Loading paginator at page ${index}`);
+            this._switchContext(index);
+        }
     }
 
     /**
@@ -175,8 +181,8 @@ class CardPaginator extends HTMLElement {
      * Find all games that contain the specified value in the title.
      * @param {String} name Case-sensitive value to search
      */
-    search(value) {
-        window.API.log.info(`Searching for ${value} in paginator`);
+    async search(value) {
+        const FIRST_PAGE = 0;
 
         // Build the query (regex with case insensitive)
         if(value.trim() !== "") {
@@ -186,8 +192,13 @@ class CardPaginator extends HTMLElement {
             };
         } else this._searchQuery = {};
 
-        // Load the first page
-        this._switchContext(0);
+        const shouldSwitch = await this._shouldISwitch(FIRST_PAGE);
+        if (shouldSwitch) {
+            window.API.log.info(`Searching for ${value} in paginator`);
+            
+            // Load the first page
+            this._switchContext(FIRST_PAGE);
+        }
     }
 
     /**
@@ -195,10 +206,15 @@ class CardPaginator extends HTMLElement {
      * Reload the current page.
      * Useful after adding/removing a card.
      */
-    reload() {
+    async reload() {
         const currentIndex = this._getCurrentIndex();
         const index = currentIndex !== -1 ? currentIndex : 0;
-        this._switchContext(index);
+
+        const shouldSwitch = await this._shouldISwitch(index);
+        if (shouldSwitch) {
+            window.API.log.info(`Reloading page ${index}`);
+            this._switchContext(index);
+        }
     }
 
     /**
@@ -302,6 +318,7 @@ class CardPaginator extends HTMLElement {
      * Obtains the records of the page specified by `index`.
      * @param {number} index Index of the page to prepare
      * @param {number} size Size of each page
+     * @returns {Promise<Object[]>} List of records fetched from the database
      */
     async _paginate(index, size) {
         return await window.DB.search(this._searchQuery, index, size, size, this._sortQuery);
@@ -438,6 +455,37 @@ class CardPaginator extends HTMLElement {
 
         // Execute switch
         window.requestAnimationFrame(animationOnSwitchContext);
+    }
+
+    /**
+     * @private
+     * Check if a query produces new results to be paged 
+     * or if you can avoid doing so because the new values 
+     * are the same as those already present.
+     * @param {number} index Index of the new page to be displayed
+     */
+    async _shouldISwitch(index) {
+        // Get the records that should be paginated
+        const records = await this._paginate(index, this.CARDS_FOR_PAGE);
+        const toPaginateIDs = records.map(r => r.id); // Obtains the game ID's
+
+        // Get the records that are in the page
+        const gamecards = this.content.querySelectorAll("div.col > game-card");
+        const paginatedIDs = Array.from(gamecards).map(g => g.info.id); // Obtains the game ID's
+
+        // Check the lenght because "checker" check only 
+        // if an array contains, not if it is equals.
+        // See https://stackoverflow.com/questions/53606337/check-if-array-contains-all-elements-of-another-array
+        if(toPaginateIDs.length !== paginatedIDs.length) return true;
+
+        /**
+         * Check if the elements of `arr` are all contained in `target`.
+         * @param {Array} arr 
+         * @param {Array} target 
+         */
+        const checker = (arr, target) => target.every(v => arr.includes(v));
+
+        return !checker(toPaginateIDs, paginatedIDs);
     }
     //#endregion Utility
 
