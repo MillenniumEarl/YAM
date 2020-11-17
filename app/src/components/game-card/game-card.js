@@ -120,9 +120,10 @@ class GameCard extends HTMLElement {
      * @event
      * Triggered when user wants to play the game.
      */
-    playEvent() {
+    async playEvent() {
         // Save the current date as last played session
         this.info.lastPlayed = new Date(Date.now());
+        await this.saveData();
 
         // Raise the event
         const playClickEvent = new CustomEvent("play", {
