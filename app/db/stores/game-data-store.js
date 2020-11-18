@@ -4,6 +4,7 @@
 const Datastore = require("nedb-promises");
 const Ajv = require("ajv");
 const gamedataSchema = require("../schemas/gamedata");
+const logger = require("electron-log");
 
 /**
  * It allows you to store and get game data from a disk database.
@@ -25,25 +26,44 @@ class GameDataStore {
         this._schemaValidator = ajv.compile(gamedataSchema);
 
         /**
-         * NoDB stored on disk.
+         * NeDB stored on disk.
          */
         this._db = Datastore.create({
             filename: dbPath,
             timestampData: true,
             autoload: true,
+            onload: this._databaseOnLoadCallback,
+        });
+
+        this._db.on("__error__", (datastore, event, error, ...args) => {
+            // datastore, 'find', error, [{ foo: 'bar' }, {}]
+            logger.error(`Error in database when executing ${event} with query ${args}: ${error}`);
         });
     }
 
+    //#region Private methods
     /**
-     * @public
+     * @private
      * Check if the data passed by parameter is compatible with the database schema.
      * @param {Object} data Dictionary of properties of a GameInfoExtended object
      * @returns {Boolean} true if the dictionary is valid, false otherwise
      */
-    validate(data) {
+    _validate(data) {
         return this._schemaValidator(data);
     }
 
+    /**
+     * @private
+     * Callback executed when the database is loaded.
+     * @param {Error} err Error thrown if the database has problems loading
+     */
+    _databaseOnLoadCallback(err) {
+        if(err) logger.error(`Error when loading database: ${err}`);
+        else logger.info("Database loaded succesfully");
+    }
+    //#endregion Private methods
+
+    //#region Public methods
     /**
      * @public
      * Save a `GameInfoExtended` object in the database.
@@ -51,7 +71,7 @@ class GameDataStore {
      */
     async insert(data) {
         // Validate schema
-        const isValid = this.validate(data);
+        const isValid = this._validate(data);
         if (!isValid) {
             const error = this._schemaValidator.errors[0];
             throw new Error(`Invalid schema: ${error.dataPath} ${error.message}`);
@@ -114,7 +134,7 @@ class GameDataStore {
      */
     async write(data) {
         // Validate schema
-        const isValid = this.validate(data);
+        const isValid = this._validate(data);
         if (!isValid) {
             const error = this._schemaValidator.errors[0];
             throw new Error(`Invalid schema: ${error.dataPath} ${error.message}`);
@@ -125,6 +145,7 @@ class GameDataStore {
 
         return await this._db.update(selectQuery, data);
     }
+    //#endregion Public methods
 }
 
 module.exports = GameDataStore;
