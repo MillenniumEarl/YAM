@@ -365,7 +365,7 @@ class CardPaginator extends HTMLElement {
         const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
 
         // If there aren't enough pages...
-        if (nPages < this.MAX_VISIBLE_PAGES) {
+        if (nPages <= this.MAX_VISIBLE_PAGES) {
             if (index < 0 || index > nPages) {
                 throw new Error(`index (${index}) must be between (0) and (${nPages})`);
             }
@@ -385,14 +385,14 @@ class CardPaginator extends HTMLElement {
             start = 0;
             end = this.MAX_VISIBLE_PAGES - 1;
         }
-        if (end > nPages) {
-            start = nPages - this.MAX_VISIBLE_PAGES;
+        if (end > nPages - 1) {
+            start = nPages - this.MAX_VISIBLE_PAGES - 1;
             end = nPages - 1;
         }
 
         return {
             start: start,
-            end: end - 1,
+            end: end,
         };
     }
 
