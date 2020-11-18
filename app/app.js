@@ -31,6 +31,12 @@ const store = new Store();
 
 //#endregion Global variables
 
+// Get a lock instance to prevent multiple instance from running
+const instanceLock = app.requestSingleInstanceLock();
+
+// There is another instance running, close this instance
+if (!instanceLock) app.quit();
+
 // Disable hardware acceleration for better performance
 // as we don't use animations. 
 // Fix also strange graphical artifacts
@@ -197,6 +203,15 @@ app.whenReady().then(async function appOnReady() {
 app.on("window-all-closed", function appOnWindowAllClosed() {
     logger.silly("Closing application");
     if (process.platform !== "darwin") app.quit();
+});
+
+app.on("second-instance", function appOnSecondInstance() {
+    // Someone tried to run a second instance, we should focus our window.
+    if(!mainWindow) return; // No window to focus on
+    
+    // Show and focus on the main window
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
 });
 //#endregion App-related events
 
