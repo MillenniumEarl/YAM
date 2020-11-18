@@ -14,6 +14,7 @@
           "windows": {
               "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
           },
+          "cwd":"${workspaceFolder}",
           "sourceMaps": false
       },
       {
@@ -22,7 +23,7 @@
           "request": "attach",
           "port": 9333,
           "webRoot": "${workspaceFolder}",
-          "timeout": 30000,
+          "timeout": 60000,
           "sourceMaps": false
       }
   ],
