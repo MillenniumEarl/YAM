@@ -382,9 +382,11 @@ class GameCard extends HTMLElement {
         const downloadDest = window.API.join(previewDir, imageName);
 
         // Check if the image already exists
-        const localPath = window.API.join(previewDir, this.info.localPreviewPath);
-        const exists = await window.IO.pathExists(localPath);
-        if(exists) return true; // Preview already exists
+        if (this.info.localPreviewPath) {
+            const localPath = window.API.join(previewDir, this.info.localPreviewPath);
+            const exists = await window.IO.pathExists(localPath);
+            if (exists) return true; // Preview already exists
+        }
 
         // Download the image
         const downloadResult = await this._downloadGamePreview(this.info.previewSrc, downloadDest);
