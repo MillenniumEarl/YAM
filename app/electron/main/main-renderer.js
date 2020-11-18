@@ -66,19 +66,19 @@ async function onDOMContentLoaded() {
     const selects = document.querySelectorAll("select");
     // eslint-disable-next-line no-undef
     M.FormSelect.init(selects, {});
-    
-    // Load credentials
-    await loadCredentials();
-
-    // Login to F95Zone
-    await login();
 
     // Load cards in the paginator
     const paginator = document.querySelector("card-paginator");
     paginator.playListener = gameCardPlay;
     paginator.updateListener = gameCardUpdate;
     paginator.deleteListener = gameCardDelete;
-    paginator.load();
+    await paginator.load();
+    
+    // Load credentials
+    await loadCredentials();
+
+    // Login to F95Zone
+    login();
 }
 
 /**
@@ -421,17 +421,20 @@ async function loadCredentials() {
  * the login procedure.
  */
 async function login() {
+    // Show the spinner in the avatar component
+    document.getElementById("user-info").showSpinner();
+
     // Check network connection
     const online = await window.API.isOnline();
     if (!online) {
         window.API.log.warn("No network connection, cannot login");
         const translation = await window.API.translate("MR no network connection");
         sendToastToUser("warning", translation);
+
+        // Hide spinner
+        document.getElementById("user-info").hideSpinner();
         return;
     }
-
-    // Show the spinner in the avatar component
-    document.getElementById("user-info").showSpinner();
 
     // Request user input
     window.API.log.info("Send API to main process for auth request");
