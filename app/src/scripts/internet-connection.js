@@ -5,8 +5,9 @@ const dns = require("dns");
 const { promisify } = require("util");
 
 // Global variables
-const HOSTNAME = "www.google.com";
-const alookup = promisify(dns.lookup);
+const DNS = "8.8.8.8";
+const PORT = 53;
+const alookupService = promisify(dns.lookupService);
 
 /**
  * @public
@@ -14,9 +15,8 @@ const alookup = promisify(dns.lookup);
  */
 module.exports.check = async function() {
     try {
-        // Should save the result in a variable to work (don't know why)
-        const ping = await alookup(HOSTNAME);
-        return ping.address !== "";
+        await alookupService(DNS, PORT);
+        return true;
     }
     catch(err) {
         if(err.code === "ENOTFOUND") return false;
