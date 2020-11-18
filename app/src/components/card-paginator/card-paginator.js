@@ -275,13 +275,12 @@ class CardPaginator extends HTMLElement {
      * Shows or hides the buttons for the previous/next page 
      * depending on the currently selected page selector.
      */
-    _manageNextPrecButtons() {
+    async _manageNextPrecButtons() {
         // Get the elements
         const index = this._getCurrentIndex();
         if(index === -1) return;
 
         // Get elements
-        const selectorsCount = this.querySelectorAll("li[id^='selector']").length;
         const prevPageSelector = this.querySelector("#prev-page");
         const nextPageSelector = this.querySelector("#next-page");
         
@@ -292,8 +291,10 @@ class CardPaginator extends HTMLElement {
         prevPageSelector.classList.add(toAdd);
 
         // Manage the next button
-        toAdd = index === selectorsCount - 1 ? "disabled" : "enabled";
-        toRemove = index === selectorsCount - 1 ? "enabled" : "disabled";
+        const recordsNumber = await window.DB.count(this._searchQuery);
+        const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
+        toAdd = index === nPages - 1 ? "disabled" : "enabled";
+        toRemove = index === nPages - 1 ? "enabled" : "disabled";
         nextPageSelector.classList.remove(toRemove);
         nextPageSelector.classList.add(toAdd);
     }
@@ -426,7 +427,7 @@ class CardPaginator extends HTMLElement {
                 current.classList.add("active");
 
                 // Enable/disable the next/prev buttons
-                this._manageNextPrecButtons();
+                await this._manageNextPrecButtons();
             }
 
             // Hide the circle preload and show the content
