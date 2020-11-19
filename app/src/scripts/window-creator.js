@@ -133,7 +133,7 @@ module.exports.createMessagebox = function (parent, args, onclose) {
     // Set size
     const size = {
         width: 450,
-        height: 150
+        height: 230
     };
 
     // Create the browser window (minSize = size)

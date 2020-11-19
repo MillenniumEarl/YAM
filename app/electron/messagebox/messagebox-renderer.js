@@ -54,9 +54,30 @@ async function setIcon(type) {
  * Resize the window to fit the content of the body.
  */
 function fitContent() {
-    const PADDING_FOR_SIDE = 15;
-    const width = document.body.clientWidth + 4 * PADDING_FOR_SIDE;
-    const height = document.body.clientHeight + 2 * PADDING_FOR_SIDE;
+    // Set max size
+    const MAX_WIDTH = 900;
+    const MAX_HEIGHT = 450;
+
+    // Get elements
+    const header = document.querySelector(".header");
+    const roundedContainer = document.querySelector(".rounded-container");
+    const checkboxesContainer = document.querySelector(".checkboxes-container");
+    const buttonsContainer = document.querySelector(".buttons-container");
+
+    // Get elements size
+    const widthElements = Math.max(header.scrollWidth,
+        roundedContainer.scrollWidth, 
+        checkboxesContainer.scrollWidth, 
+        buttonsContainer.scrollWidth);
+    const heightElements = header.scrollHeight + 
+    roundedContainer.scrollHeight + 
+    checkboxesContainer.scrollHeight + 
+    buttonsContainer.scrollHeight;
+
+    // Get the width/height
+    const width = Math.min(MAX_WIDTH, widthElements);
+    const height = Math.min(MAX_HEIGHT, heightElements);
+
     window.API.send("window-resize", width, height);
 }
 

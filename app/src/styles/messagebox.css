@@ -40,6 +40,10 @@ body {
     display: block;
 }
 
+.checkboxes-container {
+    margin-top: 10px;
+}
+
 .buttons-container {
     margin-top: 10px;
     display: flex;
