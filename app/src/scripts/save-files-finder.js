@@ -60,21 +60,22 @@ module.exports.findSavesPath = async function findSavesPath(gameinfo) {
  * @returns {Promise<String>} Base directory where the saves are stored or `null` if no dir is available
  */
 async function _getSaveDir(gameinfo) {
-    switch (gameinfo.engine) {
+    switch (gameinfo.engine.toUpperCase()) {
     case "REN'PY": {
         const renpyDir = path.join(userDataDir, "RenPy");
-        const gamesDirs = await readDirPromisify(renpyDir);
-        const match = stringSimilarity.findBestMatch(gameinfo.name, gamesDirs);
+        const gameDirs = await readDirPromisify(renpyDir);
+        const temp = gameDirs.map(dir => dir.replace(/[0-9]/g, "")); // Remove numbers from dirs
+        const match = stringSimilarity.findBestMatch(gameinfo.name.replace(/[0-9]/g, ""), temp);
 
         // Must be quite confident in the result
         if (match.bestMatch.rating <= 0.75) return null;
 
-        const bestMatchName = match.bestMatch.target;
+        const bestMatchName = gameDirs[match.bestMatchIndex];
         return path.join(renpyDir, bestMatchName);
     }
     case "RPGM":
         // Saves stored in the same folder
-        return gameinfo.gameDir;
+        return gameinfo.gameDirectory;
     default:
         // Unsupported engine or "OTHERS"
         return null;
@@ -88,7 +89,7 @@ async function _getSaveDir(gameinfo) {
  * @returns {String} Extension of the saves
  */
 function _getSaveExtension(engine) {
-    switch (engine) {
+    switch (engine.toUpperCase()) {
     case "REN'PY":
         return "save";
     case "RPGM":

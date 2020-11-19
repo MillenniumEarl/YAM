@@ -90,8 +90,8 @@ class GameInfoExtended extends GameInfo {
      * Get game save files if development engine is supported.
      * @returns {Promise<String[]>} Paths to game save files
      */
-    getSaves() {
-        return savesFinder.findSavesPath(this);
+    async getSaves() {
+        return await savesFinder.findSavesPath(this);
     }
     //#endregion Public methods
 
