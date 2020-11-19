@@ -24,8 +24,7 @@
         "pack": "electron-builder --dir",
         "dist:win": "electron-builder --win --x64 --ia32",
         "dist:mac": "electron-builder --mac",
-        "dist:linux": "electron-builder --linux",
-        "publish": "electron-builder -p onTagOrDraft"
+        "dist:linux": "electron-builder --linux"
     },
     "engines": {
         "node": ">=10.0"
@@ -37,7 +36,6 @@
         "electron-log": "^4.2.4",
         "electron-online": "^1.0.0",
         "electron-store": "^6.0.1",
-        "electron-updater": "^4.3.5",
         "f95api": "MillenniumEarl/F95API#master",
         "glob": "^7.1.6",
         "i18next": "^19.8.3",
@@ -60,7 +58,9 @@
         "appId": "com.electron.yam",
         "productName": "F95 Game Updater",
         "copyright": "Copyright © year ${author}",
-        "publish": ["github"],
+        "publish": [
+            "github"
+        ],
         "files": [
             "**/*",
             "!.github${/*}",

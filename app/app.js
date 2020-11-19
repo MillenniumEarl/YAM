@@ -8,7 +8,6 @@ const fs = require("fs");
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const logger = require("electron-log");
 const Store = require("electron-store");
-const {autoUpdater} = require("electron-updater");
 
 // Modules from file
 const { run } = require("./src/scripts/io-operations.js");
@@ -42,10 +41,6 @@ if (!instanceLock) app.quit();
 // as we don't use animations. 
 // Fix also strange graphical artifacts
 app.disableHardwareAcceleration();
-
-// Set logger for auto updater
-autoUpdater.logger = logger;
-autoUpdater.logger.transports.file.level = "info";
 
 //#region IPC Communication
 // This will be called when the main window
@@ -192,9 +187,6 @@ app.whenReady().then(async function appOnReady() {
 
     logger.silly("Creating main window");
     mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;
-
-    // Check for updates
-    autoUpdater.checkForUpdatesAndNotify();
 
     app.on("activate", function appOnActivate() {
     // On macOS it's common to re-create a window in the app when the
