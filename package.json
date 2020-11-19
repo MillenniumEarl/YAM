@@ -25,7 +25,7 @@
         "dist:win": "electron-builder --win --x64 --ia32",
         "dist:mac": "electron-builder --mac",
         "dist:linux": "electron-builder --linux",
-        "publish": "electron-builder -p onTag"
+        "publish": "electron-builder -p onTagOrDraft"
     },
     "engines": {
         "node": ">=10.0"
