@@ -41,6 +41,8 @@ body {
 }
 
 .checkboxes-container {
+    display: flex;
+    flex-direction: column;
     margin-top: 10px;
 }
 
@@ -54,9 +56,4 @@ body {
 
 .buttons-container > a {
     flex: auto; /* Adapt the buttons on the line */
-}
-
-.checkboxes-container {
-    display: flex;
-    flex-direction: column;
 }
