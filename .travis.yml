@@ -43,7 +43,7 @@ before_install:
 before_script:
   - git lfs pull
 
-# on PRs and merges to master and prod run tests and build the app
+# on PRs and merges to main and prod run tests and build the app
 # Without test this will fail
 # script:
 #   - |
@@ -68,8 +68,8 @@ deploy:
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
 
-# only run this script on pull requests and merges into 
-# the 'master' and 'prod' branches
+# only run this script on pull requests and merges into
+# the 'main' and 'prod' branches
 branches:
   only:
   - main
