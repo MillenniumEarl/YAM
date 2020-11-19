@@ -43,7 +43,7 @@ before_install:
 before_script:
   - git lfs pull
 
-# on PRs and merges to main and prod run tests and build the app
+# on PRs and merges to main tests and build the app
 # Without test this will fail
 # script:
 #   - |
@@ -57,20 +57,19 @@ before_script:
 #     else
 #       yarn test
 #     fi
-# only deploy to github on a merge to the prod branch
+
 deploy:
   provider: script
   script: bash deploy.travis.sh
   cleanup: true
   on:
-    branch: prod
+    branch: main
 
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
 
 # only run this script on pull requests and merges into
-# the 'main' and 'prod' branches
+# the 'main' branch
 branches:
   only:
   - main
-  - prod
