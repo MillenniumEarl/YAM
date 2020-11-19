@@ -180,7 +180,7 @@ async function initializeLocalization() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async function appOnReady() {
-    logger.info("Application ready");
+    logger.info(`Application ready (version: ${app.getVersion()})`);
 
     // Wait for language initialization
     await initializeLocalization();
