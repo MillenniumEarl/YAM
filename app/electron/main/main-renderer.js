@@ -67,6 +67,9 @@ async function onDOMContentLoaded() {
     // eslint-disable-next-line no-undef
     M.FormSelect.init(selects, {});
 
+    // Login to F95Zone
+    await login();
+
     // Load cards in the paginator
     const paginator = document.querySelector("card-paginator");
     paginator.playListener = gameCardPlay;
@@ -76,9 +79,6 @@ async function onDOMContentLoaded() {
     
     // Load credentials
     await loadCredentials();
-
-    // Login to F95Zone
-    login();
 }
 
 /**
