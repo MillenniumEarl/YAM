@@ -64,7 +64,7 @@ deploy:
   cleanup: true
   on:
     branch: prod
-    
+
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
 
