@@ -45,6 +45,11 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 5px;
+}
+
+.buttons-container > a {
+    flex: auto; /* Adapt the buttons on the line */
 }
 
 .checkboxes-container {
