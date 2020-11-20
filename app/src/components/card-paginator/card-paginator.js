@@ -143,6 +143,29 @@ class CardPaginator extends HTMLElement {
             window.API.log.info(`Switched context to ${index} after user click`);
         }
     }
+
+    /**
+     * Switch page when the right/left arrow on keyboard are pressed.
+     * @param {KeyboardEvent} e
+     */
+    _keyboardShortcut(e) {
+        // Check if the key pressed is valid
+        const validShortcut = ["ArrowRight", "ArrowLeft"].includes(e.key);
+        if(!validShortcut) return;
+
+        // Obtain the ID of the currently selected page selector
+        const index = this._getCurrentIndex();
+        if (index === -1) return;
+        
+        // Calculate the new index
+        let nextIndex = 0;
+        if (e.key === "ArrowRight") nextIndex = index + 1;
+        else if (e.key === "ArrowLeft") nextIndex = index - 1;
+
+        // Switch page
+        this._switchContext(nextIndex);
+        window.API.log.info(`Switched context to ${nextIndex} after user shortcut`);
+    }
     
     //#endregion Events
 
@@ -232,7 +255,7 @@ class CardPaginator extends HTMLElement {
         );
         template.innerHTML = window.IO.readSync(pathHTML);
         this.appendChild(template.content.cloneNode(true));
-
+        
         /* Define elements in DOM */
         this.root = this.querySelector("#paginator-root");
         this.content = this.querySelector("#pagination-content");
@@ -245,6 +268,7 @@ class CardPaginator extends HTMLElement {
         this._createSelectorButton = this._createSelectorButton.bind(this);
         this._createPrevButton = this._createPrevButton.bind(this);
         this._createNextButton = this._createNextButton.bind(this);
+        this._keyboardShortcut = this._keyboardShortcut.bind(this);
         this._prevPage = this._prevPage.bind(this);
         this._nextPage = this._nextPage.bind(this);
         this._switchPage = this._switchPage.bind(this);
@@ -252,6 +276,10 @@ class CardPaginator extends HTMLElement {
         this._getStartEndPages = this._getStartEndPages.bind(this);
         this._switchContext = this._switchContext.bind(this);
         this._createPageSelectors = this._createPageSelectors.bind(this);
+
+        /* Add keyboard hooks */
+        window.addEventListener("keydown", this._keyboardShortcut, true);
+        
         window.API.log.info("Paginator prepared");
     }
 
