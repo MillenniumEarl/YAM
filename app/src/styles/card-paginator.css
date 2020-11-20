@@ -1,15 +1,11 @@
 /*### Import base styles ###*/
 @import "global.css";
 
-#next-page,
-#prev-page {
+ul.pagination > li {
+    border-radius: 50%;
     width: 30px; /* Same as height */
     display: inline-flex;
     justify-content: center;
-}
-
-ul.pagination > li {
-    border-radius: 50%;
 }
 
 ul.pagination > li.active{
