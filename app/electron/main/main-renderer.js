@@ -83,7 +83,7 @@ async function onDOMContentLoaded() {
 
 /**
  * Displays games whose titles contain the value the user entered in the search box.
- * @param {KeyboardEvent}
+ * @param {KeyboardEvent} e
  */
 function onSearchGameName(e) {
     // Search only if the user press "enter"
