@@ -57,12 +57,17 @@ ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args
 
 // Execute the file passed as parameter
 ipcMain.on("exec", function ipcMainOnExec(e, filename) {
-    logger.info(`Executing ${filename[0]}`);
-    run(filename[0])
-        .then((err) => {
-            if (err) logger.error(`Failed to start subprocess: ${err}`);
-        })
-        .catch((err) => logger.error(`Failed to start subprocess: ${err}`));
+    const filepath = filename[0];
+
+    logger.info(`Executing ${filepath}`);
+    
+    // Create and run child
+    const child = run(filepath);
+
+    // Write log on child error
+    child.stderr.on("data", (data) => {
+        logger.error(`Error running ${filepath}: ${data}`);
+    });
 });
 
 // Return the current root dir path (Current Working Directory)

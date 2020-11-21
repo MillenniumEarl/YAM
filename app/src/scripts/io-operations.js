@@ -3,19 +3,22 @@
 // Core modules
 const path = require("path");
 const fs = require("fs");
-
-// Public modules from npm
-const {
-    shell
-} = require("electron");
+const spawn = require("child_process").spawn;
 
 /**
  * @protected
- * Run a file from disk.
+ * Run a file from disk as an independent process.
  * @param {String} path Path of the application to run
  */
-module.exports.run = async function run(path) {
-    shell.openPath(path);
+module.exports.run = function run(path) {
+    const child = spawn(path, [], {
+        detached: true,
+    });
+
+    // Unreference the child, now it will 
+    // run as an independent process
+    child.unref();
+    return child;
 };
 
 /**
