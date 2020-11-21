@@ -75,7 +75,7 @@ class GameInfoExtended extends GameInfo {
             let files = glob.sync(`*.${ext}`, {
                 cwd: this.gameDirectory
             });
-            if (files.length !== 0) {m
+            if (files.length !== 0) {
                 // Return executable
                 const path = join(this.gameDirectory, files[0]);
                 return path;

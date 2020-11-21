@@ -8,7 +8,7 @@ const {
 // Public modules from npm
 const {
     app
-} = require("electron");m
+} = require("electron");
 
 /**
  * Class containing variables shared between modules.
