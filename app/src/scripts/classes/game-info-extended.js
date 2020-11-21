@@ -53,17 +53,17 @@ class GameInfoExtended extends GameInfo {
      */
     getGameLauncher() {
         // Get the extension matching the current OS
-        let extension = "";
+        let extensions = "";
         
         switch (process.platform) {
         case "win32":
-            extension = "exe";
+            extensions = ["exe", "html"];
             break;
         case "darwin":
-            extension = "sh";
+            extensions = ["sh", "html"];
             break;
         case "linux":
-            extension = "py";
+            extensions = ["sh", "x86_64", "html"];
             break;
         default:
             // Unsupported platform
@@ -71,18 +71,17 @@ class GameInfoExtended extends GameInfo {
         }
 
         // Find the launcher
-        let files = glob.sync(`*.${extension}`, {
-            cwd: this.gameDirectory
-        });
-
-        // Try with HTML if no file is found
-        if (files.length === 0) files = glob.sync("*.html", {
-            cwd: this.gameDirectory
-        });
-
-        // Return executable
-        if (files.length === 0) return null;
-        else return join(this.gameDirectory, files[0]);
+        for(const ext of extensions) {
+            let files = glob.sync(`*.${ext}`, {
+                cwd: this.gameDirectory
+            });
+            if (files.length !== 0) {
+                // Return executable
+                const path = join(this.gameDirectory, files[0]);
+                return path;
+            }
+        }
+        return null;
     }
 
     /**
