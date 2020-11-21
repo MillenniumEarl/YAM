@@ -62,6 +62,7 @@
     "default-button-close": "关",
     "default-button-delete": "还从磁盘删除",
     "default-button-remove-only": "仅删除",
-    "MR game removed": "{{gamename}}已删除"
+    "MR game removed": "{{gamename}}已删除",
+    "gc-game-folder": "打开游戏文件夹"
   }
 }

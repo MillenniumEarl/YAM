@@ -62,6 +62,7 @@
     "default-button-close": "Proche",
     "default-button-delete": "Supprimer également du disque",
     "default-button-remove-only": "Supprimer uniquement",
-    "MR game removed": "{{gamename}} supprimé"
+    "MR game removed": "{{gamename}} supprimé",
+    "gc-game-folder": "Ouvrir le dossier du jeu"
   }
 }

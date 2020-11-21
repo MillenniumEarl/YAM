@@ -62,6 +62,7 @@
     "default-button-close": "близко",
     "default-button-delete": "Также удалить с диска",
     "default-button-remove-only": "Удалить только",
-    "MR game removed": "{{gamename}} удалено"
+    "MR game removed": "{{gamename}} удалено",
+    "gc-game-folder": "Открыть папку с игрой"
   }
 }

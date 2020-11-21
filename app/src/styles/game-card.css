@@ -33,17 +33,25 @@
     padding: 16px 20px;
 }
 
-.action-p > * + * {
-    margin-left: 2px;
-}
-
 .action-p {
     padding-top: 5px;
     display: flex;
+    gap: 3px;
+}
+
+.buttons-container {
+    padding-top: 5px;
+    display: flex;
+    gap: 3px;
+    flex-flow: column;
 }
 
 .action-p > a {
-    flex-basis: 50%;
+    flex-basis: 50%; /* The buttons are half the available space */
+}
+
+.buttons-container > a {
+    flex: auto; /* The buttons occupy all the space needed for the content */
 }
 
 .update-p {
