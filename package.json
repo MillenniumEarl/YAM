@@ -57,7 +57,7 @@
     "build": {
         "appId": "com.electron.yam",
         "productName": "F95 Game Updater",
-        "copyright": "Copyright © year ${author}",
+        "copyright": "Copyright © 2020 ${author}",
         "publish": [
             "github"
         ],
