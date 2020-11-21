@@ -114,7 +114,7 @@ async function onAddRemoteGame() {
     sendToastToUser("info", translation);
 
     // Find game version
-    const unparsedName = gamePath.split("\\").pop();
+    const unparsedName = window.API.apiGetDirName(gamePath);
     const version = getGameVersionFromName(unparsedName);
 
     // Add game to list
@@ -608,15 +608,17 @@ async function gameCardDelete(e) {
     // Copy saves
     const copySaves = savesExists ? data.checkboxes.include("preserve-savegame") : false;
     if (copySaves && e.detail.savePaths && e.detail.name) {
-        const savePaths = e.detail.savePaths;
+        // Create the directory
         const exportedSavesDir = await window.API.invoke("savegames-data-dir");
         const gameDirectory = window.API.join(exportedSavesDir, cleanGameName(e.detail.name));
         await window.IO.mkdir(gameDirectory);
-        savePaths.forEach(async function copySaveGame(path) {
-            const name = path.split("\\").pop();
+
+        // Copy the saves
+        for (const path of e.detail.savePaths) {
+            const name = window.API.apiGetDirName(path);
             const newName = window.API.join(gameDirectory, name);
             await window.IO.copy(path, newName);
-        });
+        }
     }
 
     // Delete also game files
@@ -644,21 +646,23 @@ async function gameCardDelete(e) {
 async function getGameFromPaths(paths) {
     // Parse the game dir name(s)
     for (const path of paths) {
-        await getGameFromPath(path)
-            .catch(function catchErrorWhenAddingGameFromPath(error) {
-                // Send error message
-                window.API.invoke("require-messagebox", {
-                    type: "error",
-                    title: "Unexpected error",
-                    message: `Cannot retrieve game data (${path}), unexpected error: ${error}`,
-                    buttons: [{
-                        name: "close"
-                    }]
-                });
-                window.API.log.error(
-                    `Unexpected error while retrieving game data from path: ${path}. ${error}`
-                );
+        try {
+            await getGameFromPath(path);
+        }
+        catch (error) {
+            // Send error message
+            window.API.invoke("require-messagebox", {
+                type: "error",
+                title: "Unexpected error",
+                message: `Cannot retrieve game data (${path}), unexpected error: ${error}`,
+                buttons: [{
+                    name: "close"
+                }]
             });
+            window.API.log.error(
+                `Unexpected error while retrieving game data from path: ${path}. ${error}`
+            );
+        }
     }
 }
 
@@ -671,9 +675,9 @@ async function getGameFromPaths(paths) {
  * @returns {Promise<Object>} GameCard created or null if no game was detected
  */
 async function getGameFromPath(path) {
-    // After the splitting, the last name is the directory name
-    const unparsedName = path.split("\\").pop();
-
+    // Get the directory name
+    const unparsedName = window.API.apiGetDirName(path);
+    
     // Check if it is a mod
     const MOD_TAG = "[MOD]";
     const includeMods = unparsedName.toUpperCase().includes(MOD_TAG);
@@ -753,7 +757,7 @@ async function getUnlistedGamesInArrayOfPath(paths) {
 
     for (const path of paths) {
         // Get the clean game name
-        const unparsedName = path.split("\\").pop();
+        const unparsedName = window.API.apiGetDirName(path);
         const newGameName = cleanGameName(unparsedName);
 
         // Check if it's not already present and add it to the list
