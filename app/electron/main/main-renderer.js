@@ -513,6 +513,11 @@ async function selectGameDirectories(multipleSelection) {
     else return gameFolderPaths;
 }
 
+/**
+ * @event
+ * Start the game when the user presses the button.
+ * @param {CustomEvent} e Contains the path to the game executable with the name `launcher`
+ */
 async function gameCardPlay(e) {
     if (!e.target) return;
     const launcherPath = e.detail.launcher;
@@ -530,6 +535,12 @@ async function gameCardPlay(e) {
     window.API.send("exec", launcherPath);
 }
 
+/**
+ * @event
+ * Start the game update process when the user presses the button.
+ * @param {CustomEvent} e Contains the following information: 
+ * `name`, `version`, `changelog`, `url`, `gameDirectory`
+ */
 async function gameCardUpdate(e) {
     if (!e.target) return;
 
@@ -556,6 +567,13 @@ async function gameCardUpdate(e) {
     );
 }
 
+/**
+ * @event
+ * Start the procedure for deleting the game, 
+ * allowing you to copy the game saves if possible.
+ * @param {CustomEvent} e Contains the following information: 
+ * `name`, `savePaths`
+ */
 async function gameCardDelete(e) {
     if (!e.target) return;
     
