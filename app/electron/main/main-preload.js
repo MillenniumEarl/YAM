@@ -10,8 +10,7 @@ const {
 } = require("glob");
 const {
     join,
-    basename,
-    dirname
+    basename
 } = require("path");
 
 // Public modules from npm
@@ -129,7 +128,7 @@ contextBridge.exposeInMainWorld("API", {
      * @returns {String}
      */
     getDirName: function apiGetDirName(path) {
-        return basename(dirname(path));
+        return basename(path);
     },
     /**
      * Provide access to logger methods.
