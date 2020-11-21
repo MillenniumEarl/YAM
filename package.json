@@ -1,6 +1,6 @@
 {
     "main": "./app/app.js",
-    "name": "f95-game-updater",
+    "name": "yam",
     "version": "2.0.0",
     "author": {
         "name": "Millennium Earl"
@@ -8,7 +8,7 @@
     "description": "Unoffical Game Updater for the F95Zone platform",
     "repository": {
         "type": "git",
-        "url": "https://github.com/MillenniumEarl/F95GameUpdater.git"
+        "url": "https://github.com/MillenniumEarl/YAM.git"
     },
     "license": "UNLICENSED",
     "private": true,
@@ -56,7 +56,7 @@
     },
     "build": {
         "appId": "com.electron.yam",
-        "productName": "F95 Game Updater",
+        "productName": "YAM",
         "copyright": "Copyright © 2020 ${author}",
         "publish": [
             "github"
@@ -65,9 +65,7 @@
             "**/*",
             "!.github${/*}",
             "!.vscode${/*}",
-            "!cache${/*}",
             "!docs${/*}",
-            "!node_modules/puppeteer/.local-chromium${/*}",
             "!resources/images/github${/*}"
         ],
         "directories": {
