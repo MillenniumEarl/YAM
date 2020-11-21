@@ -490,7 +490,7 @@ class GameCard extends HTMLElement {
         if(!this.info.updateAvailable) return false;
 
         // Prepare the directory paths
-        const oldDirName = window.API.apiGetDirName(this.info.gameDirectory);
+        const oldDirName = window.API.getDirName(this.info.gameDirectory);
         const dirpath = this.info.gameDirectory.replace(oldDirName, "");
         const modVariant = this._updateInfo.isMod ? "[MOD]" : "";
 

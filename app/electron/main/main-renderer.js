@@ -114,7 +114,7 @@ async function onAddRemoteGame() {
     sendToastToUser("info", translation);
 
     // Find game version
-    const unparsedName = window.API.apiGetDirName(gamePath);
+    const unparsedName = window.API.getDirName(gamePath);
     const version = getGameVersionFromName(unparsedName);
 
     // Add game to list
@@ -615,7 +615,7 @@ async function gameCardDelete(e) {
 
         // Copy the saves
         for (const path of e.detail.savePaths) {
-            const name = window.API.apiGetDirName(path);
+            const name = window.API.getDirName(path);
             const newName = window.API.join(gameDirectory, name);
             await window.IO.copy(path, newName);
         }
@@ -676,7 +676,7 @@ async function getGameFromPaths(paths) {
  */
 async function getGameFromPath(path) {
     // Get the directory name
-    const unparsedName = window.API.apiGetDirName(path);
+    const unparsedName = window.API.getDirName(path);
     
     // Check if it is a mod
     const MOD_TAG = "[MOD]";
@@ -757,7 +757,7 @@ async function getUnlistedGamesInArrayOfPath(paths) {
 
     for (const path of paths) {
         // Get the clean game name
-        const unparsedName = window.API.apiGetDirName(path);
+        const unparsedName = window.API.getDirName(path);
         const newGameName = cleanGameName(unparsedName);
 
         // Check if it's not already present and add it to the list
