@@ -34,7 +34,7 @@
         "f95api": "^1.6.5",
         "ajv": "^6.12.6",
         "electron-is-dev": "^1.2.0",
-        "electron-log": "^4.2.4",
+        "electron-log": "^4.3.0",
         "electron-online": "^1.0.0",
         "electron-store": "^6.0.1",
         "glob": "^7.1.6",
