@@ -38,7 +38,7 @@
         "electron-online": "^1.0.0",
         "electron-store": "^6.0.1",
         "glob": "^7.1.6",
-        "i18next": "^19.8.3",
+        "i18next": "^19.8.4",
         "i18next-electron-language-detector": "0.0.10",
         "imagemin": "^7.0.1",
         "imagemin-gifsicle": "^7.0.0",
