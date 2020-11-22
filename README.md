@@ -51,14 +51,16 @@ When adding a game or starting the application, updates of installed games are c
 
 **Warning!** Make sure you don't have any processes running from the update game folder!
 
-**Warning!** Remember to save any game saves in the game folder to update!
+**Warning!** Remember to copy any game saves in the game folder to update!
 
 ## Known Issues
 
 1. Some translations may be totally or partially inaccurate, this is because they are machine translations
-   1. **Solution**: Open an issue with the wrong translation, the correct one and where / when the wrong translation occurs
+   1. **Solution**: Open an issue with the wrong translation, the correct one and where/when the wrong translation occurs
 2. Games added even if already present
    1. **Solution**: Rename the directory with the exact name of the game
+3. Games are not visible when starting the application
+   1. **Solution**: It's a rare database problem, restarting the application should fix it
 
 ## How to contribute
 
@@ -103,3 +105,7 @@ The app will run with basic security settings, like:
 Also it will implement IPC and ContextBridge in the preloads.
 
 For more information about secure use of IPC see this [repository](https://github.com/reZach/secure-electron-template/blob/master/docs/newtoelectron.md)
+
+## License
+
+Under the MIT license. See [LICENSE](https://github.com/MillenniumEarl/YAM/blob/master/LICENSE) file for more details.
