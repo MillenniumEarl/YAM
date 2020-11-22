@@ -9,7 +9,7 @@ const {
 } = require("path");
 
 // Public module from npm
-const { GameInfo } = require("@millenniumearl/f95api");
+const { GameInfo } = require("f95api");
 
 // Modules from file
 const savesFinder = require("../save-files-finder.js");

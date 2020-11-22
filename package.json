@@ -31,7 +31,7 @@
     },
     "dependencies": {
         "@materializecss/materialize": "^1.0.0",
-        "@millenniumearl/f95api": "^1.6.5",
+        "f95api": "^1.6.5",
         "ajv": "^6.12.6",
         "electron-is-dev": "^1.2.0",
         "electron-log": "^4.2.4",
