@@ -72,6 +72,7 @@ contextBridge.exposeInMainWorld("API", {
         if (validSendChannels.includes(channel)) {
             return ipcRenderer.invoke(channel, data);
         }
+        else logger.warn(`Unauthorized IPC message from 'main-preload.js' through ${channel}: ${data}`);
     },
     /**
      * Send an asynchronous request via IPC.
@@ -83,6 +84,7 @@ contextBridge.exposeInMainWorld("API", {
         if (validSendChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
         }
+        else logger.warn(`Unauthorized IPC message from 'main-preload.js' through ${channel}: ${data}`);
     },
     /**
      * Receive a message from main process via IPC and execute a method.

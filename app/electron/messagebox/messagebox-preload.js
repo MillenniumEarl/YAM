@@ -48,6 +48,7 @@ contextBridge.exposeInMainWorld("API", {
         if (validSendChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
         }
+        else logger.warn(`Unauthorized IPC message from 'messagebox-preload.js' through ${channel}: ${data}`);
     },
     once: (channel, func) => {
         // Receive a custom message

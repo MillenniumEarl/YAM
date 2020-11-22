@@ -31,10 +31,11 @@ contextBridge.exposeInMainWorld("API", {
      * @returns {Promise<Any>} Result from the main process
      */
     invoke: (channel, ...data) => {
-    // Send a custom message
+        // Send a custom message
         if (validSendChannels.includes(channel)) {
             return ipcRenderer.invoke(channel, data);
         }
+        else logger.warn(`Unauthorized IPC message from 'login-preload.js' through ${channel}: ${data}`);
     },
     /**
      * Send an asynchronous request via IPC.
@@ -42,10 +43,11 @@ contextBridge.exposeInMainWorld("API", {
      * @param {Any[]} data Data to send to main process
      */
     send: (channel, ...data) => {
-    // Send a custom message
+        // Send a custom message
         if (validSendChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
         }
+        else logger.warn(`Unauthorized IPC message from 'login-preload.js' through ${channel}: ${data}`);
     },
     /**
      * Translate a key into a message in the language specified by the user.

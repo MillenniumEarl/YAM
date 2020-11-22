@@ -25,6 +25,7 @@ contextBridge.exposeInMainWorld("API", {
         if (validSendChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
         }
+        else logger.warn(`Unauthorized IPC message from 'url-input-preload.js' through ${channel}: ${data}`);
     },
     /**
      * Translate a key into a message in the language specified by the user.
