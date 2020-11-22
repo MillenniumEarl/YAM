@@ -8,7 +8,7 @@ const fs = require("fs");
 
 // Public modules from npm
 const { contextBridge, ipcRenderer } = require("electron");
-const F95API = require("f95api");
+const F95API = require("@millenniumearl/f95api");
 const logger = require("electron-log");
 
 // Set F95API logger level
