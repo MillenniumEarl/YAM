@@ -56,6 +56,11 @@ class CardPaginator extends HTMLElement {
          * @type function
          */
         this._deleteEventListener = null;
+        /**
+         * Indicates whether the component is loading data.
+         * @type Boolean
+         */
+        this._isLoading = false;
     }
 
     //#region Properties
@@ -153,6 +158,9 @@ class CardPaginator extends HTMLElement {
         const validShortcut = ["ArrowRight", "ArrowLeft"].includes(e.key);
         if(!validShortcut) return;
 
+        // Avoid new query if the component is already loading
+        if (this._isLoading) return;
+
         // Obtain the ID of the currently selected page selector
         const index = this._getCurrentIndex();
         if (index === -1) return;
@@ -177,6 +185,10 @@ class CardPaginator extends HTMLElement {
      * @param {number} [index] Index of the page to show. Default: 0
      */
     async load(index = 0) {
+        // Avoid new query if the component is already loading
+        if(this._isLoading) return;
+
+        // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(index);
         if (shouldSwitch) {
             window.API.log.info(`Loading paginator at page ${index}`);
@@ -192,6 +204,9 @@ class CardPaginator extends HTMLElement {
     async search(value) {
         const FIRST_PAGE = 0;
 
+        // Avoid new query if the component is already loading
+        if (this._isLoading) return;
+
         // Build the query (regex with case insensitive)
         if(value.trim() !== "") {
             const re = new RegExp(value, "i");
@@ -199,7 +214,8 @@ class CardPaginator extends HTMLElement {
                 name: re
             };
         } else this._searchQuery = {};
-
+        
+        // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(FIRST_PAGE);
         if (shouldSwitch) {
             window.API.log.info(`Searching for ${value} in paginator`);
@@ -215,9 +231,13 @@ class CardPaginator extends HTMLElement {
      * Useful after adding/removing a card.
      */
     async reload() {
+        // Avoid new query if the component is already loading
+        if (this._isLoading) return;
+
         const currentIndex = this._getCurrentIndex();
         const index = currentIndex !== -1 ? currentIndex : 0;
 
+        // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(index);
         if (shouldSwitch) {
             window.API.log.info(`Reloading page ${index}`);
@@ -231,6 +251,9 @@ class CardPaginator extends HTMLElement {
      * @deprecated Need improvement
      */
     sort(method) {
+        // Avoid new query if the component is already loading
+        if (this._isLoading) return;
+
         if(!method) this._sortQuery = {name: 1};
     }
 
@@ -433,6 +456,9 @@ class CardPaginator extends HTMLElement {
     _switchContext(index) {
         // Define function
         const animationOnSwitchContext = (async () => {
+            // Set global variable
+            this._isLoading = true;
+
             // Show a circle preload and hide the content
             this.preload.style.display = "flex";
             this.content.style.display = "none";
@@ -461,6 +487,9 @@ class CardPaginator extends HTMLElement {
             // Hide the circle preload and show the content
             this.preload.style.display = "none";
             this.content.style.display = "block";
+
+            // Set global variable
+            this._isLoading = false;
         });
 
         // Execute switch
