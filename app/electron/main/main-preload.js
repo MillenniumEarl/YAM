@@ -26,11 +26,7 @@ const imageminWebp = require("imagemin-webp");
 const imageminGifsicle = require("imagemin-gifsicle");
 
 // Modules from file
-const {
-    deleteFolderRecursive,
-    readFileSync,
-    exists,
-} = require("../../src/scripts/io-operations.js");
+const ioOps = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
 const {check} = require("../../src/scripts/internet-connection.js");
 const GameDataStore = require("../../db/stores/game-data-store.js");
@@ -196,7 +192,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @returns {Any}
      */
     readSync: function ioReadSync(path) {
-        return readFileSync(path);
+        return ioOps.readFileSync(path);
     },
     /**
      * Read data from a file asynchronously.
@@ -204,7 +200,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @returns {Any}
      */
     read: async function ioRead(path) {
-        return readFileSync(path);
+        return ioOps.readFileSync(path);
     },
     /**
      * Write data in a file.
@@ -237,7 +233,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @param {String} dirname Path of the directory
      */
     deleteFolder: async function ioDeleteFolder(dirname) {
-        deleteFolderRecursive(dirname);
+        ioOps.deleteFolderRecursive(dirname);
     },
     /**
      * Check if the path exists on disk.
@@ -245,7 +241,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @returns {Boolean}
      */
     pathExists: async function ioPathExists(path) {
-        return exists(path);
+        return ioOps.exists(path);
     },
     /**
      * Rename a directory.
@@ -272,7 +268,7 @@ contextBridge.exposeInMainWorld("IO", {
      */
     copy: async function ioCopy(src, dest) {
         fs.copyFileSync(src, dest);
-    }
+    },
 });
 
 // Expose the F95API

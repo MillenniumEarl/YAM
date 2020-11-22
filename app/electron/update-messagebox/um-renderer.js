@@ -34,12 +34,12 @@ document.querySelector("#um-close-btn").addEventListener("click", function close
 
 document.querySelector("#um-download-btn").addEventListener("click", function openDownloadLink() {
     // Open the thread link on F95Zone
-    window.API.send("exec", _url);
+    window.API.send("open-link", _url);
 });
 
 document.querySelector("#um-open-folder-btn").addEventListener("click", function openGameFolder() {
     // Open the folder of the game
-    window.API.send("exec", _folder);
+    window.API.send("open-link", _folder);
 });
 
 document.querySelector("#um-finalize-btn").addEventListener("click", function finalizeUpdate() {

@@ -14,7 +14,7 @@ const logger = require("electron-log");
 const validSendChannels = [
     "window-close",
     "translate",
-    "exec",
+    "open-link",
 ];
 
 // Array of valid main-to-render channels

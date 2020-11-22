@@ -5,6 +5,9 @@ const path = require("path");
 const fs = require("fs");
 const spawn = require("child_process").spawn;
 
+// Public modules from npm
+const shell = require("electron").shell;
+
 /**
  * @protected
  * Run a file from disk as an independent process.
@@ -19,6 +22,15 @@ module.exports.run = function run(path) {
     // run as an independent process
     child.unref();
     return child;
+};
+
+/**
+ * @protected
+ * Opens a directory in the default manner for your OS or a URL with the default browser.
+ * @param {String} path Directory path or URL
+ */
+module.exports.openLink = async function openLink(path) {
+    shell.openPath(path);
 };
 
 /**

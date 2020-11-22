@@ -10,7 +10,7 @@ const logger = require("electron-log");
 const Store = require("electron-store");
 
 // Modules from file
-const { run } = require("./src/scripts/io-operations.js");
+const { run, openLink } = require("./src/scripts/io-operations.js");
 const shared = require("./src/scripts/classes/shared.js");
 const localization = require("./src/scripts/localization.js");
 const windowCreator = require("./src/scripts/window-creator.js");
@@ -68,6 +68,16 @@ ipcMain.on("exec", function ipcMainOnExec(e, filename) {
     child.stderr.on("data", (data) => {
         logger.error(`Error running ${filepath}: ${data}`);
     });
+});
+
+// Open the directory path/URL in the default manner
+ipcMain.on("open-link", function ipcMainOnOpenLink(e, filename) {
+    const link = filename[0];
+
+    logger.info(`Opening ${link}`);
+
+    // Open link
+    openLink(link);
 });
 
 // Return the current root dir path (Current Working Directory)
