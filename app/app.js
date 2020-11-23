@@ -56,7 +56,7 @@ ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args
 });
 
 // Execute the file passed as parameter
-ipcMain.on("exec", function ipcMainOnExec(e, filename) {
+ipcMain.on("exec", async function ipcMainOnExec(e, filename) {
     const filepath = filename[0];
 
     logger.info(`Executing ${filepath}`);
