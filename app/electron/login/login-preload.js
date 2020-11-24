@@ -21,6 +21,23 @@ const validSendChannels = [
     "translate",
 ];
 
+// Manage unhandled errors
+window.onerror = function (message, source, lineno, colno, error) {
+    window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
+
+    ipcRenderer.invoke("require-messagebox", {
+        type: "error",
+        title: "Unhandled error",
+        message: `${message} at line ${lineno}:${colno}.\n
+        It is advisable to terminate the application to avoid unpredictable behavior.\n
+        ${error.stack}\n
+        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
+        buttons: [{
+            name: "close"
+        }]
+    });
+};
+
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {

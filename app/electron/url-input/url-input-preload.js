@@ -7,6 +7,23 @@
 const { ipcRenderer, contextBridge } = require("electron");
 const logger = require("electron-log");
 
+// Manage unhandled errors
+window.onerror = function (message, source, lineno, colno, error) {
+    window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
+
+    ipcRenderer.invoke("require-messagebox", {
+        type: "error",
+        title: "Unhandled error",
+        message: `${message} at line ${lineno}:${colno}.\n
+        It is advisable to terminate the application to avoid unpredictable behavior.\n
+        ${error.stack}\n
+        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
+        buttons: [{
+            name: "close"
+        }]
+    });
+};
+
 // Array of valid render-to-main channels
 const validSendChannels = [
     "translate",
