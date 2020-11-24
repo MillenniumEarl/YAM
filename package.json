@@ -59,6 +59,7 @@
         "appId": "com.electron.yam",
         "productName": "YAM",
         "copyright": "Copyright © 2020 ${author}",
+        "asar": false,
         "publish": [
             "github"
         ],
