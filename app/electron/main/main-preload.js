@@ -51,7 +51,9 @@ const validSendChannels = [
     "require-messagebox",
     "url-input",
     "update-messagebox",
-    "preview-dir"
+    "preview-dir",
+    "app-version",
+    "user-data"
 ];
 
 // Expose protected methods that allow the renderer process to use

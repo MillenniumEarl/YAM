@@ -41,7 +41,7 @@
     "MR select game directory": "Spielverzeichnis auswählen",
     "MR confirm deletion": "Löschung bestätigen",
     "MR message confirm deletion": "Möchten Sie das Spiel wirklich löschen?",
-    "MR open f95 page": "Open page on F95Zone",
+    "MR open f95 page": "Seite auf F95Zone öffnen",
     "MR update completed": "Update abgeschlossen",
     "MR cannot find game path": "Der Spielpfad kann nicht gefunden werden",
     "MR no game found": "Informationen für {{gamename}} können nicht abgerufen werden",
@@ -63,6 +63,14 @@
     "default-button-delete": "Auch von Festplatte löschen",
     "default-button-remove-only": "Nur entfernen",
     "MR game removed": "{{gamename}} entfernt",
-    "gc-game-folder": "Spielordner öffnen"
+    "gc-game-folder": "Spielordner öffnen",
+    "main-language-divider": "Sprache",
+    "main-info": "Information",
+    "main-feedback": "Feedback",
+    "main-open-log-folder-btn": "Ordner für Protokolldateien",
+    "main-github-issue-btn": "Fehlerbenachrichtigung auf GitHub",
+    "main-f95zone-thread-btn": "Öffnen Sie den Thread in der F95Zone",
+    "main-developer": "Entwickelt von MillenniumEarl",
+    "MR app version": "Version {{version}}"
   }
 }

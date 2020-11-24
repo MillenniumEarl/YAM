@@ -67,6 +67,18 @@ async function onDOMContentLoaded() {
     // eslint-disable-next-line no-undef
     M.FormSelect.init(selects, {});
 
+    // Set link to logs directory
+    const cacheDir = await window.API.invoke("user-data");
+    const logsDir = window.API.join(cacheDir, "logs");
+    document.getElementById("main-open-log-folder-btn").setAttribute("href", logsDir);
+
+    // Set version value
+    const appVersion = await window.API.invoke("app-version");
+    const translation = await window.API.translate("MR app version", {
+        "version": appVersion
+    });
+    document.getElementById("main-version").textContent = translation;
+
     // Login to F95Zone
     await login();
 

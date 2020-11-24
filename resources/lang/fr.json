@@ -33,7 +33,7 @@
     "MR adding game from path": "Ajout d'un jeu depuis le disque...",
     "MR error finalizing update": "La mise à jour n'a pas pu être terminée, vérifiez si un dossier du même nom existe déjà",
     "MR checking games update": "Vérification des mises à jour...",
-    "MR no network connection": "No network connection",
+    "MR no network connection": "Pas de connexion réseau",
     "MR cannot retrieve user data": "Impossible de récupérer les données utilisateur de F95",
     "MR login successful": "Authentification réussie",
     "MR cannot login": "Impossible de s'authentifier: {{error}}",
@@ -63,6 +63,14 @@
     "default-button-delete": "Supprimer également du disque",
     "default-button-remove-only": "Supprimer uniquement",
     "MR game removed": "{{gamename}} supprimé",
-    "gc-game-folder": "Ouvrir le dossier du jeu"
+    "gc-game-folder": "Ouvrir le dossier du jeu",
+    "main-language-divider": "Langue",
+    "main-info": "Information",
+    "main-feedback": "Retour d'information",
+    "main-open-log-folder-btn": "Dossier des fichiers journaux",
+    "main-github-issue-btn": "Notification d'erreur sur GitHub",
+    "main-f95zone-thread-btn": "Fil ouvert sur F95Zone",
+    "main-developer": "Développé par MillenniumEarl",
+    "MR app version": "Version {{version}}"
   }
 }

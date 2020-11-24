@@ -63,6 +63,14 @@
     "default-button-delete": "Elimina anche da disco",
     "default-button-remove-only": "Rimuovi solamente",
     "MR game removed": "{{gamename}} rimosso",
-    "gc-game-folder": "Directory di gioco"
+    "gc-game-folder": "Directory di gioco",
+    "main-language-divider": "Lingua",
+    "main-info": "Informazioni",
+    "main-feedback": "Feedback",
+    "main-open-log-folder-btn": "Cartella dei log files",
+    "main-github-issue-btn": "Notifica errore su GitHub",
+    "main-f95zone-thread-btn": "Apri thread su F95Zone",
+    "main-developer": "Sviluppato da MillenniumEarl",
+    "MR app version": "Versione {{version}}"
   }
 }

@@ -33,6 +33,17 @@ body {
   right: 25px;
 }
 
+#main-feedback-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+}
+
+#main-feedback-section > a {
+  flex: auto;
+}
+
 card-paginator {
   width: 100%;
   height: 100%;
@@ -64,6 +75,10 @@ li[id^="select-options"] {
 /*### Settings elements ###*/
 .padding-correction-textinput {
   padding-top: 20px !important;
+}
+
+.divider {
+  background-color: var(--secondary-app) !important;
 }
 
 /*### Input selectors ###*/

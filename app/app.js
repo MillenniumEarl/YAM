@@ -102,6 +102,16 @@ ipcMain.handle("current-language", function ipcMainHandleCurrentLanguage() {
     return localization.getCurrentLanguage();
 });
 
+// Return the app version
+ipcMain.handle("app-version", function ipcMainHandleVersionRequest() {
+    return app.getVersion();
+});
+
+// Return the OS-based application data directory
+ipcMain.handle("user-data", function ipcOnUserData() {
+    return app.getPath("userData");
+});
+
 //#region shared app variables
 ipcMain.handle("cache-dir", function ipcMainHandleCacheDir() {
     const dirname = path.resolve(".", shared.cacheDir);
