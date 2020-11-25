@@ -618,7 +618,7 @@ async function gameCardDelete(e) {
     if (data.button === "cancel") return;
 
     // Copy saves
-    const copySaves = savesExists ? data.checkboxes.include("preserve-savegame") : false;
+    const copySaves = savesExists ? data.checkboxes.includes("preserve-savegame") : false;
     if (copySaves && e.detail.savePaths && e.detail.name) {
         // Create the directory
         const exportedSavesDir = await window.API.invoke("savegames-data-dir");
