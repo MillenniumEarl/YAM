@@ -73,6 +73,9 @@
     "main-github-issue-btn": "Notifica errore su GitHub",
     "main-f95zone-thread-btn": "Apri thread su F95Zone",
     "main-developer": "Sviluppato da MillenniumEarl",
-    "MR app version": "Versione {{version}}"
+    "MR app version": "Versione {{version}}",
+    "MR select game option": "Seleziona l'opzione {{number}}",
+    "MR same name games title": "Giochi omonimi",
+    "MR same name games message": "Sono stati trovati altri giochi con un nome simile a \"{{desiredGame}}\". Seleziona quello richiesto:\n{{gamelist}}"
   }
 }

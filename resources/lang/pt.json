@@ -73,6 +73,9 @@
     "main-developer": "Desenvolvido por MillenniumEarl",
     "MR app version": "Versão {{version}}",
     "main-account-divider": "Conta",
-    "main-special-thanks": "Agradecimentos especiais para: KnuffelBeestje pelas traduções holandesas"
+    "main-special-thanks": "Agradecimentos especiais para: KnuffelBeestje pelas traduções holandesas",
+    "MR select game option": "Selecione a opção {{number}}",
+    "MR same name games title": "Jogos homônimos",
+    "MR same name games message": "Outros jogos com um nome semelhante a '{{desiredGame}}' foram encontrados. Selecione o necessário:\n{{gamelist}}"
   }
 }

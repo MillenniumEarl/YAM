@@ -73,6 +73,9 @@
     "main-developer": "由MillenniumEarl开发",
     "MR app version": "版本{{version}}",
     "main-account-divider": "帐户",
-    "main-special-thanks": "特别感谢：KnuffelBeestje的荷兰语翻译"
+    "main-special-thanks": "特别感谢：KnuffelBeestje的荷兰语翻译",
+    "MR select game option": "选择选项{{number}}",
+    "MR same name games title": "同名游戏",
+    "MR same name games message": "发现其他名称类似于“ {{desiredGame}}”的游戏。 选择所需的一个：\n{{gamelist}}"
   }
 }
