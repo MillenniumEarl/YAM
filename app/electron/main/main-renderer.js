@@ -66,6 +66,8 @@ document.querySelector("#main-language-select").addEventListener("change", updat
 
 document.querySelector("#main-navbar-games").addEventListener("click", openPage);
 
+document.querySelector("#main-navbar-watched-threads").addEventListener("click", openPage);
+
 document.querySelector("#main-navbar-settings").addEventListener("click", openPage);
 
 //#region Events listeners
@@ -248,9 +250,10 @@ async function updateLanguage() {
  */
 function openPage(e) {
     // Get the ID of the div to show
-    const id = e.target.id === "main-navbar-settings" ? 
-        "main-settings-tab" : 
-        "main-games-tab";
+    let id = "main-games-tab";
+    if (e.target.id === "main-navbar-games") id = "main-games-tab";
+    else if (e.target.id === "main-navbar-watched-threads") id = "main-watched-threads-tab";
+    else if (e.target.id === "main-navbar-settings") id = "main-settings-tab";
 
     // Hide all elements with class="tabcontent" by default
     const tabcontent = document.getElementsByClassName("tabcontent");

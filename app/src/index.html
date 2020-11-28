@@ -28,17 +28,22 @@
     <div class="row navbar">
         <div class="col s12">
             <ul class="tabs" id="tab-navigator">
-                <li id="default-open-tab" class="tab col s3 tablinks">
+                <li id="default-open-tab" class="tab col s12 m6 l3 xl3 tablinks">
                     <a href="#" class="localizable" id="main-navbar-games"> 
                         Games
                     </a>
                 </li>
-                <li class="tab col s3 tablinks">
+                <li class="tab col s12 m6 l3 xl3 tablinks">
+                    <a href="#" class="localizable" id="main-navbar-watched-threads">
+                        Watched Threads
+                    </a>
+                </li>
+                <li class="tab col s12 m6 l3 xl3 tablinks">
                     <a href="#" class="localizable" id="main-navbar-settings">
                         Settings
                     </a>
                 </li>
-                <li class="col s3 offset-s3 user-info-col">
+                <li class="col s12 m6 l3 xl3 user-info-col">
                     <user-info id="user-info"></user-info>
                 </li>
             </ul>
@@ -56,6 +61,9 @@
         <card-paginator>
             <!-- Game cards goes here -->
         </card-paginator>
+    </div>
+
+    <div id="main-watched-threads-tab" class="tabcontent" hidden>
     </div>
 
     <div id="main-settings-tab" class="tabcontent container" hidden>
