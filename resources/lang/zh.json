@@ -71,6 +71,8 @@
     "main-github-issue-btn": "GitHub上的错误通知",
     "main-f95zone-thread-btn": "在F95Zone上打开线程",
     "main-developer": "由MillenniumEarl开发",
-    "MR app version": "版本{{version}}"
+    "MR app version": "版本{{version}}",
+    "main-account-divider": "帐户",
+    "main-special-thanks": "特别感谢：KnuffelBeestje的荷兰语翻译"
   }
 }

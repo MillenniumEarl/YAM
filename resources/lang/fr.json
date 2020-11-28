@@ -26,7 +26,7 @@
     "gc-last-update-title": "Dernière mise à jour:",
     "gc-engine-title": "Moteur graphique:",
     "gc-status-title": "Progression:",
-    "gc-f95-url": "Thread on F95",
+    "gc-f95-url": "Enfiler sur F95",
     "gc-version-title": "Version installée: ",
     "GC update": "Rafraîchir ({{version}})",
     "MR adding game from url": "Ajout d'un jeu depuis l'URL...",
@@ -38,7 +38,7 @@
     "MR login successful": "Authentification réussie",
     "MR cannot login": "Impossible de s'authentifier: {{error}}",
     "MR credentials edited": "Identifiants modifiés",
-    "MR select game directory": "Select game directory",
+    "MR select game directory": "Sélectionnez le répertoire du jeu",
     "MR confirm deletion": "Confirmer la suppression",
     "MR message confirm deletion": "Voulez-vous vraiment supprimer le jeu?",
     "MR open f95 page": "Ouvrir la page sur F95Zone",
@@ -71,6 +71,8 @@
     "main-github-issue-btn": "Notification d'erreur sur GitHub",
     "main-f95zone-thread-btn": "Fil ouvert sur F95Zone",
     "main-developer": "Développé par MillenniumEarl",
-    "MR app version": "Version {{version}}"
+    "MR app version": "Version {{version}}",
+    "main-account-divider": "Compte",
+    "main-special-thanks": "Un merci spécial à: KnuffelBeestje pour les traductions en néerlandais"
   }
 }

@@ -20,7 +20,7 @@
     "LR error during authentication": "Erro de autenticação: {{error}}",
     "ui-login-btn": "Login",
     "gc-play-game-btn": "Jogar",
-    "gc-delete-game-btn": "Delete",
+    "gc-delete-game-btn": "Excluir",
     "gc-overview-title": "Visão geral",
     "gc-author-title": "Autor:",
     "gc-last-update-title": "Última atualização:",
@@ -71,6 +71,8 @@
     "main-github-issue-btn": "Notificação de erro no GitHub",
     "main-f95zone-thread-btn": "Tópico aberto em F95Zone",
     "main-developer": "Desenvolvido por MillenniumEarl",
-    "MR app version": "Versão {{version}}"
+    "MR app version": "Versão {{version}}",
+    "main-account-divider": "Conta",
+    "main-special-thanks": "Agradecimentos especiais para: KnuffelBeestje pelas traduções holandesas"
   }
 }

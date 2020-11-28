@@ -71,6 +71,8 @@
     "main-github-issue-btn": "Error notificatie op GitHub",
     "main-f95zone-thread-btn": "Open de pagina op F95Zone",
     "main-developer": "Ontwikkeld door MillenniumEarl",
-    "MR app version": "Versie {{version}}"
+    "MR app version": "Versie {{version}}",
+    "main-account-divider": "Account",
+    "main-special-thanks": "Met dank aan: KnuffelBeestje voor de Nederlandse vertalingen"
   }
 }
