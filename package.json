@@ -46,8 +46,7 @@
         "material-design-icons": "^3.0.1",
         "nedb-promises": "^4.1.0",
         "simple-image-downloader": "^4.0.2",
-        "string-similarity": "^4.0.3",
-        "update-electron-app": "^2.0.1"
+        "string-similarity": "^4.0.3"
     },
     "devDependencies": {
         "babel-eslint": "^10.1.0",
