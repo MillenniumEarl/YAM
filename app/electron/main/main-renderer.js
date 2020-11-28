@@ -709,12 +709,10 @@ async function getGameFromPaths(paths) {
 }
 
 /**
- * @async
  * @private
  * Given a directory path, parse the dirname, get the
  * game (if exists) info and add a *game-card* in the DOM.
  * @param {String} path Game directory path
- * @returns {Promise<Object>} GameCard created or null if no game was detected
  */
 async function getGameFromPath(path) {
     // Get the directory name
@@ -728,20 +726,28 @@ async function getGameFromPath(path) {
     const name = cleanGameName(unparsedName);
 
     // Search and add the game
-    const promiseResult = await window.F95.getGameData(name, includeMods);
+    const gamelist = await window.F95.getGameData(name, includeMods);
 
-    // No/multiple game found
-    if(promiseResult.length !== 1) {
-        const key = promiseResult.length === 0 ? "MR no game found" : "MR multiple games found";
+    // No game found, return
+    if (gamelist.length === 0) {
+        const key = "MR no game found";
         const translation = await window.API.translate(key, {
             "gamename": name
         });
         sendToastToUser("warning", translation);
+        window.API.log.warn(`No results found for ${name}`);
         return;
-    }
+    } 
 
+    // Multiple games found, let the user decide
+    let selectedGame = gamelist[0]; // By default is the only game in list
+    if (gamelist.length > 1) {
+        selectedGame = await requireUserToSelectGameWithSameName(unparsedName, gamelist);
+        if(!selectedGame) return;
+    }
+    
     // Add data to the parsed game info
-    const converted = window.GIE.convert(promiseResult[0]);
+    const converted = window.GIE.convert(selectedGame);
     converted.version = getGameVersionFromName(unparsedName);
     converted.gameDirectory = path;
 
@@ -824,6 +830,50 @@ async function getUnlistedGamesInArrayOfPath(paths) {
     }
 
     return gameFolderPaths;
+}
+
+/**
+ * @private
+ * Let the user select their favorite game in case of multiple search results.
+ * @param {String} desiredGameName Name of the game searched
+ * @param {GameInfo[]} listOfGames List of games to choose from
+ * @returns {Promise<GameInfo|null>} Game selected or `null` if the user has not selected anything
+ */
+async function requireUserToSelectGameWithSameName(desiredGameName, listOfGames) {
+    // Local variables
+    let buttonsList = [];
+    let entryList = "";
+
+    // Prepares the list of games to show to the user and buttons to show on the messagebox
+    for(let i = 0; i < listOfGames.length; i++) {
+        const game = listOfGames[i];
+        entryList = entryList.concat(`${i + 1} - ${game.name} [${game.author}] [${game.version}]\n`);
+
+        const button = {
+            name: game.id,
+            text: await window.API.translate("MR select game option", {
+                "number": i + 1
+            }),
+            classes: ["neutral-button"]
+        };
+        buttonsList.push(button);
+    }
+    buttonsList.push({name: "close"}); // Add the default close button
+
+    // Let the user select the preferred game
+    const result = await window.API.invoke("require-messagebox", {
+        type: "warning",
+        title: await window.API.translate("MR same name games title"),
+        message: await window.API.translate("MR same name games message", {
+            "desiredGame": desiredGameName,
+            "gamelist": entryList
+        }),
+        buttons: buttonsList
+    });
+
+    // Return the game selected or null if no game is selected
+    if (result.button === "close") return null;
+    else return listOfGames.find(x => x.id === parseInt(result.button));
 }
 //#endregion Adding game
 
