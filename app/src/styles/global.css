@@ -39,8 +39,11 @@
     --text-on-primary-gc: #f5f5f5;
     
     --button-accept-color: #15A532; /* Dark Pastel Green */
+    --button-accept-color-focus: #32B04C;
     --button-negative-color: #C11313; /* Fire Brick */
+    --button-negative-color-focus: #C93131;
     --button-neutral-color: #0A66BB; /* Denim */
+    --button-neutral-color-focus: #2979C3;
 }
 
 /* Used to not highligh the non-input elements */
