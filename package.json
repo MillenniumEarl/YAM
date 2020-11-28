@@ -10,7 +10,7 @@
         "type": "git",
         "url": "https://github.com/MillenniumEarl/YAM.git"
     },
-    "license": "UNLICENSED",
+    "license": "MIT",
     "private": true,
     "keywords": [
         "game",
