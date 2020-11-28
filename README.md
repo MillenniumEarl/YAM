@@ -23,7 +23,7 @@ F95 game updater is an unofficial game manager for the [F95Zone platform](https:
 - Notification of updates when available
 - Game update wizard
 - Game folders are renamed to reflect the installed version
-- Support for the following languages: :it: :uk: :es: :portugal: :de: :cn: :ru:
+- Support for the following languages: :it: :uk: :es: :portugal: :de: :cn: :ru: :nl:
 - It is possible to save/export game saves
   - **Beta**: only works for games tagged Ren'Py and RPGM
 
