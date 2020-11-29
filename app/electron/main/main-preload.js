@@ -354,3 +354,31 @@ contextBridge.exposeInMainWorld("GameDB", {
         query: query
     }),
 });
+
+// Wrapper around the Thread DB operations
+contextBridge.exposeInMainWorld("ThreadDB", {
+    insert: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "insert", {
+        gamedata: threadinfo
+    }),
+    delete: (id) => ipcRenderer.invoke("database-operation", "thread", "delete", {
+        id: id
+    }),
+    read: (id) => ipcRenderer.invoke("database-operation", "thread", "read", {
+        id: id
+    }),
+    write: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "write", {
+        gamedata: threadinfo
+    }),
+    search: (searchQuery, index, size, limit, sortQuery) => ipcRenderer.invoke("database-operation", "thread", "search", {
+        query: searchQuery,
+        pagination: {
+            index: index,
+            size: size,
+            limit: limit
+        },
+        sortQuery: sortQuery ? sortQuery : {}
+    }),
+    count: (query) => ipcRenderer.invoke("database-operation", "thread", "count", {
+        query: query
+    }),
+});

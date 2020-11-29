@@ -15,6 +15,7 @@ const shared = require("./src/scripts/classes/shared.js");
 const localization = require("./src/scripts/localization.js");
 const windowCreator = require("./src/scripts/window-creator.js");
 const GameDataStore = require("./db/stores/game-data-store.js");
+const ThreadDataStore = require("./db/stores/thread-data-store.js");
 
 // Manage unhandled errors
 process.on("uncaughtException", function (error) {
@@ -32,7 +33,7 @@ const store = new Store();
 
 // Databases used by the app
 const gameStore = new GameDataStore(shared.gameDbPath);
-const threadStore = new GameDataStore(shared.threadDbPath);
+const threadStore = new ThreadDataStore(shared.threadDbPath);
 const updateStore = new GameDataStore(shared.updateDbPath);
 
 //#endregion Global variables
@@ -134,15 +135,15 @@ ipcMain.handle("database-operation", function ipcMainOnDBOp(e, db, op, args) {
 /**
  * @private
  * Performs an operation on the database and returns the results.
- * @param {GameDataStore} db 
+ * @param {GameDataStore|ThreadDataStore} db 
  * Database on which to perform operations.
  * @param {String} operation 
  * Operation to be performed among the following:
  * `insert`, `delete`, `read`, `write`, `search`, `count`
  * @param {Object} args 
  * Arguments to pass to the database
- * @param {GameInfo} [args.gamedata]
- * Game data to be saved in the database. Used with `insert` and `write`
+ * @param {GameInfo|ThreadInfo} [args.data]
+ * Data to be saved in the database. Used with `insert` and `write`
  * @param {Number} [args.id] 
  * ID of a record in the database. Used with `read` and `delete`
  * @param {Object} [args.query] 
@@ -166,8 +167,8 @@ async function executeDbQuery(db, operation, args) {
     // Execute the operation on the database
     switch (operation) {
     case "insert":
-        if (!args.gamedata) throw Error(`Invalid argument for '${operation}'`);
-        return await db.insert(args.gamedata);
+        if (!args.data) throw Error(`Invalid argument for '${operation}'`);
+        return await db.insert(args.data);
     case "delete":
         if (!args.id) throw Error(`Invalid argument for '${operation}'`);
         return await db.delete(args.id);
@@ -175,8 +176,8 @@ async function executeDbQuery(db, operation, args) {
         if (!args.id) throw Error(`Invalid argument for '${operation}'`);
         return await db.read(args.id);
     case "write":
-        if (!args.gamedata) throw Error(`Invalid argument for '${operation}'`);
-        return await db.write(args.gamedata);
+        if (!args.data) throw Error(`Invalid argument for '${operation}'`);
+        return await db.write(args.data);
     case "search":
         if (!args.query || !args.pagination) throw Error(`Invalid argument for '${operation}'`);
         return await db.search(args.query, args.pagination.index, args.pagination.size, args.pagination.limit, orderQuery);

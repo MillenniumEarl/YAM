@@ -3,13 +3,13 @@
 // Public modules from npm
 const Datastore = require("nedb-promises");
 const Ajv = require("ajv");
-const gameDataSchema = require("../schemas/game-data");
+const threadDataSchema = require("../schemas/thread-data");
 const logger = require("electron-log");
 
 /**
- * It allows you to store and get game data from a disk database.
+ * It allows you to store and get thread data from a disk database.
  */
-class GameDataStore {
+class ThreadDataStore {
     /**
      * It allows you to store and get game data from a disk database.
      * @param {String} dbPath Database path to disk
@@ -29,7 +29,7 @@ class GameDataStore {
         /**
          * JSON schema validator.
          */
-        this._schemaValidator = ajv.compile(gameDataSchema);
+        this._schemaValidator = ajv.compile(threadDataSchema);
 
         /**
          * NeDB stored on disk.
@@ -154,4 +154,4 @@ class GameDataStore {
     //#endregion Public methods
 }
 
-module.exports = GameDataStore;
+module.exports = ThreadDataStore;
