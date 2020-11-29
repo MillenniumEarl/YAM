@@ -21,6 +21,12 @@ class GameDataStore {
         });
 
         /**
+         * Path to database
+         * @type String
+         */
+        this.DB_PATH = dbPath;
+
+        /**
          * JSON schema validator.
          */
         this._schemaValidator = ajv.compile(gamedataSchema);
@@ -59,7 +65,7 @@ class GameDataStore {
      */
     _databaseOnLoadCallback(err) {
         if(err) logger.error(`Error when loading database: ${err}`);
-        else logger.info("Database loaded succesfully");
+        else logger.info(`Database loaded succesfully from ${this.DB_PATH}`);
     }
     //#endregion Private methods
 
