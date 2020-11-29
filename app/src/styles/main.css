@@ -71,6 +71,7 @@ li[id^="select-options"] {
   margin: auto;
   width: 95%;
   padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 /*### Settings elements ###*/
