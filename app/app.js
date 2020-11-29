@@ -179,8 +179,14 @@ async function executeDbQuery(db, operation, args) {
         if (!args.data) throw Error(`Invalid argument for '${operation}'`);
         return await db.write(args.data);
     case "search":
-        if (!args.query || !args.pagination) throw Error(`Invalid argument for '${operation}'`);
-        return await db.search(args.query, args.pagination.index, args.pagination.size, args.pagination.limit, orderQuery);
+        if (!args.query) throw Error(`Invalid argument for '${operation}'`);
+        if (args.pagination) 
+            return await db.search(args.query, 
+                args.pagination.index, 
+                args.pagination.size, 
+                args.pagination.limit, 
+                orderQuery);
+        else return await db.search(args.query);
     case "count":
         if (!args.query) throw Error(`Invalid argument for '${operation}'`);
         return await db.count(args.query);
