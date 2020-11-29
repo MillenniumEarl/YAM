@@ -76,6 +76,9 @@
     "MR app version": "Versione {{version}}",
     "MR select game option": "Seleziona l'opzione {{number}}",
     "MR same name games title": "Giochi omonimi",
-    "MR same name games message": "Sono stati trovati altri giochi con un nome simile a \"{{desiredGame}}\". Seleziona quello richiesto:\n{{gamelist}}"
+    "MR same name games message": "Sono stati trovati altri giochi con un nome simile a \"{{desiredGame}}\". Seleziona quello richiesto:\n{{gamelist}}",
+    "main-navbar-updated-threads": "Thread Aggiornati",
+    "tv-visit": "Visita Thread",
+    "tv-mark-read": "Segna come letto"
   }
 }

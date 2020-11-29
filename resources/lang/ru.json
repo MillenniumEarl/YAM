@@ -76,6 +76,9 @@
     "main-special-thanks": "Особая благодарность: KnuffelBeestje за переводы на голландский",
     "MR select game option": "Выберите вариант {{number}}",
     "MR same name games title": "Омонимные игры",
-    "MR same name games message": "Были найдены другие игры с названием, похожим на '{{desiredGame}}'. Выберите нужный:\n{{gamelist}}"
+    "MR same name games message": "Были найдены другие игры с названием, похожим на '{{desiredGame}}'. Выберите нужный:\n{{gamelist}}",
+    "main-navbar-updated-threads": "Обновленные темы",
+    "tv-visit": "Посетить тему",
+    "tv-mark-read": "пометить, как прочитанное"
   }
 }

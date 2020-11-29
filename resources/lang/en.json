@@ -77,6 +77,8 @@
     "MR select game option": "Select option {{number}}",
     "MR same name games title": "Homonym games",
     "MR same name games message": "Other games with a name similar to '{{desiredGame}}' were found. Select the one required:\n{{gamelist}}",
-    "main-navbar-watched-threads": "Watched Threads"
+    "main-navbar-updated-threads": "Updated Threads",
+    "tv-visit": "Visit Thread",
+    "tv-mark-read": "Mark as read"
   }
 }
