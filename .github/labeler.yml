@@ -1,7 +1,7 @@
 database: app/db/*
 component: app/src/components/*
 
-resources: 
+resources:
 - any: ['resources/**/*']
   all: ['!resources/lang/*']
 language: resources/lang/*
