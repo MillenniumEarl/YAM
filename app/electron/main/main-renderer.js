@@ -919,7 +919,7 @@ async function getUserDataFromF95() {
  * @param {String[]} urlList List of URLs of watched game threads
  */
 async function syncDatabaseWatchedThreads(urlList) {
-  for (const url of urlList) {
+    for (const url of urlList) {
         // Extract the ID from the thread
         const match = url.match(/\.[0-9]+/);
         if (!match) {
@@ -950,20 +950,6 @@ async function syncDatabaseWatchedThreads(urlList) {
             await window.ThreadDB.write(threadInfo);
         }
     }
-}
-
-/**
- * @private
- * Extract the ID of a thread from a F95Zone URL.
- * @param {String} url 
- */
-function getIdFromURL(url) {
-    const match = url.match(/\.[0-9]+/);
-    if (!match) {
-        window.API.log.warn(`Cannot find ID for ${url}`);
-        return -1;
-    }
-    return parseInt(match[0].replace(".", ""));
 }
 
 /**
