@@ -67,7 +67,7 @@
 /* Handles properties for the entire body */
 .card {
     max-width: 300px;
-    background-color: var(--primary-gc);
+    background-color: var(--primary-gc) !important;
     font-family: Roboto;
 }
 
