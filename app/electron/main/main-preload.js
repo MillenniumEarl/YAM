@@ -28,6 +28,7 @@ const imageminGifsicle = require("imagemin-gifsicle");
 // Modules from file
 const ioOps = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
+const ThreadInfo = require("../../src/scripts/classes/thread-info.js");
 const {check} = require("../../src/scripts/internet-connection.js");
 
 // Set F95API logger level
@@ -298,21 +299,6 @@ contextBridge.exposeInMainWorld("GIE", {
         // Create a new object from the data
         return Object.assign(new GameInfoExtended(), gameinfo);
     },
-    save: function saveGameInfo(data, path) {
-        // Create a new object from the data
-        const gameinfo = Object.assign(new GameInfoExtended(), data);
-
-        // Save the data
-        gameinfo.save(path);
-    },
-    load: function loadGameInfo(path) {
-        // Load data
-        const gameinfo = new GameInfoExtended();
-        gameinfo.load(path);
-        
-        // Return data (will be frozen)
-        return gameinfo;
-    },
     saves: async function getGameSaves(data) {
         // Create a new object from the data
         const gameinfo = Object.assign(new GameInfoExtended(), data);
@@ -327,10 +313,21 @@ contextBridge.exposeInMainWorld("GIE", {
     }
 });
 
+// Expose the ThreadInfo custom class
+contextBridge.exposeInMainWorld("TI", {
+    threadinfo: new ThreadInfo(),
+    convert: function convert(gameinfo) {
+        const threadInfo = new ThreadInfo();
+        threadInfo.fromGameInfo(gameinfo);
+        
+        return threadInfo;
+    },
+});
+
 // Wrapper around the Game DB operations
 contextBridge.exposeInMainWorld("GameDB", {
     insert: (gameinfo) => ipcRenderer.invoke("database-operation", "game", "insert", {
-        gamedata: gameinfo
+        data: gameinfo
     }),
     delete: (id) => ipcRenderer.invoke("database-operation", "game", "delete", {
         id: id
@@ -339,7 +336,7 @@ contextBridge.exposeInMainWorld("GameDB", {
         id: id
     }),
     write: (gameinfo) => ipcRenderer.invoke("database-operation", "game", "write", {
-        gamedata: gameinfo
+        data: gameinfo
     }),
     search: (searchQuery, index, size, limit, sortQuery) => ipcRenderer.invoke("database-operation", "game", "search", {
         query: searchQuery,
@@ -358,7 +355,7 @@ contextBridge.exposeInMainWorld("GameDB", {
 // Wrapper around the Thread DB operations
 contextBridge.exposeInMainWorld("ThreadDB", {
     insert: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "insert", {
-        gamedata: threadinfo
+        data: threadinfo
     }),
     delete: (id) => ipcRenderer.invoke("database-operation", "thread", "delete", {
         id: id
@@ -367,7 +364,7 @@ contextBridge.exposeInMainWorld("ThreadDB", {
         id: id
     }),
     write: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "write", {
-        gamedata: threadinfo
+        data: threadinfo
     }),
     search: (searchQuery, index, size, limit, sortQuery) => ipcRenderer.invoke("database-operation", "thread", "search", {
         query: searchQuery,
