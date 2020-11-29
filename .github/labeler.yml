@@ -1,0 +1,12 @@
+database: app/db/*
+component: app/src/components/*
+
+resources: 
+- any: ['resources/**/*']
+  all: ['!resources/lang/*']
+language: resources/lang/*
+docs: docs/**/*
+
+backend: app/electron/**/*
+frontend:
+- any: ['app/src/**/*.html', 'app/src/**/*.css']
