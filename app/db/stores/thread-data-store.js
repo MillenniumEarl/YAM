@@ -22,7 +22,6 @@ class ThreadDataStore {
 
         /**
          * Path to database
-         * @type String
          */
         this.DB_PATH = dbPath;
 
@@ -30,6 +29,9 @@ class ThreadDataStore {
          * JSON schema validator.
          */
         this._schemaValidator = ajv.compile(threadDataSchema);
+
+        // Bind function to use "this"
+        this._databaseOnLoadCallback = this._databaseOnLoadCallback.bind(this);
 
         /**
          * NeDB stored on disk.
