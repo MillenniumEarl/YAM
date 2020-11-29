@@ -20,6 +20,10 @@
     display: none;
 }
 
+#gc-card-preloader {
+    display: block;
+}
+
 #gc-update-game-btn {
     width: 100%;
 }
