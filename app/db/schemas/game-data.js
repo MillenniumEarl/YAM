@@ -61,7 +61,8 @@ const gameDataSchema = {
             default: null
         },
         gameDirectory: {
-            type: "string",
+            type: ["string", "null"],
+            default: null
         },
         lastPlayed: {
             type: ["object", "null"],

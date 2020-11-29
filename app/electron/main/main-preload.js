@@ -360,9 +360,6 @@ contextBridge.exposeInMainWorld("ThreadDB", {
     delete: (id) => ipcRenderer.invoke("database-operation", "thread", "delete", {
         id: id
     }),
-    read: (id) => ipcRenderer.invoke("database-operation", "thread", "read", {
-        id: id
-    }),
     write: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "write", {
         data: threadinfo
     }),
@@ -375,7 +372,23 @@ contextBridge.exposeInMainWorld("ThreadDB", {
         },
         sortQuery: sortQuery ? sortQuery : {}
     }),
-    count: (query) => ipcRenderer.invoke("database-operation", "thread", "count", {
-        query: query
+});
+
+// Wrapper around the Update DB operations
+contextBridge.exposeInMainWorld("UpdateDB", {
+    insert: (gameinfo) => ipcRenderer.invoke("database-operation", "update", "insert", {
+        data: gameinfo
+    }),
+    delete: (id) => ipcRenderer.invoke("database-operation", "update", "delete", {
+        id: id
+    }),
+    search: (searchQuery, sortQuery, index, size, limit) => ipcRenderer.invoke("database-operation", "update", "search", {
+        query: searchQuery,
+        pagination: {
+            index: index,
+            size: size,
+            limit: limit
+        },
+        sortQuery: sortQuery ? sortQuery : {}
     }),
 });

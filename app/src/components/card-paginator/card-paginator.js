@@ -358,7 +358,7 @@ class CardPaginator extends HTMLElement {
      * @returns {Promise<Object[]>} List of records fetched from the database
      */
     async _paginate(index, size) {
-        return await window.GameDB.search(this._searchQuery, index, size, size, this._sortQuery);
+        return await window.GameDB.search(this._searchQuery, this._sortQuery, index, size, size);
     }
 
     /**
