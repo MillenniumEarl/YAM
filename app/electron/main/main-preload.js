@@ -338,7 +338,7 @@ contextBridge.exposeInMainWorld("GameDB", {
     write: (gameinfo) => ipcRenderer.invoke("database-operation", "game", "write", {
         data: gameinfo
     }),
-    search: (searchQuery, index, size, limit, sortQuery) => ipcRenderer.invoke("database-operation", "game", "search", {
+    search: (searchQuery, sortQuery, index, size, limit) => ipcRenderer.invoke("database-operation", "game", "search", {
         query: searchQuery,
         pagination: {
             index: index,
@@ -366,7 +366,7 @@ contextBridge.exposeInMainWorld("ThreadDB", {
     write: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "write", {
         data: threadinfo
     }),
-    search: (searchQuery, index, size, limit, sortQuery) => ipcRenderer.invoke("database-operation", "thread", "search", {
+    search: (searchQuery, sortQuery, index, size, limit) => ipcRenderer.invoke("database-operation", "thread", "search", {
         query: searchQuery,
         pagination: {
             index: index,
