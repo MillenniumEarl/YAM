@@ -919,37 +919,62 @@ async function getUserDataFromF95() {
  * @param {String[]} urlList List of URLs of watched game threads
  */
 async function syncDatabaseWatchedThreads(urlList) {
-    for (const url of urlList) {
-        // Extract the ID from the thread
-        const match = url.match(/\.[0-9]+/);
-        if (!match) {
-            window.API.log.warn(`Cannot find ID for ${url}`);
-            continue;
+    // Obtains the IDs of all the most recent watched threads
+    const watchedIDs = [];
+    for(const url of urlList) {
+        const id = getIdFromURL(url);
+        if(id === -1) continue;
+        watchedIDs.push(id);
+    }
+
+    // Obtain all the threads in the database
+    const threads = await window.ThreadDB.search({});
+
+    // Remove or update records in the database
+    const parsedURLs = [];
+    for(const thread of threads) {
+        const idIncluded = watchedIDs.includes(thread.id);
+        const urlIncluded = urlList.includes(thread.url);
+
+        if (!idIncluded && !urlIncluded) {
+            // The user unsubscribed from this thread
+            // Delete the thread from the database
+            await window.ThreadDB.delete(thread._id);
+            parsedURLs.push(thread.url);
         }
-        const id = parseInt(match[0].replace(".", ""));
-
-        // Check if the thread exists in the database
-        const thread = await window.ThreadDB.search({
-            id: id
-        });
-
-        if (thread.length === 0) {
-            // The game doesn't exists, insert
-            const gameInfo = await window.F95.getGameDataFromURL(url);
-            const threadInfo = window.TI.convert(gameInfo);
-            await window.ThreadDB.insert(threadInfo);
-        } else {
-            // The game exists, check for updates
-            if (thread[0].url === url) continue; // No update...
-
+        else if (idIncluded && !urlIncluded) {
             // Update available
-            const gameInfo = await window.F95.getGameDataFromURL(url);
+            const gameInfo = await window.F95.getGameDataFromURL(thread.url);
             const threadInfo = window.TI.convert(gameInfo);
             threadInfo.updateAvailable = true;
             threadInfo.markedAsRead = false;
             await window.ThreadDB.write(threadInfo);
-        }
+            parsedURLs.push(gameInfo.url);
+        } else parsedURLs.push(thread.url);
     }
+
+    // Add new threads to the database
+    const toAddURLs = urlList.filter((el) => !parsedURLs.includes(el));
+    for(const url of toAddURLs) {
+        const gameInfo = await window.F95.getGameDataFromURL(url);
+        if(!gameInfo) continue;
+        const threadInfo = window.TI.convert(gameInfo);
+        await window.ThreadDB.insert(threadInfo);
+    }
+}
+
+/**
+ * @private
+ * Extract the ID of a thread from a F95Zone URL.
+ * @param {String} url 
+ */
+function getIdFromURL(url) {
+    const match = url.match(/\.[0-9]+/);
+    if (!match) {
+        window.API.log.warn(`Cannot find ID for ${url}`);
+        return -1;
+    }
+    return parseInt(match[0].replace(".", ""));
 }
 
 /**
