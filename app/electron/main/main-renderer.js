@@ -934,7 +934,7 @@ async function syncDatabaseWatchedThreads(urlList) {
         });
 
         if (thread.length === 0) {
-            // The game doesn't exists, insert
+            // The thread doesn't exists, insert
             const gameInfo = await window.F95.getGameDataFromURL(url);
             const threadInfo = window.TI.convert(gameInfo);
             await window.ThreadDB.insert(threadInfo);
