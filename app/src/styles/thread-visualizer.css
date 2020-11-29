@@ -12,7 +12,7 @@ div.thread-container {
 #game-preview {
     width: 45px;
     height: 45px;
-    object-fit: scale-down;
+    object-fit: cover;
     border-radius: 50%;
     margin: 0 auto;
     padding: 5px;
