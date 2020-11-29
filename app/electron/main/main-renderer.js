@@ -170,7 +170,7 @@ async function onAddRemoteGame() {
     converted.gameDirectory = gamePath;
 
     // Save data to database
-    await window.DB.insert(converted);
+    await window.GameDB.insert(converted);
 
     // Game added correctly
     const translationSuccess = await window.API.translate("MR game successfully added", {
@@ -755,7 +755,7 @@ async function getGameFromPath(path) {
     converted.gameDirectory = path;
 
     // Save data to database
-    await window.DB.insert(converted);
+    await window.GameDB.insert(converted);
 
     // Game added correctly
     const translation = await window.API.translate("MR game successfully added", {

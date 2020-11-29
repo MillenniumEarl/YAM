@@ -29,7 +29,6 @@ const imageminGifsicle = require("imagemin-gifsicle");
 const ioOps = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
 const {check} = require("../../src/scripts/internet-connection.js");
-const GameDataStore = require("../../db/stores/game-data-store.js");
 
 // Set F95API logger level
 F95API.loggerLevel = "warn";
@@ -328,16 +327,30 @@ contextBridge.exposeInMainWorld("GIE", {
     }
 });
 
-// Expose the database methods
-let dbstore = null;
-ipcRenderer.invoke("database-path").then(function (path) {
-    dbstore = new GameDataStore(path);
-});
-contextBridge.exposeInMainWorld("DB", {
-    insert: (gameinfo) => dbstore.insert(gameinfo),
-    delete: (id) => dbstore.delete(id),
-    read: (id) => dbstore.read(id),
-    write: (gameinfo) => dbstore.write(gameinfo),
-    search: (searchQuery, index, size, limit, sortQuery) => dbstore.search(searchQuery, index, size, limit, sortQuery),
-    count: (query) => dbstore.count(query),
+// Wrapper around the Game DB operations
+contextBridge.exposeInMainWorld("GameDB", {
+    insert: (gameinfo) => ipcRenderer.invoke("database-operation", "game", "insert", {
+        gamedata: gameinfo
+    }),
+    delete: (id) => ipcRenderer.invoke("database-operation", "game", "delete", {
+        id: id
+    }),
+    read: (id) => ipcRenderer.invoke("database-operation", "game", "read", {
+        id: id
+    }),
+    write: (gameinfo) => ipcRenderer.invoke("database-operation", "game", "write", {
+        gamedata: gameinfo
+    }),
+    search: (searchQuery, index, size, limit, sortQuery) => ipcRenderer.invoke("database-operation", "game", "search", {
+        query: searchQuery,
+        pagination: {
+            index: index,
+            size: size,
+            limit: limit
+        },
+        sortQuery: sortQuery ? sortQuery : {}
+    }),
+    count: (query) => ipcRenderer.invoke("database-operation", "game", "count", {
+        query: query
+    }),
 });
