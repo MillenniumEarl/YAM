@@ -960,7 +960,17 @@ async function syncDatabaseWatchedThreads(urlList) {
  * @return {Promise<ThreadInfo[]>} List of available threads
  */
 async function getUpdatedThreads() {
-    return await window.ThreadDB.search({updateAvailable: true, markedAsRead: false});
+    // Obtains the thread
+    const threads = await window.ThreadDB.search({updateAvailable: true, markedAsRead: false});
+
+    // Excludes threads of installed games
+    const result = [];
+    for(const thread of threads) {
+        const searchResult = await window.GameDB.search({id: thread.id});
+        if (searchResult.length === 0) result.push(thread);
+    }
+
+    return result;
 }
 
 /**
