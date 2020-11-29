@@ -421,7 +421,7 @@ function sendToastToUser(type, message) {
         timer = 10000;
     }
 
-    const htmlToast = `<i class='material-icons' style='padding-right: 10px'>${icon}</i><span>${message}</span>`;
+    const htmlToast = `<i class='material-icons md-${icon}' style='padding-right: 10px'></i><span>${message}</span>`;
     // eslint-disable-next-line no-undef
     M.toast({
         html: htmlToast,

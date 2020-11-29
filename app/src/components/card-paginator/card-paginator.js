@@ -541,8 +541,7 @@ class CardPaginator extends HTMLElement {
 
         // Create and add the icon
         const icon = document.createElement("a");
-        icon.classList.add("material-icons");
-        icon.innerText = "chevron_left";
+        icon.classList.add("material-icons", "md-chevron_left");
         prev.appendChild(icon);
 
         return prev;
@@ -560,8 +559,7 @@ class CardPaginator extends HTMLElement {
 
         // Create and add the icon
         const icon = document.createElement("a");
-        icon.classList.add("material-icons");
-        icon.innerText = "chevron_right";
+        icon.classList.add("material-icons", "md-chevron_right");
         next.appendChild(icon);
 
         return next;

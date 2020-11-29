@@ -166,7 +166,7 @@ async function createButtons(options) {
             button.style.color = defaultData.color;
             button.style.backgroundColor = defaultData.background;
             button.classList.add(...defaultData.classes);
-            icon.innerText = defaultData.icon;
+            icon.classList.add(`md-${defaultData.icon}`);
         }
 
         // Set the button's options, if the button is a default button
@@ -175,7 +175,7 @@ async function createButtons(options) {
         if (o.color) button.style.color = o.color;
         if (o.background) button.style.backgroundColor = o.background;
         if (o.classes) button.classList.add(...o.classes);
-        if (o.icon) icon.innerText = o.icon;
+        if (o.icon) icon.classList.add(`md-${o.icon}`);
 
         // Add the icon to the button as first child
         button.prepend(icon);

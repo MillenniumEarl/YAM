@@ -1,8 +1,8 @@
 /* THIS FILE CONTAINS ALL GLOBABLE ELEMENTS TO THE APPLICATION WITH REGARD TO STYLES */
 /* MUST BE IMPORTED IN ALL CSS FILES */
 
-/*### Manages the link to the local icons of the material-design-icons package ###*/
-@import '../../../node_modules/material-design-icons/iconfont/material-icons.css';
+/*### Manages the link to the local icons of the @material-icons package ###*/
+@import '../../../node_modules/@material-icons/font/css/baseline.css';
 
 /*### Manages the link to the materialize elements ###*/
 @import '../../../node_modules/@materializecss/materialize/dist/css/materialize.min.css';
