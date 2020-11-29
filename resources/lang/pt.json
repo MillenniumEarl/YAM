@@ -76,6 +76,9 @@
     "main-special-thanks": "Agradecimentos especiais para: KnuffelBeestje pelas traduções holandesas",
     "MR select game option": "Selecione a opção {{number}}",
     "MR same name games title": "Jogos homônimos",
-    "MR same name games message": "Outros jogos com um nome semelhante a '{{desiredGame}}' foram encontrados. Selecione o necessário:\n{{gamelist}}"
+    "MR same name games message": "Outros jogos com um nome semelhante a '{{desiredGame}}' foram encontrados. Selecione o necessário:\n{{gamelist}}",
+    "main-navbar-updated-threads": "Tópicos atualizados",
+    "tv-visit": "Visite o Tópico",
+    "tv-mark-read": "Marcar como Lido"
   }
 }

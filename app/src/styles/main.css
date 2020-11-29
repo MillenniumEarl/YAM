@@ -70,6 +70,8 @@ li[id^="select-options"] {
 .tabcontent {
   margin: auto;
   width: 95%;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 /*### Settings elements ###*/

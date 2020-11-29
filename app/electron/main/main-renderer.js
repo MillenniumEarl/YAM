@@ -66,6 +66,8 @@ document.querySelector("#main-language-select").addEventListener("change", updat
 
 document.querySelector("#main-navbar-games").addEventListener("click", openPage);
 
+document.querySelector("#main-navbar-updated-threads").addEventListener("click", openPage);
+
 document.querySelector("#main-navbar-settings").addEventListener("click", openPage);
 
 //#region Events listeners
@@ -168,7 +170,7 @@ async function onAddRemoteGame() {
     converted.gameDirectory = gamePath;
 
     // Save data to database
-    await window.DB.insert(converted);
+    await window.GameDB.insert(converted);
 
     // Game added correctly
     const translationSuccess = await window.API.translate("MR game successfully added", {
@@ -248,9 +250,10 @@ async function updateLanguage() {
  */
 function openPage(e) {
     // Get the ID of the div to show
-    const id = e.target.id === "main-navbar-settings" ? 
-        "main-settings-tab" : 
-        "main-games-tab";
+    let id = "main-games-tab";
+    if (e.target.id === "main-navbar-games") id = "main-games-tab";
+    else if (e.target.id === "main-navbar-updated-threads") id = "main-updated-threads-tab";
+    else if (e.target.id === "main-navbar-settings") id = "main-settings-tab";
 
     // Hide all elements with class="tabcontent" by default
     const tabcontent = document.getElementsByClassName("tabcontent");
@@ -752,7 +755,7 @@ async function getGameFromPath(path) {
     converted.gameDirectory = path;
 
     // Save data to database
-    await window.DB.insert(converted);
+    await window.GameDB.insert(converted);
 
     // Game added correctly
     const translation = await window.API.translate("MR game successfully added", {
@@ -877,6 +880,7 @@ async function requireUserToSelectGameWithSameName(desiredGameName, listOfGames)
 }
 //#endregion Adding game
 
+//#region User Data and Watched Threads
 /**
  * @private
  * Obtain data of the logged user and show them in the custom element "user-info".
@@ -900,6 +904,91 @@ async function getUserDataFromF95() {
 
     // Update component
     document.getElementById("user-info").userdata = userdata;
+
+    // Store the new threads and obtains info on the updates
+    await syncDatabaseWatchedThreads(userdata.watchedGameThreads);
+
+    // Obtains the updated threads to display to the user
+    const updatedThreads = await getUpdatedThreads();
+
+    // Prepare the threads tab
+    window.requestAnimationFrame(() => prepareThreadUpdatesTab(updatedThreads));
 }
+
+/**
+ * @private
+ * Save the watched threads in the database and edit the updated threads.
+ * @param {String[]} urlList List of URLs of watched game threads
+ */
+async function syncDatabaseWatchedThreads(urlList) {
+    for (const url of urlList) {
+        // Extract the ID from the thread
+        const match = url.match(/\.[0-9]+/);
+        if (!match) {
+            window.API.log.warn(`Cannot find ID for ${url}`);
+            continue;
+        }
+        const id = parseInt(match[0].replace(".", ""));
+
+        // Check if the thread exists in the database
+        const thread = await window.ThreadDB.search({
+            id: id
+        });
+
+        if (thread.length === 0) {
+            // The game doesn't exists, insert
+            const gameInfo = await window.F95.getGameDataFromURL(url);
+            const threadInfo = window.TI.convert(gameInfo);
+            await window.ThreadDB.insert(threadInfo);
+        } else {
+            // The game exists, check for updates
+            if (thread[0].url === url) continue; // No update...
+
+            // Update available
+            const gameInfo = await window.F95.getGameDataFromURL(url);
+            const threadInfo = window.TI.convert(gameInfo);
+            threadInfo.updateAvailable = true;
+            threadInfo.markedAsRead = false;
+            await window.ThreadDB.write(threadInfo);
+        }
+    }
+}
+
+/**
+ * @private
+ * Obtains the updated and not read threads.
+ * @return {Promise<ThreadInfo[]>} List of available threads
+ */
+async function getUpdatedThreads() {
+    // Obtains the thread
+    const threads = await window.ThreadDB.search({updateAvailable: true, markedAsRead: false});
+
+    // Excludes threads of installed games
+    const result = [];
+    for(const thread of threads) {
+        const searchResult = await window.GameDB.search({id: thread.id});
+        if (searchResult.length === 0) result.push(thread);
+    }
+
+    return result;
+}
+
+/**
+ * @private
+ * Show the available threads in the DOM
+ * @param {ThreadInfo[]} threads List of threads to show
+ */
+async function prepareThreadUpdatesTab(threads) {
+    // Local variables
+    const visualizerTab = document.getElementById("main-updated-threads-tab");
+
+    for (const thread of threads) {
+        const threadVisualizer = document.createElement("thread-visualizer");
+        threadVisualizer.info = thread;
+
+        visualizerTab.appendChild(threadVisualizer);
+    }
+}
+//#endregion User Data and Watched Threads
 
 //#endregion Private methods

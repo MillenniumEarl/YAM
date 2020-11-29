@@ -342,7 +342,7 @@ class CardPaginator extends HTMLElement {
         prevPageSelector.classList.add(toAdd);
 
         // Manage the next button
-        const recordsNumber = await window.DB.count(this._searchQuery);
+        const recordsNumber = await window.GameDB.count(this._searchQuery);
         const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
         toAdd = index === nPages - 1 ? "disabled" : "enabled";
         toRemove = index === nPages - 1 ? "enabled" : "disabled";
@@ -358,7 +358,7 @@ class CardPaginator extends HTMLElement {
      * @returns {Promise<Object[]>} List of records fetched from the database
      */
     async _paginate(index, size) {
-        return await window.DB.search(this._searchQuery, index, size, size, this._sortQuery);
+        return await window.GameDB.search(this._searchQuery, index, size, size, this._sortQuery);
     }
 
     /**
@@ -413,7 +413,7 @@ class CardPaginator extends HTMLElement {
      */
     async _getStartEndPages(index) {
         // Local variables
-        const recordsNumber = await window.DB.count(this._searchQuery);
+        const recordsNumber = await window.GameDB.count(this._searchQuery);
         const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
 
         // If there aren't enough pages...

@@ -412,7 +412,7 @@ class GameCard extends HTMLElement {
      */
     async saveData() {
         // Save in the database
-        await window.DB.write(this.info);
+        await window.GameDB.write(this.info);
     }
 
     /**
@@ -421,7 +421,7 @@ class GameCard extends HTMLElement {
      * @param {number} id ID of the game as record in the database
      */
     async loadData(id) {
-        this.info = await window.DB.read(id);
+        this.info = await window.GameDB.read(id);
     }
 
     /**
@@ -430,7 +430,7 @@ class GameCard extends HTMLElement {
      */
     async deleteData() {
         // Delete the record in the database
-        await window.DB.delete(this.info._id);
+        await window.GameDB.delete(this.info._id);
 
         // Check the cached preview
         if (!this.info.localPreviewPath) return;

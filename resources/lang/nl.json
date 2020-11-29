@@ -76,6 +76,9 @@
     "main-special-thanks": "Met dank aan: KnuffelBeestje voor de Nederlandse vertalingen",
     "MR select game option": "Selecteer optie {{nummer}}",
     "MR same name games title": "Homoniem spellen",
-    "MR same name games message": "Er zijn andere spellen gevonden met een naam die lijkt op '{{desiredGame}}'. Selecteer de gewenste:\n{{gamelist}}"
+    "MR same name games message": "Er zijn andere spellen gevonden met een naam die lijkt op '{{desiredGame}}'. Selecteer de gewenste:\n{{gamelist}}",
+    "main-navbar-updated-threads": "Bijgewerkte threads",
+    "tv-visit": "Bezoek Thread",
+    "tv-mark-read": "Markeer als gelezen"
   }
 }
