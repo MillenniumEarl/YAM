@@ -148,8 +148,17 @@ class ThreadVisualizer extends HTMLElement {
         }
     }
 
-    _markAsRead() {
+    /**
+     * @private
+     * Mark the thread as read.
+     */
+    async _markAsRead() {
+        // Update the value
+        this.info.markedAsRead = true;
+        await window.ThreadDB.write(this.info);
 
+        // Hide the element
+        this.style.display = "none";
     }
 
     /**
