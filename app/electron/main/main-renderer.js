@@ -161,8 +161,18 @@ async function onAddRemoteGame() {
     const unparsedName = window.API.getDirName(gamePath);
     const version = getGameVersionFromName(unparsedName);
 
-    // Add game to list
+    // Get game info and check if already installed
     const info = await window.F95.getGameDataFromURL(url);
+    const entry = await window.GameDB.search({id: info.id});
+
+    if(entry.lenght !== 0) {
+        // This game is already present: ...
+        const translation = await window.API.translate("MR game already listed", {
+            "gamename": info.name
+        });
+        sendToastToUser("warning", translation);
+        return;
+    }
 
     // Add data to the parsed game info
     const converted = window.GIE.convert(info);
@@ -827,21 +837,19 @@ async function getUnlistedGamesInArrayOfPath(paths) {
     // Local variables
     const MAX_NUMBER_OF_PRESENT_GAMES_FOR_MESSAGES = 5;
     const gameFolderPaths = [];
-    const listedGameNames = [];
     const alreadyPresentGames = [];
 
     // Check if the game(s) is (are) already present
-    const cardGames = document.querySelectorAll("game-card");
-    cardGames.forEach((card) => {
-        if (!card.info.name) return;
-        const gamename = cleanGameName(card.info.name);
-        listedGameNames.push(gamename.toUpperCase());
+    const games = await window.GameDB.search({});
+    const listedGameNames = games.map(function(game) {
+        const gamename = cleanGameName(game.name).replace(/[/\\?%*:|"<>]/g, " ").trim(); // Remove invalid chars
+        return gamename.toUpperCase();
     });
 
     for (const path of paths) {
         // Get the clean game name
         const unparsedName = window.API.getDirName(path);
-        const newGameName = cleanGameName(unparsedName);
+        const newGameName = cleanGameName(unparsedName).replace(/[/\\?%*:|"<>]/g, " ").trim(); // Remove invalid chars
 
         // Check if it's not already present and add it to the list
         if (!listedGameNames.includes(newGameName.toUpperCase())) gameFolderPaths.push(path);
