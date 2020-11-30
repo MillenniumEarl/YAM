@@ -1074,8 +1074,8 @@ async function getMostFrequentsThreadTags(n) {
 async function recommendGames() {
     // Local variables
     const MAX_TAGS = 5; // Because F95Zone allow for a max. of 5 tags
-    const MAX_GAMES = 8; // A single page of games
-    const MAX_FETCHED_GAMES = 16; // Double of MAX_GAMES
+    const MAX_GAMES = 10; // A single page of games
+    const MAX_FETCHED_GAMES = 15; // > MAX_GAMES
     const validGames = [];
 
     // Get most frequents tags
