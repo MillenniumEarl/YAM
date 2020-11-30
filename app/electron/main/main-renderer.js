@@ -66,6 +66,8 @@ document.querySelector("#main-navbar-games").addEventListener("click", openPage)
 
 document.querySelector("#main-navbar-updated-threads").addEventListener("click", openPage);
 
+document.querySelector("#main-navbar-recommendations").addEventListener("click", openPage);
+
 document.querySelector("#main-navbar-settings").addEventListener("click", openPage);
 
 //#region Events listeners
@@ -251,6 +253,7 @@ function openPage(e) {
     let id = "main-games-tab";
     if (e.target.id === "main-navbar-games") id = "main-games-tab";
     else if (e.target.id === "main-navbar-updated-threads") id = "main-updated-threads-tab";
+    else if (e.target.id === "main-navbar-recommendations") id = "main-recommendations-tab";
     else if (e.target.id === "main-navbar-settings") id = "main-settings-tab";
 
     // Hide all elements with class="tabcontent" by default
