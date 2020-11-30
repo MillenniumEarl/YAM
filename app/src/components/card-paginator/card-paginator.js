@@ -370,13 +370,11 @@ class CardPaginator extends HTMLElement {
         // Get the properties of the selected records
         const records = await this._paginate(index, this.CARDS_FOR_PAGE);
 
-        // Remove all columns containing game cards (and save the cards)
-        const columns = this.content.querySelectorAll("div.col");
-        columns.forEach((column) => column.remove());
+        // Remove all game cards
+        const cards = this.content.querySelectorAll("game-card");
+        cards.forEach((card) => card.remove());
 
         // Create the game-cards
-        const newColumns = [];
-        const cards = [];
         for (const r of records) {
             // Create gamecard
             const gamecard = document.createElement("game-card");
@@ -389,20 +387,11 @@ class CardPaginator extends HTMLElement {
             gamecard.addEventListener("update", this._updateEventListener);
             gamecard.addEventListener("delete", this._deleteEventListener);
 
-            // Add cards to page
-            const column = this._createGridColumn();
-            column.appendChild(gamecard);
-            
-            newColumns.push(column);
-            cards.push(gamecard);
-        }
+            // append card to container
+            this.content.append(gamecard);
 
-        // Add all the new created columns to the page
-        this.content.append(...newColumns);
-
-        // Check for game updates AFTER the card is attached to DOM
-        for(const card of cards) {
-            card.checkUpdate();
+            // Check for game updates AFTER the card is attached to DOM
+            gamecard.checkUpdate();
         }
     }
 

@@ -26,3 +26,11 @@ ul.pagination > li > a {
     align-items: center;
     height: 100%;
 }
+
+#pagination-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+}
