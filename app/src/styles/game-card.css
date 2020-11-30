@@ -34,7 +34,7 @@
 }
 
 .card .card-action {
-    padding: 16px 20px;
+    padding: 12px 15px;
 }
 
 .action-p {
@@ -96,9 +96,9 @@
 div.progress {
     margin: 0;
     display: none;
-    background-color: var(--primary-gc);
+    background-color: var(--primary-gc) !important;
 }
 
 .progress .indeterminate {
-    background-color: var(--secondary-app);
+    background-color: var(--secondary-app) !important;
 }
