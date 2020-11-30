@@ -430,6 +430,37 @@ function sendToastToUser(type, message) {
         classes: htmlColor,
     });
 }
+
+/**
+ * @private
+ * Get the `n` elements most frequents in `arr`.
+ * @param {Array} arr 
+ * @param {Number} n 
+ */
+function mostFrequent(arr, n) {
+    // Create an dict where the value is the number
+    // of times the key is in the array (arr)
+    const countDict = {};
+    for(const e of arr) {
+        if (e in countDict) countDict[e] += 1;
+        else countDict[e] = 1;
+    }
+
+    // Create items array
+    const items = Object.keys(countDict).map(function (key) {
+        return [key, countDict[key]];
+    });
+
+    // Sort the array based on the second element
+    items.sort(function (first, second) {
+        return second[1] - first[1];
+    });
+
+    // Return the first n elements
+    const min = Math.min(n, items.length);
+    const returnElements = items.slice(0, min);
+    return returnElements.map(e => e[0]);
+}
 //#endregion Utility
 
 //#region Authentication
@@ -881,7 +912,7 @@ async function requireUserToSelectGameWithSameName(desiredGameName, listOfGames)
 }
 //#endregion Adding game
 
-//#region User Data and Watched Threads
+//#region User Data
 /**
  * @private
  * Obtain data of the logged user and show them in the custom element "user-info".
@@ -905,9 +936,19 @@ async function getUserDataFromF95() {
 
     // Update component
     document.getElementById("user-info").userdata = userdata;
+    
+    // Update threads
+    updatedThreads(userdata.watchedGameThreads);
 
+    // Fetch recommended games
+    const games = await recommendGames();
+}
+//#endregion User Data
+
+//#region Watched Threads
+async function updatedThreads(watchedThreads) {
     // Store the new threads and obtains info on the updates
-    await syncDatabaseWatchedThreads(userdata.watchedGameThreads);
+    await syncDatabaseWatchedThreads(watchedThreads);
 
     // Obtains the updated threads to display to the user
     const updatedThreads = await getUpdatedThreads();
@@ -971,8 +1012,10 @@ async function getUpdatedThreads() {
 
     // Excludes threads of installed games
     const result = [];
-    for(const thread of threads) {
-        const searchResult = await window.GameDB.search({id: thread.id});
+    for (const thread of threads) {
+        const searchResult = await window.GameDB.search({
+            id: thread.id
+        });
         if (searchResult.length === 0) result.push(thread);
     }
 
@@ -995,6 +1038,73 @@ async function prepareThreadUpdatesTab(threads) {
         visualizerTab.appendChild(threadVisualizer);
     }
 }
-//#endregion User Data and Watched Threads
+//#endregion Watched Threads
+
+//#region Recommendations System
+async function getMostFrequentsInstalledTags(n) {
+    // Local variables
+    let tags = [];
+    const games = await window.GameDB.search({});
+
+    // Add game tags to local list
+    for (const game of games) tags = tags.concat(game.tags);
+
+    return mostFrequent(tags, n);
+}
+
+async function getMostFrequentsThreadTags(n) {
+    // Local variables
+    let tags = [];
+    const threads = await window.ThreadDB.search({});
+    
+    // Add game tags to local list
+    for (const thread of threads) tags = tags.concat(thread.tags);
+
+    return mostFrequent(tags, n);
+}
+
+async function recommendGames() {
+    // Local variables
+    const MAX_TAGS = 5; // Because F95Zone allow for a max. of 5 tags
+    const MAX_GAMES = 8; // A single page of games
+    const MAX_FETCHED_GAMES = 16; // Double of MAX_GAMES
+    const validGames = [];
+
+    // Get most frequents tags
+    const gameTags = await getMostFrequentsInstalledTags(MAX_TAGS);
+    const threadTags = await getMostFrequentsThreadTags(MAX_TAGS);
+    const unified = gameTags.concat(threadTags);
+    const tags = mostFrequent(unified, MAX_TAGS);
+
+    // Get the names of the installed games
+    const installedGames = await window.GameDB.search({});
+    const installedGameIDs = installedGames.map(g => g.id);
+
+    do {
+        // Get the games that match with tags
+        const games = await window.F95.getLatestUpdates({
+            tags: tags,
+            sorting: "rating"
+        }, MAX_FETCHED_GAMES);
+
+        for (const game of games) {
+            if (!installedGameIDs.includes(game.id) && 
+                !validGames.find(g => g.id === game.id) &&
+                validGames.length < MAX_GAMES)
+                validGames.push(game);
+            else continue;
+        }
+
+        // Remove the last tag
+        // This is necessary for the possible next do-while loop
+        // that happens when there aren't enough recommendet games
+        tags.pop();
+    }
+    while(validGames.length < MAX_GAMES && tags.length > 0);
+
+    // Convert and return the games
+    return validGames.map(g => window.GIE.convert(g));
+}
+//#endregion Recommendations System
 
 //#endregion Private methods
