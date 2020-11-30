@@ -86,6 +86,8 @@
     "rc-last-update-title": "Zuletzt aktualisiert:",
     "rc-status-title": "Fortschritt:",
     "rc-engine-title": "Grafik-Engine:",
-    "rc-tags-title": "Stichworte"
+    "rc-tags-title": "Stichworte:",
+    "gc-overview-title": "Übersicht",
+    "main-navbar-recommendations": "Empfohlen"
   }
 }

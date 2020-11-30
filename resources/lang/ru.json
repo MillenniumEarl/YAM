@@ -86,6 +86,8 @@
     "rc-last-update-title": "Последнее обновление:",
     "rc-status-title": "Прогресс:",
     "rc-engine-title": "Графический движок:",
-    "rc-tags-title": "Теги"
+    "rc-tags-title": "Теги:",
+    "gc-overview-title": "Обзор",
+    "main-navbar-recommendations": "Предлагаемый"
   }
 }

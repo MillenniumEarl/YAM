@@ -86,6 +86,8 @@
     "rc-last-update-title": "Última actualización:",
     "rc-status-title": "Progreso:",
     "rc-engine-title": "Motor de gráficos:",
-    "rc-tags-title": "Etiquetas"
+    "rc-tags-title": "Etiquetas:",
+    "gc-overview-title": "Descripción general",
+    "main-navbar-recommendations": "Sugirió"
   }
 }

@@ -86,6 +86,8 @@
     "rc-last-update-title": "最近更新:",
     "rc-status-title": "进度:",
     "rc-engine-title": "图形引擎:",
-    "rc-tags-title": "标签"
+    "rc-tags-title": "标签：",
+    "gc-overview-title": "总览",
+    "main-navbar-recommendations": "建议的"
   }
 }

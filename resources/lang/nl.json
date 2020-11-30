@@ -86,6 +86,8 @@
     "rc-last-update-title": "Laatste update:",
     "rc-status-title": "Progressie:",
     "rc-engine-title": "Engine:",
-    "rc-tags-title": "Tags"
+    "rc-tags-title": "Tags:",
+    "gc-overview-title": "Overview",
+    "main-navbar-recommendations": "Suggereerde"
   }
 }
