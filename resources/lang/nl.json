@@ -21,7 +21,6 @@
     "ui-login-btn": "Inloggen",
     "gc-play-game-btn": "Spelen",
     "gc-delete-game-btn": "Verwijderen",
-    "gc-overview-title": "Overview",
     "gc-author-title": "Auteur:",
     "gc-last-update-title": "Laatste update:",
     "gc-engine-title": "Engine:",
@@ -79,6 +78,14 @@
     "MR same name games message": "Er zijn andere spellen gevonden met een naam die lijkt op '{{desiredGame}}'. Selecteer de gewenste:\n{{gamelist}}",
     "main-navbar-updated-threads": "Bijgewerkte threads",
     "tv-visit": "Bezoek Thread",
-    "tv-mark-read": "Markeer als gelezen"
+    "tv-mark-read": "Markeer als gelezen",
+    "rc-version-title": "Geïnstalleerde versie: ",
+    "rc-open-thread-btn": "Post op F95",
+    "rc-overview-title": "Overview",
+    "rc-author-title": "Auteur:",
+    "rc-last-update-title": "Laatste update:",
+    "rc-status-title": "Progressie:",
+    "rc-engine-title": "Engine:",
+    "rc-tags-title": "Tags"
   }
 }

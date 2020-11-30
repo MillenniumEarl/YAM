@@ -21,7 +21,6 @@
     "ui-login-btn": "Login",
     "gc-play-game-btn": "Spielen",
     "gc-delete-game-btn": "Löschen",
-    "gc-overview-title": "Übersicht",
     "gc-author-title": "Author:",
     "gc-last-update-title": "Zuletzt aktualisiert:",
     "gc-engine-title": "Grafik-Engine:",
@@ -79,6 +78,14 @@
     "MR same name games message": "Andere Spiele mit einem ähnlichen Namen wie '{{desiredGame}}' wurden gefunden. Wählen Sie die gewünschte aus:\n{{gamelist}}",
     "main-navbar-updated-threads": "Threads aktualisiert",
     "tv-visit": "Besuchen Sie Thread",
-    "tv-mark-read": "Als gelesen markieren"
+    "tv-mark-read": "Als gelesen markieren",
+    "rc-version-title": "Installierte Version: ",
+    "rc-open-thread-btn": "Thread auf F95",
+    "rc-overview-title": "Übersicht",
+    "rc-author-title": "Author:",
+    "rc-last-update-title": "Zuletzt aktualisiert:",
+    "rc-status-title": "Fortschritt:",
+    "rc-engine-title": "Grafik-Engine:",
+    "rc-tags-title": "Stichworte"
   }
 }
