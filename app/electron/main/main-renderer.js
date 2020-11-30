@@ -941,7 +941,15 @@ async function getUserDataFromF95() {
     updatedThreads(userdata.watchedGameThreads);
 
     // Fetch recommended games
+    const recommendContent = document.getElementById("main-recommendations-content");
     const games = await recommendGames();
+
+    // Add cards
+    games.map(function (game) {
+        const card = document.createElement("recommended-card");
+        card.info = game;
+        recommendContent.appendChild(card);
+    });
 }
 //#endregion User Data
 
