@@ -290,6 +290,7 @@ contextBridge.exposeInMainWorld("F95", {
         // This method require GameInfo but GameInfoExtended is extended from GameInfo
         return F95API.checkIfGameHasUpdate(gameinfo);
     },
+    getLatestUpdates: (query, limit) => F95API.getLatestUpdates(query, limit),
 });
 
 // Expose the GameInfoExtended custom class
