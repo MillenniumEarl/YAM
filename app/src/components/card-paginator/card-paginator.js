@@ -22,9 +22,9 @@ class CardPaginator extends HTMLElement {
         super();
 
         /**
-         * Maximum number of cards viewable per page, must be a multiple of 4.
+         * Maximum number of cards viewable per page.
          */
-        this.CARDS_FOR_PAGE = 8;
+        this.CARDS_FOR_PAGE = 10;
         /**
          * Maximum number of selectors available at any time 
          * for the user to be used. It must be an odd value.
@@ -370,13 +370,11 @@ class CardPaginator extends HTMLElement {
         // Get the properties of the selected records
         const records = await this._paginate(index, this.CARDS_FOR_PAGE);
 
-        // Remove all columns containing game cards (and save the cards)
-        const columns = this.content.querySelectorAll("div.col");
-        columns.forEach((column) => column.remove());
+        // Remove all game cards
+        const cards = this.content.querySelectorAll("game-card");
+        cards.forEach((card) => card.remove());
 
         // Create the game-cards
-        const newColumns = [];
-        const cards = [];
         for (const r of records) {
             // Create gamecard
             const gamecard = document.createElement("game-card");
@@ -389,20 +387,11 @@ class CardPaginator extends HTMLElement {
             gamecard.addEventListener("update", this._updateEventListener);
             gamecard.addEventListener("delete", this._deleteEventListener);
 
-            // Add cards to page
-            const column = this._createGridColumn();
-            column.appendChild(gamecard);
-            
-            newColumns.push(column);
-            cards.push(gamecard);
-        }
+            // append card to container
+            this.content.append(gamecard);
 
-        // Add all the new created columns to the page
-        this.content.append(...newColumns);
-
-        // Check for game updates AFTER the card is attached to DOM
-        for(const card of cards) {
-            card.checkUpdate();
+            // Check for game updates AFTER the card is attached to DOM
+            gamecard.checkUpdate();
         }
     }
 
@@ -486,7 +475,7 @@ class CardPaginator extends HTMLElement {
 
             // Hide the circle preload and show the content
             this.preload.style.display = "none";
-            this.content.style.display = "block";
+            this.content.style.display = "flex";
 
             // Set global variable
             this._isLoading = false;
@@ -509,7 +498,7 @@ class CardPaginator extends HTMLElement {
         const toPaginateIDs = records.map(r => r.id); // Obtains the game ID's
 
         // Get the records that are in the page
-        const gamecards = this.content.querySelectorAll("div.col > game-card");
+        const gamecards = this.content.querySelectorAll("game-card");
         const paginatedIDs = Array.from(gamecards).map(g => g.info.id); // Obtains the game ID's
 
         // Check the lenght because "checker" check only 

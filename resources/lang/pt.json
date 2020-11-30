@@ -21,7 +21,6 @@
     "ui-login-btn": "Login",
     "gc-play-game-btn": "Jogar",
     "gc-delete-game-btn": "Excluir",
-    "gc-overview-title": "Visão geral",
     "gc-author-title": "Autor:",
     "gc-last-update-title": "Última atualização:",
     "gc-engine-title": "Motor gráfico:",
@@ -79,6 +78,16 @@
     "MR same name games message": "Outros jogos com um nome semelhante a '{{desiredGame}}' foram encontrados. Selecione o necessário:\n{{gamelist}}",
     "main-navbar-updated-threads": "Tópicos atualizados",
     "tv-visit": "Visite o Tópico",
-    "tv-mark-read": "Marcar como Lido"
+    "tv-mark-read": "Marcar como Lido",
+    "rc-version-title": "Versão instalada: ",
+    "rc-open-thread-btn": "Tópico em F95",
+    "rc-overview-title": "Visão geral",
+    "rc-author-title": "Autor:",
+    "rc-last-update-title": "Última atualização:",
+    "rc-status-title": "Progresso:",
+    "rc-engine-title": "Motor gráfico:",
+    "rc-tags-title": "Tag:",
+    "gc-overview-title": "Visão geral",
+    "main-navbar-recommendations": "Sugerido"
   }
 }

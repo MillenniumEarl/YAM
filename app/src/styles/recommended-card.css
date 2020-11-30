@@ -3,7 +3,7 @@
 
 /*### ID elements ###*/
 /* Manage the attributes for the preview image */
-#gc-preview {
+#rc-preview {
     background-color: var(--primary-gc);
     object-fit: cover;
     width: 300px;
@@ -11,21 +11,8 @@
 }
 
 /* Handles colors for the texts */
-#gc-name {
+#rc-name {
     color: var(--text-on-primary-gc);
-}
-
-/* Hide the card at first */
-#gc-card {
-    display: none;
-}
-
-#gc-card-preloader {
-    display: block;
-}
-
-#gc-update-game-btn {
-    width: 100%;
 }
 
 /*### Class elements ###*/
@@ -34,34 +21,18 @@
 }
 
 .card .card-action {
-    padding: 12px 15px;
+    padding: 16px 20px;
 }
 
-.action-p {
-    padding-top: 5px;
-    display: flex;
-    gap: 3px;
-}
-
-.buttons-container {
+.card-action {
     padding-top: 5px;
     display: flex;
     gap: 3px;
     flex-flow: column;
 }
 
-.action-p > a {
-    flex-basis: 50%; /* The buttons are half the available space */
-}
-
-.buttons-container > a {
+.card-action > a {
     flex: auto; /* The buttons occupy all the space needed for the content */
-}
-
-.update-p {
-    width: 100%;
-    padding-top: 5px;
-    display: none;
 }
 
 /* Handles properties for the entire body */
@@ -82,23 +53,4 @@
 
 .card-reveal {
     color: black;
-}
-
-.preload-container {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    height: 100%;
-}
-
-/*### Generic elements ###*/
-/*Manage the style for the preload bar*/
-div.progress {
-    margin: 0;
-    display: none;
-    background-color: var(--primary-gc) !important;
-}
-
-.progress .indeterminate {
-    background-color: var(--secondary-app) !important;
 }

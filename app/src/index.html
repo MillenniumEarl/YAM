@@ -20,6 +20,7 @@
     </script>
     <script type="text/javascript" src="../src/components/card-paginator/card-paginator.js" defer></script>
     <script type="text/javascript" src="../src/components/game-card/game-card.js" defer></script>
+    <script type="text/javascript" src="../src/components/recommended-card/recommended-card.js" defer></script>
     <script type="text/javascript" src="../src/components/user-info/user-info.js" defer></script>
     <script type="text/javascript" src="../src/components/thread-visualizer/thread-visualizer.js" defer></script>
 </head>
@@ -29,22 +30,27 @@
     <div class="row navbar">
         <div class="col s12">
             <ul class="tabs" id="tab-navigator">
-                <li id="default-open-tab" class="tab col s12 m6 l3 xl3 tablinks">
-                    <a href="#" class="localizable" id="main-navbar-games"> 
+                <li id="default-open-tab" class="tab col s12 m6 l2 xl2 tablinks">
+                    <a href="#main-games-tab" class="localizable" id="main-navbar-games">
                         Games
                     </a>
                 </li>
-                <li class="tab col s12 m6 l3 xl3 tablinks">
-                    <a href="#" class="localizable" id="main-navbar-updated-threads">
+                <li class="tab col s12 m6 l3 xl2 tablinks">
+                    <a href="#main-updated-threads-tab" class="localizable" id="main-navbar-updated-threads">
                         Watched Threads
                     </a>
                 </li>
-                <li class="tab col s12 m6 l3 xl3 tablinks">
-                    <a href="#" class="localizable" id="main-navbar-settings">
+                <li class="tab col s12 m6 l2 xl2 tablinks">
+                    <a href="#main-recommendations-tab" class="localizable" id="main-navbar-recommendations">
+                        Recommendations
+                    </a>
+                </li>
+                <li class="tab col s12 m6 l2 xl2 tablinks">
+                    <a href="#main-settings-tab" class="localizable" id="main-navbar-settings">
                         Settings
                     </a>
                 </li>
-                <li class="col s12 m6 l3 xl3 user-info-col">
+                <li class="col s12 m6 offset-l1 l2 offset-xl2 xl2 user-info-col">
                     <user-info id="user-info"></user-info>
                 </li>
             </ul>
@@ -65,6 +71,10 @@
     </div>
 
     <div id="main-updated-threads-tab" class="tabcontent row" hidden>
+    </div>
+
+    <div id="main-recommendations-tab" class="tabcontent" hidden>
+        <div id="main-recommendations-content"></div>
     </div>
 
     <div id="main-settings-tab" class="tabcontent container" hidden>
