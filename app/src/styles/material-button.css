@@ -19,16 +19,28 @@ a.accept-button:hover {
     background-color: var(--button-accept-color);
 }
 
+a.accept-button:focus {
+    background-color: var(--button-accept-color-focus);
+}
+
 a.neutral-button,
 a.neutral-button:hover {
     color: var(--text-on-primary-gc);
     background-color: var(--button-neutral-color);
 }
 
+a.neutral-button:focus {
+    background-color: var(--button-neutral-color-focus);
+}
+
 a.negative-button,
 a.negative-button:hover {
     color: var(--text-on-primary-gc);
     background-color: var(--button-negative-color);
+}
+
+a.negative-button:focus {
+    background-color: var(--button-negative-color-focus);
 }
 
 /*### Handle position for floating button ###*/

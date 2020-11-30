@@ -28,8 +28,8 @@ const imageminGifsicle = require("imagemin-gifsicle");
 // Modules from file
 const ioOps = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
+const ThreadInfo = require("../../src/scripts/classes/thread-info.js");
 const {check} = require("../../src/scripts/internet-connection.js");
-const GameDataStore = require("../../db/stores/game-data-store.js");
 
 // Set F95API logger level
 F95API.loggerLevel = "warn";
@@ -290,6 +290,7 @@ contextBridge.exposeInMainWorld("F95", {
         // This method require GameInfo but GameInfoExtended is extended from GameInfo
         return F95API.checkIfGameHasUpdate(gameinfo);
     },
+    getLatestUpdates: (query, limit) => F95API.getLatestUpdates(query, limit),
 });
 
 // Expose the GameInfoExtended custom class
@@ -298,21 +299,6 @@ contextBridge.exposeInMainWorld("GIE", {
     convert: function convert(gameinfo) {
         // Create a new object from the data
         return Object.assign(new GameInfoExtended(), gameinfo);
-    },
-    save: function saveGameInfo(data, path) {
-        // Create a new object from the data
-        const gameinfo = Object.assign(new GameInfoExtended(), data);
-
-        // Save the data
-        gameinfo.save(path);
-    },
-    load: function loadGameInfo(path) {
-        // Load data
-        const gameinfo = new GameInfoExtended();
-        gameinfo.load(path);
-        
-        // Return data (will be frozen)
-        return gameinfo;
     },
     saves: async function getGameSaves(data) {
         // Create a new object from the data
@@ -328,16 +314,82 @@ contextBridge.exposeInMainWorld("GIE", {
     }
 });
 
-// Expose the database methods
-let dbstore = null;
-ipcRenderer.invoke("database-path").then(function (path) {
-    dbstore = new GameDataStore(path);
+// Expose the ThreadInfo custom class
+contextBridge.exposeInMainWorld("TI", {
+    threadinfo: new ThreadInfo(),
+    convert: function convert(gameinfo) {
+        const threadInfo = new ThreadInfo();
+        threadInfo.fromGameInfo(gameinfo);
+        
+        return threadInfo;
+    },
 });
-contextBridge.exposeInMainWorld("DB", {
-    insert: (gameinfo) => dbstore.insert(gameinfo),
-    delete: (id) => dbstore.delete(id),
-    read: (id) => dbstore.read(id),
-    write: (gameinfo) => dbstore.write(gameinfo),
-    search: (searchQuery, index, size, limit, sortQuery) => dbstore.search(searchQuery, index, size, limit, sortQuery),
-    count: (query) => dbstore.count(query),
+
+// Wrapper around the Game DB operations
+contextBridge.exposeInMainWorld("GameDB", {
+    insert: (gameinfo) => ipcRenderer.invoke("database-operation", "game", "insert", {
+        data: gameinfo
+    }),
+    delete: (id) => ipcRenderer.invoke("database-operation", "game", "delete", {
+        id: id
+    }),
+    read: (id) => ipcRenderer.invoke("database-operation", "game", "read", {
+        id: id
+    }),
+    write: (gameinfo) => ipcRenderer.invoke("database-operation", "game", "write", {
+        data: gameinfo
+    }),
+    search: (searchQuery, sortQuery, index, size, limit) => ipcRenderer.invoke("database-operation", "game", "search", {
+        query: searchQuery,
+        pagination: {
+            index: index,
+            size: size,
+            limit: limit
+        },
+        sortQuery: sortQuery ? sortQuery : {}
+    }),
+    count: (query) => ipcRenderer.invoke("database-operation", "game", "count", {
+        query: query
+    }),
+});
+
+// Wrapper around the Thread DB operations
+contextBridge.exposeInMainWorld("ThreadDB", {
+    insert: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "insert", {
+        data: threadinfo
+    }),
+    delete: (id) => ipcRenderer.invoke("database-operation", "thread", "delete", {
+        id: id
+    }),
+    write: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "write", {
+        data: threadinfo
+    }),
+    search: (searchQuery, sortQuery, index, size, limit) => ipcRenderer.invoke("database-operation", "thread", "search", {
+        query: searchQuery,
+        pagination: {
+            index: index,
+            size: size,
+            limit: limit
+        },
+        sortQuery: sortQuery ? sortQuery : {}
+    }),
+});
+
+// Wrapper around the Update DB operations
+contextBridge.exposeInMainWorld("UpdateDB", {
+    insert: (gameinfo) => ipcRenderer.invoke("database-operation", "update", "insert", {
+        data: gameinfo
+    }),
+    delete: (id) => ipcRenderer.invoke("database-operation", "update", "delete", {
+        id: id
+    }),
+    search: (searchQuery, sortQuery, index, size, limit) => ipcRenderer.invoke("database-operation", "update", "search", {
+        query: searchQuery,
+        pagination: {
+            index: index,
+            size: size,
+            limit: limit
+        },
+        sortQuery: sortQuery ? sortQuery : {}
+    }),
 });

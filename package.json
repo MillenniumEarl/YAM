@@ -1,7 +1,7 @@
 {
     "main": "./app/app.js",
     "name": "yam",
-    "version": "2.1.1",
+    "version": "2.3.1",
     "author": {
         "name": "Millennium Earl"
     },
@@ -10,7 +10,7 @@
         "type": "git",
         "url": "https://github.com/MillenniumEarl/YAM.git"
     },
-    "license": "UNLICENSED",
+    "license": "MIT",
     "private": true,
     "keywords": [
         "game",
@@ -30,24 +30,23 @@
         "node": ">=10.0"
     },
     "dependencies": {
+        "@material-icons/font": "^1.0.5",
         "@materializecss/materialize": "^1.0.0",
         "ajv": "^6.12.6",
         "electron-is-dev": "^1.2.0",
         "electron-log": "^4.3.0",
         "electron-online": "^1.0.0",
         "electron-store": "^6.0.1",
-        "f95api": "^1.6.5",
+        "f95api": "^1.8.2",
         "glob": "^7.1.6",
         "i18next": "^19.8.4",
         "i18next-electron-language-detector": "0.0.10",
         "imagemin": "^7.0.1",
         "imagemin-gifsicle": "^7.0.0",
         "imagemin-webp": "^6.0.0",
-        "material-design-icons": "^3.0.1",
         "nedb-promises": "^4.1.0",
         "simple-image-downloader": "^4.0.2",
-        "string-similarity": "^4.0.3",
-        "update-electron-app": "^2.0.1"
+        "string-similarity": "^4.0.3"
     },
     "devDependencies": {
         "babel-eslint": "^10.1.0",

@@ -14,6 +14,8 @@ const { run, openLink } = require("./src/scripts/io-operations.js");
 const shared = require("./src/scripts/classes/shared.js");
 const localization = require("./src/scripts/localization.js");
 const windowCreator = require("./src/scripts/window-creator.js");
+const GameDataStore = require("./db/stores/game-data-store.js");
+const ThreadDataStore = require("./db/stores/thread-data-store.js");
 
 // Manage unhandled errors
 process.on("uncaughtException", function (error) {
@@ -28,6 +30,11 @@ let mainWindow;
 
 // Global store, keep user-settings
 const store = new Store();
+
+// Databases used by the app
+const gameStore = new GameDataStore(shared.gameDbPath);
+const threadStore = new ThreadDataStore(shared.threadDbPath);
+const updateStore = new GameDataStore(shared.updateDbPath);
 
 //#endregion Global variables
 
@@ -112,6 +119,83 @@ ipcMain.handle("user-data", function ipcOnUserData() {
     return app.getPath("userData");
 });
 
+// Manage DB operations
+ipcMain.handle("database-operation", function ipcMainOnDBOp(e, db, op, args) {
+    let selectedDB = null;
+    if(db === "game") selectedDB = gameStore;
+    else if (db === "thread") selectedDB = threadStore;
+    else if (db === "update") selectedDB = updateStore;
+    else throw Error(`Database not recognized: ${db}`);
+
+    // Esecute the operation
+    return executeDbQuery(selectedDB, op, args);
+});
+
+//#region Database Operations
+/**
+ * @private
+ * Performs an operation on the database and returns the results.
+ * @param {GameDataStore|ThreadDataStore} db 
+ * Database on which to perform operations.
+ * @param {String} operation 
+ * Operation to be performed among the following:
+ * `insert`, `delete`, `read`, `write`, `search`, `count`
+ * @param {Object} args 
+ * Arguments to pass to the database
+ * @param {GameInfo|ThreadInfo} [args.data]
+ * Data to be saved in the database. Used with `insert` and `write`
+ * @param {Number} [args.id] 
+ * ID of a record in the database. Used with `read` and `delete`
+ * @param {Object} [args.query] 
+ * Query to use in the database. Used with `search` and `count`
+ * @param {Object} [args.sortQuery] 
+ * Query used to sort the results. Used with `search`
+ * @param {Object} [args.pagination]
+ * Object containing the data for paging the results. Used with `search`
+ * @param {Number} [args.pagination.index]
+ * Index of the page to prepare
+ * @param {Number} [args.pagination.size]
+ * Size of each page
+ * @param {Number} [args.pagination.limit]
+ * Max number of element in the results
+ * @returns {Promise<Any>} Results of the query
+ */
+async function executeDbQuery(db, operation, args) {
+    // Prepare the order query for the "search" operation
+    const orderQuery = args.sortQuery ? args.sortQuery : {};
+
+    // Execute the operation on the database
+    switch (operation) {
+    case "insert":
+        if (!args.data) throw Error(`Invalid argument for '${operation}'`);
+        return await db.insert(args.data);
+    case "delete":
+        if (!args.id) throw Error(`Invalid argument for '${operation}'`);
+        return await db.delete(args.id);
+    case "read":
+        if (!args.id) throw Error(`Invalid argument for '${operation}'`);
+        return await db.read(args.id);
+    case "write":
+        if (!args.data) throw Error(`Invalid argument for '${operation}'`);
+        return await db.write(args.data);
+    case "search":
+        if (!args.query) throw Error(`Invalid argument for '${operation}'`);
+        if (args.pagination) 
+            return await db.search(args.query, 
+                args.pagination.index, 
+                args.pagination.size, 
+                args.pagination.limit, 
+                orderQuery);
+        else return await db.search(args.query);
+    case "count":
+        if (!args.query) throw Error(`Invalid argument for '${operation}'`);
+        return await db.count(args.query);
+    default:
+        throw Error(`Operation not recognized: ${operation}`);
+    }
+}
+//#endregion Database Operations
+
 //#region shared app variables
 ipcMain.handle("cache-dir", function ipcMainHandleCacheDir() {
     const dirname = path.resolve(".", shared.cacheDir);
@@ -151,10 +235,6 @@ ipcMain.handle("savegames-data-dir", function ipcMainHandleSaveGamesDataDir() {
 
 ipcMain.handle("credentials-path", function ipcMainHandleCredentialsPath() {
     return shared.credentialsPath;
-});
-
-ipcMain.handle("database-path", function ipcMainHandleDatabasePath() {
-    return shared.databasePath;
 });
 
 //#endregion shared app variables

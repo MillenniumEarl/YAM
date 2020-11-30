@@ -21,7 +21,6 @@
     "ui-login-btn": "Login",
     "gc-play-game-btn": "Play",
     "gc-delete-game-btn": "Delete",
-    "gc-overview-title": "Overview",
     "gc-author-title": "Author:",
     "gc-last-update-title": "Last Updated:",
     "gc-engine-title": "Engine:",
@@ -71,6 +70,24 @@
     "main-github-issue-btn": "Error notification on GitHub",
     "main-f95zone-thread-btn": "Open thread on F95Zone",
     "main-developer": "Developed by MillenniumEarl",
-    "MR app version": "Version {{version}}"
+    "MR app version": "Version {{version}}",
+    "main-account-divider": "Account",
+    "main-special-thanks": "Special thanks go to: KnuffelBeestje for the Dutch translations",
+    "MR select game option": "Select option {{number}}",
+    "MR same name games title": "Homonym games",
+    "MR same name games message": "Other games with a name similar to '{{desiredGame}}' were found. Select the one required:\n{{gamelist}}",
+    "main-navbar-updated-threads": "Updated Threads",
+    "tv-visit": "Visit Thread",
+    "tv-mark-read": "Mark as read",
+    "rc-version-title": "Installed version: ",
+    "rc-open-thread-btn": "Thread on F95",
+    "rc-overview-title": "Overview",
+    "rc-author-title": "Author:",
+    "rc-last-update-title": "Last Updated:",
+    "rc-status-title": "Progress:",
+    "rc-engine-title": "Engine:",
+    "rc-tags-title": "Tags:",
+    "gc-overview-title": "Overview",
+    "main-navbar-recommendations": "Suggested"
   }
 }

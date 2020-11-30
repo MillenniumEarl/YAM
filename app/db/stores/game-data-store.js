@@ -3,7 +3,7 @@
 // Public modules from npm
 const Datastore = require("nedb-promises");
 const Ajv = require("ajv");
-const gamedataSchema = require("../schemas/gamedata");
+const gameDataSchema = require("../schemas/game-data");
 const logger = require("electron-log");
 
 /**
@@ -21,9 +21,17 @@ class GameDataStore {
         });
 
         /**
+         * Path to database
+         */
+        this.DB_PATH = dbPath;
+
+        /**
          * JSON schema validator.
          */
-        this._schemaValidator = ajv.compile(gamedataSchema);
+        this._schemaValidator = ajv.compile(gameDataSchema);
+
+        // Bind function to use "this"
+        this._databaseOnLoadCallback = this._databaseOnLoadCallback.bind(this);
 
         /**
          * NeDB stored on disk.
@@ -59,7 +67,7 @@ class GameDataStore {
      */
     _databaseOnLoadCallback(err) {
         if(err) logger.error(`Error when loading database: ${err}`);
-        else logger.info("Database loaded succesfully");
+        else logger.info(`Database loaded succesfully from ${this.DB_PATH}`);
     }
     //#endregion Private methods
 

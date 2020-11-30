@@ -199,6 +199,7 @@ class GameCard extends HTMLElement {
         this.loadData = this.loadData.bind(this);
         this.saveData = this.saveData.bind(this);
         this._refreshUI = this._refreshUI.bind(this);
+        this._checkForCachedUpdateThenOnline = this._checkForCachedUpdateThenOnline.bind(this);
         this.deleteData = this.deleteData.bind(this);
         this.playEvent = this.playEvent.bind(this);
         this.updateEvent = this.updateEvent.bind(this);
@@ -403,6 +404,52 @@ class GameCard extends HTMLElement {
         await this.saveData();
         return true;
     }
+
+    /**
+     * @private
+     * Get the difference in days between two dates.
+     * @param {Date} a 
+     * @param {Date} b 
+     */
+    _dateDiffInDays(a, b) {
+        const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+        // Discard the time and time-zone information.
+        const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+        const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+
+        return Math.floor((utc2 - utc1) / MS_PER_DAY);
+    }
+
+    /**
+     * @private
+     * Check for the cached update in the database 
+     * and if it's not present or it is too old 
+     * check update online.
+     * @return {Promise<Boolean>}
+     */
+    async _checkForCachedUpdateThenOnline() {
+        // Local variables
+        const MAX_CACHE_DAYS = 3;
+
+        // Check for updates in the database
+        const updateDB = await window.UpdateDB.search({
+            id: this.info.id
+        });
+
+        let validCached = false;
+        if (updateDB.length === 1) {
+            // Check if the cache is valid, i.e. is not too old
+            const diff = this._dateDiffInDays(new Date(Date.now()), updateDB[0].createdAt);
+            validCached = diff <= MAX_CACHE_DAYS;
+            if (validCached) return true;
+            // Cache too old, delete from db
+            else await window.UpdateDB.delete(updateDB[0]._id);
+        }
+
+        // Check for updates online...
+        return await window.F95.checkGameUpdates(this.info);
+    }
     //#endregion Private methods
 
     //#region Public methods
@@ -412,7 +459,7 @@ class GameCard extends HTMLElement {
      */
     async saveData() {
         // Save in the database
-        await window.DB.write(this.info);
+        await window.GameDB.write(this.info);
     }
 
     /**
@@ -421,7 +468,7 @@ class GameCard extends HTMLElement {
      * @param {number} id ID of the game as record in the database
      */
     async loadData(id) {
-        this.info = await window.DB.read(id);
+        this.info = await window.GameDB.read(id);
     }
 
     /**
@@ -430,7 +477,7 @@ class GameCard extends HTMLElement {
      */
     async deleteData() {
         // Delete the record in the database
-        await window.DB.delete(this.info._id);
+        await window.GameDB.delete(this.info._id);
 
         // Check the cached preview
         if (!this.info.localPreviewPath) return;
@@ -449,9 +496,9 @@ class GameCard extends HTMLElement {
         // Show the progress bar
         this.progressbar.style.display = "block";
 
-        // Check for updates...
-        const update = await window.F95.checkGameUpdates(this.info);
-        if (!update) {
+        // Check update...
+        const update = await this._checkForCachedUpdateThenOnline();
+        if(!update) {
             // Hide progressbar
             this.progressbar.style.display = "none";
             return;
@@ -461,9 +508,12 @@ class GameCard extends HTMLElement {
         const result = await window.F95.getGameDataFromURL(this.info.url);
         const gameinfo = window.GIE.convert(result);
 
+        // Save the update to database
+        await window.UpdateDB.insert(gameinfo);
+
         // Change the text of the button
-        const lenght = this.updateBtn.childNodes.length;
-        const element = this.updateBtn.childNodes[lenght - 1];
+        const length = this.updateBtn.childNodes.length;
+        const element = this.updateBtn.childNodes[length - 1];
         const translation = await window.API.translate("GC update", {
             "version": gameinfo.version
         });
@@ -513,6 +563,10 @@ class GameCard extends HTMLElement {
 
         // Save info
         await this.saveData();
+
+        // Delete entry from cahced update DB
+        const entry = await window.UpdateDB.search({id: this.info.id});
+        if (entry.length === 1) await window.UpdateDB.delete(entry[0]._id);
 
         // Hide the update button
         this.querySelector(".update-p").style.display = "none";

@@ -20,7 +20,9 @@
     </script>
     <script type="text/javascript" src="../src/components/card-paginator/card-paginator.js" defer></script>
     <script type="text/javascript" src="../src/components/game-card/game-card.js" defer></script>
+    <script type="text/javascript" src="../src/components/recommended-card/recommended-card.js" defer></script>
     <script type="text/javascript" src="../src/components/user-info/user-info.js" defer></script>
+    <script type="text/javascript" src="../src/components/thread-visualizer/thread-visualizer.js" defer></script>
 </head>
 
 <body>
@@ -28,17 +30,27 @@
     <div class="row navbar">
         <div class="col s12">
             <ul class="tabs" id="tab-navigator">
-                <li id="default-open-tab" class="tab col s3 tablinks">
-                    <a href="#" class="localizable" id="main-navbar-games"> 
+                <li id="default-open-tab" class="tab col s12 m6 l2 xl2 tablinks">
+                    <a href="#main-games-tab" class="localizable" id="main-navbar-games">
                         Games
                     </a>
                 </li>
-                <li class="tab col s3 tablinks">
-                    <a href="#" class="localizable" id="main-navbar-settings">
+                <li class="tab col s12 m6 l3 xl2 tablinks">
+                    <a href="#main-updated-threads-tab" class="localizable" id="main-navbar-updated-threads">
+                        Watched Threads
+                    </a>
+                </li>
+                <li class="tab col s12 m6 l2 xl2 tablinks">
+                    <a href="#main-recommendations-tab" class="localizable" id="main-navbar-recommendations">
+                        Recommendations
+                    </a>
+                </li>
+                <li class="tab col s12 m6 l2 xl2 tablinks">
+                    <a href="#main-settings-tab" class="localizable" id="main-navbar-settings">
                         Settings
                     </a>
                 </li>
-                <li class="col s3 offset-s3 user-info-col">
+                <li class="col s12 m6 offset-l1 l2 offset-xl2 xl2 user-info-col">
                     <user-info id="user-info"></user-info>
                 </li>
             </ul>
@@ -49,7 +61,7 @@
     <div id="main-games-tab" class="tabcontent">
         <!-- Search game name -->
         <div class="input-field col s9">
-            <i class="material-icons prefix">search_white</i>
+            <i class="material-icons md-search md-light prefix"></i>
             <input id="search-game-name" type="text" />
             <label for="search-game-name" id="main-search-game-name-label" class="localizable">Search game name</label>
         </div>
@@ -58,8 +70,15 @@
         </card-paginator>
     </div>
 
+    <div id="main-updated-threads-tab" class="tabcontent row" hidden>
+    </div>
+
+    <div id="main-recommendations-tab" class="tabcontent" hidden>
+        <div id="main-recommendations-content"></div>
+    </div>
+
     <div id="main-settings-tab" class="tabcontent container" hidden>
-        <h5>Account</h5>
+        <h5 id="main-account-divider" class="localizable">Account</h5>
         <div class="divider"></div>
         <div class="section row">
             <!-- Credentials -->
@@ -73,12 +92,12 @@
             </div>
             <div class="col s1 m1 l1 xl1 padding-correction-textinput">
                 <a class="btn-flat" id="settings-password-toggle">
-                    <i class="material-icons left">remove_red_eye</i>
+                    <i class="material-icons md-visibility md-light left"></i>
                 </a>
             </div>
             <div class="col s12 m2 l2 xl2 padding-correction-textinput">
                 <a class="waves-effect waves-light btn localizable" id="settings-save-credentials-btn">
-                    <i class="material-icons left">save</i>
+                    <i class="material-icons md-save left"></i>
                     Save
                 </a>
             </div>
@@ -99,6 +118,8 @@
             <span id="main-version">Version {{version}}</span>
             <br>
             <span id="main-developer" class="localizable">Developed by MillenniumEarl</span>
+            <br>
+            <span id="main-special-thanks" class="localizable">...</span>
         </div>
 
         <h5 id="main-feedback" class="localizable">Feedback</h5>
@@ -108,21 +129,21 @@
             <!-- Open log folder -->
             <a class="waves-effect waves-light btn localizable accept-button" id="main-open-log-folder-btn"
                 target="_blank">
-                <i class="material-icons left">folder_open</i>
+                <i class="material-icons md-folder_open left"></i>
                 Log folder
             </a>
 
             <!-- Open issue on GitHub -->
             <a class="waves-effect waves-light btn localizable neutral-button" id="main-github-issue-btn"
                 href="https://github.com/MillenniumEarl/YAM/issues" target="_blank">
-                <i class="material-icons left">flag</i>
+                <i class="material-icons md-bug_report left"></i>
                 Open issue on GitHub
             </a>
 
             <!-- Open F95Zone thread -->
             <a class="waves-effect waves-light btn localizable" id="main-f95zone-thread-btn"
                 href="https://f95zone.to/threads/66991" target="_blank">
-                <i class="material-icons left">feedback</i>
+                <i class="material-icons md-feedback left"></i>
                 Open F95Zone thread
             </a>
         </div>
@@ -131,17 +152,17 @@
     <!-- Floating button (FAB) for adding games -->
     <div class="fixed-action-btn" id="fab-add-game-btn">
         <a class="btn-floating btn-large waves-effect waves-light fab">
-            <i class="material-icons">add</i>
+            <i class="material-icons md-add"></i>
         </a>
         <ul>
             <li>
                 <a class="btn-floating fab-option" id="add-local-game-btn">
-                    <i class="material-icons">folder</i>
+                    <i class="material-icons md-folder_open"></i>
                 </a>
             </li>
             <li>
                 <a class="btn-floating fab-option" id="add-remote-game-btn">
-                    <i class="material-icons">language</i>
+                    <i class="material-icons md-public"></i>
                 </a>
             </li>
         </ul>

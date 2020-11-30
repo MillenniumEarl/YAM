@@ -20,6 +20,10 @@
     display: none;
 }
 
+#gc-card-preloader {
+    display: block;
+}
+
 #gc-update-game-btn {
     width: 100%;
 }
@@ -30,7 +34,7 @@
 }
 
 .card .card-action {
-    padding: 16px 20px;
+    padding: 12px 15px;
 }
 
 .action-p {
@@ -63,7 +67,7 @@
 /* Handles properties for the entire body */
 .card {
     max-width: 300px;
-    background-color: var(--primary-gc);
+    background-color: var(--primary-gc) !important;
     font-family: Roboto;
 }
 
@@ -92,9 +96,9 @@
 div.progress {
     margin: 0;
     display: none;
-    background-color: var(--primary-gc);
+    background-color: var(--primary-gc) !important;
 }
 
 .progress .indeterminate {
-    background-color: var(--secondary-app);
+    background-color: var(--secondary-app) !important;
 }

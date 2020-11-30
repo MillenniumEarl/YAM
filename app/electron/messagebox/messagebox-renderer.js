@@ -94,31 +94,20 @@ async function setIcon(type) {
  * Resize the window to fit the content of the body.
  */
 function fitContent() {
-    // Set max size
-    const MAX_WIDTH = 900;
-    const MAX_HEIGHT = 450;
-
-    // Get elements
-    const header = document.querySelector(".header");
-    const roundedContainer = document.querySelector(".rounded-container");
-    const checkboxesContainer = document.querySelector(".checkboxes-container");
-    const buttonsContainer = document.querySelector(".buttons-container");
-
-    // Get elements size
-    const widthElements = Math.max(header.scrollWidth,
-        roundedContainer.scrollWidth, 
-        checkboxesContainer.scrollWidth, 
-        buttonsContainer.scrollWidth);
-    const heightElements = header.scrollHeight + 
-    roundedContainer.scrollHeight + 
-    checkboxesContainer.scrollHeight + 
-    buttonsContainer.scrollHeight;
-
     // Get the width/height
-    const width = Math.min(MAX_WIDTH, widthElements);
-    const height = Math.min(MAX_HEIGHT, heightElements);
+    const scrollHeight = Math.max(
+        document.body.scrollHeight, document.documentElement.scrollHeight,
+        document.body.offsetHeight, document.documentElement.offsetHeight,
+        document.body.clientHeight, document.documentElement.clientHeight
+    );
 
-    window.API.send("window-resize", width, height);
+    const scrollWidth = Math.max(
+        document.body.scrollWidth, document.documentElement.scrollWidth,
+        document.body.offsetWidth, document.documentElement.offsetWidth,
+        document.body.clientWidth, document.documentElement.clientWidth
+    );
+
+    window.API.send("window-resize", scrollWidth, scrollHeight);
 }
 
 /**
@@ -177,7 +166,7 @@ async function createButtons(options) {
             button.style.color = defaultData.color;
             button.style.backgroundColor = defaultData.background;
             button.classList.add(...defaultData.classes);
-            icon.innerText = defaultData.icon;
+            icon.classList.add(`md-${defaultData.icon}`);
         }
 
         // Set the button's options, if the button is a default button
@@ -186,7 +175,7 @@ async function createButtons(options) {
         if (o.color) button.style.color = o.color;
         if (o.background) button.style.backgroundColor = o.background;
         if (o.classes) button.classList.add(...o.classes);
-        if (o.icon) icon.innerText = o.icon;
+        if (o.icon) icon.classList.add(`md-${o.icon}`);
 
         // Add the icon to the button as first child
         button.prepend(icon);
@@ -300,7 +289,8 @@ async function prepare(args) {
 //#region IPC
 
 window.API.once("window-arguments", function (args) {
-    window.requestAnimationFrame(() => prepare(args));
+    prepare(args);
+    //window.requestAnimationFrame(() => prepare(args));
 });
 
 //#endregion IPC

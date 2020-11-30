@@ -21,7 +21,6 @@
     "ui-login-btn": "Войти",
     "gc-play-game-btn": "Играть",
     "gc-delete-game-btn": "Удалить",
-    "gc-overview-title": "Обзор",
     "gc-author-title": "Автор:",
     "gc-last-update-title": "Последнее обновление:",
     "gc-engine-title": "Графический движок:",
@@ -71,6 +70,24 @@
     "main-github-issue-btn": "Уведомление об ошибке на GitHub",
     "main-f95zone-thread-btn": "Открытая ветка на F95Zone",
     "main-developer": "Разработано MillenniumEarl",
-    "MR app version": "Версия {{version}}"
+    "MR app version": "Версия {{version}}",
+    "main-account-divider": "Счет",
+    "main-special-thanks": "Особая благодарность: KnuffelBeestje за переводы на голландский",
+    "MR select game option": "Выберите вариант {{number}}",
+    "MR same name games title": "Омонимные игры",
+    "MR same name games message": "Были найдены другие игры с названием, похожим на '{{desiredGame}}'. Выберите нужный:\n{{gamelist}}",
+    "main-navbar-updated-threads": "Обновленные темы",
+    "tv-visit": "Посетить тему",
+    "tv-mark-read": "пометить, как прочитанное",
+    "rc-version-title": "Установленная версия:",
+    "rc-open-thread-btn": "Тема на F95",
+    "rc-overview-title": "Обзор",
+    "rc-author-title": "Автор:",
+    "rc-last-update-title": "Последнее обновление:",
+    "rc-status-title": "Прогресс:",
+    "rc-engine-title": "Графический движок:",
+    "rc-tags-title": "Теги:",
+    "gc-overview-title": "Обзор",
+    "main-navbar-recommendations": "Предлагаемый"
   }
 }

@@ -39,7 +39,17 @@ class Shared {
      * Name of the database containing the data of the games.
      * @type String
      */
-    static #_databaseName = "games.db";
+    static #_gameDbName = "games.db";
+    /**
+     * Name of the database containing the data of the threads.
+     * @type String
+     */
+    static #_threadDbName = "threads.db";
+    /**
+     * Name of the database containing the data of the game updates.
+     * @type String
+     */
+    static #_updateDbName = "updates.db";
     //#endregion Private static properties
 
     //#region Getters
@@ -76,8 +86,24 @@ class Shared {
      * Path to database containing the data of the games.
      * @returns {String}
      */
-    static get databasePath() {
-        return join(this.#_cacheDir, this.#_databaseName);
+    static get gameDbPath() {
+        return join(this.#_cacheDir, this.#_gameDbName);
+    }
+
+    /**
+     * Path to database containing the data of the threads.
+     * @returns {String}
+     */
+    static get threadDbPath() {
+        return join(this.#_cacheDir, this.#_threadDbName);
+    }
+
+    /**
+     * Path to database containing the data of the game updates.
+     * @returns {String}
+     */
+    static get updateDbPath() {
+        return join(this.#_cacheDir, this.#_updateDbName);
     }
     //#endregion Getters
 

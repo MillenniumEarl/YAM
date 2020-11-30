@@ -21,7 +21,6 @@
     "ui-login-btn": "登录",
     "gc-play-game-btn": "播放",
     "gc-delete-game-btn": "删除",
-    "gc-overview-title": "总览",
     "gc-author-title": "作者:",
     "gc-last-update-title": "最近更新:",
     "gc-engine-title": "图形引擎:",
@@ -71,6 +70,24 @@
     "main-github-issue-btn": "GitHub上的错误通知",
     "main-f95zone-thread-btn": "在F95Zone上打开线程",
     "main-developer": "由MillenniumEarl开发",
-    "MR app version": "版本{{version}}"
+    "MR app version": "版本{{version}}",
+    "main-account-divider": "帐户",
+    "main-special-thanks": "特别感谢：KnuffelBeestje的荷兰语翻译",
+    "MR select game option": "选择选项{{number}}",
+    "MR same name games title": "同名游戏",
+    "MR same name games message": "发现其他名称类似于“ {{desiredGame}}”的游戏。 选择所需的一个：\n{{gamelist}}",
+    "main-navbar-updated-threads": "更新的线程",
+    "tv-visit": "访问线程",
+    "tv-mark-read": "标记为已读",
+    "rc-version-title": "安装的版本:",
+    "rc-open-thread-btn": "F95上的线程",
+    "rc-overview-title": "总览",
+    "rc-author-title": "作者:",
+    "rc-last-update-title": "最近更新:",
+    "rc-status-title": "进度:",
+    "rc-engine-title": "图形引擎:",
+    "rc-tags-title": "标签：",
+    "gc-overview-title": "总览",
+    "main-navbar-recommendations": "建议的"
   }
 }
