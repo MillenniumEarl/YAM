@@ -962,6 +962,11 @@ async function getUserDataFromF95() {
 //#endregion User Data
 
 //#region Watched Threads
+/**
+ * @private
+ * Process and show games not installed but in user watchlist that have undergone updates.
+ * @param {String[]} watchedThreads List of URLs of watched game threads
+ */
 async function updatedThreads(watchedThreads) {
     // Store the new threads and obtains info on the updates
     await syncDatabaseWatchedThreads(watchedThreads);
@@ -1057,6 +1062,12 @@ async function prepareThreadUpdatesTab(threads) {
 //#endregion Watched Threads
 
 //#region Recommendations System
+/**
+ * @private
+ * Gets the most frequent `n` tags among installed games.
+ * @param {Number} n 
+ * @returns {Promise<String[]>}
+ */
 async function getMostFrequentsInstalledTags(n) {
     // Local variables
     let tags = [];
@@ -1068,6 +1079,12 @@ async function getMostFrequentsInstalledTags(n) {
     return mostFrequent(tags, n);
 }
 
+/**
+ * @private
+ * Gets the most frequent `n` tags among watched games.
+ * @param {Number} n 
+ * @returns {Promise<String[]>}
+ */
 async function getMostFrequentsThreadTags(n) {
     // Local variables
     let tags = [];
@@ -1079,6 +1096,11 @@ async function getMostFrequentsThreadTags(n) {
     return mostFrequent(tags, n);
 }
 
+/**
+ * @private
+ * It works out the games recommended for the user based on the games he follows and owns.
+ * @returns {Promise<GameInfoExtended[]>}
+ */
 async function recommendGames() {
     // Local variables
     const MAX_TAGS = 5; // Because F95Zone allow for a max. of 5 tags
