@@ -1021,6 +1021,7 @@ async function syncDatabaseWatchedThreads(urlList) {
             const threadInfo = window.TI.convert(gameInfo);
             threadInfo.updateAvailable = true;
             threadInfo.markedAsRead = false;
+            threadInfo._id = thread[0]._id; // Add the database ID
             await window.ThreadDB.write(threadInfo);
         }
     }
@@ -1048,7 +1049,6 @@ async function getUpdatedThreads() {
         });
         if (searchResult.length === 0) result.push(thread);
     }
-
     return result;
 }
 
