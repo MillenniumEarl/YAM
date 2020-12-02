@@ -7,17 +7,6 @@ body {
     color: var(--text-on-primary);
 }
 
-#inner {
-    display: table;
-    margin: 0 auto;
-}
-
-#outer {
-    padding-left: 10px;
-    padding-right: 10px;
-    width: 100%
-}
-
 a.btn{
     margin: 10px;
 }
@@ -31,6 +20,11 @@ div.input-field{
     padding-left: 10px;
     padding-right: 10px;
     color: var(--text-on-primary);
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: center;
 }
 
 /*### Input textbox ###*/
@@ -78,6 +72,17 @@ input:not(.browser-default):focus:not([readonly]) {
 
 input:not(.browser-default):focus:not([readonly])+label {
     color: var(--secondary-app) !important;
+}
+
+/* Label text color when text input disabled */
+input[type=text]:not(.browser-default):disabled+label,
+input[type=password]:not(.browser-default):disabled+label {
+    color: var(--text-on-primary) !important;
+}
+
+input[type=text]:not(.browser-default):disabled,
+input[type=password]:not(.browser-default):disabled {
+    border-bottom: 1px solid var(--text-on-primary) !important;
 }
 
 /*### Manage the style for the preload bar ###*/
