@@ -35,7 +35,7 @@ const {check} = require("../../src/scripts/internet-connection.js");
 F95API.loggerLevel = "warn";
 
 // Array of valid main-to-render channels
-const validReceiveChannels = [];
+const validReceiveChannels = ["window-resized", "window-size"];
 
 // Array of valid render-to-main channels
 const validSendChannels = [
@@ -53,7 +53,8 @@ const validSendChannels = [
     "update-messagebox",
     "preview-dir",
     "app-version",
-    "user-data"
+    "user-data",
+    "window-size",
 ];
 
 // Expose protected methods that allow the renderer process to use

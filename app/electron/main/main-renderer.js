@@ -119,7 +119,12 @@ async function onDOMContentLoaded() {
     paginator.playListener = gameCardPlay;
     paginator.updateListener = gameCardUpdate;
     paginator.deleteListener = gameCardDelete;
-    await paginator.load();
+    
+    // Get the size of the window and load in 
+    // the paginator a variable number of cards
+    // based on this size
+    window.API.receive("window-size", paginator.visibleCardsOnParentSize);
+    window.API.send("window-size");
     
     // Load credentials
     await loadCredentials();
@@ -1146,3 +1151,13 @@ async function recommendGames() {
 //#endregion Recommendations System
 
 //#endregion Private methods
+
+//#region IPC listeners
+/**
+ * Updates the number of cards shown in the pager after the user resizes the window.
+ */
+window.API.receive("window-resized", (size) => {
+    const paginator = document.querySelector("card-paginator");
+    if (paginator) paginator.visibleCardsOnParentSize(size);
+});
+//#endregion IPC listeners
