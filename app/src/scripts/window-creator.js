@@ -11,6 +11,7 @@ const {
 } = require("electron");
 const isDev = require("electron-is-dev");
 const Store = require("electron-store");
+const logger = require("electron-log");
 
 // Global variables
 const BASE_COLOR = "#262626";
@@ -37,12 +38,12 @@ module.exports.createMainWindow = function (onclose) {
     const width = store.has("main-width") ? store.get("main-width") : 1024;
     const height = store.has("main-height") ? store.get("main-height") : 600;
     const size = {
-        "width": width,
-        "height": height,
+        width: width,
+        height: height,
     };
     const minSize = {
-        "width": 1024,
-        "height": 600,
+        width: 1024,
+        height: 600,
     };
 
     // Create the browser window
@@ -136,10 +137,16 @@ module.exports.createMessagebox = function (parent, args, onclose) {
         height: 230
     };
 
+    const maxSize = {
+        width: 700,
+        height: 500
+    };
+
     // Create the browser window (minSize = size)
     const w = createBaseWindow({
         size: size,
         minSize: size,
+        maxSize: maxSize,
         preloadPath: preload,
         hasFrame: false,
         parent: parent,
@@ -253,9 +260,10 @@ module.exports.createUpdateMessagebox = function (parent, args, onclose) {
  * @private
  * Create a simple window.
  * @param {Object} options Options used for creating windows
- * @param {Object.<string, number>} options.size Default size of the window
- * @param {Object.<string, number>} options.minSize Minimum size of the window
  * @param {String} options.preloadPath Path to the preload script
+ * @param {Object.<string, number>} options.size Default size of the window
+ * @param {Object.<string, number>} [options.minSize] Minimum size of the window
+ * @param {Object.<string, number>} [options.maxSize] Maximum size of the window
  * @param {Boolean} [options.hasFrame] Set if the window has a non-Chrome contourn
  * @param {BrowserWindow} [options.parent] Parent window for modal dialog
  * @param {Object.<string,any>} [options.args] Dictionary of elements to pass to the window as arguments
@@ -268,8 +276,14 @@ function createBaseWindow(options) {
         // Set window size
         width: options.size.width,
         height: options.size.height,
-        minWidth: options.minSize.width,
-        minHeight: options.minSize.height,
+        ...(options.minSize && {
+            minWidth: options.minSize.width,
+            minHeight: options.minSize.height
+        }),
+        ...(options.maxSize && {
+            maxWidth: options.maxSize.width,
+            maxHeight: options.maxSize.height
+        }),
         useContentSize: true,
 
         // Set "style" settings
@@ -303,49 +317,83 @@ function createBaseWindow(options) {
         }
     });
 
-    const promiseOnClose = new Promise((resolve) => {
-        let _closeWithIPC = false;
-
-        // Intercept ipc messages for window command
-        w.webContents.on("ipc-message", function ipcMessage(e, channel, args) {
-            switch (channel) {
-            case "window-resize":
-                w.setSize(args[0], args[1], false);
-                w.center();
-                break;
-            case "window-close":
-                // Assign the function to be performed 
-                // when the window is closed (via IPC message)
-                if (options.onclose) {
-                    if (args[0]) options.onclose(args[0]);
-                    else options.onclose();
-                }
-
-                // Closes the window explicitly
-                _closeWithIPC = true;
-                w.close();
-
-                if (args[0] !== undefined) resolve(args[0]);
-                else resolve(null);
-                break;
-            default:
-                break;
+    // Intercept ipc messages for window command
+    w.webContents.on("ipc-message", function ipcMessage(e, channel, args) {
+        if(channel === "window-resize") {
+            // Destructure the size and check for min/max size
+            let [width, height] = args;
+            if (options.minSize) {
+                if (width < options.minSize.width) width = options.minSize.width;
+                if (height < options.minSize.height) height = options.minSize.height;
             }
-        });
 
-        // Assign the function to perform when 
-        // the window is closed (via standard button)
-        w.on("close", () => {
-            if (options.onclose && !_closeWithIPC) {
-                options.onclose(null);
-                resolve(null);
+            if (options.maxSize) {
+                if (width > options.maxSize.width) width = options.maxSize.width;
+                if (height > options.maxSize.height) height = options.maxSize.height;
             }
-        });
+
+            // Set the size
+            w.setSize(width, height);
+            w.center();
+        }
+        else if (channel === "window-size") {
+            const size = w.getSize();
+            w.webContents.send("window-size", size);
+        }
+        else {
+            logger.warn(`Unauthorized IPC message from window '${w.title}' through ${channel}: ${args}`);
+        }
     });
 
     return {
         window: w,
-        onclose: promiseOnClose,
+        onclose: createClosePromise(w, options.onclose),
     };
+}
+
+/**
+ * @private
+ * Create a new promise that resolves when the window closes.
+ * @param {Electron.BrowserWindow} window Window to associate the closing promise
+ * @param {Function} [onclose] Callback to be executed on closing
+ * @returns {Promise<Any|null>}
+ */
+function createClosePromise(window, onclose) {
+    return new Promise((resolve) => {
+        // Local variables
+        let _closeWithIPC = false;
+
+        window.webContents.on("ipc-message", function ipcMessage(e, channel, args) {
+            if (channel !== "window-close") return;
+            
+            // Assign the function to be performed 
+            // when the window is closed (via IPC message)
+            if (onclose) {
+                if (args[0]) onclose(args[0]);
+                else onclose();
+            }
+
+            // Closes the window explicitly
+            _closeWithIPC = true;
+            window.close();
+
+            // Resolve the promise
+            const param = args[0] !== undefined ? args[0] : null;
+            resolve(param);
+        });
+
+        // Assign the function to perform when 
+        // the window is closed (via standard button)
+        window.on("close", () => {
+            if (onclose && !_closeWithIPC) {
+
+                // Execute the callback
+                onclose(null);
+
+                // Resolve the close promise
+                resolve(null);
+            }
+        });
+    });
 }
 //#endregion Private methods
