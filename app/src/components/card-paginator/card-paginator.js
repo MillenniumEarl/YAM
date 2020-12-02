@@ -185,7 +185,7 @@ class CardPaginator extends HTMLElement {
         this._switchContext(nextIndex);
         window.API.log.info(`Switched context to ${nextIndex} after user shortcut`);
     }
-    
+
     //#endregion Events
 
     //#region Public methods
