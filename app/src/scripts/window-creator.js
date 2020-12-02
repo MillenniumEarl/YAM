@@ -317,6 +317,12 @@ function createBaseWindow(options) {
         }
     });
 
+    // Send notification and new size when user resize window
+    w.on("resize", () => {
+        const size = w.getSize();
+        w.webContents.send("window-resized", size);
+    });
+
     // Intercept ipc messages for window command
     w.webContents.on("ipc-message", function ipcMessage(e, channel, args) {
         if(channel === "window-resize") {
