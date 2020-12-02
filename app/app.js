@@ -273,10 +273,7 @@ async function initializeLocalization() {
 
     // Get the data file
     const langPath = path.join(app.getAppPath(), "resources", "lang");
-    await localization.initLocalization({
-        resourcesPath: langPath,
-        language: lang,
-    });
+    await localization.initLocalization(langPath, lang);
 
     logger.info("Languages initialized");
 }

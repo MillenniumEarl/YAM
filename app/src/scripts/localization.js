@@ -16,10 +16,7 @@ const isDev = require("electron-is-dev");
  * @param {String} resourcesPath Path to the directory containing the translation files
  * @param {String} language ISO code of the language
  */
-module.exports.initLocalization = async function initLocalization({
-    resourcesPath,
-    language
-}) {
+module.exports.initLocalization = async function initLocalization(resourcesPath, language) {
     // Obtain the translation files
     const res = await _getTranslationResourcesFromDir(resourcesPath);
 
@@ -30,7 +27,7 @@ module.exports.initLocalization = async function initLocalization({
     });
 
     // If defined, change language
-    if (language && language !== "DEFAULT") this.changeLanguage(language);
+    if (language !== "DEFAULT") this.changeLanguage(language);
 };
 
 /**
