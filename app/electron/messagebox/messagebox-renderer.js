@@ -94,20 +94,54 @@ async function setIcon(type) {
  * Resize the window to fit the content of the body.
  */
 function fitContent() {
-    // Get the width/height
-    const scrollHeight = Math.max(
-        document.body.scrollHeight, document.documentElement.scrollHeight,
-        document.body.offsetHeight, document.documentElement.offsetHeight,
-        document.body.clientHeight, document.documentElement.clientHeight
-    );
+    // Get the elements in the page
+    const container = document.querySelector(".container");
+    const header = container.querySelector(".header");
+    const roundedContainer = container.querySelector(".rounded-container");
+    const checkboxesContainer = container.querySelector(".checkboxes-container");
+    const buttonsContainer = container.querySelector(".buttons-container");
 
-    const scrollWidth = Math.max(
-        document.body.scrollWidth, document.documentElement.scrollWidth,
-        document.body.offsetWidth, document.documentElement.offsetWidth,
-        document.body.clientWidth, document.documentElement.clientWidth
-    );
+    // Get the size of the computed elements in the page
+    const [hW, hH] = [header.scrollWidth, header.scrollHeight];
+    const [rcW, rcH] = [roundedContainer.scrollWidth, roundedContainer.scrollHeight];
 
-    window.API.send("window-resize", scrollWidth, scrollHeight);
+    let ccW = 0, ccH = 0;
+    for(const checkbox of checkboxesContainer.querySelectorAll("label")) {
+        // The checkboxes are arranged on a single column
+        if (checkbox.scrollWidth > ccW) ccW = checkbox.scrollWidth;
+        ccH += checkbox.scrollHeight;
+    }
+
+    const MAX_WIDTH = 700; // Defined in app/src/scripts/window-creator.js
+    let bcW = 0, bcH = 0, rowWidth = 0;
+    for (const button of buttonsContainer.querySelectorAll("a.btn")) {
+        rowWidth += button.scrollWidth;
+
+        // Set the height for at least one row of buttons
+        if (bcH === 0) bcH = button.scrollHeight;
+
+        if(rowWidth > MAX_WIDTH) {
+            // Set the container width
+            if(rowWidth > bcW) bcW = rowWidth;
+            
+            // All the buttons have the same height (36px)
+            bcH += button.scrollHeight;
+
+            // Reset the single oine width
+            rowWidth = 0;
+        }
+    }
+
+    // Calculate the final sizes
+    const PADDING = 10;
+    const partialWidth = Math.max(hW, rcW, ccW, bcW);
+    const height = hH + rcH + ccH + bcH + 4 * PADDING; // 3*"PADDING_TOP" + 1*"PADDING_BOTTOM"
+
+    // The container (with class "container") has a width of 90%
+    // So the real width => partialWidth : 90% = realWidth : 100%
+    const realWidth = Math.ceil((partialWidth * 10) / 9);
+
+    window.API.send("window-resize", realWidth, height);
 }
 
 /**
@@ -289,8 +323,7 @@ async function prepare(args) {
 //#region IPC
 
 window.API.once("window-arguments", function (args) {
-    prepare(args);
-    //window.requestAnimationFrame(() => prepare(args));
+    window.requestAnimationFrame(() => prepare(args));
 });
 
 //#endregion IPC
