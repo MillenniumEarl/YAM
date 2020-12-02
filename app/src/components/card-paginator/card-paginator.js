@@ -167,8 +167,19 @@ class CardPaginator extends HTMLElement {
         
         // Calculate the new index
         let nextIndex = 0;
-        if (e.key === "ArrowRight") nextIndex = index + 1;
-        else if (e.key === "ArrowLeft") nextIndex = index - 1;
+        
+        if (e.key === "ArrowRight") {
+            // Check if we are on the last page
+            const disabled = this.querySelector("#next-page").classList.contains("disabled");
+            if (disabled) return;
+            nextIndex = index + 1;
+        }
+        else if (e.key === "ArrowLeft") {
+            // Check if we are on the first page
+            const disabled = this.querySelector("#prev-page").classList.contains("disabled");
+            if(disabled) return;
+            nextIndex = index - 1;
+        }
 
         // Switch page
         this._switchContext(nextIndex);
@@ -396,9 +407,9 @@ class CardPaginator extends HTMLElement {
         // Get the properties of the selected records
         const records = await this._paginate(index, this._cardsForPage);
 
-        // Remove all game cards
-        const toRemoveCards = this.content.querySelectorAll("game-card");
-        toRemoveCards.forEach(card => card.remove());
+        // Remove all columns
+        const elements = this.content.querySelectorAll("div.col");
+        elements.forEach(e => e.remove());
 
         // Create the game-cards
         const cardsPromiseLoad = [];
@@ -615,13 +626,15 @@ class CardPaginator extends HTMLElement {
      */
     _createGridColumn() {
         // Create a simil-table layout with materialize-css
-        // "s6" means that the element occupies 6 of 12 columns with small screens
+        // "s10" means that the element occupies 10 of 12 columns with small screens
+        // "offset-s2" means that on small screens 2 of 12 columns are spaced (from left)
         // "m5" means that the element occupies 5 of 12 columns with medium screens
+        // "offset-m1" means that on medium screens 1 of 12 columns are spaced (from left)
         // "l4" means that the element occupies 4 of 12 columns with large screens
         // "xl3" means that the element occupies 3 of 12 columns with very large screens
         // The 12 columns are the base layout provided by materialize-css
         const column = document.createElement("div");
-        column.setAttribute("class", "col s6 m5 l4 xl3");
+        column.classList.add("col", "s10", "offset-s2", "m5", "offset-m1", "l4", "xl3");
         return column;
     }
 
