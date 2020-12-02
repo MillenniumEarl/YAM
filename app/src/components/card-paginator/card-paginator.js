@@ -22,14 +22,14 @@ class CardPaginator extends HTMLElement {
         super();
 
         /**
-         * Maximum number of cards viewable per page.
-         */
-        this.CARDS_FOR_PAGE = 10;
-        /**
          * Maximum number of selectors available at any time 
          * for the user to be used. It must be an odd value.
          */
         this.MAX_VISIBLE_PAGES = 5;
+        /**
+         * Maximum number of cards viewable per page.
+         */
+        this._cardsForPage = 8;
         /**
          * Dictionary used by NeDB to filter results from the database.
          * `{}` selects all records.
@@ -167,14 +167,25 @@ class CardPaginator extends HTMLElement {
         
         // Calculate the new index
         let nextIndex = 0;
-        if (e.key === "ArrowRight") nextIndex = index + 1;
-        else if (e.key === "ArrowLeft") nextIndex = index - 1;
+        
+        if (e.key === "ArrowRight") {
+            // Check if we are on the last page
+            const disabled = this.querySelector("#next-page").classList.contains("disabled");
+            if (disabled) return;
+            nextIndex = index + 1;
+        }
+        else if (e.key === "ArrowLeft") {
+            // Check if we are on the first page
+            const disabled = this.querySelector("#prev-page").classList.contains("disabled");
+            if(disabled) return;
+            nextIndex = index - 1;
+        }
 
         // Switch page
         this._switchContext(nextIndex);
         window.API.log.info(`Switched context to ${nextIndex} after user shortcut`);
     }
-    
+
     //#endregion Events
 
     //#region Public methods
@@ -229,8 +240,9 @@ class CardPaginator extends HTMLElement {
      * @public
      * Reload the current page.
      * Useful after adding/removing a card.
+     * @param {Boolean} [force] Force the reload
      */
-    async reload() {
+    async reload(force) {
         // Avoid new query if the component is already loading
         if (this._isLoading) return;
 
@@ -239,7 +251,7 @@ class CardPaginator extends HTMLElement {
 
         // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(index);
-        if (shouldSwitch) {
+        if (shouldSwitch || force) {
             window.API.log.info(`Reloading page ${index}`);
             this._switchContext(index);
         }
@@ -257,6 +269,30 @@ class CardPaginator extends HTMLElement {
         if(!method) this._sortQuery = {name: 1};
     }
 
+    /**
+     * @public
+     * Set the number of visible cards based on the parent's window size.
+     * @param {Number[]} size Size of the parent
+     */
+    visibleCardsOnParentSize(size) {
+        // Destructure the array
+        const [width, height] = size;
+
+        // Card size
+        const cardWidth = 300;
+        const cardHeight = 400;
+        
+        // Get the number of rows and columns that can be visible if appended
+        const columns = Math.floor(width/cardWidth);
+        const rows = Math.floor(height/cardHeight);
+
+        // Set at least 1 cards
+        const candidateCards = columns * rows;
+        this._cardsForPage = Math.max(1, candidateCards);
+
+        // Reload page
+        this.reload();
+    }
     //#endregion Public methods
 
     //#region Private methods
@@ -299,6 +335,7 @@ class CardPaginator extends HTMLElement {
         this._getStartEndPages = this._getStartEndPages.bind(this);
         this._switchContext = this._switchContext.bind(this);
         this._createPageSelectors = this._createPageSelectors.bind(this);
+        this.visibleCardsOnParentSize = this.visibleCardsOnParentSize.bind(this);
 
         /* Add keyboard hooks */
         window.addEventListener("keydown", this._keyboardShortcut, true);
@@ -343,7 +380,7 @@ class CardPaginator extends HTMLElement {
 
         // Manage the next button
         const recordsNumber = await window.GameDB.count(this._searchQuery);
-        const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
+        const nPages = Math.ceil(recordsNumber / this._cardsForPage);
         toAdd = index === nPages - 1 ? "disabled" : "enabled";
         toRemove = index === nPages - 1 ? "enabled" : "disabled";
         nextPageSelector.classList.remove(toRemove);
@@ -368,30 +405,39 @@ class CardPaginator extends HTMLElement {
      */
     async _switchPage(index) {
         // Get the properties of the selected records
-        const records = await this._paginate(index, this.CARDS_FOR_PAGE);
+        const records = await this._paginate(index, this._cardsForPage);
 
-        // Remove all game cards
-        const cards = this.content.querySelectorAll("game-card");
-        cards.forEach((card) => card.remove());
+        // Remove all columns
+        const elements = this.content.querySelectorAll("div.col");
+        elements.forEach(e => e.remove());
 
         // Create the game-cards
-        for (const r of records) {
-            // Create gamecard
+        const cardsPromiseLoad = [];
+        const cards = [];
+        for(const r of records) {
             const gamecard = document.createElement("game-card");
-
-            // Load info
-            await gamecard.loadData(r._id);
-
-            // Add cards listeners
             gamecard.addEventListener("play", this._playEventListener);
             gamecard.addEventListener("update", this._updateEventListener);
             gamecard.addEventListener("delete", this._deleteEventListener);
+            const promise = gamecard.loadData(r._id);
 
-            // append card to container
-            this.content.append(gamecard);
+            cards.push(gamecard);
+            cardsPromiseLoad.push(promise);
+        }
+
+        // Wait for all the cards to be loaded
+        await Promise.all(cardsPromiseLoad);
+
+        for(const card of cards) {
+            // Create responsive column
+            const column = this._createGridColumn();
+
+            // Append card to DOM
+            this.content.appendChild(column);
+            column.appendChild(card);
 
             // Check for game updates AFTER the card is attached to DOM
-            gamecard.checkUpdate();
+            card.checkUpdate();
         }
     }
 
@@ -403,7 +449,7 @@ class CardPaginator extends HTMLElement {
     async _getStartEndPages(index) {
         // Local variables
         const recordsNumber = await window.GameDB.count(this._searchQuery);
-        const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
+        const nPages = Math.ceil(recordsNumber / this._cardsForPage);
 
         // If there aren't enough pages...
         if (nPages <= this.MAX_VISIBLE_PAGES) {
@@ -449,7 +495,7 @@ class CardPaginator extends HTMLElement {
             this._isLoading = true;
 
             // Show a circle preload and hide the content
-            this.preload.style.display = "flex";
+            this.preload.style.display = "block";
             this.content.style.display = "none";
 
             // Load the first page
@@ -475,7 +521,7 @@ class CardPaginator extends HTMLElement {
 
             // Hide the circle preload and show the content
             this.preload.style.display = "none";
-            this.content.style.display = "flex";
+            this.content.style.display = "block";
 
             // Set global variable
             this._isLoading = false;
@@ -494,7 +540,7 @@ class CardPaginator extends HTMLElement {
      */
     async _shouldISwitch(index) {
         // Get the records that should be paginated
-        const records = await this._paginate(index, this.CARDS_FOR_PAGE);
+        const records = await this._paginate(index, this._cardsForPage);
         const toPaginateIDs = records.map(r => r.id); // Obtains the game ID's
 
         // Get the records that are in the page
@@ -580,13 +626,15 @@ class CardPaginator extends HTMLElement {
      */
     _createGridColumn() {
         // Create a simil-table layout with materialize-css
-        // "s6" means that the element occupies 6 of 12 columns with small screens
+        // "s10" means that the element occupies 10 of 12 columns with small screens
+        // "offset-s2" means that on small screens 2 of 12 columns are spaced (from left)
         // "m5" means that the element occupies 5 of 12 columns with medium screens
+        // "offset-m1" means that on medium screens 1 of 12 columns are spaced (from left)
         // "l4" means that the element occupies 4 of 12 columns with large screens
         // "xl3" means that the element occupies 3 of 12 columns with very large screens
         // The 12 columns are the base layout provided by materialize-css
         const column = document.createElement("div");
-        column.setAttribute("class", "col s6 m5 l4 xl3");
+        column.classList.add("col", "s10", "offset-s2", "m5", "offset-m1", "l4", "xl3");
         return column;
     }
 

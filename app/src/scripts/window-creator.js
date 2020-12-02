@@ -36,14 +36,14 @@ module.exports.createMainWindow = function (onclose) {
 
     // Set size
     const width = store.has("main-width") ? store.get("main-width") : 1024;
-    const height = store.has("main-height") ? store.get("main-height") : 600;
+    const height = store.has("main-height") ? store.get("main-height") : 620;
     const size = {
         width: width,
         height: height,
     };
     const minSize = {
         width: 1024,
-        height: 600,
+        height: 620,
     };
 
     // Create the browser window
@@ -315,6 +315,12 @@ function createBaseWindow(options) {
         if(options.args) {
             w.webContents.send("window-arguments", options.args);
         }
+    });
+
+    // Send notification and new size when user resize window
+    w.on("resize", () => {
+        const size = w.getSize();
+        w.webContents.send("window-resized", size);
     });
 
     // Intercept ipc messages for window command
