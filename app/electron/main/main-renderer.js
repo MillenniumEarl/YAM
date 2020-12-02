@@ -993,6 +993,7 @@ async function updatedThreads(watchedThreads) {
  * @param {String[]} urlList List of URLs of watched game threads
  */
 async function syncDatabaseWatchedThreads(urlList) {
+    const recentIDs = [];
     for (const url of urlList) {
         // Extract the ID from the thread
         const match = url.match(/\.[0-9]+/);
@@ -1001,6 +1002,7 @@ async function syncDatabaseWatchedThreads(urlList) {
             continue;
         }
         const id = parseInt(match[0].replace(".", ""));
+        recentIDs.push(id);
 
         // Check if the thread exists in the database
         const thread = await window.ThreadDB.search({
@@ -1024,6 +1026,13 @@ async function syncDatabaseWatchedThreads(urlList) {
             threadInfo._id = thread[0]._id; // Add the database ID
             await window.ThreadDB.write(threadInfo);
         }
+    }
+
+    // Remove the unsubscribed threads
+    const threads = await window.ThreadDB.search({});
+    for (const thread of threads) {
+        if(!recentIDs.includes(thread.id))
+            await window.ThreadDB.delete(thread._id);
     }
 }
 
