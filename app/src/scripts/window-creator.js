@@ -11,7 +11,6 @@ const {
 } = require("electron");
 const isDev = require("electron-is-dev");
 const Store = require("electron-store");
-const logger = require("electron-log");
 
 // Global variables
 const BASE_COLOR = "#262626";
@@ -345,9 +344,6 @@ function createBaseWindow(options) {
         else if (channel === "window-size") {
             const size = w.getSize();
             w.webContents.send("window-size", size);
-        }
-        else {
-            logger.warn(`Unauthorized IPC message from window '${w.title}' through ${channel}: ${args}`);
         }
     });
 
