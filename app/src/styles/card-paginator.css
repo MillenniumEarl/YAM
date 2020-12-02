@@ -34,15 +34,3 @@ ul.pagination > li > a {
     align-items: center;
     gap: 25px;
 }
-
-/* Anchor selector to the bottom of the component */
-#pagination-page-selectors {
-    position: relative;
-}
-
-li[id^='selector_'],
-#next-page,
-#prev-page {
-    position: absolute;
-    bottom: 1px;
-}
