@@ -91,6 +91,15 @@ li[id^="select-options"] {
   background-color: var(--secondary-app) !important;
 }
 
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: start;
+  align-items: center;
+  gap: 5px;
+}
+
 /*### Input selectors ###*/
 #search-game-name,
 #settings-username-txt,

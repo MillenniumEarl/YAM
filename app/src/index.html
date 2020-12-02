@@ -3,8 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src
         https://f95zone.to; img-src 'self' https://static.f95zone.to https://attachments.f95zone.to">
     <title>YAM: Yet Another Manager</title>
 
@@ -16,7 +15,8 @@
 
     <!-- Load local script -->
     <script type="text/javascript" src="../electron/main/main-renderer.js" defer></script>
-    <script type="text/javascript" src="../../node_modules/@materializecss/materialize/dist/js/materialize.min.js" defer>
+    <script type="text/javascript" src="../../node_modules/@materializecss/materialize/dist/js/materialize.min.js"
+        defer>
     </script>
     <script type="text/javascript" src="../src/components/card-paginator/card-paginator.js" defer></script>
     <script type="text/javascript" src="../src/components/game-card/game-card.js" defer></script>
@@ -80,22 +80,22 @@
     <div id="main-settings-tab" class="tabcontent container" hidden>
         <h5 id="main-account-divider" class="localizable">Account</h5>
         <div class="divider"></div>
-        <div class="section row">
+        <div class="section flex-row">
             <!-- Credentials -->
-            <div class="input-field col s12 m5 l5 xl5">
+            <div>
                 <input id="settings-username-txt" type="text">
                 <label for="settings-username-txt" id="settings-username-txt-label" class="localizable">Username</label>
             </div>
-            <div class="input-field col s11 m4 l4 xl4">
+            <div>
                 <input id="settings-password-txt" type="password">
                 <label for="settings-password-txt" id="settings-password-txt-label" class="localizable">Password</label>
             </div>
-            <div class="col s1 m1 l1 xl1 padding-correction-textinput">
+            <div>
                 <a class="btn-flat" id="settings-password-toggle">
                     <i class="material-icons md-visibility md-light left"></i>
                 </a>
             </div>
-            <div class="col s12 m2 l2 xl2 padding-correction-textinput">
+            <div>
                 <a class="waves-effect waves-light btn localizable" id="settings-save-credentials-btn">
                     <i class="material-icons md-save left"></i>
                     Save
@@ -105,8 +105,8 @@
 
         <h5 id="main-language-divider" class="localizable">Language</h5>
         <div class="divider"></div>
-        <div class="section row">
-            <div class="input-field col s6 m4">
+        <div class="section flex-row">
+            <div>
                 <select class="icons" id="main-language-select"></select>
                 <label id="main-select-language-label" class="localizable">Select language</label>
             </div>
