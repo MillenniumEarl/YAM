@@ -161,9 +161,7 @@ async function manageLoginResult(result, username, password) {
 
         const path = await window.API.invoke("credentials-path");
         await window.IO.write(path, json);
-
-        // Close the window
-        window.API.send("window-close", "AUTHENTICATED");
+        return true;
     } else {
         // Show error message
         const translation = await window.API.translate(
@@ -172,11 +170,7 @@ async function manageLoginResult(result, username, password) {
             }
         );
         setMessage(translation, "error");
-
-        // Unblock elements and hide the progress bar
-        document.getElementById("login-login-btn").classList.remove("disabled");
-        document.getElementById("login-cancel-btn").classList.remove("disabled");
-        document.getElementById("login-progressbar").style.display = "none";
+        return false;
     }
 }
 
@@ -188,14 +182,34 @@ async function manageLoginResult(result, username, password) {
  * @param {String} password
  */
 async function login(username, password) {
+    // Define DOM elements
+    const txtUsername = document.getElementById("login-username");
+    const txtPassword = document.getElementById("login-password");
+    const btnLogin = document.getElementById("login-login-btn");
+    const btnCancel = document.getElementById("login-cancel-btn");
+    const progressbar = document.getElementById("login-progressbar");
+
     // Block elements and show a progress bar
-    document.getElementById("login-login-btn").classList.add("disabled");
-    document.getElementById("login-cancel-btn").classList.add("disabled");
-    document.getElementById("login-progressbar").style.display = "block";
+    txtUsername.setAttribute("disabled", "");
+    txtPassword.setAttribute("disabled", "");
+    btnLogin.classList.add("disabled");
+    btnCancel.classList.add("disabled");
+    progressbar.style.display = "block";
 
     // Try to log-in
     const result = await window.F95.login(username, password);
-    manageLoginResult(result, username, password);
+    const validAuth = await manageLoginResult(result, username, password);
+
+    // Close the window
+    if (validAuth) window.API.send("window-close", "AUTHENTICATED");
+    else {
+        // Unblock elements and hide the progress bar
+        txtUsername.removeAttribute("disabled", "");
+        txtPassword.removeAttribute("disabled", "");
+        btnLogin.classList.remove("disabled");
+        btnCancel.classList.remove("disabled");
+        progressbar.style.display = "none";
+    }
 }
 
 /**
