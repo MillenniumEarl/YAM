@@ -43,7 +43,7 @@ module.exports.createMainWindow = function (onclose) {
     };
     const minSize = {
         width: 1024,
-        height: 600,
+        height: 615,
     };
 
     // Create the browser window
