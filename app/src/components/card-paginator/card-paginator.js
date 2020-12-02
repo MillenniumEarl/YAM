@@ -22,14 +22,14 @@ class CardPaginator extends HTMLElement {
         super();
 
         /**
-         * Maximum number of cards viewable per page.
-         */
-        this.CARDS_FOR_PAGE = 10;
-        /**
          * Maximum number of selectors available at any time 
          * for the user to be used. It must be an odd value.
          */
         this.MAX_VISIBLE_PAGES = 5;
+        /**
+         * Maximum number of cards viewable per page.
+         */
+        this._cardsForPage = 8;
         /**
          * Dictionary used by NeDB to filter results from the database.
          * `{}` selects all records.
@@ -229,8 +229,9 @@ class CardPaginator extends HTMLElement {
      * @public
      * Reload the current page.
      * Useful after adding/removing a card.
+     * @param {Boolean} [force] Force the reload
      */
-    async reload() {
+    async reload(force) {
         // Avoid new query if the component is already loading
         if (this._isLoading) return;
 
@@ -239,7 +240,7 @@ class CardPaginator extends HTMLElement {
 
         // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(index);
-        if (shouldSwitch) {
+        if (shouldSwitch || force) {
             window.API.log.info(`Reloading page ${index}`);
             this._switchContext(index);
         }
@@ -257,6 +258,30 @@ class CardPaginator extends HTMLElement {
         if(!method) this._sortQuery = {name: 1};
     }
 
+    /**
+     * @public
+     * Set the number of visible cards based on the parent's window size.
+     * @param {Number[]} size Size of the parent
+     */
+    visibleCardsOnParentSize(size) {
+        // Destructure the array
+        const [width, height] = size;
+
+        // Card size
+        const cardWidth = 300;
+        const cardHeight = 400;
+        
+        // Get the number of rows and columns that can be visible if appended
+        const columns = Math.floor(width/cardWidth);
+        const rows = Math.floor(height/cardHeight);
+
+        // Set at least 1 cards
+        const candidateCards = columns * rows;
+        this._cardsForPage = Math.max(1, candidateCards);
+
+        // Reload page
+        this.reload();
+    }
     //#endregion Public methods
 
     //#region Private methods
@@ -299,6 +324,7 @@ class CardPaginator extends HTMLElement {
         this._getStartEndPages = this._getStartEndPages.bind(this);
         this._switchContext = this._switchContext.bind(this);
         this._createPageSelectors = this._createPageSelectors.bind(this);
+        this.visibleCardsOnParentSize = this.visibleCardsOnParentSize.bind(this);
 
         /* Add keyboard hooks */
         window.addEventListener("keydown", this._keyboardShortcut, true);
@@ -343,7 +369,7 @@ class CardPaginator extends HTMLElement {
 
         // Manage the next button
         const recordsNumber = await window.GameDB.count(this._searchQuery);
-        const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
+        const nPages = Math.ceil(recordsNumber / this._cardsForPage);
         toAdd = index === nPages - 1 ? "disabled" : "enabled";
         toRemove = index === nPages - 1 ? "enabled" : "disabled";
         nextPageSelector.classList.remove(toRemove);
@@ -368,7 +394,7 @@ class CardPaginator extends HTMLElement {
      */
     async _switchPage(index) {
         // Get the properties of the selected records
-        const records = await this._paginate(index, this.CARDS_FOR_PAGE);
+        const records = await this._paginate(index, this._cardsForPage);
 
         // Remove all game cards
         const cards = this.content.querySelectorAll("game-card");
@@ -403,7 +429,7 @@ class CardPaginator extends HTMLElement {
     async _getStartEndPages(index) {
         // Local variables
         const recordsNumber = await window.GameDB.count(this._searchQuery);
-        const nPages = Math.ceil(recordsNumber / this.CARDS_FOR_PAGE);
+        const nPages = Math.ceil(recordsNumber / this._cardsForPage);
 
         // If there aren't enough pages...
         if (nPages <= this.MAX_VISIBLE_PAGES) {
@@ -494,7 +520,7 @@ class CardPaginator extends HTMLElement {
      */
     async _shouldISwitch(index) {
         // Get the records that should be paginated
-        const records = await this._paginate(index, this.CARDS_FOR_PAGE);
+        const records = await this._paginate(index, this._cardsForPage);
         const toPaginateIDs = records.map(r => r.id); // Obtains the game ID's
 
         // Get the records that are in the page
