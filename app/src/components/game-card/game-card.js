@@ -200,6 +200,7 @@ class GameCard extends HTMLElement {
         this.saveData = this.saveData.bind(this);
         this._refreshUI = this._refreshUI.bind(this);
         this._checkForCachedUpdateThenOnline = this._checkForCachedUpdateThenOnline.bind(this);
+        this._fetchUpdate = this._fetchUpdate.bind(this);
         this.deleteData = this.deleteData.bind(this);
         this.playEvent = this.playEvent.bind(this);
         this.updateEvent = this.updateEvent.bind(this);
@@ -437,18 +438,42 @@ class GameCard extends HTMLElement {
             id: this.info.id
         });
 
-        let validCached = false;
         if (updateDB.length === 1) {
             // Check if the cache is valid, i.e. is not too old
             const diff = this._dateDiffInDays(new Date(Date.now()), updateDB[0].createdAt);
-            validCached = diff <= MAX_CACHE_DAYS;
-            if (validCached) return true;
+            if (diff <= MAX_CACHE_DAYS) return true;
             // Cache too old, delete from db
             else await window.UpdateDB.delete(updateDB[0]._id);
         }
 
         // Check for updates online...
         return await window.F95.checkGameUpdates(this.info);
+    }
+
+    /**
+     * @private
+     * Fetch the game update from the database (if exists) or online.
+     * @return {Promise<GameInfoExtended>}
+     */
+    async _fetchUpdate() {
+        // Local variables
+        let gameinfo = null;
+
+        // Get the update from the database
+        const updateDB = await window.UpdateDB.search({
+            id: this.info.id
+        });
+
+        // Get the update from the DB or online
+        if (updateDB.length === 0) {
+            // Update available online, fetch data...
+            const result = await window.F95.getGameDataFromURL(this.info.url);
+            gameinfo = window.GIE.convert(result);
+
+            // Save the update to database
+            await window.UpdateDB.insert(gameinfo);
+        } else gameinfo = updateDB[0];
+        return gameinfo;
     }
     //#endregion Private methods
 
@@ -504,13 +529,9 @@ class GameCard extends HTMLElement {
             return;
         }
 
-        // Update available, fetch data...
-        const result = await window.F95.getGameDataFromURL(this.info.url);
-        const gameinfo = window.GIE.convert(result);
-
-        // Save the update to database
-        await window.UpdateDB.insert(gameinfo);
-
+        // Get update
+        const gameinfo = await this._fetchUpdate();
+        
         // Change the text of the button
         const length = this.updateBtn.childNodes.length;
         const element = this.updateBtn.childNodes[length - 1];
