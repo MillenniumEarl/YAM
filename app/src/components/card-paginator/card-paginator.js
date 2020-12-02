@@ -397,27 +397,36 @@ class CardPaginator extends HTMLElement {
         const records = await this._paginate(index, this._cardsForPage);
 
         // Remove all game cards
-        const cards = this.content.querySelectorAll("game-card");
-        cards.forEach((card) => card.remove());
+        const toRemoveCards = this.content.querySelectorAll("game-card");
+        toRemoveCards.forEach(card => card.remove());
 
         // Create the game-cards
-        for (const r of records) {
-            // Create gamecard
+        const cardsPromiseLoad = [];
+        const cards = [];
+        for(const r of records) {
             const gamecard = document.createElement("game-card");
-
-            // Load info
-            await gamecard.loadData(r._id);
-
-            // Add cards listeners
             gamecard.addEventListener("play", this._playEventListener);
             gamecard.addEventListener("update", this._updateEventListener);
             gamecard.addEventListener("delete", this._deleteEventListener);
+            const promise = gamecard.loadData(r._id);
 
-            // append card to container
-            this.content.append(gamecard);
+            cards.push(gamecard);
+            cardsPromiseLoad.push(promise);
+        }
+
+        // Wait for all the cards to be loaded
+        await Promise.all(cardsPromiseLoad);
+
+        for(const card of cards) {
+            // Create responsive column
+            const column = this._createGridColumn();
+
+            // Append card to DOM
+            this.content.appendChild(column);
+            column.appendChild(card);
 
             // Check for game updates AFTER the card is attached to DOM
-            gamecard.checkUpdate();
+            card.checkUpdate();
         }
     }
 
@@ -475,7 +484,7 @@ class CardPaginator extends HTMLElement {
             this._isLoading = true;
 
             // Show a circle preload and hide the content
-            this.preload.style.display = "flex";
+            this.preload.style.display = "block";
             this.content.style.display = "none";
 
             // Load the first page
@@ -501,7 +510,7 @@ class CardPaginator extends HTMLElement {
 
             // Hide the circle preload and show the content
             this.preload.style.display = "none";
-            this.content.style.display = "flex";
+            this.content.style.display = "block";
 
             // Set global variable
             this._isLoading = false;
