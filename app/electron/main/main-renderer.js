@@ -215,9 +215,18 @@ async function onAddLocalGame() {
 function onPasswordToggle() {
     // Show/hide the password
     const input = document.getElementById("settings-password-txt");
+    const icon = document.querySelector("#settings-password-toggle > i.material-icons");
 
-    if (input.type === "password") input.type = "text";
-    else input.type = "password";
+    if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("md-visibility");
+        icon.classList.add("md-visibility_off");
+    }
+    else {
+        input.type = "password";
+        icon.classList.remove("md-visibility_off");
+        icon.classList.add("md-visibility");
+    }
 }
 
 /**
