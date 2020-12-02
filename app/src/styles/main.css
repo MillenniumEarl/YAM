@@ -44,14 +44,6 @@ body {
   flex: auto;
 }
 
-#main-recommendations-content {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 25px;
-}
-
 card-paginator {
   width: 100%;
   height: 100%;

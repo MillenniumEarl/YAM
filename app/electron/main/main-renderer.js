@@ -961,7 +961,9 @@ async function getUserDataFromF95() {
     games.map(function (game) {
         const card = document.createElement("recommended-card");
         card.info = game;
-        recommendContent.appendChild(card);
+        const column = createGridColumn();
+        column.appendChild(card);
+        recommendContent.appendChild(column);
     });
 }
 //#endregion User Data
@@ -1069,6 +1071,24 @@ async function prepareThreadUpdatesTab(threads) {
 //#region Recommendations System
 /**
  * @private
+ * Create a responsive column that will hold a single gamecard.
+ */
+function createGridColumn() {
+    // Create a simil-table layout with materialize-css
+    // "s10" means that the element occupies 10 of 12 columns with small screens
+    // "offset-s2" means that on small screens 2 of 12 columns are spaced (from left)
+    // "m5" means that the element occupies 5 of 12 columns with medium screens
+    // "offset-m1" means that on medium screens 1 of 12 columns are spaced (from left)
+    // "l4" means that the element occupies 4 of 12 columns with large screens
+    // "xl3" means that the element occupies 3 of 12 columns with very large screens
+    // The 12 columns are the base layout provided by materialize-css
+    const column = document.createElement("div");
+    column.classList.add("col", "s10", "offset-s2", "m5", "offset-m1", "l4", "xl3");
+    return column;
+}
+
+/**
+ * @private
  * Gets the most frequent `n` tags among installed games.
  * @param {Number} n 
  * @returns {Promise<String[]>}
@@ -1109,8 +1129,8 @@ async function getMostFrequentsThreadTags(n) {
 async function recommendGames() {
     // Local variables
     const MAX_TAGS = 5; // Because F95Zone allow for a max. of 5 tags
-    const MAX_GAMES = 10; // A single page of games
-    const MAX_FETCHED_GAMES = 15; // > MAX_GAMES
+    const MAX_GAMES = 6;
+    const MAX_FETCHED_GAMES = 12; // > MAX_GAMES
     const validGames = [];
 
     // Get most frequents tags
