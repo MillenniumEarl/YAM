@@ -570,6 +570,9 @@ async function login() {
 
         // Load user data
         getUserDataFromF95();
+
+        // Recommend games
+        recommendGamesWrapper();
     } catch (e) {
         // Send error message
         const translation = await window.API.translate("MR cannot login", {
@@ -959,9 +962,6 @@ async function getUserDataFromF95() {
     
     // Update threads
     updatedThreads(userdata.watchedGameThreads);
-
-    // Recommend games
-    recommendGamesWrapper();
 }
 
 /**
