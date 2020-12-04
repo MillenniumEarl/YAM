@@ -162,27 +162,28 @@ async function onAddRemoteGame() {
     const translation = await window.API.translate("MR adding game from url");
     sendToastToUser("info", translation);
 
-    // Find game version
-    const unparsedName = window.API.getDirName(gamePath);
-    const version = getGameVersionFromName(unparsedName);
+    // Get directory information
+    const dirInfo = getDirInfo(gamePath);
 
     // Get game info and check if already installed
-    const info = await window.F95.getGameDataFromURL(url);
-    const entry = await window.GameDB.search({id: info.id});
+    const gameinfo = await window.F95.getGameDataFromURL(url);
+    const entry = await window.GameDB.search({
+        id: gameinfo.id
+    });
 
-    if(entry.lenght !== 0) {
+    if(entry.length !== 0) {
         // This game is already present: ...
         const translation = await window.API.translate("MR game already listed", {
-            "gamename": info.name
+            "gamename": gameinfo.name
         });
         sendToastToUser("warning", translation);
         return;
     }
 
     // Add data to the parsed game info
-    const converted = window.GIE.convert(info);
-    converted.version = version;
-    converted.gameDirectory = gamePath;
+    const converted = window.GIE.convert(gameinfo);
+    converted.version = dirInfo.version;
+    converted.gameDirectory = dirInfo.path;
 
     // Save data to database
     await window.GameDB.insert(converted);
@@ -372,57 +373,15 @@ async function listAvailableLanguages() {
 //#region Utility
 /**
  * @private
- * Remove all the special characters from a string.
- * It remove all the characters (spaced excluded) that have the same "value" in upper and lower case.
- * @param {String} str String to parse
- * @param {String[]} allowedChars List of allowed special chars
- * @returns {String} Parsed string
- */
-function removeSpecials(str, allowedChars) {
-    const lower = str.toLowerCase();
-    const upper = str.toUpperCase();
-
-    if (!allowedChars) allowedChars = [];
-
-    let res = "";
-    for (let i = 0; i < lower.length; ++i) {
-        if (lower[i] !== upper[i] || lower[i].trim() === "" || allowedChars.includes(lower[i]))
-            res += str[i];
-    }
-    return res.trim();
-}
-
-/**
- * @private
  * Given a game name, remove all the special characters and various tag (*[tag]*).
  * @param {String} name
  * @returns {String}
  */
 function cleanGameName(name) {
-    // Remove special chars except for version and specific tag chars
-    name = removeSpecials(name, [
-        "-",
-        "[",
-        "]",
-        ".",
-        "0",
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-    ]);
-
     // Remove mod tag and version
     const rxTags = /\[(.*?)\]/g;
     const rxSpecials = /[/\\?%*:|"<>]/g;
-    name = name.replace(rxTags, "").replace(rxSpecials, "").trim();
-
-    return name;
+    return name.replace(rxTags, "").replace(rxSpecials, "").trim();
 }
 
 /**
@@ -585,6 +544,28 @@ async function login() {
 //#endregion Authentication
 
 //#region Adding game
+/**
+ * @private
+ * Obtains information about a game directory.
+ * @param {String} path 
+ */
+function getDirInfo(path) {
+    // Get dir name
+    const unparsedName = window.API.getDirName(path);
+
+    // Get dir info
+    const name = cleanGameName(unparsedName);
+    const version = getGameVersionFromName(unparsedName);
+    const includeMods = unparsedName.toUpperCase().includes("[MOD]");
+
+    return {
+        path: path,
+        name: name,
+        version: version,
+        mod: includeMods
+    };
+}
+
 /**
  * @private
  * Let the user select one (or more) directory containing games.
@@ -775,48 +756,57 @@ async function getGameFromPaths(paths) {
  * @param {String} path Game directory path
  */
 async function getGameFromPath(path) {
-    // Get the directory name
-    const unparsedName = window.API.getDirName(path);
-    
-    // Check if it is a mod
-    const MOD_TAG = "[MOD]";
-    const includeMods = unparsedName.toUpperCase().includes(MOD_TAG);
-
-    // Get only the game title
-    const name = cleanGameName(unparsedName);
+    // Get directory information
+    const dirInfo = getDirInfo(path);
 
     // Search and add the game
-    const gamelist = await window.F95.getGameData(name, includeMods);
+    const gamelist = await window.F95.getGameData(dirInfo.name, dirInfo.mod);
 
     // No game found, return
     if (gamelist.length === 0) {
         const key = "MR no game found";
         const translation = await window.API.translate(key, {
-            "gamename": name
+            "gamename": dirInfo.name
         });
         sendToastToUser("warning", translation);
-        window.API.log.warn(`No results found for ${name}`);
+        window.API.log.warn(`No results found for ${dirInfo.name}`);
         return;
     } 
 
     // Multiple games found, let the user decide
     let selectedGame = gamelist[0]; // By default is the only game in list
     if (gamelist.length > 1) {
-        selectedGame = await requireUserToSelectGameWithSameName(unparsedName, gamelist);
+        const baseMessage = `${dirInfo.name} (${dirInfo.version})`;
+        const gameMessage = dirInfo.mod ? `${baseMessage} [MOD]` : baseMessage;
+        selectedGame = await requireUserToSelectGameWithSameName(gameMessage, gamelist);
         if(!selectedGame) return;
+    }
+
+    // Verify that the game is not in the database
+    const entry = await window.GameDB.search({
+        id: selectedGame.id
+    });
+
+    if (entry.length !== 0) {
+        // This game is already present: ...
+        const translation = await window.API.translate("MR game already listed", {
+            "gamename": selectedGame.name
+        });
+        sendToastToUser("warning", translation);
+        return;
     }
     
     // Add data to the parsed game info
     const converted = window.GIE.convert(selectedGame);
-    converted.version = getGameVersionFromName(unparsedName);
-    converted.gameDirectory = path;
+    converted.version = dirInfo.version;
+    converted.gameDirectory = dirInfo.path;
 
     // Save data to database
     await window.GameDB.insert(converted);
 
     // Game added correctly
     const translation = await window.API.translate("MR game successfully added", {
-        "gamename": name
+        "gamename": selectedGame.name
     });
     sendToastToUser("info", translation);
 }
@@ -854,21 +844,21 @@ async function getUnlistedGamesInArrayOfPath(paths) {
     const gameFolderPaths = [];
     const alreadyPresentGames = [];
 
-    // Check if the game(s) is (are) already present
+    // Check if the games are already present
     const games = await window.GameDB.search({});
     const listedGameNames = games.map(function(game) {
-        const gamename = cleanGameName(game.name).replace(/[/\\?%*:|"<>]/g, " ").trim(); // Remove invalid chars
+        const gamename = cleanGameName(game.name);
         return gamename.toUpperCase();
     });
 
     for (const path of paths) {
         // Get the clean game name
         const unparsedName = window.API.getDirName(path);
-        const newGameName = cleanGameName(unparsedName).replace(/[/\\?%*:|"<>]/g, " ").trim(); // Remove invalid chars
+        const gamename = cleanGameName(unparsedName);
 
         // Check if it's not already present and add it to the list
-        if (!listedGameNames.includes(newGameName.toUpperCase())) gameFolderPaths.push(path);
-        else alreadyPresentGames.push(newGameName);
+        if (!listedGameNames.includes(gamename.toUpperCase())) gameFolderPaths.push(path);
+        else alreadyPresentGames.push(gamename);
     }
 
     if (alreadyPresentGames.length <= MAX_NUMBER_OF_PRESENT_GAMES_FOR_MESSAGES) {
@@ -886,7 +876,6 @@ async function getUnlistedGamesInArrayOfPath(paths) {
         });
         sendToastToUser("warning", translation);
     }
-
     return gameFolderPaths;
 }
 

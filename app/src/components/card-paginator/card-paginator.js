@@ -495,7 +495,7 @@ class CardPaginator extends HTMLElement {
             this._isLoading = true;
 
             // Show a circle preload and hide the content
-            this.preload.style.display = "block";
+            this.preload.style.display = "flex";
             this.content.style.display = "none";
 
             // Load the first page
