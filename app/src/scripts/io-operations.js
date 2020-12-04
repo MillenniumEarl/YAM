@@ -11,10 +11,10 @@ const shell = require("electron").shell;
 /**
  * @protected
  * Run a file from disk as an independent process.
- * @param {String} path Path of the application to run
+ * @param {String} filename Path of the application to run
  */
-module.exports.run = function run(path) {
-    const child = spawn(path, [], {
+module.exports.run = function run(filename) {
+    const child = spawn(filename, [], {
         detached: true,
     });
 

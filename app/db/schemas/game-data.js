@@ -71,6 +71,10 @@ const gameDataSchema = {
         localPreviewPath: {
             type: ["string", "null"],
             default: null
+        },
+        gameSessions: {
+            type: "integer",
+            default: 0
         }
     },
 };
