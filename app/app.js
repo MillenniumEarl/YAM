@@ -237,6 +237,13 @@ ipcMain.handle("credentials-path", function ipcMainHandleCredentialsPath() {
     return shared.credentialsPath;
 });
 
+ipcMain.handle("database-paths", function ipcMainOnHandleDatabasePaths() {
+    return {
+        games: shared.gameDbPath,
+        threads: shared.threadDbPath,
+        updates: shared.updateDbPath,
+    };
+});
 //#endregion shared app variables
 
 //#region IPC dialog for main window

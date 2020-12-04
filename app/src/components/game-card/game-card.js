@@ -123,6 +123,7 @@ class GameCard extends HTMLElement {
     async playEvent() {
         // Save the current date as last played session
         this.info.lastPlayed = new Date(Date.now());
+        this.info.gameSessions += 1;
         await this.saveData();
 
         // Raise the event

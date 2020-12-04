@@ -457,33 +457,36 @@ function sendToastToUser(type, message) {
 
 /**
  * @private
- * Get the `n` elements most frequents in `arr`.
- * @param {Array} arr 
- * @param {Number} n 
+ * Create a responsive column that will hold a single gamecard.
  */
-function mostFrequent(arr, n) {
-    // Create an dict where the value is the number
-    // of times the key is in the array (arr)
-    const countDict = {};
-    for(const e of arr) {
-        if (e in countDict) countDict[e] += 1;
-        else countDict[e] = 1;
-    }
+function createGridColumn() {
+    // Create a simil-table layout with materialize-css
+    // "s10" means that the element occupies 10 of 12 columns with small screens
+    // "offset-s2" means that on small screens 2 of 12 columns are spaced (from left)
+    // "m5" means that the element occupies 5 of 12 columns with medium screens
+    // "offset-m1" means that on medium screens 1 of 12 columns are spaced (from left)
+    // "l4" means that the element occupies 4 of 12 columns with large screens
+    // "xl3" means that the element occupies 3 of 12 columns with very large screens
+    // The 12 columns are the base layout provided by materialize-css
+    const column = document.createElement("div");
+    column.classList.add("col", "s10", "offset-s2", "m5", "offset-m1", "l4", "xl3");
+    return column;
+}
 
-    // Create items array
-    const items = Object.keys(countDict).map(function (key) {
-        return [key, countDict[key]];
-    });
+/**
+ * @private
+ * Load the credentials from disk.
+ * @return {Promise<Object.<string, string>>}
+ */
+async function getCredentials() {
+    // Get path
+    const credPath = await window.API.invoke("credentials-path");
+    const exists = await window.IO.pathExists(credPath);
+    if (!exists) return null;
 
-    // Sort the array based on the second element
-    items.sort(function (first, second) {
-        return second[1] - first[1];
-    });
-
-    // Return the first n elements
-    const min = Math.min(n, items.length);
-    const returnElements = items.slice(0, min);
-    return returnElements.map(e => e[0]);
+    // Parse credentials
+    const json = await window.IO.read(credPath);
+    return JSON.parse(json);
 }
 //#endregion Utility
 
@@ -493,14 +496,9 @@ function mostFrequent(arr, n) {
  * Load credentials in the settings input fields.
  */
 async function loadCredentials() {
-    // Check path
-    const credPath = await window.API.invoke("credentials-path");
-    const exists = await window.IO.pathExists(credPath);
-    if (!exists) return;
-
-    // Parse credentials
-    const json = await window.IO.read(credPath);
-    const credentials = JSON.parse(json);
+    // Load credentials
+    const credentials = await getCredentials();
+    if(!credentials) return;
 
     // Set values
     document.getElementById("settings-username-txt").value = credentials.username;
@@ -572,6 +570,9 @@ async function login() {
 
         // Load user data
         getUserDataFromF95();
+
+        // Recommend games
+        recommendGamesWrapper();
     } catch (e) {
         // Send error message
         const translation = await window.API.translate("MR cannot login", {
@@ -961,10 +962,24 @@ async function getUserDataFromF95() {
     
     // Update threads
     updatedThreads(userdata.watchedGameThreads);
+}
 
-    // Fetch recommended games
+/**
+ * @private
+ * Wrapper around the recommend games function. 
+ * Fetch and add to DOM the games.
+ */
+async function recommendGamesWrapper() {
+    // Local variables
+    const MAX_GAMES = 6;
     const recommendContent = document.getElementById("main-recommendations-content");
-    const games = await recommendGames();
+
+    // Load credentials
+    const credentials = await getCredentials();
+    if (!credentials) return;
+    
+    // Fetch recommended games
+    const games = await window.F95.recommendGames(MAX_GAMES, credentials);
 
     // Add cards
     games.map(function (game) {
@@ -1085,108 +1100,6 @@ async function prepareThreadUpdatesTab(threads) {
     }
 }
 //#endregion Watched Threads
-
-//#region Recommendations System
-/**
- * @private
- * Create a responsive column that will hold a single gamecard.
- */
-function createGridColumn() {
-    // Create a simil-table layout with materialize-css
-    // "s10" means that the element occupies 10 of 12 columns with small screens
-    // "offset-s2" means that on small screens 2 of 12 columns are spaced (from left)
-    // "m5" means that the element occupies 5 of 12 columns with medium screens
-    // "offset-m1" means that on medium screens 1 of 12 columns are spaced (from left)
-    // "l4" means that the element occupies 4 of 12 columns with large screens
-    // "xl3" means that the element occupies 3 of 12 columns with very large screens
-    // The 12 columns are the base layout provided by materialize-css
-    const column = document.createElement("div");
-    column.classList.add("col", "s10", "offset-s2", "m5", "offset-m1", "l4", "xl3");
-    return column;
-}
-
-/**
- * @private
- * Gets the most frequent `n` tags among installed games.
- * @param {Number} n 
- * @returns {Promise<String[]>}
- */
-async function getMostFrequentsInstalledTags(n) {
-    // Local variables
-    let tags = [];
-    const games = await window.GameDB.search({});
-
-    // Add game tags to local list
-    for (const game of games) tags = tags.concat(game.tags);
-
-    return mostFrequent(tags, n);
-}
-
-/**
- * @private
- * Gets the most frequent `n` tags among watched games.
- * @param {Number} n 
- * @returns {Promise<String[]>}
- */
-async function getMostFrequentsThreadTags(n) {
-    // Local variables
-    let tags = [];
-    const threads = await window.ThreadDB.search({});
-    
-    // Add game tags to local list
-    for (const thread of threads) tags = tags.concat(thread.tags);
-
-    return mostFrequent(tags, n);
-}
-
-/**
- * @private
- * It works out the games recommended for the user based on the games he follows and owns.
- * @returns {Promise<GameInfoExtended[]>}
- */
-async function recommendGames() {
-    // Local variables
-    const MAX_TAGS = 5; // Because F95Zone allow for a max. of 5 tags
-    const MAX_GAMES = 6;
-    const MAX_FETCHED_GAMES = 12; // > MAX_GAMES
-    const validGames = [];
-
-    // Get most frequents tags
-    const gameTags = await getMostFrequentsInstalledTags(MAX_TAGS);
-    const threadTags = await getMostFrequentsThreadTags(MAX_TAGS);
-    const unified = gameTags.concat(threadTags);
-    const tags = mostFrequent(unified, MAX_TAGS);
-
-    // Get the names of the installed games
-    const installedGames = await window.GameDB.search({});
-    const installedGameIDs = installedGames.map(g => g.id);
-
-    do {
-        // Get the games that match with tags
-        const games = await window.F95.getLatestUpdates({
-            tags: tags,
-            sorting: "rating"
-        }, MAX_FETCHED_GAMES);
-
-        for (const game of games) {
-            if (!installedGameIDs.includes(game.id) && 
-                !validGames.find(g => g.id === game.id) &&
-                validGames.length < MAX_GAMES)
-                validGames.push(game);
-            else continue;
-        }
-
-        // Remove the last tag
-        // This is necessary for the possible next do-while loop
-        // that happens when there aren't enough recommendet games
-        tags.pop();
-    }
-    while(validGames.length < MAX_GAMES && tags.length > 0);
-
-    // Convert and return the games
-    return validGames.map(g => window.GIE.convert(g));
-}
-//#endregion Recommendations System
 
 //#endregion Private methods
 
