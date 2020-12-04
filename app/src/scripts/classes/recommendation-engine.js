@@ -46,6 +46,12 @@ class RecommendationEngine {
         const games = await this._gameStore.search({});
 
         for(const game of games) {
+            // Update games for backwards compatibility
+            if (!game.gameSessions) {
+                game.gameSessions = 0;
+                await this._gameStore.write(game);
+            }
+
             // Obtains the log argument based on the 
             // total number of times the game has been played
             const argument = game.gameSessions <= 2 ? 2 : game.gameSessions;
