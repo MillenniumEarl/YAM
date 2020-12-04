@@ -43,6 +43,11 @@ class GameInfoExtended extends GameInfo {
          * @type Boolean
          */
         this.updateAvailable = false;
+        /**
+         * Number of time the game has been launched.
+         * @type Number
+         */
+        this.gameSessions = 0;
     }
 
     //#region Public methods
@@ -121,6 +126,7 @@ class GameInfoExtended extends GameInfo {
             gameDirectory: this.gameDirectory,
             lastPlayed: this.lastPlayed,
             localPreviewPath: this.localPreviewPath,
+            gameSessions: this.gameSessions,
         };
     }
 
