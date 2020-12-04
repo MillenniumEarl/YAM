@@ -20,18 +20,18 @@
     display: inline-block;
 }
 
-.card .card-action {
+.card .card-action.recommended {
     padding: 16px 20px;
 }
 
-.card-action {
+.card-action.recommended {
     padding-top: 5px;
     display: flex;
     gap: 3px;
     flex-flow: column;
 }
 
-.card-action > a {
+.card-action.recommended > a {
     flex: auto; /* The buttons occupy all the space needed for the content */
 }
 
