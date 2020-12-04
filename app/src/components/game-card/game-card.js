@@ -65,7 +65,18 @@ class GameCard extends HTMLElement {
         this.deleteBtn.addEventListener("click", this.deleteEvent);
 
         // Refresh data
-        window.requestAnimationFrame(() => this._refreshUI());
+        window.requestAnimationFrame(async () => {
+            // Update the name of the directory containing the game
+            const newpath = await this._updateName(
+                this.info.name,
+                this.info.version,
+                this.info.isMod);
+            if(newpath) {
+                this.info.gameDirectory = newpath;
+                await this.saveData();
+            }
+            await this._refreshUI();
+        });
     }
 
     /**
@@ -199,6 +210,7 @@ class GameCard extends HTMLElement {
         /* Bind function to use this */
         this.loadData = this.loadData.bind(this);
         this.saveData = this.saveData.bind(this);
+        this._updateName = this._updateName.bind(this);
         this._refreshUI = this._refreshUI.bind(this);
         this._checkForCachedUpdateThenOnline = this._checkForCachedUpdateThenOnline.bind(this);
         this._fetchUpdate = this._fetchUpdate.bind(this);
@@ -409,6 +421,35 @@ class GameCard extends HTMLElement {
 
     /**
      * @private
+     * Update the name of the directory containing the game data.
+     * @param {String} name Name of the game
+     * @param {String} version Version of the game
+     * @param {Boolean} isMod Indicates if the game is a mod
+     * @return {Promise<String|null>} 
+     * New path of the game directory or `null` if the paths are the same
+     */
+    async _updateName(name, version, isMod) {
+        // Prepare the directory paths
+        const oldDirName = window.API.getDirName(this.info.gameDirectory);
+        const dirpath = this.info.gameDirectory.replace(oldDirName, "");
+        const modVariant = isMod ? "[MOD]" : "";
+
+        // Clean the path
+        let dirname = `${name} [v.${version}] ${modVariant}`;
+        dirname = dirname.replace(/[/\\?%*:|"<>]/g, "").trim(); // Remove invalid chars
+        const newpath = window.API.join(dirpath, dirname);
+
+        if(oldDirName === dirname) return null;
+
+        // Rename the old path
+        const exists = await window.IO.pathExists(newpath);
+        if (exists) return false;
+        window.IO.renameDir(this.info.gameDirectory, newpath);
+        return newpath;
+    }
+
+    /**
+     * @private
      * Get the difference in days between two dates.
      * @param {Date} a 
      * @param {Date} b 
@@ -561,20 +602,11 @@ class GameCard extends HTMLElement {
         // If no update available, return
         if(!this.info.updateAvailable) return false;
 
-        // Prepare the directory paths
-        const oldDirName = window.API.getDirName(this.info.gameDirectory);
-        const dirpath = this.info.gameDirectory.replace(oldDirName, "");
-        const modVariant = this._updateInfo.isMod ? "[MOD]" : "";
-
-        // Clean the path
-        let dirname = `${this._updateInfo.name} [v.${this._updateInfo.version}] ${modVariant}`;
-        dirname = dirname.replace(/[/\\?%*:|"<>]/g, " ").trim(); // Remove invalid chars
-        const newpath = window.API.join(dirpath, dirname);
-
-        // Rename the old path
-        const exists = await window.IO.pathExists(newpath);
-        if (exists) return false;
-        window.IO.renameDir(this.info.gameDirectory, newpath);
+        // Update the name of the directory containing the game
+        const newpath = await this._updateName(
+            this._updateInfo.name,
+            this._updateInfo.version, 
+            this._updateInfo.isMod);
 
         // Update info
         const dbid = this.info._id;
