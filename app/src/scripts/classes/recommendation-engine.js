@@ -63,7 +63,7 @@ class RecommendationEngine {
                 // If the game is installed we can assume that 
                 // the user is more interested in it than one 
                 // that is not installed
-                const rating = log + log / 4; // Log + 25%
+                const rating = log + log / 10; // Log + 10%
 
                 // Add tag to dict
                 if (tag in weightedTags) weightedTags[tag] += rating;
