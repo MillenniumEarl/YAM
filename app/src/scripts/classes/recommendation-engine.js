@@ -47,7 +47,7 @@ class RecommendationEngine {
 
         for(const game of games) {
             // Update games for backwards compatibility
-            if (!game.gameSessions) {
+            if (game.gameSessions === undefined) {
                 game.gameSessions = 0;
                 await this._gameStore.write(game);
             }
