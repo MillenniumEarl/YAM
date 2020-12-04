@@ -1,12 +1,12 @@
-database: app/db/*
-component: app/src/components/*
+Database: app/db/**/*
+Component: app/src/components/**/*
 
-resources:
+Resources:
 - any: ['resources/**/*']
   all: ['!resources/lang/*']
-language: resources/lang/*
-docs: docs/**/*
+Language: resources/lang/*
+Docs: docs/**/*
 
-backend: app/electron/**/*
-frontend:
+Back-end: app/electron/**/*
+Front-end:
 - any: ['app/src/**/*.html', 'app/src/**/*.css']
