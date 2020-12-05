@@ -26,5 +26,12 @@
         "background": "",
         "icon": "cancel",
         "classes": ["neutral-button"]
+    },
+    "update": {
+        "name": "update",
+        "color": "",
+        "background": "",
+        "icon": "update",
+        "classes": ["accept-button"]
     }
 }

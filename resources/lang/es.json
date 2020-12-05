@@ -88,6 +88,10 @@
     "rc-engine-title": "Motor de gráficos:",
     "rc-tags-title": "Etiquetas:",
     "gc-overview-title": "Descripción general",
-    "main-navbar-recommendations": "Sugirió"
+    "main-navbar-recommendations": "Sugirió",
+    "update-message-windarwin": "Hay una nueva versión de la aplicación disponible, al presionar \"actualizar\" la aplicación se cerrará y actualizará:\\n{{notes}}",
+    "update-message-linux": "Hay disponible una nueva versión de la aplicación.\\nAl presionar \"actualizar\" se le llevará a la página de descarga en GitHub.",
+    "update-title": "Actualización disponible ({{version}})",
+    "default-button-update": "Actualizar"
   }
 }

@@ -123,7 +123,7 @@ module.exports.createLoginWindow = function (parent, onclose) {
  * @param {String} args.type Select the icon of the messagebox between `info`/`warning`/`error`
  * @param {String} args.title Title of the window
  * @param {String} args.message Message of the window
- * @param {Function} onclose Callback executed when the window is closed
+ * @param {Function} [onclose] Callback executed when the window is closed
  * @returns Window created and promise fulfilled when the window is closed
  */
 module.exports.createMessagebox = function (parent, args, onclose) {

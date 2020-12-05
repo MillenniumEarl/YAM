@@ -5,7 +5,7 @@ const path = require("path");
 const fs = require("fs");
 
 // Public modules from npm
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, autoUpdater } = require("electron");
 const logger = require("electron-log");
 const Store = require("electron-store");
 
@@ -16,6 +16,7 @@ const localization = require("./src/scripts/localization.js");
 const windowCreator = require("./src/scripts/window-creator.js");
 const GameDataStore = require("./db/stores/game-data-store.js");
 const ThreadDataStore = require("./db/stores/thread-data-store.js");
+const updater = require("./src/scripts/updater.js");
 
 // Manage unhandled errors
 process.on("uncaughtException", function (error) {
@@ -55,11 +56,6 @@ app.disableHardwareAcceleration();
 ipcMain.handle("login-required", function ipcMainOnLoginRequired() {
     logger.info("Login required from main window");
     return windowCreator.createLoginWindow(mainWindow).onclose;
-});
-
-// Called when the main window require a new messagebox
-ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
-    return windowCreator.createMessagebox(mainWindow, ...args, messageBoxCloseCallback).onclose;
 });
 
 // Execute the file passed as parameter
@@ -247,6 +243,11 @@ ipcMain.handle("database-paths", function ipcMainOnHandleDatabasePaths() {
 //#endregion shared app variables
 
 //#region IPC dialog for main window
+// Called when the main window require a new messagebox
+ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
+    return windowCreator.createMessagebox(mainWindow, ...args, messageBoxCloseCallback).onclose;
+});
+
 ipcMain.handle("message-dialog", function ipcMainHandleMessageDialog(e, options) {
     return dialog.showMessageBox(mainWindow, options[0]);
 });
@@ -267,6 +268,37 @@ ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
 //#endregion IPC Communication
 
 //#region App-related events
+/**
+ * @private
+ * Check for app updates.
+ */
+function checkUpdates() {
+    updater.check({
+        onUpdateDownloaded: async (event, releaseNotes, releaseName) => {
+            const message = process.platform !== "linux" ?
+                localization.getTranslation("update-message-windarwin", {
+                    notes: releaseNotes
+                }) :
+                localization.getTranslation("update-message-linux");
+            const args = {
+                type: "info",
+                title: localization.getTranslation("update-title", {
+                    version: releaseName,
+                }),
+                message: message,
+                buttons: ["update", "close"] 
+            };
+            const userSelection = await windowCreator.createMessagebox(mainWindow, args).onclose;
+
+            // Quit and update the app
+            if (userSelection.button === "update") {
+                if (process.platform !== "linux") autoUpdater.quitAndInstall();
+                else openLink("https://github.com/MillenniumEarl/YAM/releases");
+            }
+        }
+    });
+}
+
 /**
  * Load the files containing the translations for the interface.
  */
@@ -296,6 +328,9 @@ app.whenReady().then(async function appOnReady() {
 
     logger.silly("Creating main window");
     mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;
+
+    // Start checking for game updates
+    checkUpdates();
 
     app.on("activate", function appOnActivate() {
     // On macOS it's common to re-create a window in the app when the
