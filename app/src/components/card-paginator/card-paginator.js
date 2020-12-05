@@ -197,7 +197,7 @@ class CardPaginator extends HTMLElement {
      */
     async load(index = 0) {
         // Avoid new query if the component is already loading
-        if(this._isLoading) return;
+        if (this._isLoading) return;
 
         // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(index);
@@ -491,6 +491,9 @@ class CardPaginator extends HTMLElement {
     _switchContext(index) {
         // Define function
         const animationOnSwitchContext = (async () => {
+            // Check if the page is altready loading
+            if (this._isLoading) return;
+
             // Set global variable
             this._isLoading = true;
 
