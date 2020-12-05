@@ -15,7 +15,6 @@ jobs:
           vt_api_key: ${{ secrets.VT_API_KEY }}
           github_token: ${{ github.token }}
           update_release_body: true
-          vt_monitor: true
           files: |
             .exe
             .AppImage
