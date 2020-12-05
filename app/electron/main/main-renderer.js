@@ -447,6 +447,28 @@ async function getCredentials() {
     const json = await window.IO.read(credPath);
     return JSON.parse(json);
 }
+
+/**
+ * @private
+ * Get the maximum number of cards to display in the window based on its size.
+ * @param {Number[]} size Size of the main window
+ */
+function getCardsNumberForPage(size) {
+    // Destructure the array
+    const [width, height] = size;
+
+    // Card size
+    const cardWidth = 300;
+    const cardHeight = 400;
+
+    // Get the number of rows and columns that can be visible if appended
+    const columns = Math.floor(width / cardWidth);
+    const rows = Math.floor(height / cardHeight);
+
+    // Set at least 1 cards
+    const candidateCards = columns * rows;
+    return Math.max(1, candidateCards);
+}
 //#endregion Utility
 
 //#region Authentication
@@ -531,7 +553,11 @@ async function login() {
         getUserDataFromF95();
 
         // Recommend games
-        recommendGamesWrapper();
+        window.API.receive("window-size", (size) => {
+            const displayable = getCardsNumberForPage(size);
+            recommendGamesWrapper(displayable);
+        });
+        window.API.send("window-size");
     } catch (e) {
         // Send error message
         const translation = await window.API.translate("MR cannot login", {
@@ -957,10 +983,10 @@ async function getUserDataFromF95() {
  * @private
  * Wrapper around the recommend games function. 
  * Fetch and add to DOM the games.
+ * @param {Number} limit Maximum number of cards to display
  */
-async function recommendGamesWrapper() {
+async function recommendGamesWrapper(limit) {
     // Local variables
-    const MAX_GAMES = 6;
     const recommendContent = document.getElementById("main-recommendations-content");
 
     // Load credentials
@@ -968,7 +994,12 @@ async function recommendGamesWrapper() {
     if (!credentials) return;
     
     // Fetch recommended games
-    const games = await window.F95.recommendGames(MAX_GAMES, credentials);
+    const games = await window.F95.recommendGames(limit, credentials);
+
+    // Remove childs
+    while (recommendContent.lastElementChild) {
+        recommendContent.removeChild(recommendContent.lastElementChild);
+    }
 
     // Add cards
     games.map(function (game) {
@@ -1099,5 +1130,8 @@ async function prepareThreadUpdatesTab(threads) {
 window.API.receive("window-resized", (size) => {
     const paginator = document.querySelector("card-paginator");
     if (paginator) paginator.visibleCardsOnParentSize(size);
+
+    const displayable = getCardsNumberForPage(size);
+    recommendGamesWrapper(displayable);
 });
 //#endregion IPC listeners
