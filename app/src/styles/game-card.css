@@ -34,7 +34,7 @@
 }
 
 .card .card-action {
-    padding: 12px 15px;
+    padding: 12px 15px !important;
 }
 
 .action-p {
