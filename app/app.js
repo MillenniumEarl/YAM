@@ -274,6 +274,9 @@ ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
  */
 function checkUpdates() {
     updater.check({
+        onError: function(err) {
+            logger.error(`Error during update check: ${err.message}\n${err.stack}`);
+        },
         onUpdateDownloaded: async (event, releaseNotes, releaseName) => {
             const message = process.platform !== "linux" ?
                 localization.getTranslation("update-message-windarwin", {
