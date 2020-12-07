@@ -88,7 +88,7 @@ module.exports.manageUnhandledError = async function (scriptname, reason, ipc) {
     const result = await ipc.invoke("require-messagebox", {
         type: "error",
         title: "Unhandled promise rejection",
-        message: `${reason}.\n
+        message: `Unhandled promise rejection in ${scriptname}: ${reason}.\n
         It is advisable to terminate the application to avoid unpredictable behavior.\n
         Please report this error on https://github.com/MillenniumEarl/YAM`,
         buttons: [{
