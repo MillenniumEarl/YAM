@@ -92,6 +92,8 @@
     "update-message-windarwin": "Доступна новая версия приложения, при нажатии на «обновить» приложение будет закрыто и обновлено: \\n{{notes}}",
     "update-message-linux": "Доступна новая версия приложения.\\nНажав «обновить», вы попадете на страницу загрузки на GitHub.",
     "update-title": "Доступно обновление ({{version}})",
-    "default-button-update": "Обновить"
+    "default-button-update": "Обновить",
+    "default-report-issue": "Уведомление об ошибке",
+    "default-quit": "Завершить приложение"
   }
 }
