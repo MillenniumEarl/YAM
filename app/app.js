@@ -59,9 +59,8 @@ ipcMain.handle("login-required", function ipcMainOnLoginRequired() {
 });
 
 // Execute the file passed as parameter
-ipcMain.on("exec", async function ipcMainOnExec(e, filename) {
-    const filepath = filename[0];
-
+ipcMain.on("exec", async function ipcMainOnExec(e, args) {
+    const filepath = [...args][0];
     logger.info(`Executing ${filepath}`);
     
     // Create and run child
@@ -74,9 +73,8 @@ ipcMain.on("exec", async function ipcMainOnExec(e, filename) {
 });
 
 // Open the directory path/URL in the default manner
-ipcMain.on("open-link", function ipcMainOnOpenLink(e, filename) {
-    const link = filename[0];
-
+ipcMain.on("open-link", function ipcMainOnOpenLink(e, args) {
+    const link = [...args][0];
     logger.info(`Opening ${link}`);
 
     // Open link
@@ -251,7 +249,7 @@ ipcMain.handle("database-paths", function ipcMainOnHandleDatabasePaths() {
 //#region IPC dialog for main window
 // Called when the main window require a new messagebox
 ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
-    return windowCreator.createMessagebox(mainWindow, ...args, messageBoxCloseCallback).onclose;
+    return windowCreator.createMessagebox(mainWindow, args, messageBoxCloseCallback).onclose;
 });
 
 ipcMain.handle("message-dialog", function ipcMainHandleMessageDialog(e, options) {
