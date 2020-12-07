@@ -19,15 +19,6 @@ window.onerror = function (message, source, lineno, colno, error) {
 };
 
 /**
- * @event
- * Handles errors generated within non-catched promises.
- * @param {PromiseRejectionEvent} error 
- */
-window.onunhandledrejection = function (error) {
-    window.EM.unhandlederror("game-card.js", error.reason);
-};
-
-/**
  * This class deals with visualizing, managing, modifying 
  * the data related to a game. It is also used to search 
  * for updates on the same.

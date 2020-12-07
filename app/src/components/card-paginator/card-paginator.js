@@ -18,15 +18,6 @@ window.onerror = function (message, source, lineno, colno, error) {
     });
 };
 
-/**
- * @event
- * Handles errors generated within non-catched promises.
- * @param {PromiseRejectionEvent} error 
- */
-window.onunhandledrejection = function (error) {
-    window.EM.unhandlederror("card-paginator.js", error.reason);
-};
-
 class CardPaginator extends HTMLElement {
     constructor() {
         super();
