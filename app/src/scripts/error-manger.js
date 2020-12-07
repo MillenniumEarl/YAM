@@ -21,7 +21,7 @@ module.exports.manageError = async function (scriptname, data, ipc) {
     const result = await ipc.invoke("require-messagebox", {
         type: "error",
         title: "Unhandled error",
-        message: `${data.message} at line ${data.lineno}:${data.colno} in ${scriptname}.\n
+        message: `${data.message} at line ${data.line}:${data.column} in ${scriptname}.\n
         It is advisable to terminate the application to avoid unpredictable behavior.\n
         ${data.error.stack}\n
         Please report this error on https://github.com/MillenniumEarl/YAM`,
