@@ -9,3 +9,6 @@ language: resources/lang/*
 backend: app/electron/**/*
 frontend:
 - any: ['app/src/**/*.html', 'app/src/**/*.css']
+
+critical:
+    - '(critical|urgent)'
