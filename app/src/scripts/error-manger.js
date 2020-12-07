@@ -1,9 +1,8 @@
 "use strict";
 
 // Public modules from npm
-const { ipcRenderer} = require("electron");
 const logger = require("electron-log");
-const { openNewGitHubIssue } = require("electron-util");
+const newGithubIssueUrl = require("new-github-issue-url");
 
 /**
  * @public
@@ -14,11 +13,12 @@ const { openNewGitHubIssue } = require("electron-util");
  * @param {Number} data.line Line where the error occurred
  * @param {Number} data.column Column where the error occurred
  * @param {Error} data.error Error throwed
+ * @param {Electron.IpcRenderer} ipc Object used for communication
  */
-module.exports.manageError = async function (scriptname, data) {
+module.exports.manageError = async function (scriptname, data, ipc) {
     logger.error(`${data.message} at line ${data.line}:${data.column} in ${scriptname}.\n${data.error.stack}`);
 
-    const result = await ipcRenderer.invoke("require-messagebox", {
+    const result = await ipc.invoke("require-messagebox", {
         type: "error",
         title: "Unhandled error",
         message: `${data.message} at line ${data.lineno}:${data.colno} in ${scriptname}.\n
@@ -56,21 +56,22 @@ module.exports.manageError = async function (scriptname, data) {
         **Desktop:**
         - OS: ${process.platform}
         - Version: ${process.getSystemVersion()}
-        - App version: ${await ipcRenderer.invoke("app-version")}
+        - App version: ${await ipc.invoke("app-version")}
 
         **Additional context**
         Add any other context about the problem here.`;
         // Open a new GitHub issue
-        openNewGitHubIssue({
+        const url = newGithubIssueUrl({
             repoUrl: "https://github.com/MillenniumEarl/YAM",
             template: "bug_report.md",
             title: "Unmanaged error",
             body: body
         });
+        ipc.send("open-link", url);
 
     } else if (result.button === "quit") {
         // Quit the application
-        ipcRenderer.send("app-quit");
+        ipc.send("app-quit");
     }
 };
 
@@ -79,11 +80,12 @@ module.exports.manageError = async function (scriptname, data) {
  * Write the error in the log file and show message to user.
  * @param {String} scriptname Name of the script that has thrown the error
  * @param {String} reason Reason of the rejection
+ * @param {Electron.IpcRenderer} ipc Object used for communication
  */
-module.exports.manageUnhandledError = async function (scriptname, reason) {
+module.exports.manageUnhandledError = async function (scriptname, reason, ipc) {
     logger.error(`Unhandled promise rejection in ${scriptname}: ${reason}`);
 
-    const result = await ipcRenderer.invoke("require-messagebox", {
+    const result = await ipc.invoke("require-messagebox", {
         type: "error",
         title: "Unhandled promise rejection",
         message: `${reason}.\n
@@ -120,20 +122,20 @@ module.exports.manageUnhandledError = async function (scriptname, reason) {
         **Desktop:**
         - OS: ${process.platform}
         - Version: ${process.getSystemVersion()}
-        - App version: ${await ipcRenderer.invoke("app-version")}
+        - App version: ${await ipc.invoke("app-version")}
 
         **Additional context**
         Add any other context about the problem here.`;
         // Open a new GitHub issue
-        openNewGitHubIssue({
+        const url = newGithubIssueUrl({
             repoUrl: "https://github.com/MillenniumEarl/YAM",
             template: "bug_report.md",
             title: "Unhandled promise error",
             body: body
         });
-
+        ipc.send("open-link", url);
     } else if (result.button === "quit") {
         // Quit the application
-        ipcRenderer.send("app-quit");
+        ipc.send("app-quit");
     }
 };

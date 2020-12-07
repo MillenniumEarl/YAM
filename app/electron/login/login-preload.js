@@ -40,7 +40,7 @@ window.onerror = function (message, source, lineno, colno, error) {
         line: lineno,
         column: colno,
         error: error,
-    });
+    }, ipcRenderer);
 };
 
 /**
@@ -49,7 +49,7 @@ window.onerror = function (message, source, lineno, colno, error) {
  * @param {PromiseRejectionEvent} error 
  */
 window.onunhandledrejection = function (error) {
-    errManager.manageUnhandledError("login-preload.js", error.reason);
+    errManager.manageUnhandledError("login-preload.js", error.reason, ipcRenderer);
 };
 //#endregion Error management
 
@@ -127,8 +127,8 @@ contextBridge.exposeInMainWorld("IO", {
 
 // Expose methods for error logging
 contextBridge.exposeInMainWorld("Error", {
-    onerror: (scriptname, data) => errManager.manageError(scriptname, data),
-    unhandlederror: (scriptname, reason) => errManager.manageUnhandledError(scriptname, reason)
+    onerror: (scriptname, data) => errManager.manageError(scriptname, data, ipcRenderer),
+    unhandlederror: (scriptname, reason) => errManager.manageUnhandledError(scriptname, reason, ipcRenderer)
 });
 
 // Expose the F95API
