@@ -120,7 +120,8 @@ class RecommendedCard extends HTMLElement {
         this.querySelector("#rc-engine").innerText = this.info.engine;
         this.querySelector("#rc-status").innerText = this.info.status;
         this.querySelector("#rc-available-version").innerText = this.info.version;
-        this.querySelector("#rc-preview").setAttribute("src", this.info.previewSrc);
+        const preview = this.info.previewSrc ? this.info.previewSrc : this.DEFAULT_IMAGE;
+        this.querySelector("#rc-preview").setAttribute("src", preview);
         this.querySelector("#rc-tags").innerText = this.info.tags.join(", ");
         this.querySelector("#rc-open-thread-btn").setAttribute("href", this.info.url);
 
