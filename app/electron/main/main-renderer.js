@@ -58,7 +58,6 @@ document.querySelector("#main-navbar-settings").addEventListener("click", openPa
  * Initialize and perform preliminary operations once the DOM is fully loaded.
  */
 async function onDOMContentLoaded() {
-    await new Promise((resolve, reject) => reject("this is a test") );
     // This function runs when the DOM is ready, i.e. when the document has been parsed
     window.API.log.info("DOM loaded, initializing elements");
     await translateElementsInDOM();
