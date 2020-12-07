@@ -37,7 +37,6 @@
         "electron-log": "^4.3.0",
         "electron-online": "^1.0.0",
         "electron-store": "^6.0.1",
-        "electron-util": "^0.14.2",
         "f95api": "^1.9.3",
         "glob": "^7.1.6",
         "i18next": "^19.8.4",
@@ -46,6 +45,7 @@
         "imagemin-gifsicle": "^7.0.0",
         "imagemin-webp": "^6.0.0",
         "nedb-promises": "^4.1.0",
+        "new-github-issue-url": "^0.2.1",
         "simple-image-downloader": "^4.0.2",
         "string-similarity": "^4.0.3"
     },
