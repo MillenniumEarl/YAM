@@ -59,9 +59,8 @@ ipcMain.handle("login-required", function ipcMainOnLoginRequired() {
 });
 
 // Execute the file passed as parameter
-ipcMain.on("exec", async function ipcMainOnExec(e, filename) {
-    const filepath = filename[0];
-
+ipcMain.on("exec", async function ipcMainOnExec(e, args) {
+    const filepath = [...args][0];
     logger.info(`Executing ${filepath}`);
     
     // Create and run child
@@ -74,13 +73,18 @@ ipcMain.on("exec", async function ipcMainOnExec(e, filename) {
 });
 
 // Open the directory path/URL in the default manner
-ipcMain.on("open-link", function ipcMainOnOpenLink(e, filename) {
-    const link = filename[0];
-
+ipcMain.on("open-link", function ipcMainOnOpenLink(e, args) {
+    const link = [...args][0];
     logger.info(`Opening ${link}`);
 
     // Open link
     openLink(link);
+});
+
+// Close the application
+ipcMain.on("app-quit", function ipcMainOnAppQuit() {
+    logger.info("Closing application on IPC request");
+    app.quit();
 });
 
 // Return the current root dir path (Current Working Directory)
@@ -157,6 +161,8 @@ ipcMain.handle("database-operation", function ipcMainOnDBOp(e, db, op, args) {
  * @returns {Promise<Any>} Results of the query
  */
 async function executeDbQuery(db, operation, args) {
+    logger.silly(`Executing ${operation} on '${db}'`);
+
     // Prepare the order query for the "search" operation
     const orderQuery = args.sortQuery ? args.sortQuery : {};
 
@@ -245,22 +251,27 @@ ipcMain.handle("database-paths", function ipcMainOnHandleDatabasePaths() {
 //#region IPC dialog for main window
 // Called when the main window require a new messagebox
 ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
-    return windowCreator.createMessagebox(mainWindow, ...args, messageBoxCloseCallback).onclose;
+    logger.silly("Required messagebox");
+    return windowCreator.createMessagebox(mainWindow, args, messageBoxCloseCallback).onclose;
 });
 
 ipcMain.handle("message-dialog", function ipcMainHandleMessageDialog(e, options) {
+    logger.silly("Required dialog");
     return dialog.showMessageBox(mainWindow, options[0]);
 });
 
 ipcMain.handle("open-dialog", function ipcMainHandleOpenDialog(e, options) {
+    logger.silly("Required open-dialog");
     return dialog.showOpenDialog(mainWindow, options[0]);
 });
 
 ipcMain.handle("url-input", function ipcMainHandleURLInput() {
+    logger.silly("Required url-input");
     return windowCreator.createURLInputbox(mainWindow).onclose;
 });
 
 ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
+    logger.silly("Required update-messagebox");
     return windowCreator.createUpdateMessagebox(mainWindow, ...options, updateMessageBoxCloseCallback).onclose;
 });
 //#endregion IPC dialog for main window
@@ -274,11 +285,13 @@ ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
  */
 // eslint-disable-next-line no-unused-vars
 function checkUpdates() {
+    logger.info("Checking updates...");
     updater.check({
         onError: function(err) {
             logger.error(`Error during update check: ${err.message}\n${err.stack}`);
         },
         onUpdateDownloaded: async (event, releaseNotes, releaseName) => {
+            logger.info(`Update ${releaseName} downloaded and ready for installation`);
             const message = process.platform !== "linux" ?
                 localization.getTranslation("update-message-windarwin", {
                     notes: releaseNotes
@@ -296,6 +309,7 @@ function checkUpdates() {
 
             // Quit and update the app
             if (userSelection.button === "update") {
+                logger.info("Performing update...");
                 if (process.platform !== "linux") autoUpdater.quitAndInstall();
                 else openLink("https://github.com/MillenniumEarl/YAM/releases");
             }
@@ -318,14 +332,16 @@ async function initializeLocalization() {
     const langPath = path.join(app.getAppPath(), "resources", "lang");
     await localization.initLocalization(langPath, lang);
 
-    logger.info("Languages initialized");
+    logger.info(`Languages initialized (selected ${lang})`);
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async function appOnReady() {
-    logger.info(`Application ready (version: ${app.getVersion()})`);
+    logger.info(`Application ready (${app.getVersion()}) on ${process.platform} (${process.getSystemVersion()})`);
+    logger.info(`Using Chrome ${process.versions.chrome}`);
+    logger.info(`Using Electron ${process.versions.electron}`);
 
     // Wait for language initialization
     await initializeLocalization();
@@ -351,6 +367,7 @@ app.on("window-all-closed", function appOnWindowAllClosed() {
 });
 
 app.on("second-instance", function appOnSecondInstance() {
+    logger.info("Trying to open a second instance");
     // Someone tried to run a second instance, we should focus our window.
     if(!mainWindow) return; // No window to focus on
     

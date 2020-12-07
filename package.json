@@ -45,6 +45,7 @@
         "imagemin-gifsicle": "^7.0.0",
         "imagemin-webp": "^6.0.0",
         "nedb-promises": "^4.1.0",
+        "new-github-issue-url": "^0.2.1",
         "simple-image-downloader": "^4.0.2",
         "string-similarity": "^4.0.3"
     },
