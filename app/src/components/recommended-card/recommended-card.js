@@ -121,7 +121,8 @@ class RecommendedCard extends HTMLElement {
         this.querySelector("#rc-available-version").innerText = this.info.version;
         this.querySelector("#rc-preview").setAttribute("src", this.info.previewSrc);
         this.querySelector("#rc-tags").innerText = this.info.tags.join(", ");
-        this.querySelector("#rc-open-thread-btn").setAttribute("href", this.info.url);
+        const preview = this.info.url ? this.info.url : this.DEFAULT_IMAGE;
+        this.querySelector("#rc-open-thread-btn").setAttribute("href", preview);
 
         // Show/hide last update date
         const lastUpdateElement = this.querySelector("#rc-last-update");
