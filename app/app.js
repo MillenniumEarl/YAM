@@ -83,6 +83,12 @@ ipcMain.on("open-link", function ipcMainOnOpenLink(e, filename) {
     openLink(link);
 });
 
+// Close the application
+ipcMain.on("app-quit", function ipcMainOnAppQuit() {
+    logger.info("Closing application on IPC request");
+    app.quit();
+});
+
 // Return the current root dir path (Current Working Directory)
 ipcMain.handle("cwd", function ipcMainOnCWD() {
     return app.getAppPath();
@@ -325,7 +331,9 @@ async function initializeLocalization() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async function appOnReady() {
-    logger.info(`Application ready (version: ${app.getVersion()})`);
+    logger.info(`Application ready (${app.getVersion()}) on ${process.platform} (${process.getSystemVersion()})`);
+    logger.info(`Using Chrome ${process.versions.chrome}`);
+    logger.info(`Using Electron ${process.versions.electron}`);
 
     // Wait for language initialization
     await initializeLocalization();
