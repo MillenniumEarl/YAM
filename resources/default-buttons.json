@@ -38,7 +38,7 @@
         "name": "report-issue",
         "color": "",
         "background": "",
-        "icon": "bug-report",
+        "icon": "bug_report",
         "classes": ["accept-button"]
     },
     "quit": {

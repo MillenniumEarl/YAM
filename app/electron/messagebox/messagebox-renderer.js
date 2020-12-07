@@ -132,7 +132,7 @@ function fitContent() {
  * @param {String} options.name 
  * Name of the button, it will be returned when the user click on it. 
  * If it's a default name the others properties will be automatically set.
- * Default names are: `close`, `remove-only`, `delete`, `cancel`.
+ * Default names are: `close`, `remove-only`, `delete`, `cancel`, `update`, `report-issue`, `quit`.
  * @param {String} [options.text] 
  * The text to show on the button.  
  * Overwrite the `default` options if specified.
@@ -153,7 +153,7 @@ function fitContent() {
  */
 async function createButtons(options) {
     // Local variables
-    const defaultButtons = ["close", "remove-only", "delete", "cancel"];
+    const defaultButtons = ["close", "remove-only", "delete", "cancel", "update", "report-issue", "quit"];
     const buttons = [];
 
     // Load the file containing the data for the default buttons
