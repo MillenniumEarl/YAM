@@ -33,5 +33,19 @@
         "background": "",
         "icon": "update",
         "classes": ["accept-button"]
+    },
+    "report-issue": {
+        "name": "report-issue",
+        "color": "",
+        "background": "",
+        "icon": "bug-report",
+        "classes": ["accept-button"]
+    },
+    "quit": {
+        "name": "quit",
+        "color": "",
+        "background": "",
+        "icon": "exit_to_app",
+        "classes": ["negative-button"]
     }
 }
