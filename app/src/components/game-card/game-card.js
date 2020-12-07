@@ -65,18 +65,7 @@ class GameCard extends HTMLElement {
         this.deleteBtn.addEventListener("click", this.deleteEvent);
 
         // Refresh data
-        window.requestAnimationFrame(async () => {
-            // Update the name of the directory containing the game
-            const newpath = await this._updateName(
-                this.info.name,
-                this.info.version,
-                this.info.isMod);
-            if(newpath) {
-                this.info.gameDirectory = newpath;
-                await this.saveData();
-            }
-            await this._refreshUI();
-        });
+        window.requestAnimationFrame(() => this._refreshUI());
     }
 
     /**
@@ -525,6 +514,13 @@ class GameCard extends HTMLElement {
      * Save game data in the database.
      */
     async saveData() {
+        // Update the name of the directory containing the game
+        const newpath = await this._updateName(
+            this.info.name,
+            this.info.version,
+            this.info.isMod);
+        if (newpath) this.info.gameDirectory = newpath;
+
         // Save in the database
         await window.GameDB.write(this.info);
     }
