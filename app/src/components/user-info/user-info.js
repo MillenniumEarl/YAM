@@ -10,7 +10,7 @@
  * @param {Error} error Application generated error
  */
 window.onerror = function (message, source, lineno, colno, error) {
-    window.Error.onerror("user-info.js", {
+    window.EM.onerror("user-info.js", {
         message: message,
         line: lineno,
         column: colno,
@@ -24,7 +24,7 @@ window.onerror = function (message, source, lineno, colno, error) {
  * @param {PromiseRejectionEvent} error 
  */
 window.onunhandledrejection = function (error) {
-    window.Error.unhandlederror("user-info.js", error.reason);
+    window.EM.unhandlederror("user-info.js", error.reason);
 };
 
 class UserInfo extends HTMLElement {

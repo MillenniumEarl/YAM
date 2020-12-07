@@ -10,7 +10,7 @@
  * @param {Error} error Application generated error
  */
 window.onerror = function (message, source, lineno, colno, error) {
-    window.Error.onerror("messagebox-renderer.js", {
+    window.EM.onerror("messagebox-renderer.js", {
         message: message,
         line: lineno,
         column: colno,
@@ -24,7 +24,7 @@ window.onerror = function (message, source, lineno, colno, error) {
  * @param {PromiseRejectionEvent} error 
  */
 window.onunhandledrejection = function (error) {
-    window.Error.unhandlederror("messagebox-renderer.js", error.reason);
+    window.EM.unhandlederror("messagebox-renderer.js", error.reason);
 };
 
 //#region Private methods

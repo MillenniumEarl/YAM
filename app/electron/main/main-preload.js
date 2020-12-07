@@ -361,7 +361,7 @@ contextBridge.exposeInMainWorld("TI", {
 });
 
 // Expose methods for error logging
-contextBridge.exposeInMainWorld("Error", {
+contextBridge.exposeInMainWorld("EM", {
     onerror: (scriptname, data) => errManager.manageError(scriptname, data, ipcRenderer),
     unhandlederror: (scriptname, reason) => errManager.manageUnhandledError(scriptname, reason, ipcRenderer)
 });

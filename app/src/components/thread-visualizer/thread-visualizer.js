@@ -11,7 +11,7 @@
  * @param {Error} error Application generated error
  */
 window.onerror = function (message, source, lineno, colno, error) {
-    window.Error.onerror("thread-visualizer.js", {
+    window.EM.onerror("thread-visualizer.js", {
         message: message,
         line: lineno,
         column: colno,
@@ -25,7 +25,7 @@ window.onerror = function (message, source, lineno, colno, error) {
  * @param {PromiseRejectionEvent} error 
  */
 window.onunhandledrejection = function (error) {
-    window.Error.unhandlederror("thread-visualizer.js", error.reason);
+    window.EM.unhandlederror("thread-visualizer.js", error.reason);
 };
 
 class ThreadVisualizer extends HTMLElement {
