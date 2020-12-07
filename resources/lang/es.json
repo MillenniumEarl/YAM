@@ -93,7 +93,7 @@
     "update-message-linux": "Hay disponible una nueva versión de la aplicación.\\nAl presionar \"actualizar\" se le llevará a la página de descarga en GitHub.",
     "update-title": "Actualización disponible ({{version}})",
     "default-button-update": "Actualizar",
-    "default-report-issue": "Notificación de error",
-    "default-quit": "Finalizar aplicación"
+    "default-button-quit": "Finalizar aplicación",
+    "default-button-report-issue": "Notificación de error"
   }
 }

@@ -93,7 +93,7 @@
     "update-message-linux": "Er is een nieuwe versie van de applicatie beschikbaar.\\nDoor op \"update\" te drukken, wordt u naar de downloadpagina op GitHub geleid.",
     "update-title": "Update beschikbaar ({{version}})",
     "default-button-update": "Vernieuwen",
-    "default-report-issue": "Foutmelding",
-    "default-quit": "Einde applicatie"
+    "default-button-quit": "Einde applicatie",
+    "default-button-report-issue": "Foutmelding"
   }
 }

@@ -93,7 +93,7 @@
     "update-message-linux": "Доступна новая версия приложения.\\nНажав «обновить», вы попадете на страницу загрузки на GitHub.",
     "update-title": "Доступно обновление ({{version}})",
     "default-button-update": "Обновить",
-    "default-report-issue": "Уведомление об ошибке",
-    "default-quit": "Завершить приложение"
+    "default-button-quit": "Завершить приложение",
+    "default-button-report-issue": "Уведомление об ошибке"
   }
 }

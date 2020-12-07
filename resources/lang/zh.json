@@ -93,7 +93,7 @@
     "update-message-linux": "该应用程序有新版本。\\n 点击“更新”，您将转到GitHub上的下载页面。",
     "update-title": "有可用更新（{{version}}）",
     "default-button-update": "刷新",
-    "default-report-issue": "错误通知",
-    "default-quit": "最终申请"
+    "default-button-quit": "最终申请",
+    "default-button-report-issue": "错误通知"
   }
 }
