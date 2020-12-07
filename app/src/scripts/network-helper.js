@@ -8,19 +8,13 @@ const { promisify } = require("util");
 const DNS = "8.8.8.8";
 const PORT = 53;
 const alookupService = promisify(dns.lookupService);
-const atimeout = promisify(setTimeout);
 
 /**
  * @public
  * Check if the PC is connected to Internet.
  */
-module.exports.checkConnection = async function(timeout = 30) {
+module.exports.checkConnection = async function() {
     try {
-        // Set the timeout
-        atimeout(timeout * 1000).then(() => {
-            throw new Error("Timeout exceeded");
-        });
-
         // Check DNS
         await alookupService(DNS, PORT);
         return true;
