@@ -29,8 +29,9 @@ const imageminGifsicle = require("imagemin-gifsicle");
 const ioOps = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
 const ThreadInfo = require("../../src/scripts/classes/thread-info.js");
-const {check} = require("../../src/scripts/internet-connection.js");
+const networkHelper = require("../../src/scripts/network-helper.js");
 const RecomendationEngine = require("../../src/scripts/classes/recommendation-engine.js");
+const errManager = require("../../src/scripts/error-manger.js");
 
 // Set F95API logger level
 F95API.loggerLevel = "warn";
@@ -58,6 +59,7 @@ const validSendChannels = [
     "window-size",
 ];
 
+//#region Context Bridge
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("API", {
@@ -75,8 +77,7 @@ contextBridge.exposeInMainWorld("API", {
         // Send a custom message
         if (validSendChannels.includes(channel)) {
             return ipcRenderer.invoke(channel, data);
-        }
-        else logger.warn(`Unauthorized IPC message from 'main-preload.js' through ${channel}: ${data}`);
+        } else logger.warn(`Unauthorized IPC message from 'main-preload.js' through ${channel}: ${data}`);
     },
     /**
      * Send an asynchronous request via IPC.
@@ -87,8 +88,7 @@ contextBridge.exposeInMainWorld("API", {
         // Send a custom message
         if (validSendChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
-        }
-        else logger.warn(`Unauthorized IPC message from 'main-preload.js' through ${channel}: ${data}`);
+        } else logger.warn(`Unauthorized IPC message from 'main-preload.js' through ${channel}: ${data}`);
     },
     /**
      * Receive a message from main process via IPC and execute a method.
@@ -111,7 +111,7 @@ contextBridge.exposeInMainWorld("API", {
     /**
      * Check if an Internet connection is available
      */
-    isOnline: () => check(),
+    isOnline: () => networkHelper.checkConnection(),
     /**
      * Download an image given a url.
      * @param {String} url URL to download the image from
@@ -177,15 +177,15 @@ contextBridge.exposeInMainWorld("API", {
         // GIF images cannot be converted to WEBP
         const isGIF = src.endsWith(".gif");
         const plugins = isGIF ? [imageminGifsicle(gifOptions)] : [imageminWebp(webpOptions)];
-        
+
         const options = {
             destination: dest,
             // imagemin cannot handle Window slash but only 
             // Unix backslash, see https://github.com/imagemin/imagemin/issues/352
-            glob: false, 
+            glob: false,
             plugins: plugins
         };
-        
+
         return await imagemin([src], options);
     }
 });
@@ -326,9 +326,15 @@ contextBridge.exposeInMainWorld("TI", {
     convert: function convert(gameinfo) {
         const threadInfo = new ThreadInfo();
         threadInfo.fromGameInfo(gameinfo);
-        
+
         return threadInfo;
     },
+});
+
+// Expose methods for error logging
+contextBridge.exposeInMainWorld("Error", {
+    onerror: (scriptname, data) => errManager.manageError(scriptname, data),
+    unhandlederror: (scriptname, reason) => errManager.manageUnhandledError(scriptname, reason)
 });
 
 // Wrapper around the Game DB operations
@@ -399,3 +405,4 @@ contextBridge.exposeInMainWorld("UpdateDB", {
         sortQuery: sortQuery ? sortQuery : {}
     }),
 });
+//#endregion Context Bridge

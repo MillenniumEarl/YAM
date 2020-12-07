@@ -10,39 +10,21 @@
  * @param {Error} error Application generated error
  */
 window.onerror = function (message, source, lineno, colno, error) {
-    window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
-
-    window.API.invoke("require-messagebox", {
-        type: "error",
-        title: "Unhandled error",
-        message: `${message} at line ${lineno}:${colno}.\n
-        It is advisable to terminate the application to avoid unpredictable behavior.\n
-        ${error.stack}\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
-        buttons: [{
-            name: "close"
-        }]
+    window.Error.onerror("main-rendere.js", {
+        message: message,
+        line: lineno,
+        column: colno,
+        error: error,
     });
 };
 
 /**
  * @event
- * Handles errors generated within non-catch promises.
+ * Handles errors generated within non-catched promises.
  * @param {PromiseRejectionEvent} error 
  */
 window.onunhandledrejection = function (error) {
-    window.API.log.error(error.reason);
-
-    window.API.invoke("require-messagebox", {
-        type: "error",
-        title: "Unhandled promise rejection",
-        message: `${error.reason}.\n
-        It is advisable to terminate the application to avoid unpredictable behavior.\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
-        buttons: [{
-            name: "close"
-        }]
-    });
+    window.Error.unhandlederror("main-rendere.js", error.reason);
 };
 
 //#region Events
@@ -76,6 +58,7 @@ document.querySelector("#main-navbar-settings").addEventListener("click", openPa
  * Initialize and perform preliminary operations once the DOM is fully loaded.
  */
 async function onDOMContentLoaded() {
+    await new Promise((resolve, reject) => reject("this is a test") );
     // This function runs when the DOM is ready, i.e. when the document has been parsed
     window.API.log.info("DOM loaded, initializing elements");
     await translateElementsInDOM();
