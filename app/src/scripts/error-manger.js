@@ -67,7 +67,7 @@ module.exports.manageError = async function (scriptname, data, ipc) {
             title: "Unmanaged error",
             body: body
         });
-        ipc.send("open-link", url);
+        ipc.send("open-link", ...url);
 
     } else if (result.button === "quit") {
         // Quit the application
@@ -133,7 +133,7 @@ module.exports.manageUnhandledError = async function (scriptname, reason, ipc) {
             title: "Unhandled promise error",
             body: body
         });
-        ipc.send("open-link", url);
+        ipc.send("open-link", ...url);
     } else if (result.button === "quit") {
         // Quit the application
         ipc.send("app-quit");
