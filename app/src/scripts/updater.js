@@ -10,8 +10,7 @@ const logger = require("electron-log");
  * @param {Object} callbacks 
  * @param {Function} [callbacks.onUpdateDownloaded] 
  * Callback executed when a new release is downloaded to disk.
- * Takes three parameters: `event`, `releaseNotes`, `releaseName`.
- * `releaseNotes` not available on Linux.
+ * Takes a single parameter: `info`.
  * @param {Function} [callbacks.onUpdateAvailable] 
  * Callback executed when a new release is available.
  * @param {Function} [callbacks.onUpdateNotAvailable] 
@@ -34,8 +33,8 @@ module.exports.check = function (callbacks) {
     autoUpdater.on("update-not-available", () => {
         if (callbacks.onUpdateNotAvailable) callbacks.onUpdateNotAvailable();
     });
-    autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
-        if (callbacks.onUpdateDownloaded) callbacks.onUpdateDownloaded(event, releaseNotes, releaseName);
+    autoUpdater.on("update-downloaded", (info) => {
+        if (callbacks.onUpdateDownloaded) callbacks.onUpdateDownloaded(info);
     });
 
     // Check updates

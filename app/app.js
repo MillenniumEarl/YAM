@@ -5,7 +5,8 @@ const path = require("path");
 const fs = require("fs");
 
 // Public modules from npm
-const { app, BrowserWindow, ipcMain, dialog, autoUpdater } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { autoUpdater } = require("electron-updater");
 const logger = require("electron-log");
 const Store = require("electron-store");
 
@@ -294,28 +295,27 @@ function checkUpdates() {
         onError: function(err) {
             logger.error(`Error during update check: ${err.message}\n${err.stack}`);
         },
-        onUpdateDownloaded: async (event, releaseNotes, releaseName) => {
-            logger.info(`Update ${releaseName} downloaded and ready for installation`);
+        onUpdateDownloaded: async (info) => {
+            logger.info(`Update ${info.releaseName} downloaded and ready for installation`);
             const message = process.platform !== "linux" ?
                 localization.getTranslation("update-message-windarwin", {
-                    notes: releaseNotes
+                    notes: info.releaseNotes
                 }) :
                 localization.getTranslation("update-message-linux");
             const args = {
                 type: "info",
                 title: localization.getTranslation("update-title", {
-                    version: releaseName,
+                    version: info.releaseName,
                 }),
                 message: message,
-                buttons: ["update", "close"] 
+                buttons: [{name: "update"}, {name: "close"}] 
             };
             const userSelection = await windowCreator.createMessagebox(mainWindow, args).onclose;
 
             // Quit and update the app
             if (userSelection.button === "update") {
                 logger.info("Performing update...");
-                if (process.platform !== "linux") autoUpdater.quitAndInstall();
-                else openLink("https://github.com/MillenniumEarl/YAM/releases");
+                autoUpdater.quitAndInstall();
             }
         }
     });
