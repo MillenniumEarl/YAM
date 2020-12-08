@@ -1144,12 +1144,12 @@ function prepareThreadUpdatesTab(threads) {
 /**
  * Updates the number of cards shown in the pager after the user resizes the window.
  */
-window.API.receive("window-resized", (size) => {
+window.API.receive("window-resized", function onWindowResized (size) {
     const paginator = document.querySelector("card-paginator");
     if (paginator) paginator.visibleCardsOnParentSize(size);
 
     const displayable = getCardsNumberForPage(size);
     window.requestAnimationFrame(() => recommendGamesWrapper(displayable)
-        .catch(e => window.API.logger.error(`Error on recommendGamesWrapper in ipc.receive('window-resized'): ${e}`)));
+        .catch(e => window.API.logger.error(`Error on recommendGamesWrapper in onWindowResized: ${e}`)));
 });
 //#endregion IPC listeners
