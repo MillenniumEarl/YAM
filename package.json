@@ -22,7 +22,7 @@
     "scripts": {
         "start": "electron .",
         "pack": "electron-builder --dir",
-        "dist:win": "electron-builder --win --x64 --ia32",
+        "dist:win": "electron-builder --win --x64",
         "dist:mac": "electron-builder --mac",
         "dist:linux": "electron-builder --linux"
     },
