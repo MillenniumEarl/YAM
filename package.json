@@ -22,7 +22,7 @@
     "scripts": {
         "start": "electron .",
         "pack": "electron-builder --dir",
-        "dist:win": "electron-builder --win --x64",
+        "dist:win": "electron-builder --win --x64 --ia32",
         "dist:mac": "electron-builder --mac",
         "dist:linux": "electron-builder --linux"
     },
@@ -37,6 +37,7 @@
         "electron-log": "^4.3.0",
         "electron-online": "^1.0.0",
         "electron-store": "^6.0.1",
+        "electron-updater": "^4.3.5",
         "f95api": "^1.9.3",
         "glob": "^7.1.6",
         "i18next": "^19.8.4",
@@ -52,7 +53,6 @@
         "babel-eslint": "^10.1.0",
         "electron": "^11.0.3",
         "electron-builder": "^22.9.1",
-        "electron-builder-squirrel-windows": "^22.9.1",
         "eslint": "^7.15.0"
     },
     "build": {
@@ -74,12 +74,9 @@
             "output": "./dist"
         },
         "win": {
-            "target": "squirrel",
+            "target": "nsis",
             "icon": "./resources/images/icon.ico",
             "publisherName": "${author}"
-        },
-        "squirrelWindows": {
-            "loadingGif": "./resources/images/install-spinner-optimized.gif"
         },
         "mac": {
             "category": "public.app-category.games",

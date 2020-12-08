@@ -1,11 +1,8 @@
 "use strict";
 
 // Public modules from npm
-const electron = require("electron");
-
-// Global variables
-const APP_VERSION = electron.app.getVersion();
-const AUTO_UPDATE_URL = `https://api.update.rocks/update/github.com/MillenniumEarl/YAM/stable/${process.platform}/${APP_VERSION}`;
+const { autoUpdater } = require("electron-updater");
+const logger = require("electron-log");
 
 /**
  * @public
@@ -23,22 +20,24 @@ const AUTO_UPDATE_URL = `https://api.update.rocks/update/github.com/MillenniumEa
  * Callback executed after an error. Take a error as single parameter.
  */
 module.exports.check = function (callbacks) {
+    // Set logger
+    autoUpdater.logger = logger;
+    autoUpdater.logger.transports.file.level = "info";
+
     // Set listeners
-    electron.autoUpdater.on("error", err => {
+    autoUpdater.on("error", err => {
         if (callbacks.onError) callbacks.onError(err);
     });
-    electron.autoUpdater.on("update-available", () => {
+    autoUpdater.on("update-available", () => {
         if (callbacks.onUpdateAvailable) callbacks.onUpdateAvailable();
     });
-    electron.autoUpdater.on("update-not-available", () => {
+    autoUpdater.on("update-not-available", () => {
         if (callbacks.onUpdateNotAvailable) callbacks.onUpdateNotAvailable();
     });
-    electron.autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
+    autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
         if (callbacks.onUpdateDownloaded) callbacks.onUpdateDownloaded(event, releaseNotes, releaseName);
     });
 
     // Check updates
-    electron.autoUpdater.setFeedURL(AUTO_UPDATE_URL);
-    electron.autoUpdater.checkForUpdates();
+    autoUpdater.checkForUpdates();
 };
-
