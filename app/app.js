@@ -287,7 +287,6 @@ ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
  * @private
  * Check for app updates.
  */
-// eslint-disable-next-line no-unused-vars
 function checkUpdates() {
     logger.info("Checking updates...");
     
@@ -353,6 +352,9 @@ app.whenReady().then(async function appOnReady() {
 
     logger.silly("Creating main window");
     mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;
+
+    // Check updates
+    checkUpdates();
 
     app.on("activate", function appOnActivate() {
     // On macOS it's common to re-create a window in the app when the
