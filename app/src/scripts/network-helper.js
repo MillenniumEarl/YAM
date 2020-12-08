@@ -21,7 +21,6 @@ module.exports.checkConnection = async function() {
     }
     catch(err) {
         if(err.code === "ENOTFOUND") return false;
-        else if (err.message === "Timeout exceeded") return false;
         else throw err;
     }
 };

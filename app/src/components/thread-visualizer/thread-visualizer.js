@@ -156,7 +156,8 @@ class ThreadVisualizer extends HTMLElement {
     async _markAsRead() {
         // Update the value
         this.info.markedAsRead = true;
-        await window.ThreadDB.write(this.info);
+        await window.ThreadDB.write(this.info)
+            .catch(e => window.API.logger.error(`Error on window.ThreadDB.write with ID ${this.info.id} in _markAsRead: ${e}`));
 
         // Hide the element
         this.style.display = "none";
@@ -166,7 +167,7 @@ class ThreadVisualizer extends HTMLElement {
      * @private
      * Update the data shown on the item.
      */
-    async _refreshUI() {
+    _refreshUI() {
         this.openThreadBtn.setAttribute("href", this.info.url);
         const preview = this.info.previewSrc ? this.info.previewSrc : this.DEFAULT_IMAGE;
         this.gamePreview.setAttribute("src", preview);

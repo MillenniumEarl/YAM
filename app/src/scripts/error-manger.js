@@ -36,30 +36,30 @@ module.exports.manageError = async function (scriptname, data, ipc) {
 
     if (result.button === "report-issue") {
         const body = `
-        **Describe the bug**
-        ${data.message} at line ${data.line}:${data.column} in ${scriptname}.\n${data.error.stack}
+**Describe the bug**
+${data.message} at line ${data.line}:${data.column} in ${scriptname}.\n${data.error.stack}
 
-        **To Reproduce**
-        Steps to reproduce the behavior:
+**To Reproduce**
+Steps to reproduce the behavior:
 
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. See error
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
-        **Expected behavior**
-        A clear and concise description of what you expected to happen.
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-        **Screenshots**
-        If applicable, add screenshots to help explain your problem.
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
-        **Desktop:**
-        - OS: ${process.platform}
-        - Version: ${process.getSystemVersion()}
-        - App version: ${await ipc.invoke("app-version")}
+**Desktop:**
+- OS: ${process.platform}
+- Version: ${process.getSystemVersion()}
+- App version: ${await ipc.invoke("app-version")}
 
-        **Additional context**
-        Add any other context about the problem here.`;
+**Additional context**
+Add any other context about the problem here.`;
         // Open a new GitHub issue
         const url = newGithubIssueUrl({
             repoUrl: "https://github.com/MillenniumEarl/YAM",
@@ -102,30 +102,30 @@ module.exports.manageUnhandledError = async function (scriptname, reason, ipc) {
 
     if (result.button === "report-issue") {
         const body = `
-        **Describe the bug**
-        Unhandled promise rejection in ${scriptname}: ${reason}
+**Describe the bug**
+Unhandled promise rejection in ${scriptname}: ${reason}
 
-        **To Reproduce**
-        Steps to reproduce the behavior:
+**To Reproduce**
+Steps to reproduce the behavior:
 
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. See error
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
-        **Expected behavior**
-        A clear and concise description of what you expected to happen.
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-        **Screenshots**
-        If applicable, add screenshots to help explain your problem.
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
-        **Desktop:**
-        - OS: ${process.platform}
-        - Version: ${process.getSystemVersion()}
-        - App version: ${await ipc.invoke("app-version")}
+**Desktop:**
+- OS: ${process.platform}
+- Version: ${process.getSystemVersion()}
+- App version: ${await ipc.invoke("app-version")}
 
-        **Additional context**
-        Add any other context about the problem here.`;
+**Additional context**
+Add any other context about the problem here.`;
         // Open a new GitHub issue
         const url = newGithubIssueUrl({
             repoUrl: "https://github.com/MillenniumEarl/YAM",

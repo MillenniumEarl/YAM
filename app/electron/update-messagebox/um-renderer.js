@@ -31,9 +31,10 @@ window.onunhandledrejection = function (error) {
 let _url, _folder;
 //#endregion Global variables
 
-window.API.once("window-arguments", async function (args) {
+window.API.once("window-arguments", async function onWindowArguments(args) {
     // Translate the DOM
-    await translateElementsInDOM();
+    await translateElementsInDOM()
+        .catch(e => window.API.logger.error(`Error on translateElementsInDOM in onWindowArguments: ${e}`));
 
     // Set the data
     const translation = await window.API.translate("UM description", {
