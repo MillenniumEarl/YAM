@@ -94,6 +94,6 @@
     "update-title": "Update beschikbaar: ({{version}})",
     "default-button-update": "Bijwerken",
     "default-button-quit": "Applicatie afsluiten",
-    "default-button-report-issue": "Deze fout melden"
+    "default-button-report-issue": "Deze fout rapporteren"
   }
 }
