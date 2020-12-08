@@ -1,7 +1,7 @@
 {
     "main": "./app/app.js",
     "name": "yam",
-    "version": "2.4.4",
+    "version": "2.5.4",
     "author": {
         "name": "Millennium Earl"
     },
@@ -59,7 +59,7 @@
     "build": {
         "appId": "com.electron.yam",
         "productName": "YAM",
-        "copyright": "Copyright © 2020 ${author}",
+        "copyright": "Copyright © 2020 MillenniumEarl",
         "asar": true,
         "publish": [
             "github"
@@ -77,7 +77,8 @@
         "win": {
             "target": "nsis",
             "icon": "./resources/images/icon.ico",
-            "publisherName": "${author}"
+            "publisherName": "MillenniumEarl",
+            "verifyUpdateCodeSignature": false
         },
         "mac": {
             "category": "public.app-category.games",
