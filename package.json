@@ -73,12 +73,13 @@
         "directories": {
             "output": "./dist"
         },
-        "win":
-        {
+        "win": {
             "target": "squirrel",
             "icon": "./resources/images/icon.ico",
-            "loadingGif": "./resources/images/install-spinner.gif",
             "publisherName": "${author}"
+        },
+        "squirrelWindows": {
+            "loadingGif": "./resources/images/install-spinner-optimized.gif"
         },
         "mac": {
             "category": "public.app-category.games",
