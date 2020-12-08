@@ -3,16 +3,17 @@
 // Core modules
 const path = require("path");
 const fs = require("fs");
-const util = require("util");
+const promisify = require("util").promisify;
 const {
     glob
 } = require("glob");
 
 // Public modules from npm
 const stringSimilarity = require("string-similarity");
+const logger = require("electron-log");
 
 //#region Promisify methods
-const readDirPromisify = util.promisify(fs.readdir);
+const areaddir = promisify(fs.readdir);
 //#endregion Promisify methods
 
 //#region Global variables
@@ -31,7 +32,8 @@ const userDataDir =
  */
 module.exports.findSavesPath = async function findSavesPath(gameinfo) {
     // Get savegame directory
-    const dir = await _getSaveDir(gameinfo);
+    const dir = await _getSaveDir(gameinfo)
+        .catch(e => logger.error(`Error while getting save directory for game ${gameinfo.name} (${gameinfo.engine}|${gameinfo.gameDirectory}): ${e}`));
     if (!dir) return [];
 
     // Get savegame extension
@@ -53,6 +55,7 @@ module.exports.findSavesPath = async function findSavesPath(gameinfo) {
     return savePaths;
 };
 
+//#region Private methods
 /**
  * @private
  * Obtain the dir containing the saves.
@@ -63,7 +66,7 @@ async function _getSaveDir(gameinfo) {
     switch (gameinfo.engine.toUpperCase()) {
     case "REN'PY": {
         const renpyDir = path.join(userDataDir, "RenPy");
-        const gameDirs = await readDirPromisify(renpyDir);
+        const gameDirs = await areaddir(renpyDir);
         const temp = gameDirs.map(dir => dir.replace(/[0-9]/g, "")); // Remove numbers from dirs
         const match = stringSimilarity.findBestMatch(gameinfo.name.replace(/[0-9]/g, ""), temp);
 
@@ -98,3 +101,4 @@ function _getSaveExtension(engine) {
         return null;
     }
 }
+//#endregion Private methods

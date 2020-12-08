@@ -44,6 +44,7 @@ module.exports.getCurrentLanguage = function getCurrentLanguage() {
  * Translate a string.
  * @param {String} key Key to use in the translation
  * @param {Object} interpolation Dictionary containing the interpolation key and the value to interpolate
+ * @returns {String}
  */
 module.exports.getTranslation = function getTranslation(key, interpolation) {
     return interpolation ? i18next.t(key, interpolation) : i18next.t(key);

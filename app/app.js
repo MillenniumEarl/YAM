@@ -59,7 +59,7 @@ ipcMain.handle("login-required", function ipcMainOnLoginRequired() {
 });
 
 // Execute the file passed as parameter
-ipcMain.on("exec", async function ipcMainOnExec(e, args) {
+ipcMain.on("exec", function ipcMainOnExec(e, args) {
     const filepath = [...args][0];
     logger.info(`Executing ${filepath}`);
     
@@ -78,7 +78,7 @@ ipcMain.on("open-link", function ipcMainOnOpenLink(e, args) {
     logger.info(`Opening ${link}`);
 
     // Open link
-    openLink(link);
+    openLink(link).catch(e => logger.error(`Error when opening link ${link}: ${e}`));
 });
 
 // Close the application
@@ -120,7 +120,7 @@ ipcMain.handle("user-data", function ipcOnUserData() {
 });
 
 // Manage DB operations
-ipcMain.handle("database-operation", function ipcMainOnDBOp(e, db, op, args) {
+ipcMain.handle("database-operation", async function ipcMainOnDBOp(e, db, op, args) {
     let selectedDB = null;
     if(db === "game") selectedDB = gameStore;
     else if (db === "thread") selectedDB = threadStore;
@@ -128,7 +128,11 @@ ipcMain.handle("database-operation", function ipcMainOnDBOp(e, db, op, args) {
     else throw Error(`Database not recognized: ${db}`);
 
     // Esecute the operation
-    return executeDbQuery(selectedDB, op, args);
+    try {
+        return executeDbQuery(selectedDB, op, args);
+    } catch (e) {
+        return logger.error(`Error when executing ${op} on database '${db}: ${e}`);
+    }
 });
 
 //#region Database Operations
@@ -286,6 +290,7 @@ ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
 // eslint-disable-next-line no-unused-vars
 function checkUpdates() {
     logger.info("Checking updates...");
+    
     updater.check({
         onError: function(err) {
             logger.error(`Error during update check: ${err.message}\n${err.stack}`);
@@ -344,7 +349,7 @@ app.whenReady().then(async function appOnReady() {
     logger.info(`Using Electron ${process.versions.electron}`);
 
     // Wait for language initialization
-    await initializeLocalization();
+    await initializeLocalization().catch(e => logger.error(`Error when initializing languages: ${e}`));
 
     logger.silly("Creating main window");
     mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;

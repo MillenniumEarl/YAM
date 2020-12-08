@@ -2,6 +2,7 @@
 
 // Public modules from npm
 const F95API = require("f95api");
+const logger = require("electron-log");
 
 // Modules from file
 const GameDataStore = require("../../../db/stores/game-data-store.js");
@@ -43,7 +44,7 @@ class RecommendationEngine {
         // Local variables
         const LOG_BASE = 2;
         const weightedTags = {};
-        const games = await this._gameStore.search({});
+        const games = await this._gameStore.search({}).catch(e => logger.error(`Error while searching games in the games db: ${e}`));
 
         for(const game of games) {
             // Obtains the log argument based on the 
@@ -76,10 +77,12 @@ class RecommendationEngine {
     async _getWatchedThreadTags() {
         // Local variables
         const tags = {};
-        const threads = await this._threadStore.search({});
+        const threads = await this._threadStore.search({}).catch(e => logger.error(`Error while searching threads in the threads db: ${e}`));
 
         for(const t of threads) {
-            const game = await this._gameStore.search({id: t.id});
+            const game = await this._gameStore.search({
+                id: t.id
+            }).catch(e => logger.error(`Error while searching thread with id ${t.id} in the threads db: ${e}`));
             if (game.length !== 0) continue;
 
             for(const tag of t.tags) {
@@ -152,8 +155,8 @@ class RecommendationEngine {
         const validGames = [];
 
         // Get the tags
-        const weightedTags = await this._getWeightedInstalledGameTags();
-        const watchedTags = await this._getWatchedThreadTags();
+        const weightedTags = await this._getWeightedInstalledGameTags().catch(e => logger.error(`Error while processing weighted tags of installed games: ${e}`));
+        const watchedTags = await this._getWatchedThreadTags().catch(e => logger.error(`Error while processing tags of watched games: ${e}`));
         const merged = this._mergeTagDicts(weightedTags, watchedTags);
 
         // Get the MAX_TAGS most frequent tags
@@ -168,7 +171,7 @@ class RecommendationEngine {
             const games = await F95API.getLatestUpdates({
                 tags: tags,
                 sorting: "rating"
-            }, MAX_FETCHED_GAMES);
+            }, MAX_FETCHED_GAMES).catch(e => logger.error(`Error while fetching latest game from F95: ${e}`));
 
             // Add the games
             for (const game of games) {

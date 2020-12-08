@@ -4,9 +4,17 @@
 const path = require("path");
 const fs = require("fs");
 const spawn = require("child_process").spawn;
+const promisify = require("util").promisify;
 
 // Public modules from npm
 const shell = require("electron").shell;
+const logger = require("electron-log");
+
+// Promisifed functions
+const areaddir = promisify(fs.readdir);
+const alstat = promisify(fs.lstat);
+const aunlink = promisify(fs.unlink);
+const armdir = promisify(fs.rmdir);
 
 /**
  * @protected
@@ -30,7 +38,8 @@ module.exports.run = function run(filename) {
  * @param {String} path Directory path or URL
  */
 module.exports.openLink = async function openLink(path) {
-    shell.openPath(path);
+    const result =  await shell.openPath(path);
+    if(result !== "") logger.error(`Error while opening ${path} in openLink: ${result}`);
 };
 
 /**
@@ -43,17 +52,19 @@ module.exports.deleteFolderRecursive = async function deleteFolderRecursive(dirp
     if (!fs.existsSync(dirpath)) return;
 
     // Foreach element in dir, delete (file) or recurse (folder)
-    fs.readdirSync(dirpath).forEach((file) => {
+    const nodes = await areaddir(dirpath);
+    nodes.forEach(async (file) => {
         const p = path.join(dirpath, file);
-
+        
         // Remove subdir
-        if (fs.lstatSync(p).isDirectory()) exports.deleteFolderRecursive(p);
+        const isDir = (await alstat(p)).isDirectory();
+        if (isDir) exports.deleteFolderRecursive(p).catch(e => logger.error(`Error while recursively removing directory ${p}: ${e}`));
         // ...or remove single file
-        else fs.unlinkSync(p);
+        else await aunlink(p).catch(e => logger.error(`Error while unlinking ${p}: ${e}`));
     });
 
     // Remove main dir
-    fs.rmdirSync(dirpath);
+    await armdir(dirpath);
 };
 
 /**
