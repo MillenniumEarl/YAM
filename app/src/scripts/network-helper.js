@@ -13,8 +13,9 @@ const alookupService = promisify(dns.lookupService);
  * @public
  * Check if the PC is connected to Internet.
  */
-module.exports.check = async function() {
+module.exports.checkConnection = async function() {
     try {
+        // Check DNS
         await alookupService(DNS, PORT);
         return true;
     }

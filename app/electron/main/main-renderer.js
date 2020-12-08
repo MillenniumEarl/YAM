@@ -10,39 +10,21 @@
  * @param {Error} error Application generated error
  */
 window.onerror = function (message, source, lineno, colno, error) {
-    window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
-
-    window.API.invoke("require-messagebox", {
-        type: "error",
-        title: "Unhandled error",
-        message: `${message} at line ${lineno}:${colno}.\n
-        It is advisable to terminate the application to avoid unpredictable behavior.\n
-        ${error.stack}\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
-        buttons: [{
-            name: "close"
-        }]
+    window.EM.onerror("main-renderer.js", {
+        message: message,
+        line: lineno,
+        column: colno,
+        error: error,
     });
 };
 
 /**
  * @event
- * Handles errors generated within non-catch promises.
+ * Handles errors generated within non-catched promises.
  * @param {PromiseRejectionEvent} error 
  */
 window.onunhandledrejection = function (error) {
-    window.API.log.error(error.reason);
-
-    window.API.invoke("require-messagebox", {
-        type: "error",
-        title: "Unhandled promise rejection",
-        message: `${error.reason}.\n
-        It is advisable to terminate the application to avoid unpredictable behavior.\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
-        buttons: [{
-            name: "close"
-        }]
-    });
+    window.EM.unhandlederror("main-renderer.js", error.reason);
 };
 
 //#region Events
@@ -79,7 +61,8 @@ async function onDOMContentLoaded() {
     // This function runs when the DOM is ready, i.e. when the document has been parsed
     window.API.log.info("DOM loaded, initializing elements");
     await translateElementsInDOM();
-    await listAvailableLanguages();
+    await listAvailableLanguages()
+        .catch(e => window.API.logger.error(`Error on listAvailableLangages in onDOMCOntentLoaded: ${e}`));
 
     // Initialize the navigator-tab
     const tabNavigator = document.getElementById("tab-navigator");
@@ -112,7 +95,8 @@ async function onDOMContentLoaded() {
     document.getElementById("main-version").textContent = translation;
 
     // Login to F95Zone
-    await login();
+    await login()
+        .catch(e => window.API.logger.error(`Error on login in onDOMContentLoaded: ${e}`));
 
     // Load cards in the paginator
     const paginator = document.querySelector("card-paginator");
@@ -127,7 +111,8 @@ async function onDOMContentLoaded() {
     window.API.send("window-size");
     
     // Load credentials
-    await loadCredentials();
+    await loadCredentials()
+        .catch(e => window.API.logger.error(`Error on loadCredentials in onDOMContentLoaded: ${e}`));
 }
 
 /**
@@ -151,7 +136,8 @@ function onSearchGameName(e) {
  */
 async function onAddRemoteGame() {
     // The user select a single folder
-    const gameFolderPaths = await selectGameDirectories(false);
+    const gameFolderPaths = await selectGameDirectories(false)
+        .catch(e => window.API.logger.error(`Error on selectGameDirectories in onAddRemoteGame: ${e}`));
     if (gameFolderPaths.length === 0) return;
     const gamePath = gameFolderPaths[0];
 
@@ -166,10 +152,12 @@ async function onAddRemoteGame() {
     const dirInfo = getDirInfo(gamePath);
 
     // Get game info and check if already installed
-    const gameinfo = await window.F95.getGameDataFromURL(url);
+    const gameinfo = await window.F95.getGameDataFromURL(url)
+        .catch(e => window.API.logger.error(`Error on window.F95.getGameDataFromURL for url ${url} in onAddRemteGame: ${e}`));
     const entry = await window.GameDB.search({
         id: gameinfo.id
-    });
+    })
+        .catch(e => window.API.logger.error(`Error on window.GameDB.search with ID ${gameinfo.id} in onAddRemoteGame: ${e}`));
 
     if(entry.length !== 0) {
         // This game is already present: ...
@@ -186,7 +174,8 @@ async function onAddRemoteGame() {
     converted.gameDirectory = dirInfo.path;
 
     // Save data to database
-    await window.GameDB.insert(converted);
+    await window.GameDB.insert(converted)
+        .catch(e => window.API.logger.error(`Error on window.GameDB.insert with ID ${converted.id} in onAddRemoteGame: ${e}`));
 
     // Game added correctly
     const translationSuccess = await window.API.translate("MR game successfully added", {
@@ -203,13 +192,15 @@ async function onAddRemoteGame() {
  */
 async function onAddLocalGame() {
     // The user select a single folder
-    const gameFolderPaths = await selectGameDirectories(true);
+    const gameFolderPaths = await selectGameDirectories(true)
+        .catch(e => window.API.logger.error(`Error on selectGameDirectories in onAddLocalGame: ${e}`));
     if (gameFolderPaths.length === 0) return;
 
     // Obtain the data
     const translation = await window.API.translate("MR adding game from path");
     sendToastToUser("info", translation);
-    await getGameFromPaths(gameFolderPaths);
+    await getGameFromPaths(gameFolderPaths)
+        .catch(e => window.API.logger.error(`Error on getGameFromPaths in onAddLocalGame: ${e}`));
 
     // Reload data in the paginator
     document.querySelector("card-paginator").reload();
@@ -263,10 +254,12 @@ async function updateLanguage() {
     const selectedISO = e.options[e.selectedIndex].value;
 
     // Change language via IPC
-    await window.API.changeLanguage(selectedISO);
+    await window.API.changeLanguage(selectedISO)
+        .catch(e => window.API.logger.error(`Error on window.API.changeLanguage in updateLanguage: ${e}`));
 
     // Refresh strings
-    await translateElementsInDOM();
+    await translateElementsInDOM()
+        .catch(e => window.API.logger.error(`Error on translateElementsInDOM in updateLanguage: ${e}`));
 }
 
 /**
@@ -478,7 +471,8 @@ function getCardsNumberForPage(size) {
  */
 async function loadCredentials() {
     // Load credentials
-    const credentials = await getCredentials();
+    const credentials = await getCredentials()
+        .catch(e => window.API.logger.error(`Error on getCredentials in loadCredentials: ${e}`));
     if(!credentials) return;
 
     // Set values
@@ -505,7 +499,8 @@ async function login() {
     document.getElementById("user-info").showSpinner();
 
     // Check network connection
-    const online = await window.API.isOnline();
+    const online = await window.API.isOnline()
+        .catch(e => window.API.logger.error(`Error on isOnline in login: ${e}`));
     if (!online) {
         window.API.log.warn("No network connection, cannot login");
         const translation = await window.API.translate("MR no network connection");
@@ -540,7 +535,8 @@ async function login() {
         const json = await window.IO.read(credPath);
         const credentials = JSON.parse(json);
 
-        const res = await window.F95.login(credentials.username, credentials.password);
+        const res = await window.F95.login(credentials.username, credentials.password)
+            .catch(e => window.API.logger.error(`Error on window.F95.login in login: ${e}`));
         if (!res.success) return;
 
         const translation = await window.API.translate("MR login successful");
@@ -617,7 +613,8 @@ async function selectGameDirectories(multipleSelection) {
     }
 
     // Check if the game(s) is already present
-    const gameFolderPaths = await getUnlistedGamesInArrayOfPath(data.filePaths);
+    const gameFolderPaths = await getUnlistedGamesInArrayOfPath(data.filePaths)
+        .catch(e => window.API.logger.error(`Error on getUnlistedGamesInArrayOfPath in selectGameDirectories: ${e}`));
     if (gameFolderPaths.length === 0) return [];
     else return gameFolderPaths;
 }
@@ -666,7 +663,8 @@ async function gameCardUpdate(e) {
     if (!finalized) return;
 
     // Finalize the update
-    const result = await e.target.update();
+    const result = await e.target.update()
+        .catch(e => window.API.logger.error(`Error on e.target.update in gameCardUpdate: ${e}`));
     if (result) return;
 
     const translationError = await window.API.translate("MR error finalizing update");
@@ -737,7 +735,8 @@ async function gameCardDelete(e) {
     }
 
     // Remove the game data
-    await e.target.deleteData();
+    await e.target.deleteData()
+        .catch(e => window.API.logger.error(`Error on e.target.deleteData in gameCardDelete: ${e}`));
 
     // Reload data in the paginator
     document.querySelector("card-paginator").reload();
@@ -786,7 +785,8 @@ async function getGameFromPath(path) {
     const dirInfo = getDirInfo(path);
 
     // Search and add the game
-    const gamelist = await window.F95.getGameData(dirInfo.name, dirInfo.mod);
+    const gamelist = await window.F95.getGameData(dirInfo.name, dirInfo.mod)
+        .catch(e => window.API.logger.error(`Error on window.F95.getGameData (name: ${dirInfo.name}, mod: ${dirInfo.mod}) in getGameFromPath: ${e}`));
 
     // No game found, return
     if (gamelist.length === 0) {
@@ -804,14 +804,15 @@ async function getGameFromPath(path) {
     if (gamelist.length > 1) {
         const baseMessage = `${dirInfo.name} (${dirInfo.version})`;
         const gameMessage = dirInfo.mod ? `${baseMessage} [MOD]` : baseMessage;
-        selectedGame = await requireUserToSelectGameWithSameName(gameMessage, gamelist);
+        selectedGame = await requireUserToSelectGameWithSameName(gameMessage, gamelist)
+            .catch(e => window.API.logger.error(`Error on requireUserToSelectGameWithSameName in getGameFromPath: ${e}`));
         if(!selectedGame) return;
     }
 
     // Verify that the game is not in the database
     const entry = await window.GameDB.search({
         id: selectedGame.id
-    });
+    }).catch(e => window.API.logger.error(`Error on window.GameDB.search with ID ${selectedGame.id} in getGameFromPath: ${e}`));
 
     if (entry.length !== 0) {
         // This game is already present: ...
@@ -828,7 +829,8 @@ async function getGameFromPath(path) {
     converted.gameDirectory = dirInfo.path;
 
     // Save data to database
-    await window.GameDB.insert(converted);
+    await window.GameDB.insert(converted)
+        .catch(e => window.API.logger.error(`Error on window.GameDB.insert with ID ${converted.id} in getGameFromPath: ${e}`));
 
     // Game added correctly
     const translation = await window.API.translate("MR game successfully added", {
@@ -871,7 +873,8 @@ async function getUnlistedGamesInArrayOfPath(paths) {
     const alreadyPresentGames = [];
 
     // Check if the games are already present
-    const games = await window.GameDB.search({});
+    const games = await window.GameDB.search({})
+        .catch(e => window.API.logger.error(`Error on window.GameDB.search in getUnlistedGamesInArrayOfPath: ${e}`));
     const listedGameNames = games.map(function(game) {
         const gamename = cleanGameName(game.name);
         return gamename.toUpperCase();
@@ -959,7 +962,8 @@ async function getUserDataFromF95() {
     window.API.log.info("Retrieving user info from F95");
 
     // Retrieve user data
-    const userdata = await window.F95.getUserData();
+    const userdata = await window.F95.getUserData()
+        .catch(e => window.API.logger.error(`Error on window.F95.getUserData in getUserDataFromF95: ${e}`));
 
     // Check user data
     if (!userdata) {
@@ -990,11 +994,13 @@ async function recommendGamesWrapper(limit) {
     const recommendContent = document.getElementById("main-recommendations-content");
 
     // Load credentials
-    const credentials = await getCredentials();
+    const credentials = await getCredentials()
+        .catch(e => window.API.logger.error(`Error on getCredentials in recommendGamesWrapper: ${e}`));
     if (!credentials) return;
     
     // Fetch recommended games
-    const games = await window.F95.recommendGames(limit, credentials);
+    const games = await window.F95.recommendGames(limit, credentials)
+        .catch(e => window.API.logger.error(`Error on window.F95.recommendGames in recommendGamesWrapper: ${e}`));
 
     // Remove childs
     while (recommendContent.lastElementChild) {
@@ -1020,10 +1026,12 @@ async function recommendGamesWrapper(limit) {
  */
 async function updatedThreads(watchedThreads) {
     // Store the new threads and obtains info on the updates
-    await syncDatabaseWatchedThreads(watchedThreads);
+    await syncDatabaseWatchedThreads(watchedThreads)
+        .catch(e => window.API.logger.error(`Error on syncDatabaseWatchedThreads in updatedThreads: ${e}`));
 
     // Obtains the updated threads to display to the user
-    const updatedThreads = await getUpdatedThreads();
+    const updatedThreads = await getUpdatedThreads()
+        .catch(e => window.API.logger.error(`Error on getUpdatedThreads in updatedThreads: ${e}`));
 
     // Prepare the threads tab
     window.requestAnimationFrame(() => prepareThreadUpdatesTab(updatedThreads));
@@ -1049,32 +1057,39 @@ async function syncDatabaseWatchedThreads(urlList) {
         // Check if the thread exists in the database
         const thread = await window.ThreadDB.search({
             id: id
-        });
+        })
+            .catch(e => window.API.logger.error(`Error on window.ThreadDB.search with ID ${id} in syncDatabaseWatchedThreads: ${e}`));
 
         if (thread.length === 0) {
             // The thread doesn't exists, insert
-            const gameInfo = await window.F95.getGameDataFromURL(url);
+            const gameInfo = await window.F95.getGameDataFromURL(url)
+                .catch(e => window.API.logger.error(`Error on window.F95.getGameDataFromURL with URL ${url} in syncDatabaseWatchedThreads: ${e}`));
             const threadInfo = window.TI.convert(gameInfo);
-            await window.ThreadDB.insert(threadInfo);
+            await window.ThreadDB.insert(threadInfo)
+                .catch(e => window.API.logger.error(`Error on window.ThreadDB.insert with ID ${threadInfo.id} in syncDatabaseWatchedThreads: ${e}`));
         } else {
             // The game exists, check for updates
             if (thread[0].url === url) continue; // No update...
 
             // Update available
-            const gameInfo = await window.F95.getGameDataFromURL(url);
+            const gameInfo = await window.F95.getGameDataFromURL(url)
+                .catch(e => window.API.logger.error(`Error on window.F95.getGameDataFromURL with URL ${url} in syncDatabaseWatchedThreads: ${e}`));
             const threadInfo = window.TI.convert(gameInfo);
             threadInfo.updateAvailable = true;
             threadInfo.markedAsRead = false;
             threadInfo._id = thread[0]._id; // Add the database ID
-            await window.ThreadDB.write(threadInfo);
+            await window.ThreadDB.write(threadInfo)
+                .catch(e => window.API.logger.error(`Error on window.ThreadDB.write with ID ${threadInfo.id} in syncDatabaseWatchedThreads: ${e}`));
         }
     }
 
     // Remove the unsubscribed threads
-    const threads = await window.ThreadDB.search({});
+    const threads = await window.ThreadDB.search({})
+        .catch(e => window.API.logger.error(`Error on window.ThreadDB.search in syncDatabaseWatchedThreads: ${e}`));
     for (const thread of threads) {
         if(!recentIDs.includes(thread.id))
-            await window.ThreadDB.delete(thread._id);
+            await window.ThreadDB.delete(thread._id)
+                .catch(e => window.API.logger.error(`Error on window.ThreadDB.delete with ID ${thread.id} in syncDatabaseWatchedThreads: ${e}`));
     }
 }
 
@@ -1090,14 +1105,16 @@ async function getUpdatedThreads() {
         markedAsRead: false
     }, {
         name: 1 // Order by name
-    });
+    })
+        .catch(e => window.API.logger.error(`Error on window.ThreadDB.search in getUpdatedThreads: ${e}`));
 
     // Excludes threads of installed games
     const result = [];
     for (const thread of threads) {
         const searchResult = await window.GameDB.search({
             id: thread.id
-        });
+        })
+            .catch(e => window.API.logger.error(`Error on window.ThreadDB.search with ID ${thread.id} in getUpdatedThreads: ${e}`));
         if (searchResult.length === 0) result.push(thread);
     }
     return result;
@@ -1108,7 +1125,7 @@ async function getUpdatedThreads() {
  * Show the available threads in the DOM
  * @param {ThreadInfo[]} threads List of threads to show
  */
-async function prepareThreadUpdatesTab(threads) {
+function prepareThreadUpdatesTab(threads) {
     // Local variables
     const visualizerTab = document.getElementById("main-updated-threads-tab");
 
@@ -1127,11 +1144,12 @@ async function prepareThreadUpdatesTab(threads) {
 /**
  * Updates the number of cards shown in the pager after the user resizes the window.
  */
-window.API.receive("window-resized", (size) => {
+window.API.receive("window-resized", function onWindowResized (size) {
     const paginator = document.querySelector("card-paginator");
     if (paginator) paginator.visibleCardsOnParentSize(size);
 
     const displayable = getCardsNumberForPage(size);
-    window.requestAnimationFrame(() => recommendGamesWrapper(displayable));
+    window.requestAnimationFrame(() => recommendGamesWrapper(displayable)
+        .catch(e => window.API.logger.error(`Error on recommendGamesWrapper in onWindowResized: ${e}`)));
 });
 //#endregion IPC listeners

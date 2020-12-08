@@ -1,11 +1,14 @@
-Database: app/db/**/*
-Component: app/src/components/**/*
+database: app/db/**/*
+component: app/src/components/**/*
 
-Resources:
+resources:
 - any: ['resources/**/*']
   all: ['!resources/lang/*']
-Language: resources/lang/*
+language: resources/lang/*
 
-Back-end: app/electron/**/*
-Front-end:
+backend: app/electron/**/*
+frontend:
 - any: ['app/src/**/*.html', 'app/src/**/*.css']
+
+critical:
+    - '(critical|urgent)'

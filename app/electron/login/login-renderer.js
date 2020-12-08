@@ -10,39 +10,21 @@
  * @param {Error} error Application generated error
  */
 window.onerror = function (message, source, lineno, colno, error) {
-    window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
-
-    window.API.invoke("require-messagebox", {
-        type: "error",
-        title: "Unhandled error",
-        message: `${message} at line ${lineno}:${colno}.\n
-        It is advisable to terminate the application to avoid unpredictable behavior.\n
-        ${error.stack}\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
-        buttons: [{
-            name: "close"
-        }]
+    window.EM.onerror("login-renderer.js", {
+        message: message,
+        line: lineno,
+        column: colno,
+        error: error,
     });
 };
 
 /**
  * @event
- * Handles errors generated within non-catch promises.
+ * Handles errors generated within non-catched promises.
  * @param {PromiseRejectionEvent} error 
  */
 window.onunhandledrejection = function (error) {
-    window.API.log.error(error.reason);
-
-    window.API.invoke("require-messagebox", {
-        type: "error",
-        title: "Unhandled promise rejection",
-        message: `${error.reason}.\n
-        It is advisable to terminate the application to avoid unpredictable behavior.\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
-        buttons: [{
-            name: "close"
-        }]
-    });
+    window.EM.unhandlederror("login-renderer.js", error.reason);
 };
 
 //#region Events
@@ -197,8 +179,10 @@ async function login(username, password) {
     progressbar.style.display = "block";
 
     // Try to log-in
-    const result = await window.F95.login(username, password);
-    const validAuth = await manageLoginResult(result, username, password);
+    const result = await window.F95.login(username, password)
+        .catch(e => window.API.logger.error(`Error on window.F95.login in login: ${e}`));
+    const validAuth = await manageLoginResult(result, username, password)
+        .catch(e => window.API.logger.error(`Error on manageLoginResult in login: ${e}`));
 
     // Close the window
     if (validAuth) window.API.send("window-close", "AUTHENTICATED");

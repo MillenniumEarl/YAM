@@ -10,39 +10,21 @@
  * @param {Error} error Application generated error
  */
 window.onerror = function (message, source, lineno, colno, error) {
-    window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
-
-    window.API.invoke("require-messagebox", {
-        type: "error",
-        title: "Unhandled error",
-        message: `${message} at line ${lineno}:${colno}.\n
-        It is advisable to terminate the application to avoid unpredictable behavior.\n
-        ${error.stack}\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
-        buttons: [{
-            name: "close"
-        }]
+    window.EM.onerror("messagebox-renderer.js", {
+        message: message,
+        line: lineno,
+        column: colno,
+        error: error,
     });
 };
 
 /**
  * @event
- * Handles errors generated within non-catch promises.
+ * Handles errors generated within non-catched promises.
  * @param {PromiseRejectionEvent} error 
  */
 window.onunhandledrejection = function (error) {
-    window.API.log.error(error.reason);
-
-    window.API.invoke("require-messagebox", {
-        type: "error",
-        title: "Unhandled promise rejection",
-        message: `${error.reason}.\n
-        It is advisable to terminate the application to avoid unpredictable behavior.\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
-        buttons: [{
-            name: "close"
-        }]
-    });
+    window.EM.unhandlederror("messagebox-renderer.js", error.reason);
 };
 
 //#region Private methods
@@ -150,7 +132,7 @@ function fitContent() {
  * @param {String} options.name 
  * Name of the button, it will be returned when the user click on it. 
  * If it's a default name the others properties will be automatically set.
- * Default names are: `close`, `remove-only`, `delete`, `cancel`.
+ * Default names are: `close`, `remove-only`, `delete`, `cancel`, `update`, `report-issue`, `quit`.
  * @param {String} [options.text] 
  * The text to show on the button.  
  * Overwrite the `default` options if specified.
@@ -171,7 +153,7 @@ function fitContent() {
  */
 async function createButtons(options) {
     // Local variables
-    const defaultButtons = ["close", "remove-only", "delete", "cancel"];
+    const defaultButtons = ["close", "remove-only", "delete", "cancel", "update", "report-issue", "quit"];
     const buttons = [];
 
     // Load the file containing the data for the default buttons
@@ -301,17 +283,20 @@ async function prepare(args) {
     document.getElementById("message").textContent = args.message;
 
     // Set the window icon
-    await setIcon(args.type);
+    await setIcon(args.type)
+        .catch(e => window.API.logger.error(`Error on setIcon in prepare: ${e}`));
 
     // Create the buttons
     const buttonsContainer = document.querySelector(".buttons-container");
-    const buttons = await createButtons(args.buttons);
+    const buttons = await createButtons(args.buttons)
+        .catch(e => window.API.logger.error(`Error on createButtons in prepare: ${e}`));
     buttonsContainer.append(...buttons);
 
     // Create the checkboxes
     if(args.checkboxes) {
         const checkContainer = document.querySelector(".checkboxes-container");
-        const checkboxes = await createCheckboxes(args.checkboxes);
+        const checkboxes = await createCheckboxes(args.checkboxes)
+            .catch(e => window.API.logger.error(`Error on createCheckboxes in prepare: ${e}`));
         checkContainer.append(...checkboxes);
     }
 

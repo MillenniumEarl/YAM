@@ -92,6 +92,8 @@
     "update-message-windarwin": "Eine neue Version der App ist verfügbar. Wenn Sie auf \"Aktualisieren\" klicken, wird die Anwendung geschlossen und aktualisiert:\\n{{notes}}",
     "update-message-linux": "Eine neue Version der Anwendung ist verfügbar.\\nWenn Sie auf \"Update\" klicken, gelangen Sie zur Download-Seite auf GitHub.",
     "update-title": "Update verfügbar ({{version}})",
-    "default-button-update": "Aktualisierung"
+    "default-button-update": "Aktualisierung",
+    "default-button-quit": "Anwendung beenden",
+    "default-button-report-issue": "Fehlerbenachrichtigung"
   }
 }

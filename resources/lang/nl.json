@@ -91,7 +91,9 @@
     "main-navbar-recommendations": "Suggesties",
     "update-message-windarwin": "Er is een nieuwe versie van de app beschikbaar. Als u op \"update\" drukt, wordt de applicatie gesloten en bijgewerkt:\\n{{notes}}",
     "update-message-linux": "Er is een nieuwe versie van de applicatie beschikbaar.\\nDoor op \"update\" te drukken, wordt u naar de downloadpagina op GitHub geleid.",
-    "update-title": "Update beschikbaar ({{version}})",
-    "default-button-update": "Vernieuwen"
+    "update-title": "Update beschikbaar: ({{version}})",
+    "default-button-update": "Bijwerken",
+    "default-button-quit": "Applicatie afsluiten",
+    "default-button-report-issue": "Deze fout rapporteren"
   }
 }

@@ -10,45 +10,28 @@
  * @param {Error} error Application generated error
  */
 window.onerror = function (message, source, lineno, colno, error) {
-    window.API.log.error(`${message} at line ${lineno}:${colno}.\n${error.stack}`);
-
-    window.API.invoke("require-messagebox", {
-        type: "error",
-        title: "Unhandled error",
-        message: `${message} at line ${lineno}:${colno}.\n
-        It is advisable to terminate the application to avoid unpredictable behavior.\n
-        ${error.stack}\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
-        buttons: [{
-            name: "close"
-        }]
+    window.EM.onerror("url-input-renderer.js", {
+        message: message,
+        line: lineno,
+        column: colno,
+        error: error,
     });
 };
 
 /**
  * @event
- * Handles errors generated within non-catch promises.
+ * Handles errors generated within non-catched promises.
  * @param {PromiseRejectionEvent} error 
  */
 window.onunhandledrejection = function (error) {
-    window.API.log.error(error.reason);
-
-    window.API.invoke("require-messagebox", {
-        type: "error",
-        title: "Unhandled promise rejection",
-        message: `${error.reason}.\n
-        It is advisable to terminate the application to avoid unpredictable behavior.\n
-        Please report this error on https://github.com/MillenniumEarl/F95GameUpdater`,
-        buttons: [{
-            name: "close"
-        }]
-    });
+    window.EM.unhandlederror("url-input-renderer.js", error.reason);
 };
 
 //#region Events
 document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded() {
     // This function runs when the DOM is ready, i.e. when the document has been parsed
-    await translateElementsInDOM();
+    await translateElementsInDOM()
+        .catch(e => window.API.logger.error(`Error on translateElementsInDOM in onDOMContentLoaded: ${e}`));
 
     // Get the body size
     const PADDING_FOR_SIDE = 15;
