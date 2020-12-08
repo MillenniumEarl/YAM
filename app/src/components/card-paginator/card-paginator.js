@@ -401,7 +401,8 @@ class CardPaginator extends HTMLElement {
      * @returns {Promise<Object[]>} List of records fetched from the database
      */
     async _paginate(index, size) {
-        return await window.GameDB.search(this._searchQuery, this._sortQuery, index, size, size).catch(e => window.API.logger.error(`Error while fetching games in _paginate: ${e}`));
+        return await window.GameDB.search(this._searchQuery, this._sortQuery, index, size, size)
+            .catch(e => window.API.logger.error(`Error while fetching games in _paginate: ${e}`));
     }
 
     /**
@@ -411,7 +412,8 @@ class CardPaginator extends HTMLElement {
      */
     async _switchPage(index) {
         // Get the properties of the selected records
-        const records = await this._paginate(index, this._cardsForPage).catch(e => window.API.logger.error(`Error while fetching games in _switchPage: ${e}`));
+        const records = await this._paginate(index, this._cardsForPage)
+            .catch(e => window.API.logger.error(`Error while fetching games in _switchPage: ${e}`));
 
         // Remove all columns
         const elements = this.content.querySelectorAll("div.col");
@@ -432,7 +434,8 @@ class CardPaginator extends HTMLElement {
         }
 
         // Wait for all the cards to be loaded
-        await Promise.all(cardsPromiseLoad).catch(e => window.API.logger.error(`Error while loading cards: ${e}`));
+        await Promise.all(cardsPromiseLoad)
+            .catch(e => window.API.logger.error(`Error while loading cards: ${e}`));
 
         for(const card of cards) {
             // Create responsive column
