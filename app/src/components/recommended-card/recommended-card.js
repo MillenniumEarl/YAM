@@ -55,7 +55,7 @@ class RecommendedCard extends HTMLElement {
 
         // Refresh data
         window.requestAnimationFrame(() => this._refreshUI()
-            .catch(e => window.API.logger.error(`Error on _refreshUI in connectCallback: ${e}`)));
+            .catch(e => window.API.log.error(`Error on _refreshUI in connectCallback: ${e}`)));
     }
 
     //#region Properties
@@ -71,7 +71,7 @@ class RecommendedCard extends HTMLElement {
 
         // Refresh data
         window.requestAnimationFrame(() => this._refreshUI()
-            .catch(e => window.API.logger.error(`Error on _refreshUI in setter info: ${e}`)));
+            .catch(e => window.API.log.error(`Error on _refreshUI in setter info: ${e}`)));
     }
 
     /**

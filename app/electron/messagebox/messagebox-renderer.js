@@ -284,19 +284,19 @@ async function prepare(args) {
 
     // Set the window icon
     await setIcon(args.type)
-        .catch(e => window.API.logger.error(`Error on setIcon in prepare: ${e}`));
+        .catch(e => window.API.log.error(`Error on setIcon in prepare: ${e}`));
 
     // Create the buttons
     const buttonsContainer = document.querySelector(".buttons-container");
     const buttons = await createButtons(args.buttons)
-        .catch(e => window.API.logger.error(`Error on createButtons in prepare: ${e}`));
+        .catch(e => window.API.log.error(`Error on createButtons in prepare: ${e}`));
     buttonsContainer.append(...buttons);
 
     // Create the checkboxes
     if(args.checkboxes) {
         const checkContainer = document.querySelector(".checkboxes-container");
         const checkboxes = await createCheckboxes(args.checkboxes)
-            .catch(e => window.API.logger.error(`Error on createCheckboxes in prepare: ${e}`));
+            .catch(e => window.API.log.error(`Error on createCheckboxes in prepare: ${e}`));
         checkContainer.append(...checkboxes);
     }
 

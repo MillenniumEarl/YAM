@@ -31,7 +31,7 @@ window.onunhandledrejection = function (error) {
 document.addEventListener("DOMContentLoaded", async function onDOMContentLoaded() {
     // This function runs when the DOM is ready, i.e. when the document has been parsed
     await translateElementsInDOM()
-        .catch(e => window.API.logger.error(`Error on translateElementsInDOM in onDOMContentLoaded: ${e}`));
+        .catch(e => window.API.log.error(`Error on translateElementsInDOM in onDOMContentLoaded: ${e}`));
 
     // Get the body size
     const PADDING_FOR_SIDE = 15;

@@ -180,9 +180,9 @@ async function login(username, password) {
 
     // Try to log-in
     const result = await window.F95.login(username, password)
-        .catch(e => window.API.logger.error(`Error on window.F95.login in login: ${e}`));
+        .catch(e => window.API.log.error(`Error on window.F95.login in login: ${e}`));
     const validAuth = await manageLoginResult(result, username, password)
-        .catch(e => window.API.logger.error(`Error on manageLoginResult in login: ${e}`));
+        .catch(e => window.API.log.error(`Error on manageLoginResult in login: ${e}`));
 
     // Close the window
     if (validAuth) window.API.send("window-close", "AUTHENTICATED");

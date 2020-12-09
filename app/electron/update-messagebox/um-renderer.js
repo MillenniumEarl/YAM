@@ -34,7 +34,7 @@ let _url, _folder;
 window.API.once("window-arguments", async function onWindowArguments(args) {
     // Translate the DOM
     await translateElementsInDOM()
-        .catch(e => window.API.logger.error(`Error on translateElementsInDOM in onWindowArguments: ${e}`));
+        .catch(e => window.API.log.error(`Error on translateElementsInDOM in onWindowArguments: ${e}`));
 
     // Set the data
     const translation = await window.API.translate("UM description", {
