@@ -120,20 +120,28 @@ ipcMain.handle("user-data", function ipcOnUserData() {
     return app.getPath("userData");
 });
 
+function selectDatabase(name) {
+    // Local variables
+    const dbs = {
+        game: gameStore,
+        thread: threadStore,
+        update: updateStore,
+    };
+    const validName = Object.keys(dbs).includes(name);
+
+    // Check the name and return the store
+    if (!validName) throw Error(`Database not recognized: ${name}`);
+    return dbs[name];
+}
+
 // Manage DB operations
 ipcMain.handle("database-operation", async function ipcMainOnDBOp(e, db, op, args) {
-    let selectedDB = null;
-    if(db === "game") selectedDB = gameStore;
-    else if (db === "thread") selectedDB = threadStore;
-    else if (db === "update") selectedDB = updateStore;
-    else throw Error(`Database not recognized: ${db}`);
+    // Select the database
+    const selectedDB = selectDatabase(db);
 
     // Esecute the operation
-    try {
-        return executeDbQuery(selectedDB, op, args);
-    } catch (e) {
-        return logger.error(`Error when executing ${op} on database '${db}: ${e}`);
-    }
+    return executeDbQuery(selectedDB, op, args)
+        .catch(e => logger.error(`Error when executing ${op} on database '${db}: ${e}`));
 });
 
 //#region Database Operations
@@ -167,39 +175,33 @@ ipcMain.handle("database-operation", async function ipcMainOnDBOp(e, db, op, arg
  */
 async function executeDbQuery(db, operation, args) {
     logger.silly(`Executing ${operation} on '${db}'`);
+    
+    // Prepare a dictionary of functions
+    const operations = {
+        insert: (args) => db.insert(args.data),
+        delete: (args) => db.delete(args.id),
+        read: (args) => db.read(args.id),
+        write: (args) => db.write(args.data),
+        count: (args) => db.count(args.query),
+        search: (args) => {
+            let promise = db.search(args.query);
+            if (args.pagination) {
+                promise = db.search(args.query,
+                    args.pagination.index,
+                    args.pagination.size,
+                    args.pagination.limit,
+                    args.sortQuery ?? {});
+            } 
+            return promise;
+        },
+    };
 
-    // Prepare the order query for the "search" operation
-    const orderQuery = args.sortQuery ? args.sortQuery : {};
+    // Verify the operation
+    const validOperation = Object.keys(operations).includes(operation);
+    if (!validOperation) throw Error(`Operation not recognized: ${operation}`);
 
     // Execute the operation on the database
-    switch (operation) {
-    case "insert":
-        if (!args.data) throw Error(`Invalid argument for '${operation}'`);
-        return await db.insert(args.data);
-    case "delete":
-        if (!args.id) throw Error(`Invalid argument for '${operation}'`);
-        return await db.delete(args.id);
-    case "read":
-        if (!args.id) throw Error(`Invalid argument for '${operation}'`);
-        return await db.read(args.id);
-    case "write":
-        if (!args.data) throw Error(`Invalid argument for '${operation}'`);
-        return await db.write(args.data);
-    case "search":
-        if (!args.query) throw Error(`Invalid argument for '${operation}'`);
-        if (args.pagination) 
-            return await db.search(args.query, 
-                args.pagination.index, 
-                args.pagination.size, 
-                args.pagination.limit, 
-                orderQuery);
-        else return await db.search(args.query);
-    case "count":
-        if (!args.query) throw Error(`Invalid argument for '${operation}'`);
-        return await db.count(args.query);
-    default:
-        throw Error(`Operation not recognized: ${operation}`);
-    }
+    return await operations[operation](args);
 }
 //#endregion Database Operations
 
