@@ -974,6 +974,7 @@ async function getUserDataFromF95() {
         const translation = await window.API.translate("MR cannot retrieve user data");
         sendToastToUser("error", translation);
         window.API.log.error("Something wrong while retrieving user info from F95");
+        return;
     }
 
     // Update component
@@ -1008,6 +1009,7 @@ async function recommendGamesWrapper(limit) {
     }
 
     // Add cards
+    if(!games) return;
     games.map(function (game) {
         const card = document.createElement("recommended-card");
         card.info = game;
