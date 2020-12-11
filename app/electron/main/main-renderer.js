@@ -132,21 +132,27 @@ function onSearchGameName(e) {
 }
 
 /**
+ * @private
+ * Ask the user to select a single folder on disk.
+ * @returns {Promise<String>} Path to selected folder
+ */
+async function selectSingleGameFolder() {
+    const gameFolderPaths = await selectGameDirectories(false)
+        .catch(e => window.API.log.error(`Error on selectGameDirectories in onAddRemoteGame: ${e}`));
+    if (gameFolderPaths.length !== 0) return gameFolderPaths.pop();
+}
+
+/**
  * Adds an undetectable game on the PC via the game URL.
  */
 async function onAddRemoteGame() {
-    // The user select a single folder
-    const gameFolderPaths = await selectGameDirectories(false)
-        .catch(e => window.API.log.error(`Error on selectGameDirectories in onAddRemoteGame: ${e}`));
-    if (gameFolderPaths.length === 0) return;
-    const gamePath = gameFolderPaths[0];
-
-    // Ask the URL of the game
+    // The user select a single folder and a URL
+    const gamePath = await selectSingleGameFolder();
     const url = await window.API.invoke("url-input");
-    if (!url) return;
+    if (!gamePath || !url) return;
 
-    const translation = await window.API.translate("MR adding game from url");
-    sendToastToUser("info", translation);
+    const translationAdding = await window.API.translate("MR adding game from url");
+    sendToastToUser("info", translationAdding);
 
     // Get directory information
     const dirInfo = getDirInfo(gamePath);
@@ -154,37 +160,34 @@ async function onAddRemoteGame() {
     // Get game info and check if already installed
     const gameinfo = await window.F95.getGameDataFromURL(url)
         .catch(e => window.API.log.error(`Error on window.F95.getGameDataFromURL for url ${url} in onAddRemteGame: ${e}`));
-    const entry = await window.GameDB.search({
-        id: gameinfo.id
-    })
-        .catch(e => window.API.log.error(`Error on window.GameDB.search with ID ${gameinfo.id} in onAddRemoteGame: ${e}`));
+    const entry = await window.GameDB.count({id: gameinfo.id})
+        .catch(e => window.API.log.error(`Error on window.GameDB.count with ID ${gameinfo.id} in onAddRemoteGame: ${e}`));
 
-    if(entry.length !== 0) {
-        // This game is already present: ...
-        const translation = await window.API.translate("MR game already listed", {
-            "gamename": gameinfo.name
+    if(entry === 0) {
+        // Add data to the parsed game info
+        const converted = window.GIE.convert(gameinfo);
+        converted.version = dirInfo.version;
+        converted.gameDirectory = dirInfo.path;
+
+        // Save data to database
+        await window.GameDB.insert(converted)
+            .catch(e => window.API.log.error(`Error on window.GameDB.insert with ID ${converted.id} in onAddRemoteGame: ${e}`));
+
+        // Game added correctly
+        const translationSuccess = await window.API.translate("MR game successfully added", {
+            "gamename": converted.name
         });
-        sendToastToUser("warning", translation);
-        return;
+        sendToastToUser("info", translationSuccess);
+
+        // Reload data in the paginator
+        document.querySelector("card-paginator").reload();
     }
 
-    // Add data to the parsed game info
-    const converted = window.GIE.convert(gameinfo);
-    converted.version = dirInfo.version;
-    converted.gameDirectory = dirInfo.path;
-
-    // Save data to database
-    await window.GameDB.insert(converted)
-        .catch(e => window.API.log.error(`Error on window.GameDB.insert with ID ${converted.id} in onAddRemoteGame: ${e}`));
-
-    // Game added correctly
-    const translationSuccess = await window.API.translate("MR game successfully added", {
-        "gamename": converted.name
+    // This game is already present: ...
+    const translationAlreadyPresent = await window.API.translate("MR game already listed", {
+        "gamename": gameinfo.name
     });
-    sendToastToUser("info", translationSuccess);
-
-    // Reload data in the paginator
-    document.querySelector("card-paginator").reload();
+    sendToastToUser("warning", translationAlreadyPresent);
 }
 
 /**
@@ -267,31 +270,25 @@ async function updateLanguage() {
  * @param {MouseEvent} e
  */
 function openPage(e) {
-    // Get the ID of the div to show
-    let id = "main-games-tab";
-    if (e.target.id === "main-navbar-games") id = "main-games-tab";
-    else if (e.target.id === "main-navbar-updated-threads") id = "main-updated-threads-tab";
-    else if (e.target.id === "main-navbar-recommendations") id = "main-recommendations-tab";
-    else if (e.target.id === "main-navbar-settings") id = "main-settings-tab";
-
-    // Hide all elements with class="tabcontent" by default
+    // Local variables
     const tabcontent = document.getElementsByClassName("tabcontent");
+    const fab = document.querySelector("#fab-add-game-btn");
+
+    // Get the ID of the div to show
+    const id = `${e.target.id.replace("navbar-", "")}-tab`;
 
     // Use requestAnimationFrame to reduce rendering time
     // see: https://stackoverflow.com/questions/37494330/display-none-in-a-for-loop-and-its-affect-on-reflow
     window.requestAnimationFrame(function () {
         // Hide the unused tabs
-        for (let i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-        }
+        for (const tab of tabcontent) tab.style.display = "none";
 
         // Show the specific tab content
         document.getElementById(id).style.display = "block";
 
         // Hide/show the add game button
-        const fab = document.querySelector("#fab-add-game-btn");
-        if (id === "main-games-tab" && window.F95.logged) fab.style.display = "block";
-        else fab.style.display = "none";
+        const display = id === "main-games-tab" && window.F95.logged ? "block": "none";
+        fab.style.display = display;
     });
 }
 //#endregion
@@ -311,14 +308,8 @@ async function translateElementsInDOM() {
 
     // Translate elements
     for (const e of elements) {
-        // Select the element to translate
-        const toTranslate = e.childNodes.length === 0 ? 
-            // Change text if no child elements are presents...
-            e: 
-            // ... or change only the last child (the text)
-            e.childNodes[e.childNodes.length - 1]; 
-
-        // Translate
+        // Select the element to translate (the last child or the element itself)
+        const toTranslate = e.lastChild ?? e;
         toTranslate.textContent = await window.API.translate(e.id);
     }
 }
@@ -354,8 +345,9 @@ async function listAvailableLanguages() {
         option.textContent = iso.toUpperCase();
 
         // If current language make the option selected
-        if (currentLanguageISO === iso.toUpperCase())
+        if (currentLanguageISO === iso.toUpperCase()) {
             option.setAttribute("selected", "");
+        }
 
         // Add the option
         document.getElementById("main-language-select").appendChild(option);
@@ -380,30 +372,39 @@ function cleanGameName(name) {
 /**
  * @private
  * Show a toast in the top-right of the screen.
- * @param {String} type Type of message (*error/warning/...*)
+ * @param {String} type Type of message: `info`, `warning`, `error`
  * @param {String} message Message to the user
  */
 function sendToastToUser(type, message) {
+    // Local variables
+    const settings = {
+        info: {
+            icon: "info",
+            htmlColor: "blue",
+            timer: 3000,
+        },
+        warning: {
+            icon: "warning",
+            htmlColor: "orange",
+            timer: 10000,
+        },
+        error: {
+            icon: "error_outline",
+            htmlColor: "red",
+            timer: 15000,
+        },
+    };
+    
     // Select various data based on the type of message
-    let icon = "info";
-    let htmlColor = "blue";
-    let timer = 3000;
-    if (type === "error") {
-        icon = "error_outline";
-        htmlColor = "red";
-        timer = 15000;
-    } else if (type === "warning") {
-        icon = "warning";
-        htmlColor = "orange";
-        timer = 10000;
-    }
+    const data = settings[type];
 
-    const htmlToast = `<i class='material-icons md-${icon}' style='padding-right: 10px'></i><span>${message}</span>`;
+    // Create and show the toast
+    const htmlToast = `<i class='material-icons md-${data.icon}' style='padding-right: 10px'></i><span>${message}</span>`;
     // eslint-disable-next-line no-undef
     M.toast({
         html: htmlToast,
-        displayLength: timer,
-        classes: htmlColor,
+        displayLength: data.timer,
+        classes: data.htmlColor,
     });
 }
 
@@ -596,7 +597,8 @@ function getDirInfo(path) {
  */
 async function selectGameDirectories(multipleSelection) {
     // Local variables
-    const props = multipleSelection ? ["openDirectory", "multiSelections"] : ["openDirectory"];
+    const props = ["openDirectory"];
+    if (multipleSelection) props.push("multiSelections");
 
     // The user selects one (or more) folders
     const openDialogOptions = {
@@ -605,18 +607,15 @@ async function selectGameDirectories(multipleSelection) {
     };
     const data = await window.API.invoke("open-dialog", openDialogOptions);
 
-    // No folder selected
+    // No folder selected, notificate the user
     if (data.filePaths.length === 0) {
         const translation = await window.API.translate("MR no directory selected");
         sendToastToUser("warning", translation);
-        return [];
     }
 
     // Check if the game(s) is already present
-    const gameFolderPaths = await getUnlistedGamesInArrayOfPath(data.filePaths)
+    return await getUnlistedGamesInArrayOfPath(data.filePaths)
         .catch(e => window.API.log.error(`Error on getUnlistedGamesInArrayOfPath in selectGameDirectories: ${e}`));
-    if (gameFolderPaths.length === 0) return [];
-    else return gameFolderPaths;
 }
 
 /**
@@ -648,8 +647,6 @@ async function gameCardPlay(e) {
  * `name`, `version`, `changelog`, `url`, `gameDirectory`
  */
 async function gameCardUpdate(e) {
-    if (!e.target) return;
-
     // Let the user update the game
     const finalized = await window.API.invoke("update-messagebox", {
         title: e.detail.name,
@@ -659,31 +656,27 @@ async function gameCardUpdate(e) {
         folder: e.detail.gameDirectory
     });
 
-    // The user didn't complete the procedure
-    if (!finalized) return;
-
-    // Finalize the update
-    const result = await e.target.update()
-        .catch(e => window.API.log.error(`Error on e.target.update in gameCardUpdate: ${e}`));
-    if (result) return;
-
-    const translationError = await window.API.translate("MR error finalizing update");
-    sendToastToUser("error", translationError);
-    window.API.log.error(
-        "Cannot finalize the update, please check if another directory of the game exists"
-    );
+    // The user has completed the procedure
+    if(finalized) {
+        // Finalize the update
+        const result = await e.target.update()
+            .catch(e => window.API.log.error(`Error on e.target.update in gameCardUpdate: ${e}`));
+    
+        if (!result) {
+            const translationError = await window.API.translate("MR error finalizing update");
+            sendToastToUser("error", translationError);
+            window.API.log.error("Cannot finalize the update, please check if another directory of the game exists");
+        }
+    }
 }
 
 /**
- * @event
- * Start the procedure for deleting the game, 
- * allowing you to copy the game saves if possible.
- * @param {CustomEvent} e Contains the following information: 
- * `name`, `savePaths`
+ * @private
+ * Ask the user to confirm the game deletion.
+ * @param {Boolean} savesExists True if savefiles exist for the to-be-deleted game
+ * @returns {Promise<Object.<string, object>>} Button pressed and checkboxes selected
  */
-async function gameCardDelete(e) {
-    if (!e.target) return;
-    
+async function askUserForGameDeletion(savesExists) {
     // Prepare the options for the confirmation dialog
     const dialogOptions = {
         type: "warning",
@@ -696,36 +689,52 @@ async function gameCardDelete(e) {
         ],
     };
 
-    // Check for savegames
-    const savesExists = e.detail.savePaths.length !== 0 ? true : false;
-    if (savesExists) {
-        // Add option for save savegames
-        dialogOptions.checkboxes = [
-            {name: "preserve-savegame"},
-        ];
+    // Add option for save savefiles
+    if (savesExists) dialogOptions.checkboxes = [{ name: "preserve-savegame" }];
+
+    // Prompt user
+    let data = await window.API.invoke("require-messagebox", dialogOptions);
+    if (data ?.button === "cancel") data = null;
+    return data;
+}
+
+/**
+ * @private
+ * Copy the savefiles of a game into a new directory
+ * @param {String[]} sources List of savefile paths
+ * @param {String} gamename Name of the game
+ */
+async function copySaveFiles(sources, gamename) {
+    // Create the directory
+    const exportedSavesDir = await window.API.invoke("savegames-data-dir");
+    const gameDirectory = window.API.join(exportedSavesDir, cleanGameName(gamename));
+    await window.IO.mkdir(gameDirectory);
+
+    // Copy the saves
+    for (const path of sources) {
+        const name = window.API.getDirName(path);
+        const newName = window.API.join(gameDirectory, name);
+        await window.IO.copy(path, newName);
     }
+}
 
-    // Propt user
-    const data = await window.API.invoke("require-messagebox", dialogOptions);
-    if (!data) return;
+/**
+ * @event
+ * Start the procedure for deleting the game, 
+ * allowing you to copy the game saves if possible.
+ * @param {CustomEvent} e Contains the following information: 
+ * `name`, `savePaths`
+ */
+async function gameCardDelete(e) {
+    // Local variables
+    const savesExists = e.detail.savePaths.length !== 0;
 
-    // Cancel button
-    if (data.button === "cancel") return;
+    // Ask the user for confirm
+    const data = await askUserForGameDeletion(savesExists);
 
     // Copy saves
-    const copySaves = savesExists ? data.checkboxes.includes("preserve-savegame") : false;
-    if (copySaves && e.detail.savePaths && e.detail.name) {
-        // Create the directory
-        const exportedSavesDir = await window.API.invoke("savegames-data-dir");
-        const gameDirectory = window.API.join(exportedSavesDir, cleanGameName(e.detail.name));
-        await window.IO.mkdir(gameDirectory);
-
-        // Copy the saves
-        for (const path of e.detail.savePaths) {
-            const name = window.API.getDirName(path);
-            const newName = window.API.join(gameDirectory, name);
-            await window.IO.copy(path, newName);
-        }
+    if (savesExists && data.checkboxes.includes("preserve-savegame")) {
+        await copySaveFiles(e.detail.savePaths, e.detail.name);
     }
 
     // Delete also game files
@@ -742,7 +751,9 @@ async function gameCardDelete(e) {
     document.querySelector("card-paginator").reload();
 
     // Notificate the user
-    const translation = await window.API.translate("MR game removed", {gamename: e.detail.name}); 
+    const translation = await window.API.translate("MR game removed", {
+        gamename: e.detail.name
+    });
     sendToastToUser("info", translation);
 }
 
@@ -776,67 +787,76 @@ async function getGameFromPaths(paths) {
 
 /**
  * @private
+ * Fetch the game that match the requisites or force the user to select one.
+ * @param {String} name Name of the game
+ * @param {String} version Version of the game
+ * @param {Boolean} mod If the game is a mod
+ * @return {GameInfo} Information of the game
+ */
+async function selectSingleGame(name, version, mod) {
+    // Local variables
+    let selectedGame = null;
+
+    // Search and add the game
+    const gamelist = await window.F95.getGameData(name, mod)
+        .catch(e => window.API.log.error(`Error on window.F95.getGameData (name: ${name}, mod: ${mod}) in selectSingleGame: ${e}`));
+
+    if (gamelist.length === 0) {
+        const translation = await window.API.translate("MR no game found", {
+            "gamename": name
+        });
+        sendToastToUser("warning", translation);
+        window.API.log.warn(`No results found for ${name}`);
+    } else if (gamelist.length > 1) {
+        // Force the user to select only a game
+        const message = mod ? `${name} (${version})` : `${name} (${version}) [MOD]`;
+        selectedGame = await requireUserToSelectGameWithSameName(message, gamelist)
+            .catch(e => window.API.log.error(`Error on requireUserToSelectGameWithSameName in selectSingleGame: ${e}`));
+    }
+    return selectedGame;
+}
+
+/**
+ * @private
  * Given a directory path, parse the dirname, get the
  * game (if exists) info and add a *game-card* in the DOM.
  * @param {String} path Game directory path
  */
 async function getGameFromPath(path) {
+    // Local variables
+    let messageType = "warning";
+    let translationKey = "MR game already listed";
+
     // Get directory information
     const dirInfo = getDirInfo(path);
 
-    // Search and add the game
-    const gamelist = await window.F95.getGameData(dirInfo.name, dirInfo.mod)
-        .catch(e => window.API.log.error(`Error on window.F95.getGameData (name: ${dirInfo.name}, mod: ${dirInfo.mod}) in getGameFromPath: ${e}`));
-
-    // No game found, return
-    if (gamelist.length === 0) {
-        const key = "MR no game found";
-        const translation = await window.API.translate(key, {
-            "gamename": dirInfo.name
-        });
-        sendToastToUser("warning", translation);
-        window.API.log.warn(`No results found for ${dirInfo.name}`);
-        return;
-    } 
-
-    // Multiple games found, let the user decide
-    let selectedGame = gamelist[0]; // By default is the only game in list
-    if (gamelist.length > 1) {
-        const baseMessage = `${dirInfo.name} (${dirInfo.version})`;
-        const gameMessage = dirInfo.mod ? `${baseMessage} [MOD]` : baseMessage;
-        selectedGame = await requireUserToSelectGameWithSameName(gameMessage, gamelist)
-            .catch(e => window.API.log.error(`Error on requireUserToSelectGameWithSameName in getGameFromPath: ${e}`));
-        if(!selectedGame) return;
-    }
+    // Select the game
+    const selectedGame = await selectSingleGame(dirInfo.name, dirInfo.version, dirInfo.mod);
 
     // Verify that the game is not in the database
     const entry = await window.GameDB.search({
         id: selectedGame.id
     }).catch(e => window.API.log.error(`Error on window.GameDB.search with ID ${selectedGame.id} in getGameFromPath: ${e}`));
 
-    if (entry.length !== 0) {
-        // This game is already present: ...
-        const translation = await window.API.translate("MR game already listed", {
-            "gamename": selectedGame.name
-        });
-        sendToastToUser("warning", translation);
-        return;
+    if (entry.length === 0) {
+        // Add data to the parsed game info
+        const converted = window.GIE.convert(selectedGame);
+        converted.version = dirInfo.version;
+        converted.gameDirectory = dirInfo.path;
+
+        // Save data to database
+        await window.GameDB.insert(converted)
+            .catch(e => window.API.log.error(`Error on window.GameDB.insert with ID ${converted.id} in getGameFromPath: ${e}`));
+
+        messageType = "info";
+        translationKey = "MR game successfully added";
     }
-    
-    // Add data to the parsed game info
-    const converted = window.GIE.convert(selectedGame);
-    converted.version = dirInfo.version;
-    converted.gameDirectory = dirInfo.path;
 
-    // Save data to database
-    await window.GameDB.insert(converted)
-        .catch(e => window.API.log.error(`Error on window.GameDB.insert with ID ${converted.id} in getGameFromPath: ${e}`));
-
-    // Game added correctly
-    const translation = await window.API.translate("MR game successfully added", {
+    // Notificate the user
+    const translation = await window.API.translate(translationKey, {
         "gamename": selectedGame.name
     });
-    sendToastToUser("info", translation);
+    sendToastToUser(messageType, translation);
 }
 
 /**
@@ -856,8 +876,79 @@ function getGameVersionFromName(name) {
         const endIndex = name.indexOf("]", startIndex);
         version = name.substr(startIndex, endIndex - startIndex);
     }
-
     return version;
+}
+
+/**
+ * @private
+ * Obtains all the installed game names and return them in uppercase.
+ */
+async function getUppercaseInstalledGameNames() {
+    // Fetch the games
+    const games = await window.GameDB.search({})
+        .catch(e => window.API.log.error(`Error on window.GameDB.search in getUppercaseInstalledGameNames: ${e}`));
+
+    // Uppercase and return
+    const returnArray = [];
+    for(const game of games) {
+        const gamename = cleanGameName(game.name).toUpperCase();
+        returnArray.push(gamename);
+    }
+    return returnArray;
+}
+
+/**
+ * @private
+ * Given a list of paths, return a list of string containing the paths 
+ * of non-installed games and a list of installed game names.
+ * @param {String[]} paths Listo of paths to check
+ * @param {String[]} installedGameNames Uppercase names of the installed games
+ */
+function separateNewAndPresentGames(paths, installedGameNames) {
+    // Local variables
+    const nonInstalledPaths = [];
+    const installedNames = [];
+    for (const path of paths) {
+        // Get the clean game name
+        const unparsedName = window.API.getDirName(path);
+        const gamename = cleanGameName(unparsedName);
+
+        // Check if it's not already present and add it to the list
+        const included = installedGameNames.includes(gamename.toUpperCase());
+        if (!included) nonInstalledPaths.push(path);
+        else installedNames.push(gamename);
+    }
+
+    return {
+        paths: nonInstalledPaths,
+        names: installedNames
+    };
+}
+
+/**
+ * @private
+ * Show the user the name of the already installed games or, if too many, only the total count.
+ * @param {String[]} duplicateGameNames Duplicata game names to notificate to the user
+ */
+async function notificateUserOfAlreadyInstalledGames(duplicateGameNames) {
+    // Local variables
+    const MAX_NUMBER_OF_PRESENT_GAMES_FOR_MESSAGES = 5;
+
+    if (duplicateGameNames.length <= MAX_NUMBER_OF_PRESENT_GAMES_FOR_MESSAGES) {
+        // List the game names only if there are few duplicated games
+        for (const gamename of duplicateGameNames) {
+            // This game is already present: ...
+            const translation = await window.API.translate("MR game already listed", {
+                "gamename": gamename
+            });
+            sendToastToUser("warning", translation);
+        }
+    } else {
+        const translation = await window.API.translate("MR multiple duplicate games", {
+            "number": duplicateGameNames.length
+        });
+        sendToastToUser("warning", translation);
+    }
 }
 
 /**
@@ -867,45 +958,16 @@ function getGameVersionFromName(name) {
  * @returns {Promise<String[]>} List of valid paths
  */
 async function getUnlistedGamesInArrayOfPath(paths) {
-    // Local variables
-    const MAX_NUMBER_OF_PRESENT_GAMES_FOR_MESSAGES = 5;
-    const gameFolderPaths = [];
-    const alreadyPresentGames = [];
-
     // Check if the games are already present
-    const games = await window.GameDB.search({})
-        .catch(e => window.API.log.error(`Error on window.GameDB.search in getUnlistedGamesInArrayOfPath: ${e}`));
-    const listedGameNames = games.map(function(game) {
-        const gamename = cleanGameName(game.name);
-        return gamename.toUpperCase();
-    });
+    const installedGameNames = await getUppercaseInstalledGameNames();
 
-    for (const path of paths) {
-        // Get the clean game name
-        const unparsedName = window.API.getDirName(path);
-        const gamename = cleanGameName(unparsedName);
+    // Obtains the path of new games and the name of already installed games
+    const data = separateNewAndPresentGames(paths, installedGameNames);
 
-        // Check if it's not already present and add it to the list
-        if (!listedGameNames.includes(gamename.toUpperCase())) gameFolderPaths.push(path);
-        else alreadyPresentGames.push(gamename);
-    }
+    // Notificate the user of duplicate games
+    await notificateUserOfAlreadyInstalledGames(data.names);
 
-    if (alreadyPresentGames.length <= MAX_NUMBER_OF_PRESENT_GAMES_FOR_MESSAGES) {
-        // List the game names only if there are few duplicated games
-        for (const gamename of alreadyPresentGames) {
-            // This game is already present: ...
-            const translation = await window.API.translate("MR game already listed", {
-                "gamename": gamename
-            });
-            sendToastToUser("warning", translation);
-        }
-    } else {
-        const translation = await window.API.translate("MR multiple duplicate games", {
-            "number": alreadyPresentGames.length
-        });
-        sendToastToUser("warning", translation);
-    }
-    return gameFolderPaths;
+    return data.paths;
 }
 
 /**
@@ -917,7 +979,7 @@ async function getUnlistedGamesInArrayOfPath(paths) {
  */
 async function requireUserToSelectGameWithSameName(desiredGameName, listOfGames) {
     // Local variables
-    let buttonsList = [];
+    const buttonsList = [];
     let entryList = "";
 
     // Prepares the list of games to show to the user and buttons to show on the messagebox
@@ -948,8 +1010,7 @@ async function requireUserToSelectGameWithSameName(desiredGameName, listOfGames)
     });
 
     // Return the game selected or null if no game is selected
-    if (result.button === "close") return null;
-    else return listOfGames.find(x => x.id === parseInt(result.button));
+    return result.button !== "close" ? listOfGames.find(x => x.id === parseInt(result.button)) : null;
 }
 //#endregion Adding game
 
@@ -997,26 +1058,28 @@ async function recommendGamesWrapper(limit) {
     // Load credentials
     const credentials = await getCredentials()
         .catch(e => window.API.log.error(`Error on getCredentials in recommendGamesWrapper: ${e}`));
-    if (!credentials) return;
-    
-    // Fetch recommended games
-    const games = await window.F95.recommendGames(limit, credentials)
-        .catch(e => window.API.log.error(`Error on window.F95.recommendGames in recommendGamesWrapper: ${e}`));
 
-    // Remove childs
-    while (recommendContent.lastElementChild) {
-        recommendContent.removeChild(recommendContent.lastElementChild);
+    if (credentials) {
+        // Fetch recommended games
+        const games = await window.F95.recommendGames(limit, credentials)
+            .catch(e => window.API.log.error(`Error on window.F95.recommendGames in recommendGamesWrapper: ${e}`));
+        
+        if (games) {
+            // Remove childs
+            while (recommendContent.lastElementChild) {
+                recommendContent.removeChild(recommendContent.lastElementChild);
+            }
+
+            // Add cards
+            for(const game of games) {
+                const card = document.createElement("recommended-card");
+                card.info = game;
+                const column = createGridColumn();
+                column.appendChild(card);
+                recommendContent.appendChild(column);
+            }
+        }
     }
-
-    // Add cards
-    if(!games) return;
-    games.map(function (game) {
-        const card = document.createElement("recommended-card");
-        card.info = game;
-        const column = createGridColumn();
-        column.appendChild(card);
-        recommendContent.appendChild(column);
-    });
 }
 //#endregion User Data
 
@@ -1041,6 +1104,77 @@ async function updatedThreads(watchedThreads) {
 
 /**
  * @private
+ * Parse a F95Zone URL and return the ID.
+ * @param {String} url 
+ */
+function getIDFromURL(url) {
+    const match = url.match(/\.[0-9]+/);
+    if(!match) return null;
+    return parseInt(match[0].replace(".", ""));
+}
+
+/**
+ * @private
+ * Given a URL, insert into the thread database the data of the thread linked by the URL.
+ * @param {String} url URL of the thread on the F95Zone platform
+ */
+async function insertThreadFromURL(url) {
+    // Fetch the game data from the platform
+    const gameInfo = await window.F95.getGameDataFromURL(url)
+        .catch(e => window.API.log.error(`Error on window.F95.getGameDataFromURL with URL ${url} in insertThreadFromURL: ${e}`));
+    
+    // Convert object
+    const threadInfo = window.TI.convert(gameInfo);
+    
+    // Insert in the database
+    await window.ThreadDB.insert(threadInfo)
+        .catch(e => window.API.log.error(`Error on window.ThreadDB.insert with ID ${threadInfo.id} in insertThreadFromURL: ${e}`));
+}
+
+/**
+ * @private
+ * Given a URL, update the thread database with data of the thread linked by the URL.
+ * @param {String} url URL of the thread on the F95Zone platform
+ * @param {Number} tid ID of the thread in the database
+ */
+async function updateThreadInDB(url, tid) {
+    // Fetch the game data from the platform
+    const gameInfo = await window.F95.getGameDataFromURL(url)
+        .catch(e => window.API.log.error(`Error on window.F95.getGameDataFromURL with URL ${url} in updateThreadInDB: ${e}`));
+    
+    // Convert and update the thread data
+    const threadInfo = window.TI.convert(gameInfo);
+    threadInfo._id = tid; // Add the database ID
+    threadInfo.updateAvailable = true;
+    threadInfo.markedAsRead = false;
+    
+    // Update the DB record
+    await window.ThreadDB.write(threadInfo)
+        .catch(e => window.API.log.error(`Error on window.ThreadDB.write with ID ${threadInfo.id} in updateThreadInDB: ${e}`));
+}
+
+/**
+ * @private
+ * Remove from the thread database all the threads with ID not into the passed list.
+ * @param {Number[]} recentIDs 
+ */
+async function removeUnsubscribedThreadsFromDB(recentIDs) {
+    // Get all the threads from the database
+    const threads = await window.ThreadDB.search({})
+        .catch(e => window.API.log.error(`Error on window.ThreadDB.search in removeUnsubscribedThreadsFromDB: ${e}`));
+    
+    // Filter the trhread and obtains the threads to remove
+    const toRemove = threads.filter(id => !recentIDs.includes(id));
+
+    // Remove the threads from the db
+    for (const t of toRemove) {
+        await window.ThreadDB.delete(t._id)
+            .catch(e => window.API.log.error(`Error on window.ThreadDB.delete with ID ${t.id} in removeUnsubscribedThreadsFromDB: ${e}`));
+    }
+}
+
+/**
+ * @private
  * Save the watched threads in the database and edit the updated threads.
  * @param {String[]} urlList List of URLs of watched game threads
  */
@@ -1048,51 +1182,21 @@ async function syncDatabaseWatchedThreads(urlList) {
     const recentIDs = [];
     for (const url of urlList) {
         // Extract the ID from the thread
-        const match = url.match(/\.[0-9]+/);
-        if (!match) {
-            window.API.log.warn(`Cannot find ID for ${url}`);
-            continue;
-        }
-        const id = parseInt(match[0].replace(".", ""));
-        recentIDs.push(id);
+        const id = getIDFromURL(url);
+        if(id) {
+            recentIDs.push(id);
 
-        // Check if the thread exists in the database
-        const thread = await window.ThreadDB.search({
-            id: id
-        })
-            .catch(e => window.API.log.error(`Error on window.ThreadDB.search with ID ${id} in syncDatabaseWatchedThreads: ${e}`));
+            // Check if the thread exists in the database
+            const thread = await window.ThreadDB.search({id: id})
+                .catch(e => window.API.log.error(`Error on window.ThreadDB.search with ID ${id} in syncDatabaseWatchedThreads: ${e}`));
 
-        if (thread.length === 0) {
-            // The thread doesn't exists, insert
-            const gameInfo = await window.F95.getGameDataFromURL(url)
-                .catch(e => window.API.log.error(`Error on window.F95.getGameDataFromURL with URL ${url} in syncDatabaseWatchedThreads: ${e}`));
-            const threadInfo = window.TI.convert(gameInfo);
-            await window.ThreadDB.insert(threadInfo)
-                .catch(e => window.API.log.error(`Error on window.ThreadDB.insert with ID ${threadInfo.id} in syncDatabaseWatchedThreads: ${e}`));
-        } else {
-            // The game exists, check for updates
-            if (thread[0].url === url) continue; // No update...
-
-            // Update available
-            const gameInfo = await window.F95.getGameDataFromURL(url)
-                .catch(e => window.API.log.error(`Error on window.F95.getGameDataFromURL with URL ${url} in syncDatabaseWatchedThreads: ${e}`));
-            const threadInfo = window.TI.convert(gameInfo);
-            threadInfo.updateAvailable = true;
-            threadInfo.markedAsRead = false;
-            threadInfo._id = thread[0]._id; // Add the database ID
-            await window.ThreadDB.write(threadInfo)
-                .catch(e => window.API.log.error(`Error on window.ThreadDB.write with ID ${threadInfo.id} in syncDatabaseWatchedThreads: ${e}`));
+            if (thread.length === 0) await insertThreadFromURL(url);
+            else if (thread[0].url !== url) await updateThreadInDB(url, thread[0]._id);
         }
     }
 
     // Remove the unsubscribed threads
-    const threads = await window.ThreadDB.search({})
-        .catch(e => window.API.log.error(`Error on window.ThreadDB.search in syncDatabaseWatchedThreads: ${e}`));
-    for (const thread of threads) {
-        if(!recentIDs.includes(thread.id))
-            await window.ThreadDB.delete(thread._id)
-                .catch(e => window.API.log.error(`Error on window.ThreadDB.delete with ID ${thread.id} in syncDatabaseWatchedThreads: ${e}`));
-    }
+    await removeUnsubscribedThreadsFromDB(recentIDs);
 }
 
 /**
@@ -1107,17 +1211,24 @@ async function getUpdatedThreads() {
         markedAsRead: false
     }, {
         name: 1 // Order by name
-    })
-        .catch(e => window.API.log.error(`Error on window.ThreadDB.search in getUpdatedThreads: ${e}`));
+    }).catch(e => window.API.log.error(`Error on window.ThreadDB.search in getUpdatedThreads: ${e}`));
 
     // Excludes threads of installed games
+    return await selecNonInstalledThreads(threads);
+}
+
+/**
+ * @private
+ * Select only the threads that doesn't have the game installed.
+ * @param {ThreadInfo[]} threads 
+ * @return {Promise<ThreadInfo[]>}
+ */
+async function selecNonInstalledThreads(threads) {
     const result = [];
     for (const thread of threads) {
-        const searchResult = await window.GameDB.search({
-            id: thread.id
-        })
-            .catch(e => window.API.log.error(`Error on window.ThreadDB.search with ID ${thread.id} in getUpdatedThreads: ${e}`));
-        if (searchResult.length === 0) result.push(thread);
+        const count = await window.GameDB.count({id: thread.id})
+            .catch(e => window.API.log.error(`Error on window.ThreadDB.count with ID ${thread.id} in getUpdatedThreads: ${e}`));
+        if (count === 0) result.push(thread);
     }
     return result;
 }
