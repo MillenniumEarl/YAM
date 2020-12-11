@@ -171,7 +171,8 @@ class RecommendationEngine {
             const games = await F95API.getLatestUpdates({
                 tags: tags,
                 sorting: "rating"
-            }, MAX_FETCHED_GAMES).catch(e => logger.error(`Error while fetching latest game from F95: ${e}`));
+            }, MAX_FETCHED_GAMES)
+                .catch(e => logger.error(`Error while fetching latest game from F95: ${e}`));
 
             // Add the games
             for (const game of games) {
