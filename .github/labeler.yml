@@ -5,6 +5,7 @@ resources:
 - any: ['resources/**/*']
   all: ['!resources/lang/*']
 language: resources/lang/*
+documentation: docs/**/*
 
 backend: app/electron/**/*
 frontend:

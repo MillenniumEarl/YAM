@@ -145,7 +145,6 @@ contextBridge.exposeInMainWorld("API", {
      * Download an image given a url.
      * @param {String} url URL to download the image from
      * @param {String} dest Path where save the image
-     * @returns {Promise<Any>}
      */
     downloadImage: function apiDownloadImage(url, dest) {
         return download.image({
@@ -216,6 +215,23 @@ contextBridge.exposeInMainWorld("API", {
         };
 
         return await imagemin([src], options);
+    },
+    /**
+     * Log an error
+     * @param {Error} error Throwed error
+     * @param {String} code Unique error code
+     * @param {String} name Name of the function that throw the error
+     * @param {String} parentName Name of the function containing the error throwing function
+     * @param {String} message Custom message to add
+     */
+    reportError(error, code, name, parentName, message) {
+        // Prepare the error message
+        let log = `Error ${code}: ${parentName} -> ${name}`;
+        if(message) log = `${log} (${message})`;
+        log = `${log}: ${error}`;
+
+        // Write the error
+        logger.error(log);
     }
 });
 
