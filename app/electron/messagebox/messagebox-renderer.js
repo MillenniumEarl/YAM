@@ -29,6 +29,143 @@ window.onunhandledrejection = function (error) {
 
 //#region Private methods
 /**
+ * Prepare the window.
+ * @param {Object} args Arguments for the window
+ * @param {String} args.title Title of the window
+ * @param {String} args.message Message to show in the window
+ * @param {String} args.type Type of messagebox: `error`/`warning`/`info`
+ * @param {Object} args.buttons List of properties for the buttons to add to the window
+ * @param {Object} args.checkboxes List of properties for the checkboxes to add to the window
+ */
+async function prepare(args) {
+    // Set the data
+    document.getElementById("title").textContent = args.title;
+    document.getElementById("message").textContent = args.message;
+
+    // Set the window icon
+    await setIcon(args.type)
+        .catch(e => window.API.log.error(`Error on setIcon in prepare: ${e}`));
+
+    // Create the buttons
+    const buttonsContainer = document.querySelector(".buttons-container");
+    const buttons = await createButtons(args.buttons)
+        .catch(e => window.API.log.error(`Error on createButtons in prepare: ${e}`));
+    buttonsContainer.append(...buttons);
+
+    // Create the checkboxes
+    if (args.checkboxes) {
+        const checkContainer = document.querySelector(".checkboxes-container");
+        const checkboxes = await createCheckboxes(args.checkboxes)
+            .catch(e => window.API.log.error(`Error on createCheckboxes in prepare: ${e}`));
+        checkContainer.append(...checkboxes);
+    }
+
+    // Resize window to fit content
+    fitContent();
+}
+
+//#region Size
+/**
+ * @private
+ * Obtains the size of the buttons container.
+ */
+function getButtonsAreaSize() {
+    // Local variables
+    const container = document.querySelector(".container");
+    const buttonsContainer = container.querySelector(".buttons-container");
+    const MAX_WIDTH = 700; // Defined in app/src/scripts/window-creator.js
+
+    let width = 0,
+        height = 0,
+        rowWidth = 0;
+    for (const button of buttonsContainer.querySelectorAll("a.btn")) {
+        rowWidth += button.scrollWidth;
+
+        // Set the height for at least one row of buttons
+        if (height === 0) height = button.scrollHeight;
+
+        if (rowWidth > MAX_WIDTH) {
+            // Set the container width
+            width = Math.max(rowWidth, width);
+
+            // All the buttons have the same height (36px)
+            height += button.scrollHeight;
+
+            // Reset the single line width
+            rowWidth = 0;
+        }
+    }
+
+    return {
+        height: height,
+        width: Math.max(width, MAX_WIDTH),
+    };
+}
+
+/**
+ * @private
+ * Obtains the size of the checkboxes container.
+ */
+function getCheckboxesAreaSize() {
+    // Local variables
+    const container = document.querySelector(".container");
+    const checkboxesContainer = container.querySelector(".checkboxes-container");
+    const MAX_WIDTH = 700; // Defined in app/src/scripts/window-creator.js
+    let width = 0,
+        height = 0;
+
+    for (const checkbox of checkboxesContainer.querySelectorAll("label")) {
+        // The checkboxes are arranged on a single column
+        width = Math.max(checkbox.scrollWidth, width);
+        height += checkbox.scrollHeight;
+    }
+    return {
+        width: Math.max(width, MAX_WIDTH),
+        height: height,
+    };
+}
+
+/**
+ * Resize the window to fit the content of the body.
+ */
+function fitContent() {
+    // Get the elements in the page
+    const container = document.querySelector(".container");
+    const header = container.querySelector(".header");
+    const roundedContainer = container.querySelector(".rounded-container");
+
+    // Get the size of the computed elements in the page
+    const headerSize = {
+        width: header.scrollWidth,
+        height: header.scrollHeight,
+    };
+    const roundedContainerSize = {
+        width: roundedContainer.scrollWidth,
+        height: roundedContainer.scrollHeight,
+    };
+    const buttonsAreaSize = getButtonsAreaSize();
+    const checkboxesAreaSize = getCheckboxesAreaSize();
+
+    // Calculate the final sizes
+    const PADDING = 10;
+    const partialWidth = Math.max(headerSize.width,
+        roundedContainerSize.width,
+        buttonsAreaSize.width,
+        checkboxesAreaSize.width);
+    const height = headerSize.width + roundedContainerSize.width +
+        buttonsAreaSize.width + checkboxesAreaSize.width +
+        4 * PADDING; // 3*"PADDING_TOP" + 1*"PADDING_BOTTOM"
+
+    // The container (with class "container") has a width of 90%
+    // So the real width => partialWidth : 90% = realWidth : 100%
+    const realWidth = Math.ceil((partialWidth * 10) / 9);
+
+    window.API.send("window-resize", realWidth, height);
+}
+//#endregion Size
+
+//#region Buttons
+/**
  * Send an IPC message to the main process by returning 
  * the button pressed by the user and the selected checkboxes.
  * @param {MouseEvent} e 
@@ -48,82 +185,67 @@ function onButtonClick(e) {
 }
 
 /**
- * Set a icon for the type of messagebox.
- * @param {String} type `error`/`warning`/`info`
+ * @private
+ * Create a basic buttons with the specified ID
+ * @param {String} id 
  */
-async function setIcon(type) {
-    // Local variables
-    const cwd = await window.API.cwd();
-    const imagesPath = window.API.join(cwd, "resources", "images");
-    const iconElement = document.getElementById("icon");
-
-    switch (type) {
-    case "info":
-        iconElement.setAttribute("src", window.API.join(imagesPath, "info.webp"));
-        break;
-    case "warning":
-        iconElement.setAttribute("src", window.API.join(imagesPath, "warning.webp"));
-        break;
-    case "error":
-        iconElement.setAttribute("src", window.API.join(imagesPath, "error.webp"));
-        break;
-    default:
-        throw new Error(`${type} is a invalid type icon`);
-    }
+function createBaseButton(id) {
+    // Create base button
+    const button = document.createElement("a");
+    button.classList.add("waves-effect", "waves-light", "btn", "truncate");
+    button.id = id;
+    button.onclick = onButtonClick;
+    return button;
 }
 
 /**
- * Resize the window to fit the content of the body.
+ * @private
+ * Create a button with the specified options.
+ * @param {HTMLAnchorElement} button Basic button
+ * @param {Object} options Options for the button
  */
-function fitContent() {
-    // Get the elements in the page
-    const container = document.querySelector(".container");
-    const header = container.querySelector(".header");
-    const roundedContainer = container.querySelector(".rounded-container");
-    const checkboxesContainer = container.querySelector(".checkboxes-container");
-    const buttonsContainer = container.querySelector(".buttons-container");
+async function createDefaultButton(button, options) {
+    button.text = await window.API.translate(`default-button-${options.name}`);
+    button.style.color = options.color;
+    button.style.backgroundColor = options.background;
+    button.classList.add(...options.classes);
+    return button;
+}
 
-    // Get the size of the computed elements in the page
-    const [hW, hH] = [header.scrollWidth, header.scrollHeight];
-    const [rcW, rcH] = [roundedContainer.scrollWidth, roundedContainer.scrollHeight];
+/**
+ * @private
+ * Create a buttons with the given options.
+ * @param {Object[]} options Options for the specific button
+ * @param {Object} defaults Dictionary of default options for the buttons
+ */
+async function createButton(options, defaults) {
+    // Create base button
+    let button = createBaseButton(options.name);
 
-    let ccW = 0, ccH = 0;
-    for(const checkbox of checkboxesContainer.querySelectorAll("label")) {
-        // The checkboxes are arranged on a single column
-        if (checkbox.scrollWidth > ccW) ccW = checkbox.scrollWidth;
-        ccH += checkbox.scrollHeight;
+    // Create base icon
+    const icon = document.createElement("i");
+    icon.classList.add("material-icons", "left");
+
+    // Is the button a default one?
+    const isDefault = Object.keys(defaults).includes(options.name);
+    if (isDefault) {
+        // Set the default data
+        const defaultData = defaults[options.name];
+        button = await createDefaultButton(button, defaultData);
+        icon.classList.add(`md-${defaultData.icon}`);
     }
 
-    const MAX_WIDTH = 700; // Defined in app/src/scripts/window-creator.js
-    let bcW = 0, bcH = 0, rowWidth = 0;
-    for (const button of buttonsContainer.querySelectorAll("a.btn")) {
-        rowWidth += button.scrollWidth;
+    // Set the button's options, if the button is a default button
+    // the previous settings will be overwritten
+    button.text = options.text ?? button.text;
+    button.style.color = options.color ?? button.style.color;
+    button.style.backgroundColor = options.background ?? button.style.backgroundColor;
+    if (options.classes) button.classList.add(...options.classes);
+    if (options.icon) icon.classList.add(`md-${options.icon}`);
 
-        // Set the height for at least one row of buttons
-        if (bcH === 0) bcH = button.scrollHeight;
-
-        if(rowWidth > MAX_WIDTH) {
-            // Set the container width
-            if(rowWidth > bcW) bcW = rowWidth;
-            
-            // All the buttons have the same height (36px)
-            bcH += button.scrollHeight;
-
-            // Reset the single oine width
-            rowWidth = 0;
-        }
-    }
-
-    // Calculate the final sizes
-    const PADDING = 10;
-    const partialWidth = Math.max(hW, rcW, ccW, bcW);
-    const height = hH + rcH + ccH + bcH + 4 * PADDING; // 3*"PADDING_TOP" + 1*"PADDING_BOTTOM"
-
-    // The container (with class "container") has a width of 90%
-    // So the real width => partialWidth : 90% = realWidth : 100%
-    const realWidth = Math.ceil((partialWidth * 10) / 9);
-
-    window.API.send("window-resize", realWidth, height);
+    // Add the icon to the button as first child
+    button.prepend(icon);
+    return button;
 }
 
 /**
@@ -152,53 +274,38 @@ function fitContent() {
  * @returns List of buttons to add to the page
  */
 async function createButtons(options) {
-    // Local variables
-    const defaultButtons = ["close", "remove-only", "delete", "cancel", "update", "report-issue", "quit"];
-    const buttons = [];
-
     // Load the file containing the data for the default buttons
     const cwd = await window.API.cwd();
     const path = window.API.join(cwd, "resources", "default-buttons.json");
     const data = await window.IO.read(path);
     const defaults = JSON.parse(data);
 
-    for(const o of options) {
-        // Create base button
-        const button = document.createElement("a");
-        button.classList.add("waves-effect", "waves-light", "btn", "truncate");
-        button.id = o.name;
-        button.onclick = onButtonClick;
+    // Create and return the buttons
+    return options.map(async (o) => await createButton(o, defaults));
+}
+//#endregion Buttons
 
-        // Create base icon
-        const icon = document.createElement("i");
-        icon.classList.add("material-icons", "left");
+/**
+ * Set a icon for the type of messagebox.
+ * @param {String} type `error`/`warning`/`info`
+ */
+async function setIcon(type) {
+    // Local variables
+    const cwd = await window.API.cwd();
+    const imagesPath = window.API.join(cwd, "resources", "images");
+    const iconElement = document.getElementById("icon");
+    const iconName = {
+        info: "info.webp",
+        warning: "warning.webp",
+        error: "error.webp"
+    };
 
-        // Is the button a default one?
-        if(defaultButtons.includes(o.name)) {
-            const defaultData = defaults[o.name];
+    // Check if the icon is valid
+    const valid = Object.keys(iconName).includes(type);
+    if (!valid) throw new Error(`${type} is a invalid type icon`);
 
-            // Set the default data
-            button.text = await window.API.translate(`default-button-${defaultData.name}`);
-            button.style.color = defaultData.color;
-            button.style.backgroundColor = defaultData.background;
-            button.classList.add(...defaultData.classes);
-            icon.classList.add(`md-${defaultData.icon}`);
-        }
-
-        // Set the button's options, if the button is a default button
-        // the previous settings will be overwritten
-        if (o.text) button.text = o.text;
-        if (o.color) button.style.color = o.color;
-        if (o.background) button.style.backgroundColor = o.background;
-        if (o.classes) button.classList.add(...o.classes);
-        if (o.icon) icon.classList.add(`md-${o.icon}`);
-
-        // Add the icon to the button as first child
-        button.prepend(icon);
-        buttons.push(button);
-    }
-
-    return buttons;
+    // Set icon
+    iconElement.setAttribute("src", window.API.join(imagesPath, iconName[type]));
 }
 
 /**
@@ -266,42 +373,6 @@ async function createCheckboxes(options) {
         checkboxes.push(label);
     }
     return checkboxes;
-}
-
-/**
- * Prepare the window.
- * @param {Object} args Arguments for the window
- * @param {String} args.title Title of the window
- * @param {String} args.message Message to show in the window
- * @param {String} args.type Type of messagebox: `error`/`warning`/`info`
- * @param {Object} args.buttons List of properties for the buttons to add to the window
- * @param {Object} args.checkboxes List of properties for the checkboxes to add to the window
- */
-async function prepare(args) {
-    // Set the data
-    document.getElementById("title").textContent = args.title;
-    document.getElementById("message").textContent = args.message;
-
-    // Set the window icon
-    await setIcon(args.type)
-        .catch(e => window.API.log.error(`Error on setIcon in prepare: ${e}`));
-
-    // Create the buttons
-    const buttonsContainer = document.querySelector(".buttons-container");
-    const buttons = await createButtons(args.buttons)
-        .catch(e => window.API.log.error(`Error on createButtons in prepare: ${e}`));
-    buttonsContainer.append(...buttons);
-
-    // Create the checkboxes
-    if(args.checkboxes) {
-        const checkContainer = document.querySelector(".checkboxes-container");
-        const checkboxes = await createCheckboxes(args.checkboxes)
-            .catch(e => window.API.log.error(`Error on createCheckboxes in prepare: ${e}`));
-        checkContainer.append(...checkboxes);
-    }
-
-    // Resize window to fit content
-    fitContent();
 }
 //#endregion Private methods
 
