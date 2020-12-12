@@ -62,6 +62,7 @@ async function prepare(args) {
 
     // Resize window to fit content
     fitContent();
+    fitContent(); // TODO: Two times because the first time the styles are not computed
 }
 
 //#region Size
@@ -73,8 +74,11 @@ function getButtonsAreaSize() {
     // Local variables
     const container = document.querySelector(".container");
     const buttonsContainer = container.querySelector(".buttons-container");
-    const MAX_WIDTH = 700; // Defined in app/src/scripts/window-creator.js
 
+    // The content is 90% of the max width so MaxWindowSize : 100 = ContentWidth : 90
+    // 700 is the max window width defined in app/src/scripts/window-creator.js
+    const MAX_CONTENT_WIDTH = Math.floor((700 * 90) / 100);
+    
     let width = 0,
         height = 0,
         rowWidth = 0;
@@ -84,7 +88,7 @@ function getButtonsAreaSize() {
         // Set the height for at least one row of buttons
         if (height === 0) height = button.scrollHeight;
 
-        if (rowWidth > MAX_WIDTH) {
+        if (rowWidth > MAX_CONTENT_WIDTH) {
             // Set the container width
             width = Math.max(rowWidth, width);
 
@@ -98,7 +102,7 @@ function getButtonsAreaSize() {
 
     return {
         height: height,
-        width: Math.max(width, MAX_WIDTH),
+        width: Math.min(width, MAX_CONTENT_WIDTH),
     };
 }
 
@@ -110,7 +114,11 @@ function getCheckboxesAreaSize() {
     // Local variables
     const container = document.querySelector(".container");
     const checkboxesContainer = container.querySelector(".checkboxes-container");
-    const MAX_WIDTH = 700; // Defined in app/src/scripts/window-creator.js
+    
+    // The content is 90% of the max width so MaxWindowSize : 100 = ContentWidth : 90
+    // 700 is the max window width defined in app/src/scripts/window-creator.js
+    const MAX_CONTENT_WIDTH = Math.floor((700 * 90) / 100);
+
     let width = 0,
         height = 0;
 
@@ -120,7 +128,7 @@ function getCheckboxesAreaSize() {
         height += checkbox.scrollHeight;
     }
     return {
-        width: Math.max(width, MAX_WIDTH),
+        width: Math.min(width, MAX_CONTENT_WIDTH),
         height: height,
     };
 }
@@ -152,9 +160,9 @@ function fitContent() {
         roundedContainerSize.width,
         buttonsAreaSize.width,
         checkboxesAreaSize.width);
-    const height = headerSize.width + roundedContainerSize.width +
-        buttonsAreaSize.width + checkboxesAreaSize.width +
-        4 * PADDING; // 3*"PADDING_TOP" + 1*"PADDING_BOTTOM"
+    const height = headerSize.height + roundedContainerSize.height +
+        buttonsAreaSize.height + checkboxesAreaSize.height +
+        4 * PADDING; // 3 * "PADDING_TOP" + 1 * "PADDING_BOTTOM"
 
     // The container (with class "container") has a width of 90%
     // So the real width => partialWidth : 90% = realWidth : 100%
@@ -281,7 +289,8 @@ async function createButtons(options) {
     const defaults = JSON.parse(data);
 
     // Create and return the buttons
-    return options.map(async (o) => await createButton(o, defaults));
+    const promises = options.map((o) => createButton(o, defaults));
+    return Promise.all(promises);
 }
 //#endregion Buttons
 
