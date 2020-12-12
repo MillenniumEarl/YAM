@@ -1124,11 +1124,13 @@ async function insertThreadFromURL(url) {
         .catch(e => window.API.log.error(`Error on window.F95.getGameDataFromURL with URL ${url} in insertThreadFromURL: ${e}`));
     
     // Convert object
-    const threadInfo = window.TI.convert(gameInfo);
-    
-    // Insert in the database
-    await window.ThreadDB.insert(threadInfo)
-        .catch(e => window.API.log.error(`Error on window.ThreadDB.insert with ID ${threadInfo.id} in insertThreadFromURL: ${e}`));
+    if(gameInfo) {
+        const threadInfo = window.TI.convert(gameInfo);
+
+        // Insert in the database
+        await window.ThreadDB.insert(threadInfo)
+            .catch(e => window.API.log.error(`Error on window.ThreadDB.insert with ID ${threadInfo.id} in insertThreadFromURL: ${e}`));
+    }
 }
 
 /**
