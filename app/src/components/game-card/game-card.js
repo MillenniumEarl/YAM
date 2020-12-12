@@ -302,27 +302,21 @@ class GameCard extends HTMLElement {
      * @param {String} dest Path where save the downloaded image
      */
     async _downloadGamePreview(source, dest) {
+        // Local variables
+        let returnValue = false;
+
         // Check if it's possible to download the image
-        if (source.trim() === "") return false;
-        if (source.trim() === this.DEFAULT_IMAGE)
-            return false;
+        const trimmed = source.trim();
+        if (trimmed !== "" && trimmed !== this.DEFAULT_IMAGE) {
+            // Download image
+            const path = await window.API.downloadImage(source, dest)
+                .catch(e => window.API.log.error(`Cannot download ${source} as preview: ${e}`));
+            if (!path.filename) window.API.log.error(`Something went wrong when downloading ${source}`);
 
-        // Download image
-        let path = null;
-        try {
-            path = await window.API.downloadImage(source, dest);
-            if (!path.filename) {
-                window.API.log.error(`Something went wrong when downloading ${source}`);
-                return false; // Something went wrong
-            }
+            // Downloaded succesfully
+            returnValue = true;
         }
-        catch(e) {
-            window.API.log.error(`Cannot download ${source} as preview: ${e}`);
-            return false;
-        }
-
-        // Downloaded succesfully
-        return true;
+        return returnValue;
     }
 
     /**
@@ -336,7 +330,7 @@ class GameCard extends HTMLElement {
         // Compress image (given path and destination folder)
         const compressionResult = await window.API.compress(source, folder)
             .catch(e => window.API.log.error(`Error when compressing ${source} in _compressGamePreview: ${e}`));
-
+        
         // Something wrong with compression
         if (compressionResult.length !== 1) {
             window.API.log.error(`Something went wrong when compressing ${source}`);
