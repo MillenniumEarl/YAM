@@ -1042,7 +1042,7 @@ async function getUserDataFromF95() {
     document.getElementById("user-info").userdata = userdata;
     
     // Update threads
-    updatedThreads(userdata.watchedGameThreads);
+    await updatedThreads(userdata.watchedGameThreads);
 }
 
 /**
@@ -1166,7 +1166,7 @@ async function removeUnsubscribedThreadsFromDB(recentIDs) {
         .catch(e => window.API.log.error(`Error on window.ThreadDB.search in removeUnsubscribedThreadsFromDB: ${e}`));
     
     // Filter the trhread and obtains the threads to remove
-    const toRemove = threads.filter(id => !recentIDs.includes(id));
+    const toRemove = threads.filter(t => !recentIDs.includes(t.id));
 
     // Remove the threads from the db
     for (const t of toRemove) {
