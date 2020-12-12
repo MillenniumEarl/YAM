@@ -489,19 +489,8 @@ async function loadCredentials() {
         .classList.add("active");
 }
 
-/**
- * @private
- * It checks if a network connection is available
- * and notifies the main process to perform
- * the login procedure.
- */
-async function login() {
-    // Show the spinner in the avatar component
-    document.getElementById("user-info").showSpinner();
-
-    // Check network connection
-    const online = await window.API.isOnline()
-        .catch(e => window.API.log.error(`Error on isOnline in login: ${e}`));
+async function checkIfOnline() {
+    const online = await window.API.isOnline().catch(e => window.API.log.error(`Error on isOnline in login: ${e}`));
     if (!online) {
         window.API.log.warn("No network connection, cannot login");
         const translation = await window.API.translate("MR no network connection");
@@ -509,8 +498,13 @@ async function login() {
 
         // Hide spinner
         document.getElementById("user-info").hideSpinner();
-        return;
     }
+    return online;
+}
+
+async function requireLogin() {
+    // Local variables
+    let returnValue = true;
 
     // Request user input
     window.API.log.info("Send API to main process for auth request");
@@ -523,45 +517,49 @@ async function login() {
 
         // Hide spinner
         document.getElementById("user-info").hideSpinner();
-        return;
+        returnValue = false;
     }
+    return returnValue;
+}
 
-    // Load data (session not shared between windows)
-    try {
-        // Check path
-        const credPath = await window.API.invoke("credentials-path");
-        if (!window.IO.pathExists(credPath)) return;
+/**
+ * @private
+ * It checks if a network connection is available
+ * and notifies the main process to perform
+ * the login procedure.
+ */
+async function login() {
+    // Show the spinner in the avatar component
+    document.getElementById("user-info").showSpinner();
 
-        // Parse credentials
-        const json = await window.IO.read(credPath);
-        const credentials = JSON.parse(json);
+    // Check network connection, then login
+    const online = await checkIfOnline();
+    if(online) {
+        const login = await requireLogin();
 
-        const res = await window.F95.login(credentials.username, credentials.password)
-            .catch(e => window.API.log.error(`Error on window.F95.login in login: ${e}`));
-        if (!res.success) return;
+        if(login) {
+            // Login for this session
+            const credentials = await getCredentials();
+            const res = await window.F95.login(credentials.username, credentials.password)
+                .catch(e => window.API.log.error(`Error on window.F95.login in login: ${e}`));
+            if (!res.success) return;
 
-        const translation = await window.API.translate("MR login successful");
-        sendToastToUser("info", translation);
+            const translation = await window.API.translate("MR login successful");
+            sendToastToUser("info", translation);
 
-        // Show "new game" button
-        document.querySelector("#fab-add-game-btn").style.display = "block";
+            // Show "new game" button
+            document.querySelector("#fab-add-game-btn").style.display = "block";
 
-        // Load user data
-        getUserDataFromF95();
+            // Load user data
+            getUserDataFromF95().catch();
 
-        // Recommend games
-        window.API.receive("window-size", (size) => {
-            const displayable = getCardsNumberForPage(size);
-            window.requestAnimationFrame(() => recommendGamesWrapper(displayable));
-        });
-        window.API.send("window-size");
-    } catch (e) {
-        // Send error message
-        const translation = await window.API.translate("MR cannot login", {
-            "error": e
-        });
-        sendToastToUser("error", translation);
-        window.API.log.error(`Cannot login: ${e}`);
+            // Recommend games
+            window.API.receive("window-size", (size) => {
+                const displayable = getCardsNumberForPage(size);
+                window.requestAnimationFrame(() => recommendGamesWrapper(displayable));
+            });
+            window.API.send("window-size");
+        }
     }
 }
 //#endregion Authentication
