@@ -235,17 +235,18 @@ class GameCard extends HTMLElement {
         this.querySelector("#gc-engine").innerText = this.info.engine;
         this.querySelector("#gc-status").innerText = this.info.status;
 
-        // Show/hide last ipdate date
+        // Show/hide last update date
         const lastUpdateElement = this.querySelector("#gc-last-update");
+        let display = "none";
         if (this.info.lastUpdate) {
             // Date in format YYYY-mm-dd
             const datestring = this.info.lastUpdate.toISOString().split("T")[0];
             lastUpdateElement.innerText = datestring;
 
             // Show element
-            lastUpdateElement.style.display = "block";
+            display = "block";
         }
-        else lastUpdateElement.style.display = "none";
+        lastUpdateElement.style.display = display;
 
         this.querySelector("#gc-installed-version").innerText = this.info.version;
 
