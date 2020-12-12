@@ -1,3 +1,4 @@
+name: Viral check
 on: [push]
 
 jobs:
