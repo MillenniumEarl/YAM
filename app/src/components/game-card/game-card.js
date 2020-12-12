@@ -125,8 +125,7 @@ class GameCard extends HTMLElement {
         // Save the current date as last played session
         this.info.lastPlayed = new Date(Date.now());
         this.info.gameSessions += 1;
-        await this.saveData()
-            .catch(e => window.API.log.error(`Error on saveData in playEvent: ${e}`));
+        await this.saveData().catch(e => window.API.reportError(e, "2301", "this.saveData", "playEvent"));
 
         // Raise the event
         const playClickEvent = new CustomEvent("play", {
@@ -167,7 +166,7 @@ class GameCard extends HTMLElement {
                 name: this.info.name,
                 gameDirectory: this.info.gameDirectory,
                 savePaths: await window.GIE.saves(this.info)
-                    .catch(e => window.API.log.error(`Error on GIE.saves in deleteEvent: ${e}`)),
+                    .catch(e => window.API.reportError(e, "2302", "window.GIE.saves", "deleteEvent", `Args: ${this.info}`))
             },
         });
         this.dispatchEvent(deleteClickEvent);
@@ -202,6 +201,7 @@ class GameCard extends HTMLElement {
         /* Bind function to use this */
         this.loadData = this.loadData.bind(this);
         this.saveData = this.saveData.bind(this);
+        this._validateCache = this._validateCache.bind(this);
         this._updateName = this._updateName.bind(this);
         this._refreshUI = this._refreshUI.bind(this);
         this._checkForCachedUpdateThenOnline = this._checkForCachedUpdateThenOnline.bind(this);
@@ -251,8 +251,7 @@ class GameCard extends HTMLElement {
         this.querySelector("#gc-installed-version").innerText = this.info.version;
 
         // Parse the relative path of the image (asynchronusly)
-        const source = await this._parsePreviewPath()
-            .catch(e => window.API.log.error(`Error on _parsePreviewPath in _refreshUI: ${e}`));
+        const source = await this._parsePreviewPath().catch(e => window.API.reportError(e, "2303", "this._parsePreviewPath", "_refreshUI"));
         this.querySelector("#gc-preview").setAttribute("src", source);
 
         // Hide the preload circle and show the data
@@ -309,9 +308,8 @@ class GameCard extends HTMLElement {
         const trimmed = source.trim();
         if (trimmed !== "" && trimmed !== this.DEFAULT_IMAGE) {
             // Download image
-            const path = await window.API.downloadImage(source, dest)
-                .catch(e => window.API.log.error(`Cannot download ${source} as preview: ${e}`));
-            if (!path.filename) window.API.log.error(`Something went wrong when downloading ${source}`);
+            await window.API.downloadImage(source, dest)
+                .catch(e => window.API.reportError(e, "2304", "window.API.downloadImage", "_downloadGamePreview", `Source: ${source}, Dest: ${dest}`));
 
             // Downloaded succesfully
             returnValue = true;
@@ -321,16 +319,16 @@ class GameCard extends HTMLElement {
 
     /**
      * @private
-     * Convert an image to Webp or compress it if it's a GIF.
-     * @param {*} source Path to the image to compress
-     * @param {*} folder Path to save folder
+     * Convert an image to WEBP or compress it if it's a GIF.
+     * @param {String} source Path to the image to compress
+     * @param {String} folder Path to save folder
      * @returns {Promise<String|null>} Path to the compressed file or `null` if something went wrong
      */
     async _compressGamePreview(source, folder) {
         // Compress image (given path and destination folder)
         const compressionResult = await window.API.compress(source, folder)
-            .catch(e => window.API.log.error(`Error when compressing ${source} in _compressGamePreview: ${e}`));
-        
+            .catch(e => window.API.reportError(e, "2305", "window.API.compress", "_compressGamePreview", `Source: ${source}, Folder: ${folder}`));
+
         // Something wrong with compression
         if (compressionResult.length !== 1) {
             window.API.log.error(`Something went wrong when compressing ${source}`);
@@ -347,7 +345,7 @@ class GameCard extends HTMLElement {
         const ext = isGIF ? "gif" : "webp";
         return window.API.join(folder, this._parseImageName(name, source, ext));
     }
-
+    
     /**
      * @private
      * Get the path to the preview source of the game.
@@ -381,6 +379,9 @@ class GameCard extends HTMLElement {
      * Prepare the preview of the game, download and compressing it.
      */
     async _preparePreview() {
+        // Local variables
+        let returnValue = false;
+
         // Create the download path for the preview
         const previewDir = await window.API.invoke("preview-dir");
         const imageName = this._parseImageName(this.info.name, this.info.previewSrc);
@@ -390,25 +391,43 @@ class GameCard extends HTMLElement {
         if (this.info.localPreviewPath) {
             const localPath = window.API.join(previewDir, this.info.localPreviewPath);
             const exists = await window.IO.pathExists(localPath);
-            if (exists) return true; // Preview already exists
+            if (!exists) {
+                // Download the image
+                const downloadResult = await this._downloadGamePreview(this.info.previewSrc, downloadDest)
+                    .catch(e => window.API.reportError(e, "2306", "this._downloadGamePreview", "_preparePreview"));
+                if (downloadResult) {
+                    // Compress the image
+                    const compressDest = await this._compressGamePreview(downloadDest, previewDir)
+                        .catch(e => window.API.reportError(e, "2307", "this._compressGamePreview", "_preparePreview"));
+                    if (compressDest) {
+                        const compressedImageName = this._parseImageName(this.info.name, compressDest);
+
+                        // All right, set the new preview path and save data
+                        if (compressedImageName) this.info.localPreviewPath = compressedImageName;
+                        await this.saveData()
+                            .catch(e => window.API.reportError(e, "2308", "this.saveData", "_preparePreview"));
+                        returnValue = true;
+                    }
+                }
+            }
         }
+        return returnValue;
+    }
 
-        // Download the image
-        const downloadResult = await this._downloadGamePreview(this.info.previewSrc, downloadDest)
-            .catch(e => window.API.log.error(`Error on _downloadGamePreview in _preparePreview: ${e}`));
-        if (!downloadResult) return false;
+    /**
+     * @private
+     * Rename a file.
+     * @param {String} newpath 
+     * @param {String} oldpath 
+     */
+    async _rename(newpath, oldpath) {
+        // Rename the old path
+        const existsNew = await window.IO.pathExists(newpath);
+        const existsOld = await window.IO.pathExists(oldpath);
 
-        // Compress the image
-        const compressDest = await this._compressGamePreview(downloadDest, previewDir)
-            .catch(e => window.API.log.error(`Error on _compressGamePreview in _preparePreview: ${e}`));
-        if(!compressDest) return false;
-        const compressedImageName = this._parseImageName(this.info.name, compressDest);
-
-        // All right, set the new preview path and save data
-        if (compressedImageName) this.info.localPreviewPath = compressedImageName;
-        await this.saveData()
-            .catch(e => window.API.log.error(`Error on saveData in _preparePreview: ${e}`));
-        return true;
+        // Rename the directory if exists
+        if (!existsNew && existsOld) window.IO.renameDir(oldpath, newpath);
+        return !existsNew && existsOld;
     }
 
     /**
@@ -421,24 +440,22 @@ class GameCard extends HTMLElement {
      * New path of the game directory or `null` if the paths are the same
      */
     async _updateName(name, version, isMod) {
+        // Local variablses
+        let returnValue = null;
+
         // Prepare the directory paths
         const oldDirName = window.API.getDirName(this.info.gameDirectory);
         const dirpath = this.info.gameDirectory.replace(oldDirName, "");
         const modVariant = isMod ? "[MOD]" : "";
 
         // Clean the path
-        let dirname = `${name} [v.${version}] ${modVariant}`;
+        let dirname = `${name} [v.${version}] ${modVariant}`.replace(/[/\\?%*:|"<>]/g, "").trim();
         dirname = dirname.replace(/[/\\?%*:|"<>]/g, "").trim(); // Remove invalid chars
         const newpath = window.API.join(dirpath, dirname);
 
-        if(oldDirName === dirname) return null;
-
-        // Rename the old path
-        const existsNew = await window.IO.pathExists(newpath);
-        const existsOld = await window.IO.pathExists(this.info.gameDirectory);
-        if (existsNew || !existsOld) return false;
-        window.IO.renameDir(this.info.gameDirectory, newpath);
-        return newpath;
+        // Rename the directory
+        if (oldDirName !== dirname && await this._rename(newpath, this.info.gameDirectory)) returnValue = newpath;
+        return returnValue;
     }
 
     /**
@@ -459,6 +476,29 @@ class GameCard extends HTMLElement {
 
     /**
      * @private
+     * Check if the record is not too old and if so delete it from database.
+     * @param {ThreadInfo} record 
+     */
+    async _validateCache(record) {
+        // Local variables
+        const MAX_CACHE_DAYS = 3;
+        let returnValue = false;
+
+        // Check if the cache is valid, i.e. is not too old
+        const diff = this._dateDiffInDays(new Date(Date.now()), record.createdAt);
+
+        // Cache too old, delete from db
+        if (diff > MAX_CACHE_DAYS) {
+            await window.UpdateDB.delete(record._id)
+                .catch(e => window.API.reportError(e, "2309", 
+                    "window.UpdateDB.delete", "_validateCache", `DBID: ${record._id}`));
+            returnValue = true;
+        }
+        return returnValue;
+    }
+
+    /**
+     * @private
      * Check for the cached update in the database 
      * and if it's not present or it is too old 
      * check update online.
@@ -466,25 +506,19 @@ class GameCard extends HTMLElement {
      */
     async _checkForCachedUpdateThenOnline() {
         // Local variables
-        const MAX_CACHE_DAYS = 3;
+        let returnValue = false;
 
         // Check for updates in the database
         const updateDB = await window.UpdateDB.search({
             id: this.info.id
-        }).catch(e => window.API.log.error(`Error when searching update with ID ${this.info.id} in _checkForCachedUpdateThenOnline: ${e}`));
+        }).catch(e => window.API.reportError(e, "2310", "window.UpdateDB.search", "_checkForCachedUpdateThenOnline", `ID: ${this.info.id}`));
 
-        if (updateDB.length === 1) {
-            // Check if the cache is valid, i.e. is not too old
-            const diff = this._dateDiffInDays(new Date(Date.now()), updateDB[0].createdAt);
-            if (diff <= MAX_CACHE_DAYS) return true;
-            // Cache too old, delete from db
-            else await window.UpdateDB.delete(updateDB[0]._id)
-                .catch(e => window.API.log.error(`Error on deleting record with ID ${updateDB[0]._id} from db 'updates' in _checkForCachedUpdateThenOnline: ${e}`));
-        }
+        if (updateDB.length === 1) returnValue = await this._validateCache(updateDB[0]);
 
         // Check for updates online...
-        return await window.F95.checkGameUpdates(this.info)
-            .catch(e => window.API.log.error(`Error on window.F95.checkGameUpdates for ${this.info.url} in _checkForCachedUpdateThenOnline: ${e}`));
+        returnValue = await window.F95.checkGameUpdates(this.info)
+            .catch(e => window.API.reportError(e, "2311", "this._compressGamePreview", "_checkForCachedUpdateThenOnline", `URL: ${this.info.url}`));
+        return returnValue;
     }
 
     /**
@@ -499,18 +533,18 @@ class GameCard extends HTMLElement {
         // Get the update from the database
         const updateDB = await window.UpdateDB.search({
             id: this.info.id
-        }).catch(e => window.API.log.error(`Error on window.UpdateDB.search for ID ${this.info.id} in _fetchUpdate: ${e}`));
-
+        }).catch(e => window.API.reportError(e, "2312", "window.UpdateDB.search", "_fetchUpdate"));
+        
         // Get the update from the DB or online
         if (updateDB.length === 0) {
             // Update available online, fetch data...
             const result = await window.F95.getGameDataFromURL(this.info.url)
-                .catch(e => window.API.log.error(`Error on window.F95.getGameDataFromURL for url ${this.info.url} in _fetchUpdate: ${e}`));
+                .catch(e => window.API.reportError(e, "2313", "window.F95.getGameDataFromURL", "_fetchUpdate", `URL: ${this.info.url}`));
             gameinfo = window.GIE.convert(result);
 
             // Save the update to database
             await window.UpdateDB.insert(gameinfo)
-                .catch(e => window.API.log.error(`Error on window.UpdateDB.insert for ID ${gameinfo.id} in _fetchUpdate: ${e}`));
+                .catch(e => window.API.reportError(e, "2314", "window.UpdateDB.insert", "_fetchUpdate"));
         } else gameinfo = updateDB[0];
         return gameinfo;
     }
@@ -527,12 +561,13 @@ class GameCard extends HTMLElement {
             this.info.name,
             this.info.version,
             this.info.isMod)
-            .catch(e => window.API.log.error(`Error on _updateName for ID ${this.info.name} in saveData: ${e}`));
+            .catch(e => window.API.reportError(e, "2315", "this._updateName", "saveData"));
         if (newpath) this.info.gameDirectory = newpath;
 
         // Save in the database
         await window.GameDB.write(this.info)
-            .catch(e => window.API.log.error(`Error on window.UpdateDB.write for ID ${this.info.id} in saveData: ${e}`));
+            .catch(e => window.API.reportError(e, "2316",
+                "window.GameDB.write", "saveData", `Info: ${this.info}`));
     }
 
     /**
@@ -542,7 +577,7 @@ class GameCard extends HTMLElement {
      */
     async loadData(id) {
         this.info = await window.GameDB.read(id)
-            .catch(e => window.API.log.error(`Error on window.UpdateDB.read for ID ${this.info.id} in loadData: ${e}`));
+            .catch(e => window.API.reportError(e, "2317", "window.GameDB.read", "loadData",`ID: ${id}`));
     }
 
     /**
@@ -552,17 +587,17 @@ class GameCard extends HTMLElement {
     async deleteData() {
         // Delete the record in the database
         await window.GameDB.delete(this.info._id)
-            .catch(e => window.API.log.error(`Error on window.UpdateDB.delete for ID ${this.info.id} in deleteData: ${e}`));
+            .catch(e => window.API.reportError(e, "2318", "window.GameDB.delete", "deleteData", `DBID: ${this.info._id}`));
 
         // Check the cached preview
         if (!this.info.localPreviewPath) return;
 
         // Delete the cached preview
         const previewPath = await this._parsePreviewPath()
-            .catch(e => window.API.log.error(`Error on _parsePreviewPath in deleteData: ${e}`));
+            .catch(e => window.API.reportError(e, "2319", "this._parsePreviewPath", "deleteData"));
         const exists = await window.IO.pathExists(previewPath);
         if (exists) await window.IO.deleteFile(previewPath)
-            .catch(e => window.API.log.error(`Error on window.IO.deleteFile for path ${previewPath} in deleteData: ${e}`));
+            .catch(e => window.API.reportError(e, "2320", "await window.IO.deleteFile", "deleteData", `Path: ${previewPath}`));
     }
 
     /**
@@ -575,7 +610,7 @@ class GameCard extends HTMLElement {
 
         // Check update...
         const update = await this._checkForCachedUpdateThenOnline()
-            .catch(e => window.API.log.error(`Error on _checkForCachedUpdateThenOnline in checkUpdate: ${e}`));
+            .catch(e => window.API.reportError(e, "2321", "this._checkForCachedUpdateThenOnline", "checkUpdate"));
         if(!update) {
             // Hide progressbar
             this.progressbar.style.display = "none";
@@ -584,7 +619,7 @@ class GameCard extends HTMLElement {
 
         // Get update
         const gameinfo = await this._fetchUpdate()
-            .catch(e => window.API.log.error(`Error on _fetchUpdate for ID ${this.info.id} in checkUpdate: ${e}`));
+            .catch(e => window.API.reportError(e, "2322", "this._fetchUpdate", "checkUpdate"));
         
         // Change the text of the button
         const length = this.updateBtn.childNodes.length;
@@ -619,7 +654,7 @@ class GameCard extends HTMLElement {
             this._updateInfo.name,
             this._updateInfo.version, 
             this._updateInfo.isMod)
-            .catch(e => window.API.log.error(`Error on _updateName for ${this._updateInfo.name} in update: ${e}`));
+            .catch(e => window.API.reportError(e, "2323", "this._updateName", "update"));
 
         // Update info
         const dbid = this.info._id;
@@ -630,13 +665,13 @@ class GameCard extends HTMLElement {
 
         // Save info
         await this.saveData()
-            .catch(e => window.API.log.error(`Error on saveData in update: ${e}`));
+            .catch(e => window.API.reportError(e, "2324", "this.saveData", "update"));
 
         // Delete entry from cahced update DB
         const entry = await window.UpdateDB.search({id: this.info.id})
-            .catch(e => window.API.log.error(`Error on window.UpdateDB.search for ID ${this.info.id} in update: ${e}`));
+            .catch(e => window.API.reportError(e, "2325", "window.UpdateDB.search", "update", `ID: ${this.info.id}`));
         if (entry.length === 1) await window.UpdateDB.delete(entry[0]._id)
-            .catch(e => window.API.log.error(`Error on window.UpdateDB.delete for ID ${entry[0]._id} in update: ${e}`));
+            .catch(e => window.API.reportError(e, "2326", "window.UpdateDB.delete", "update", `DBID: ${entry[0]._id}`));
 
         // Hide the update button
         this.querySelector(".update-p").style.display = "none";
