@@ -103,15 +103,7 @@ contextBridge.exposeInMainWorld("API", {
      * @param {String} parentName Name of the function containing the error throwing function
      * @param {String} message Custom message to add
      */
-    reportError(error, code, name, parentName, message) {
-        // Prepare the error message
-        let log = `Error ${code}: ${parentName} -> ${name}`;
-        if (message) log = `${log} (${message})`;
-        log = `${log}: ${error}`;
-
-        // Write the error
-        logger.error(log);
-    }
+    reportError: (error, code, name, parentName, message) => errManager.reportError(error, code, name, parentName, message),
 });
 
 // Expose the I/O operations
