@@ -10,6 +10,9 @@ const promisify = require("util").promisify;
 const shell = require("electron").shell;
 const logger = require("electron-log");
 
+// Modules from file
+const reportError = require("./error-manger.js").reportError;
+
 // Promisifed functions
 const areaddir = promisify(fs.readdir);
 const alstat = promisify(fs.lstat);
@@ -58,9 +61,11 @@ module.exports.deleteFolderRecursive = async function deleteFolderRecursive(dirp
 
             // Remove subdir
             const isDir = (await alstat(p)).isDirectory();
-            if (isDir) exports.deleteFolderRecursive(p).catch(e => logger.error(`Error while recursively removing directory ${p}: ${e}`));
+            if (isDir) exports.deleteFolderRecursive(p)
+                .catch(e => reportError(e, "30700", "exports.deleteFolderRecursive", "exports.deleteFolderRecursive", `Path: ${p}`));
             // ...or remove single file
-            else await aunlink(p).catch(e => logger.error(`Error while unlinking ${p}: ${e}`));
+            else await aunlink(p)
+                .catch(e => reportError(e, "30701", "aunlink", "exports.deleteFolderRecursive", `Path: ${p}`));
         });
 
         // Remove main dir
