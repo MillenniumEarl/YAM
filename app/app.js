@@ -18,6 +18,7 @@ const windowCreator = require("./src/scripts/window-creator.js");
 const GameDataStore = require("./db/stores/game-data-store.js");
 const ThreadDataStore = require("./db/stores/thread-data-store.js");
 const updater = require("./src/scripts/updater.js");
+const reportError = require("./src/scripts/error-manger.js").reportError;
 
 // Manage unhandled errors
 process.on("uncaughtException", function (error) {
@@ -79,7 +80,7 @@ ipcMain.on("open-link", function ipcMainOnOpenLink(e, args) {
     logger.info(`Opening ${link}`);
 
     // Open link
-    openLink(link).catch(e => logger.error(`Error when opening link ${link}: ${e}`));
+    openLink(link).catch(e => reportError(e, "30000", "openLink", "ipcMainOnOpenLink", `Link: ${link}`));
 });
 
 // Close the application
@@ -141,7 +142,7 @@ ipcMain.handle("database-operation", async function ipcMainOnDBOp(e, db, op, arg
 
     // Esecute the operation
     return executeDbQuery(selectedDB, op, args)
-        .catch(e => logger.error(`Error when executing ${op} on database '${db}: ${e}`));
+        .catch(e => reportError(e, "30001", "executeDbQuery", "ipcMainOnDBOp", `DB: ${db}, Operation: ${op}, Args: ${args}`));
 });
 
 //#region Database Operations
@@ -350,7 +351,7 @@ app.whenReady().then(async function appOnReady() {
     logger.info(`Using Electron ${process.versions.electron}`);
 
     // Wait for language initialization
-    await initializeLocalization().catch(e => logger.error(`Error when initializing languages: ${e}`));
+    await initializeLocalization().catch(e => reportError(e, "30002", "initializeLocalization", "appOnReady"));
 
     logger.silly("Creating main window");
     mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;
