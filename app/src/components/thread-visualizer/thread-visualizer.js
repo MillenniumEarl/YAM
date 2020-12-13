@@ -48,11 +48,8 @@ class ThreadVisualizer extends HTMLElement {
         if (!value) throw new Error("Invalid value");
         this._info = value;
 
-        // DOM not ready, cannot update information
-        if (!this._loadedDOM) return;
-
-        // Refresh data
-        window.requestAnimationFrame(() => this._refreshUI());
+        // DOM ready, update information
+        if (this._loadedDOM) window.requestAnimationFrame(() => this._refreshUI());
     }
 
     /**
@@ -156,7 +153,7 @@ class ThreadVisualizer extends HTMLElement {
         // Update the value
         this.info.markedAsRead = true;
         await window.ThreadDB.write(this.info)
-            .catch(e => window.API.log.error(`Error on window.ThreadDB.write with ID ${this.info.id} in _markAsRead: ${e}`));
+            .catch(e => window.API.reportError(e, "22300", "window.ThreadDB.write", "_markAsRead", `Info: ${this.info}`));
 
         // Hide the element
         this.style.display = "none";
