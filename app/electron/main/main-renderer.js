@@ -60,9 +60,10 @@ document.querySelector("#main-navbar-settings").addEventListener("click", openPa
 async function onDOMContentLoaded() {
     // This function runs when the DOM is ready, i.e. when the document has been parsed
     window.API.log.info("DOM loaded, initializing elements");
-    await translateElementsInDOM();
+    await translateElementsInDOM()
+        .catch(e => window.API.reportError(e, "11200", "translateElementsInDOM", "onDOMContentLoaded"));
     await listAvailableLanguages()
-        .catch(e => window.API.log.error(`Error on listAvailableLangages in onDOMCOntentLoaded: ${e}`));
+        .catch(e => window.API.reportError(e, "11201", "listAvailableLanguages", "onDOMContentLoaded"));
 
     // Initialize the navigator-tab
     const tabNavigator = document.getElementById("tab-navigator");
@@ -96,7 +97,7 @@ async function onDOMContentLoaded() {
 
     // Login to F95Zone
     await login()
-        .catch(e => window.API.log.error(`Error on login in onDOMContentLoaded: ${e}`));
+        .catch(e => window.API.reportError(e, "11202", "login", "onDOMContentLoaded"));
 
     // Load cards in the paginator
     const paginator = document.querySelector("card-paginator");
@@ -112,7 +113,7 @@ async function onDOMContentLoaded() {
     
     // Load credentials
     await loadCredentials()
-        .catch(e => window.API.log.error(`Error on loadCredentials in onDOMContentLoaded: ${e}`));
+        .catch(e => window.API.reportError(e, "11203", "loadCredentials", "onDOMContentLoaded"));
 }
 
 /**
@@ -138,7 +139,7 @@ function onSearchGameName(e) {
  */
 async function selectSingleGameFolder() {
     const gameFolderPaths = await selectGameDirectories(false)
-        .catch(e => window.API.log.error(`Error on selectGameDirectories in onAddRemoteGame: ${e}`));
+        .catch(e => window.API.reportError(e, "11204", "selectGameDirectories", "selectSingleGameFolder"));
     if (gameFolderPaths.length !== 0) return gameFolderPaths.pop();
 }
 
@@ -159,9 +160,9 @@ async function onAddRemoteGame() {
 
     // Get game info and check if already installed
     const gameinfo = await window.F95.getGameDataFromURL(url)
-        .catch(e => window.API.log.error(`Error on window.F95.getGameDataFromURL for url ${url} in onAddRemteGame: ${e}`));
+        .catch(e => window.API.reportError(e, "11205", "window.F95.getGameDataFromURL", "onAddRemoteGame", `URL: ${url}`));
     const entry = await window.GameDB.count({id: gameinfo.id})
-        .catch(e => window.API.log.error(`Error on window.GameDB.count with ID ${gameinfo.id} in onAddRemoteGame: ${e}`));
+        .catch(e => window.API.reportError(e, "11206", "window.GameDB.count", "onAddRemoteGame"));
 
     if(entry === 0) {
         // Add data to the parsed game info
@@ -171,7 +172,7 @@ async function onAddRemoteGame() {
 
         // Save data to database
         await window.GameDB.insert(converted)
-            .catch(e => window.API.log.error(`Error on window.GameDB.insert with ID ${converted.id} in onAddRemoteGame: ${e}`));
+            .catch(e => window.API.reportError(e, "11207", "window.GameDB.insert", "onAddRemoteGame"));
 
         // Game added correctly
         const translationSuccess = await window.API.translate("MR game successfully added", {
@@ -196,17 +197,17 @@ async function onAddRemoteGame() {
 async function onAddLocalGame() {
     // The user select a single folder
     const gameFolderPaths = await selectGameDirectories(true)
-        .catch(e => window.API.log.error(`Error on selectGameDirectories in onAddLocalGame: ${e}`));
-    if (gameFolderPaths.length === 0) return;
+        .catch(e => window.API.reportError(e, "11208", "selectGameDirectories", "onAddLocalGame"));
+    if (gameFolderPaths.length !== 0) {
+        // Obtain the data
+        const translation = await window.API.translate("MR adding game from path");
+        sendToastToUser("info", translation);
+        await getGameFromPaths(gameFolderPaths)
+            .catch(e => window.API.reportError(e, "11209", "getGameFromPaths", "onAddLocalGame"));
 
-    // Obtain the data
-    const translation = await window.API.translate("MR adding game from path");
-    sendToastToUser("info", translation);
-    await getGameFromPaths(gameFolderPaths)
-        .catch(e => window.API.log.error(`Error on getGameFromPaths in onAddLocalGame: ${e}`));
-
-    // Reload data in the paginator
-    document.querySelector("card-paginator").reload();
+        // Reload data in the paginator
+        document.querySelector("card-paginator").reload();
+    }
 }
 
 /**
@@ -258,11 +259,11 @@ async function updateLanguage() {
 
     // Change language via IPC
     await window.API.changeLanguage(selectedISO)
-        .catch(e => window.API.log.error(`Error on window.API.changeLanguage in updateLanguage: ${e}`));
+        .catch(e => window.API.reportError(e, "11210", "window.API.changeLanguage", "updateLanguage", `ISO: ${selectedISO}`));
 
     // Refresh strings
     await translateElementsInDOM()
-        .catch(e => window.API.log.error(`Error on translateElementsInDOM in updateLanguage: ${e}`));
+        .catch(e => window.API.reportError(e, "11211", "translateElementsInDOM", "updateLanguage"));
 }
 
 /**
@@ -473,24 +474,31 @@ function getCardsNumberForPage(size) {
 async function loadCredentials() {
     // Load credentials
     const credentials = await getCredentials()
-        .catch(e => window.API.log.error(`Error on getCredentials in loadCredentials: ${e}`));
-    if(!credentials) return;
+        .catch(e => window.API.reportError(e, "11212", "getCredentials", "loadCredentials"));
+    if(credentials) {
+        // Set values
+        document.getElementById("settings-username-txt").value = credentials.username;
+        document.getElementById("settings-password-txt").value = credentials.password;
 
-    // Set values
-    document.getElementById("settings-username-txt").value = credentials.username;
-    document.getElementById("settings-password-txt").value = credentials.password;
-
-    // "Select" the textboxes to not overlap textual values and placeholder text
-    document
-        .querySelector("label[for='settings-username-txt']")
-        .classList.add("active");
-    document
-        .querySelector("label[for='settings-password-txt']")
-        .classList.add("active");
+        // "Select" the textboxes to not overlap textual values and placeholder text
+        document
+            .querySelector("label[for='settings-username-txt']")
+            .classList.add("active");
+        document
+            .querySelector("label[for='settings-password-txt']")
+            .classList.add("active");
+    }
 }
 
+/**
+ * @private
+ * Check if the user is online and if not notificate the user.
+ * @return {Promise<Boolean>}
+ */
 async function checkIfOnline() {
-    const online = await window.API.isOnline().catch(e => window.API.log.error(`Error on isOnline in login: ${e}`));
+    const online = await window.API.isOnline()
+        .catch(e => window.API.reportError(e, "11213", "window.API.isOnline", "checkIfOnline"));
+
     if (!online) {
         window.API.log.warn("No network connection, cannot login");
         const translation = await window.API.translate("MR no network connection");
@@ -502,6 +510,11 @@ async function checkIfOnline() {
     return online;
 }
 
+/**
+ * @private
+ * Require to login to F95Zone to the main process.
+ * @return {Promise<Boolean>} Result of authentication
+ */
 async function requireLogin() {
     // Local variables
     let returnValue = true;
@@ -541,7 +554,7 @@ async function login() {
             // Login for this session
             const credentials = await getCredentials();
             const res = await window.F95.login(credentials.username, credentials.password)
-                .catch(e => window.API.log.error(`Error on window.F95.login in login: ${e}`));
+                .catch(e => window.API.reportError(e, "11214", "window.F95.login", "login"));
             if (!res.success) return;
 
             const translation = await window.API.translate("MR login successful");
@@ -551,7 +564,8 @@ async function login() {
             document.querySelector("#fab-add-game-btn").style.display = "block";
 
             // Load user data
-            getUserDataFromF95().catch();
+            getUserDataFromF95()
+                .catch(e => window.API.reportError(e, "11215", "getUserDataFromF95", "login"));
 
             // Recommend games
             window.API.receive("window-size", (size) => {
@@ -613,7 +627,7 @@ async function selectGameDirectories(multipleSelection) {
 
     // Check if the game(s) is already present
     return await getUnlistedGamesInArrayOfPath(data.filePaths)
-        .catch(e => window.API.log.error(`Error on getUnlistedGamesInArrayOfPath in selectGameDirectories: ${e}`));
+        .catch(e => window.API.reportError(e, "11216", "getUnlistedGamesInArrayOfPath", "selectGameDirectories", `Paths: ${data.filePaths}`));
 }
 
 /**
@@ -658,7 +672,7 @@ async function gameCardUpdate(e) {
     if(finalized) {
         // Finalize the update
         const result = await e.target.update()
-            .catch(e => window.API.log.error(`Error on e.target.update in gameCardUpdate: ${e}`));
+            .catch(e => window.API.reportError(e, "11217", "e.target.update", "gameCardUpdate"));
     
         if (!result) {
             const translationError = await window.API.translate("MR error finalizing update");
@@ -743,7 +757,7 @@ async function gameCardDelete(e) {
 
     // Remove the game data
     await e.target.deleteData()
-        .catch(e => window.API.log.error(`Error on e.target.deleteData in gameCardDelete: ${e}`));
+        .catch(e => window.API.reportError(e, "11218", "e.target.deleteData", "gameCardDelete"));
 
     // Reload data in the paginator
     document.querySelector("card-paginator").reload();
@@ -776,9 +790,7 @@ async function getGameFromPaths(paths) {
                     name: "close"
                 }]
             });
-            window.API.log.error(
-                `Unexpected error while retrieving game data from path: ${path}. ${error}`
-            );
+            window.API.reportError(error, "11219", "getGameFromPath", "getGameFromPaths", `Game data path: ${path}`);
         }
     }
 }
@@ -797,7 +809,7 @@ async function selectSingleGame(name, version, mod) {
 
     // Search and add the game
     const gamelist = await window.F95.getGameData(name, mod)
-        .catch(e => window.API.log.error(`Error on window.F95.getGameData (name: ${name}, mod: ${mod}) in selectSingleGame: ${e}`));
+        .catch(e => window.API.reportError(e, "11220", "window.F95.getGameData", "selectSingleGame", `Name: ${name}, Is mod: ${mod}`));
 
     if (gamelist.length === 0) {
         const translation = await window.API.translate("MR no game found", {
@@ -809,7 +821,7 @@ async function selectSingleGame(name, version, mod) {
         // Force the user to select only a game
         const message = mod ? `${name} (${version})` : `${name} (${version}) [MOD]`;
         selectedGame = await requireUserToSelectGameWithSameName(message, gamelist)
-            .catch(e => window.API.log.error(`Error on requireUserToSelectGameWithSameName in selectSingleGame: ${e}`));
+            .catch(e => window.API.reportError(e, "11221", "requireUserToSelectGameWithSameName", "selectSingleGame"));
     }
     return selectedGame;
 }
@@ -832,11 +844,11 @@ async function getGameFromPath(path) {
     const selectedGame = await selectSingleGame(dirInfo.name, dirInfo.version, dirInfo.mod);
 
     // Verify that the game is not in the database
-    const entry = await window.GameDB.search({
+    const entry = await window.GameDB.count({
         id: selectedGame.id
-    }).catch(e => window.API.log.error(`Error on window.GameDB.search with ID ${selectedGame.id} in getGameFromPath: ${e}`));
+    }).catch(e => window.API.reportError(e, "11222", "window.GameDB.count", "getGameFromPath"));
 
-    if (entry.length === 0) {
+    if (entry === 0) {
         // Add data to the parsed game info
         const converted = window.GIE.convert(selectedGame);
         converted.version = dirInfo.version;
@@ -844,7 +856,7 @@ async function getGameFromPath(path) {
 
         // Save data to database
         await window.GameDB.insert(converted)
-            .catch(e => window.API.log.error(`Error on window.GameDB.insert with ID ${converted.id} in getGameFromPath: ${e}`));
+            .catch(e => window.API.reportError(e, "11223", "window.GameDB.insert", "getGameFromPath"));
 
         messageType = "info";
         translationKey = "MR game successfully added";
@@ -884,7 +896,7 @@ function getGameVersionFromName(name) {
 async function getUppercaseInstalledGameNames() {
     // Fetch the games
     const games = await window.GameDB.search({})
-        .catch(e => window.API.log.error(`Error on window.GameDB.search in getUppercaseInstalledGameNames: ${e}`));
+        .catch(e => window.API.reportError(e, "11224", "window.GameDB.search", "getUppercaseInstalledGameNames"));
 
     // Uppercase and return
     const returnArray = [];
@@ -1022,7 +1034,7 @@ async function getUserDataFromF95() {
 
     // Retrieve user data
     const userdata = await window.F95.getUserData()
-        .catch(e => window.API.log.error(`Error on window.F95.getUserData in getUserDataFromF95: ${e}`));
+        .catch(e => window.API.reportError(e, "11225", "window.F95.getUserData", "getUserDataFromF95"));
 
     // Check user data
     if (!userdata) {
@@ -1055,12 +1067,12 @@ async function recommendGamesWrapper(limit) {
 
     // Load credentials
     const credentials = await getCredentials()
-        .catch(e => window.API.log.error(`Error on getCredentials in recommendGamesWrapper: ${e}`));
+        .catch(e => window.API.reportError(e, "11226", "getCredentials", "recommendGamesWrapper"));
 
     if (credentials) {
         // Fetch recommended games
         const games = await window.F95.recommendGames(limit, credentials)
-            .catch(e => window.API.log.error(`Error on window.F95.recommendGames in recommendGamesWrapper: ${e}`));
+            .catch(e => window.API.reportError(e, "11227", "window.F95.recommendGames", "recommendGamesWrapper"));
         
         if (games) {
             // Remove childs
@@ -1090,11 +1102,11 @@ async function recommendGamesWrapper(limit) {
 async function updatedThreads(watchedThreads) {
     // Store the new threads and obtains info on the updates
     await syncDatabaseWatchedThreads(watchedThreads)
-        .catch(e => window.API.log.error(`Error on syncDatabaseWatchedThreads in updatedThreads: ${e}`));
+        .catch(e => window.API.reportError(e, "11228", "syncDatabaseWatchedThreads", "updatedThreads"));
 
     // Obtains the updated threads to display to the user
     const updatedThreads = await getUpdatedThreads()
-        .catch(e => window.API.log.error(`Error on getUpdatedThreads in updatedThreads: ${e}`));
+        .catch(e => window.API.reportError(e, "11229", "getUpdatedThreads", "updatedThreads"));
 
     // Prepare the threads tab
     window.requestAnimationFrame(() => prepareThreadUpdatesTab(updatedThreads));
@@ -1119,14 +1131,14 @@ function getIDFromURL(url) {
 async function insertThreadFromURL(url) {
     // Fetch the game data from the platform
     const gameInfo = await window.F95.getGameDataFromURL(url)
-        .catch(e => window.API.log.error(`Error on window.F95.getGameDataFromURL with URL ${url} in insertThreadFromURL: ${e}`));
+        .catch(e => window.API.reportError(e, "11230", "window.F95.getGameDataFromURL", "insertThreadFromURL", `URL: ${url}`));
     
     // Convert object
     const threadInfo = window.TI.convert(gameInfo);
     
     // Insert in the database
     await window.ThreadDB.insert(threadInfo)
-        .catch(e => window.API.log.error(`Error on window.ThreadDB.insert with ID ${threadInfo.id} in insertThreadFromURL: ${e}`));
+        .catch(e => window.API.reportError(e, "11231", "window.ThreadDB.insert", "insertThreadFromURL"));
 }
 
 /**
@@ -1138,8 +1150,8 @@ async function insertThreadFromURL(url) {
 async function updateThreadInDB(url, tid) {
     // Fetch the game data from the platform
     const gameInfo = await window.F95.getGameDataFromURL(url)
-        .catch(e => window.API.log.error(`Error on window.F95.getGameDataFromURL with URL ${url} in updateThreadInDB: ${e}`));
-    
+        .catch(e => window.API.reportError(e, "11232", "window.F95.getGameDataFromURL", "updateThreadInDB", `URL: ${url}`));
+        
     // Convert and update the thread data
     const threadInfo = window.TI.convert(gameInfo);
     threadInfo._id = tid; // Add the database ID
@@ -1148,7 +1160,7 @@ async function updateThreadInDB(url, tid) {
     
     // Update the DB record
     await window.ThreadDB.write(threadInfo)
-        .catch(e => window.API.log.error(`Error on window.ThreadDB.write with ID ${threadInfo.id} in updateThreadInDB: ${e}`));
+        .catch(e => window.API.reportError(e, "11233", "window.ThreadDB.write", "updateThreadInDB"));
 }
 
 /**
@@ -1159,7 +1171,7 @@ async function updateThreadInDB(url, tid) {
 async function removeUnsubscribedThreadsFromDB(recentIDs) {
     // Get all the threads from the database
     const threads = await window.ThreadDB.search({})
-        .catch(e => window.API.log.error(`Error on window.ThreadDB.search in removeUnsubscribedThreadsFromDB: ${e}`));
+        .catch(e => window.API.reportError(e, "11234", "window.ThreadDB.search", "removeUnsubscribedThreadsFromDB"));
     
     // Filter the trhread and obtains the threads to remove
     const toRemove = threads.filter(id => !recentIDs.includes(id));
@@ -1167,7 +1179,7 @@ async function removeUnsubscribedThreadsFromDB(recentIDs) {
     // Remove the threads from the db
     for (const t of toRemove) {
         await window.ThreadDB.delete(t._id)
-            .catch(e => window.API.log.error(`Error on window.ThreadDB.delete with ID ${t.id} in removeUnsubscribedThreadsFromDB: ${e}`));
+            .catch(e => window.API.reportError(e, "11235", "window.ThreadDB.delete", "removeUnsubscribedThreadsFromDB"));
     }
 }
 
@@ -1186,7 +1198,7 @@ async function syncDatabaseWatchedThreads(urlList) {
 
             // Check if the thread exists in the database
             const thread = await window.ThreadDB.search({id: id})
-                .catch(e => window.API.log.error(`Error on window.ThreadDB.search with ID ${id} in syncDatabaseWatchedThreads: ${e}`));
+                .catch(e => window.API.reportError(e, "11236", "window.ThreadDB.search", "syncDatabaseWatchedThreads"));
 
             if (thread.length === 0) await insertThreadFromURL(url);
             else if (thread[0].url !== url) await updateThreadInDB(url, thread[0]._id);
@@ -1209,7 +1221,7 @@ async function getUpdatedThreads() {
         markedAsRead: false
     }, {
         name: 1 // Order by name
-    }).catch(e => window.API.log.error(`Error on window.ThreadDB.search in getUpdatedThreads: ${e}`));
+    }).catch(e => window.API.reportError(e, "11237", "window.ThreadDB.search", "getUpdatedThreads"));
 
     // Excludes threads of installed games
     return await selecNonInstalledThreads(threads);
@@ -1225,7 +1237,7 @@ async function selecNonInstalledThreads(threads) {
     const result = [];
     for (const thread of threads) {
         const count = await window.GameDB.count({id: thread.id})
-            .catch(e => window.API.log.error(`Error on window.ThreadDB.count with ID ${thread.id} in getUpdatedThreads: ${e}`));
+            .catch(e => window.API.reportError(e, "11238", "window.GameDB.count", "selecNonInstalledThreads"));
         if (count === 0) result.push(thread);
     }
     return result;
@@ -1261,6 +1273,6 @@ window.API.receive("window-resized", function onWindowResized (size) {
 
     const displayable = getCardsNumberForPage(size);
     window.requestAnimationFrame(() => recommendGamesWrapper(displayable)
-        .catch(e => window.API.log.error(`Error on recommendGamesWrapper in onWindowResized: ${e}`)));
+        .catch(e => window.API.reportError(e, "11239", "recommendGamesWrapper", "onWindowResized")));
 });
 //#endregion IPC listeners
