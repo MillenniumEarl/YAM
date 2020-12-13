@@ -144,7 +144,7 @@ class CardPaginator extends HTMLElement {
         const selectorID = e.target.parentNode.id;
         const index = parseInt(selectorID.replace("selector_", ""));
         const shouldSwitch = await this._shouldISwitch(index)
-            .catch(e => window.API.log.error(`Error on _shoudISwitch (page: ${index}) in _selectPage: ${e}`));
+            .catch(e => window.API.reportError(e, "20101", "this._shoudISwitch", "_selectPage", `Index: ${index}`));
         if (shouldSwitch) {
             this._switchContext(index);
             window.API.log.info(`Switched context to ${index} after user click`);
@@ -158,7 +158,7 @@ class CardPaginator extends HTMLElement {
     _keyboardShortcut(e) {
         // Check if the key pressed is valid
         const validShortcut = ["ArrowRight", "ArrowLeft"].includes(e.key);
-        if(!validShortcut) return;
+        if(validShortcut) return;
 
         // Avoid new query if the component is already loading
         if (this._isLoading) return;
@@ -203,7 +203,7 @@ class CardPaginator extends HTMLElement {
 
         // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(index)
-            .catch(e => window.API.log.error(`Error on _shoudISwitch (page: ${index}) in load: ${e}`));
+            .catch(e => window.API.reportError(e, "20102", "this._shoudISwitch", "load", `Index: ${index}`));
         if (shouldSwitch) {
             window.API.log.info(`Loading paginator at page ${index}`);
             this._switchContext(index);
@@ -231,7 +231,7 @@ class CardPaginator extends HTMLElement {
         
         // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(FIRST_PAGE)
-            .catch(e => window.API.log.error(`Error on _shoudISwitch (page: ${FIRST_PAGE}) in search: ${e}`));
+            .catch(e => window.API.reportError(e, "20103", "this._shoudISwitch", "search", `Index: ${FIRST_PAGE}`));
         if (shouldSwitch) {
             window.API.log.info(`Searching for ${value} in paginator`);
             
@@ -255,7 +255,7 @@ class CardPaginator extends HTMLElement {
 
         // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(index)
-            .catch(e => window.API.log.error(`Error on _shoudISwitch (page: ${index}) in reload: ${e}`));
+            .catch(e => window.API.reportError(e, "20104", "this._shoudISwitch", "reload", `Index: ${index}`));
         if (shouldSwitch || force) {
             window.API.log.info(`Reloading page ${index}`);
             this._switchContext(index);
@@ -385,7 +385,7 @@ class CardPaginator extends HTMLElement {
 
         // Manage the next button
         const recordsNumber = await window.GameDB.count(this._searchQuery)
-            .catch(e => window.API.log.error(`Error while counting games in _manageNextPrecButtons: ${e}`));
+            .catch(e => window.API.reportError(e, "20104", "window.GameDB.count", "_manageNextPrecButtons"));
         const nPages = Math.ceil(recordsNumber / this._cardsForPage);
         toAdd = index === nPages - 1 ? "disabled" : "enabled";
         toRemove = index === nPages - 1 ? "enabled" : "disabled";
@@ -402,7 +402,7 @@ class CardPaginator extends HTMLElement {
      */
     async _paginate(index, size) {
         return await window.GameDB.search(this._searchQuery, this._sortQuery, index, size, size)
-            .catch(e => window.API.log.error(`Error while fetching games in _paginate: ${e}`));
+            .catch(e => window.API.reportError(e, "20105", "window.GameDB.search", "_paginate"));
     }
 
     /**
@@ -413,7 +413,7 @@ class CardPaginator extends HTMLElement {
     async _switchPage(index) {
         // Get the properties of the selected records
         const records = await this._paginate(index, this._cardsForPage)
-            .catch(e => window.API.log.error(`Error while fetching games in _switchPage: ${e}`));
+            .catch(e => window.API.reportError(e, "20106", "this._paginate", "_switchPage"));
 
         // Remove all columns
         const elements = this.content.querySelectorAll("div.col");
@@ -435,7 +435,7 @@ class CardPaginator extends HTMLElement {
 
         // Wait for all the cards to be loaded
         await Promise.all(cardsPromiseLoad)
-            .catch(e => window.API.log.error(`Error while loading cards: ${e}`));
+            .catch(e => window.API.reportError(e, "20107", "Promise.all", "_switchPage"));
 
         for(const card of cards) {
             // Create responsive column
@@ -458,7 +458,7 @@ class CardPaginator extends HTMLElement {
     async _getStartEndPages(index) {
         // Local variables
         const recordsNumber = await window.GameDB.count(this._searchQuery)
-            .catch(e => window.API.log.error(`Error while counting games in _getStartEndPages: ${e}`));
+            .catch(e => window.API.reportError(e, "20108", "window.GameDB.count", "_getStartEndPages", `Query: ${this._searchQuery}`));
         const nPages = Math.ceil(recordsNumber / this._cardsForPage);
 
         // If there aren't enough pages...
@@ -513,11 +513,11 @@ class CardPaginator extends HTMLElement {
 
             // Load the first page
             await this._switchPage(index)
-                .catch(e => window.API.log.error(`Error while switching page in animationOnSwitchContext: ${e}`));
+                .catch(e => window.API.reportError(e, "20109", "this._switchPage", "animationOnSwitchContext", `Index: ${index}`));
 
             // Prepare the page selectors
             const limitPages = await this._getStartEndPages(index)
-                .catch(e => window.API.log.error(`Error while getting start and end pages in animationOnSwitchContext: ${e}`));
+                .catch(e => window.API.reportError(e, "20110", "this._getStartEndPages", "animationOnSwitchContext", `Index: ${index}`));
 
             // Remove all the page selectors
             this.pageSelectorsParent.querySelectorAll("li").forEach(n => n.remove());
@@ -532,7 +532,7 @@ class CardPaginator extends HTMLElement {
 
                 // Enable/disable the next/prev buttons
                 await this._manageNextPrecButtons()
-                    .catch(e => window.API.log.error(`Error while managing next/prec page in animationOnSwitchContext: ${e}`));
+                    .catch(e => window.API.reportError(e, "20111", "this._manageNextPrecButtons", "animationOnSwitchContext"));
             }
 
             // Hide the circle preload and show the content
