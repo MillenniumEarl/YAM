@@ -38,7 +38,7 @@ module.exports.findSavesPath = async function findSavesPath(gameinfo) {
 
     // Get savegame directory
     const dir = await _getSaveDir(gameinfo)
-        .catch(e => reportError(e, "", "_getSaveDir", "findSavesPath", 
+        .catch(e => reportError(e, "31800", "_getSaveDir", "findSavesPath", 
             `Game: ${gameinfo.name} (${gameinfo.engine}|${gameinfo.gameDirectory})`));
     
     // Get savegame extension
