@@ -44,12 +44,14 @@ class RecommendationEngine {
         // Local variables
         const LOG_BASE = 2;
         const weightedTags = {};
-        const games = await this._gameStore.search({}).catch(e => logger.error(`Error while searching games in the games db: ${e}`));
+        const games = await this._gameStore.search({})
+            .catch(e => logger.error(`Error while searching games in the games db: ${e}`));
 
         for(const game of games) {
             // Obtains the log argument based on the 
             // total number of times the game has been played
-            const argument = game.gameSessions <= 2 ? 2 : game.gameSessions;
+            // with a minimum of 2
+            const argument = Math.max(game.gameSessions, 2);
             
             for(const tag of game.tags) {
                 // Calculate the log_2 (min is 1)
@@ -60,9 +62,9 @@ class RecommendationEngine {
                 // that is not installed
                 const rating = log + log / 10; // Log + 10%
 
-                // Add tag to dict
-                if (tag in weightedTags) weightedTags[tag] += rating;
-                else weightedTags[tag] = rating;
+                // Obtains the current value for the tag
+                const currentTagRating = weightedTags[tag] ?? 0;
+                weightedTags[tag] = currentTagRating + rating;
             }
         }
         return weightedTags;
@@ -77,17 +79,20 @@ class RecommendationEngine {
     async _getWatchedThreadTags() {
         // Local variables
         const tags = {};
-        const threads = await this._threadStore.search({}).catch(e => logger.error(`Error while searching threads in the threads db: ${e}`));
+        const threads = await this._threadStore.search({})
+            .catch(e => logger.error(`Error while searching threads in the threads db: ${e}`));
 
         for(const t of threads) {
-            const game = await this._gameStore.search({
+            const count = await this._gameStore.count({
                 id: t.id
-            }).catch(e => logger.error(`Error while searching thread with id ${t.id} in the threads db: ${e}`));
-            if (game.length !== 0) continue;
-
-            for(const tag of t.tags) {
-                if (tag in tags) tags[tag] += 1;
-                else tags[tag] = 1;
+            }).catch(e => logger.error(`Error while counting thread with id ${t.id} in the threads db: ${e}`));
+            
+            if (count === 0) {
+                for (const tag of t.tags) {
+                    // Obtains the current value for the tag
+                    const currentTagCount = tags[tag] ?? 0;
+                    tags[tag] = currentTagCount + 1;
+                }
             }
         }
         return tags;
@@ -111,8 +116,9 @@ class RecommendationEngine {
             const key = e[0];
             const value = e[1];
             
-            if (key in merged) merged[key] += value;
-            else merged[key] = value;
+            // Obtains the current value for the tag
+            const currentValue = merged[key] ?? 0;
+            merged[key] = currentValue + value;
         }
         return merged;
     }
@@ -126,19 +132,37 @@ class RecommendationEngine {
      */
     _mostFrequent(dict, n) {
         // Create items array
-        const items = Object.keys(dict).map(function (key) {
-            return [key, dict[key]];
-        });
+        const items = Object.keys(dict).map(key => [key, dict[key]]);
 
         // Sort the array based on the second element
-        items.sort(function (first, second) {
-            return second[1] - first[1];
-        });
+        items.sort((first, second) => second[1] - first[1]);
 
         // Return the first `n` elements
         const min = Math.min(n, items.length);
         const returnElements = items.slice(0, min);
         return returnElements.map(e => e[0]);
+    }
+
+    /**
+     * @private
+     * Validate `games` by checking that they are not installed, 
+     * are not in watched threads and do not belong to `excludeGames`.
+     * @param {GameInfo[]} games 
+     * @param {GameInfo[]} excludeGames 
+     */
+    async _validateGame(games, excludeGames) {
+        const returnValue = [];
+        for (const game of games) {
+            // Get info about the game
+            const isInstalledGame = (await this._gameStore.count({id: game.id})) !== 0;
+            const isWatchedGame = (await this._threadStore.count({id: game.id})) !== 0;
+            const isAlreadyAdded = excludeGames.find(g => g.id === game.id);
+
+            if (!isInstalledGame && !isAlreadyAdded && !isWatchedGame) {
+                returnValue.push(game);
+            }
+        }
+        return returnValue;
     }
     //#endregion Private methods
 
@@ -152,11 +176,13 @@ class RecommendationEngine {
         // Local variables
         const MAX_TAGS = 5; // Because F95Zone allow for a max. of 5 tags
         const MAX_FETCHED_GAMES = Math.floor(limit + limit / 2); // limit + 50%
-        const validGames = [];
+        const recommendedGames = [];
 
         // Get the tags
-        const weightedTags = await this._getWeightedInstalledGameTags().catch(e => logger.error(`Error while processing weighted tags of installed games: ${e}`));
-        const watchedTags = await this._getWatchedThreadTags().catch(e => logger.error(`Error while processing tags of watched games: ${e}`));
+        const weightedTags = await this._getWeightedInstalledGameTags()
+            .catch(e => logger.error(`Error while processing weighted tags of installed games: ${e}`));
+        const watchedTags = await this._getWatchedThreadTags()
+            .catch(e => logger.error(`Error while processing tags of watched games: ${e}`));
         const merged = this._mergeTagDicts(weightedTags, watchedTags);
 
         // Get the MAX_TAGS most frequent tags
@@ -164,37 +190,32 @@ class RecommendationEngine {
 
         // Login
         const result = await F95API.login(this._credentials.username, this._credentials.password);
-        if(!result.success) return [];
+        if(result.success) {
+            do {
+                // Get the games that match with tags
+                const games = await F95API.getLatestUpdates({
+                    tags: tags,
+                    sorting: "rating"
+                }, MAX_FETCHED_GAMES)
+                    .catch(e => logger.error(`Error while fetching latest game from F95: ${e}`));
 
-        do {
-            // Get the games that match with tags
-            const games = await F95API.getLatestUpdates({
-                tags: tags,
-                sorting: "rating"
-            }, MAX_FETCHED_GAMES)
-                .catch(e => logger.error(`Error while fetching latest game from F95: ${e}`));
+                // Add the games
+                const validGames = await this._validateGame(games, recommendedGames);
+                validGames.map(game => {
+                    if (recommendedGames.length < limit) 
+                        recommendedGames.push(game);
+                });
 
-            // Add the games
-            for (const game of games) {
-                const isInstalledGame = (await this._gameStore.search({id: game.id})).length !== 0;
-                const isWatchedGame = (await this._threadStore.search({id: game.id})).length !== 0;
-                const isAlreadyAdded = validGames.find(g => g.id === game.id);
-
-                if (!isInstalledGame && !isAlreadyAdded && !isWatchedGame && validGames.length < limit) {
-                    validGames.push(game);
-                }
-                else continue;
+                // Remove the last tag
+                // This is necessary for the possible next do-while loop
+                // that happens when there aren't enough recommended games
+                tags.pop();
             }
-
-            // Remove the last tag
-            // This is necessary for the possible next do-while loop
-            // that happens when there aren't enough recommended games
-            tags.pop();
+            while (recommendedGames.length < limit && tags.length > 0);
         }
-        while (validGames.length < limit && tags.length > 0);
 
         // Convert and return the games
-        return validGames.map(g => Object.assign(new GameInfoExtended, g));
+        return recommendedGames.map(g => Object.assign(new GameInfoExtended, g));
     }
 }
 
