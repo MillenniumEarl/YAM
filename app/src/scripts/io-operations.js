@@ -49,22 +49,23 @@ module.exports.openLink = async function openLink(path) {
  */
 module.exports.deleteFolderRecursive = async function deleteFolderRecursive(dirpath) {
     // First check if the path exists
-    if (!fs.existsSync(dirpath)) return;
+    if (fs.existsSync(dirpath)) {
+        // Foreach element in dir, delete (file) or recurse (folder)
+        const nodes = await areaddir(dirpath);
 
-    // Foreach element in dir, delete (file) or recurse (folder)
-    const nodes = await areaddir(dirpath);
-    nodes.forEach(async (file) => {
-        const p = path.join(dirpath, file);
-        
-        // Remove subdir
-        const isDir = (await alstat(p)).isDirectory();
-        if (isDir) exports.deleteFolderRecursive(p).catch(e => logger.error(`Error while recursively removing directory ${p}: ${e}`));
-        // ...or remove single file
-        else await aunlink(p).catch(e => logger.error(`Error while unlinking ${p}: ${e}`));
-    });
+        nodes.forEach(async (file) => {
+            const p = path.join(dirpath, file);
 
-    // Remove main dir
-    await armdir(dirpath);
+            // Remove subdir
+            const isDir = (await alstat(p)).isDirectory();
+            if (isDir) exports.deleteFolderRecursive(p).catch(e => logger.error(`Error while recursively removing directory ${p}: ${e}`));
+            // ...or remove single file
+            else await aunlink(p).catch(e => logger.error(`Error while unlinking ${p}: ${e}`));
+        });
+
+        // Remove main dir
+        await armdir(dirpath);
+    }
 };
 
 /**
@@ -74,8 +75,11 @@ module.exports.deleteFolderRecursive = async function deleteFolderRecursive(dirp
  * @returns {String} Text read or `null` if the file doesn't exists
  */
 module.exports.readFileSync = function readFileSync(filename) {
-    if (!fs.existsSync(filename)) return null;
-    else return fs.readFileSync(filename, "utf-8");
+    let returnValue = null;
+    if (fs.existsSync(filename)) {
+        returnValue = fs.readFileSync(filename, "utf-8");
+    }
+    return returnValue;
 };
 
 /**
