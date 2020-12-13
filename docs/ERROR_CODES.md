@@ -1,8 +1,8 @@
 # Error codes for errors and unhandled errors
 The error codes are structured as follows:
 + **First digit**: Type of script
-+ **Second digit**: Script identifier
-+ **Third and subsequent digits**: Unique identifier of the error
++ **Second and third digit**: Script identifier
++ **Fourth and subsequent digits**: Unique identifier of the error
 
 ## Types of scripts:
 | Code |      Script      |                     Description                    |
