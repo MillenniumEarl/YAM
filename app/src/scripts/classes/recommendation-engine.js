@@ -2,12 +2,12 @@
 
 // Public modules from npm
 const F95API = require("f95api");
-const logger = require("electron-log");
 
 // Modules from file
 const GameDataStore = require("../../../db/stores/game-data-store.js");
 const ThreadDataStore = require("../../../db/stores/thread-data-store.js");
 const GameInfoExtended = require("./game-info-extended.js");
+const reportError = require("../error-manger.js").reportError;
 
 class RecommendationEngine {
     /**
@@ -45,7 +45,7 @@ class RecommendationEngine {
         const LOG_BASE = 2;
         const weightedTags = {};
         const games = await this._gameStore.search({})
-            .catch(e => logger.error(`Error while searching games in the games db: ${e}`));
+            .catch(e => reportError(e, "31600", "this._gameStore.search", "_getWeightedInstalledGameTags"));
 
         for(const game of games) {
             // Obtains the log argument based on the 
@@ -80,12 +80,12 @@ class RecommendationEngine {
         // Local variables
         const tags = {};
         const threads = await this._threadStore.search({})
-            .catch(e => logger.error(`Error while searching threads in the threads db: ${e}`));
+            .catch(e => reportError(e, "31601", "this._threadStore.search", "_getWatchedThreadTags"));
 
         for(const t of threads) {
             const count = await this._gameStore.count({
                 id: t.id
-            }).catch(e => logger.error(`Error while counting thread with id ${t.id} in the threads db: ${e}`));
+            }).catch(e => reportError(e, "31602", "this._gameStore.count", "_getWatchedThreadTags"));
             
             if (count === 0) {
                 for (const tag of t.tags) {
@@ -180,9 +180,9 @@ class RecommendationEngine {
 
         // Get the tags
         const weightedTags = await this._getWeightedInstalledGameTags()
-            .catch(e => logger.error(`Error while processing weighted tags of installed games: ${e}`));
+            .catch(e => reportError(e, "31603", "this._getWeightedInstalledGameTags", "recommend"));
         const watchedTags = await this._getWatchedThreadTags()
-            .catch(e => logger.error(`Error while processing tags of watched games: ${e}`));
+            .catch(e => reportError(e, "31604", "this._getWatchedThreadTags", "recommend"));
         const merged = this._mergeTagDicts(weightedTags, watchedTags);
 
         // Get the MAX_TAGS most frequent tags
@@ -197,7 +197,7 @@ class RecommendationEngine {
                     tags: tags,
                     sorting: "rating"
                 }, MAX_FETCHED_GAMES)
-                    .catch(e => logger.error(`Error while fetching latest game from F95: ${e}`));
+                    .catch(e => reportError(e, "31605", "F95API.getLatestUpdates", "recommend"));
 
                 // Add the games
                 const validGames = await this._validateGame(games, recommendedGames);
