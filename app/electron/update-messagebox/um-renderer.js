@@ -34,7 +34,7 @@ let _url, _folder;
 window.API.once("window-arguments", async function onWindowArguments(args) {
     // Translate the DOM
     await translateElementsInDOM()
-        .catch(e => window.API.log.error(`Error on translateElementsInDOM in onWindowArguments: ${e}`));
+        .catch(e => window.API.reportError(e, "12500", "translateElementsInDOM", "onWindowArguments"));
 
     // Set the data
     const translation = await window.API.translate("UM description", {
@@ -81,14 +81,8 @@ async function translateElementsInDOM() {
 
     // Translate elements
     for (const e of elements) {
-        // Select the element to translate
-        const toTranslate = e.childNodes.length === 0 ?
-            // Change text if no child elements are presents...
-            e :
-            // ... or change only the last child (the text)
-            e.childNodes[e.childNodes.length - 1];
-
-        // Translate
+        // Select the element to translate (the last child or the element itself)
+        const toTranslate = e.lastChild ?? e;
         toTranslate.textContent = await window.API.translate(e.id);
     }
 }

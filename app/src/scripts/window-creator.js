@@ -34,8 +34,8 @@ module.exports.createMainWindow = function (onclose) {
     const preload = path.join(PRELOAD_DIR, "main", "main-preload.js");
 
     // Set size
-    const width = store.has("main-width") ? store.get("main-width") : 1024;
-    const height = store.has("main-height") ? store.get("main-height") : 620;
+    const width = store.has("main-width") ?? 1024;
+    const height = store.has("main-height") ?? 620;
     const size = {
         width: width,
         height: height,
@@ -54,9 +54,7 @@ module.exports.createMainWindow = function (onclose) {
     });
 
     // Detect if the user maximized the window in a previous session
-    const maximize = store.has("main-maximized") ?
-        store.get("main-maximized") :
-        false;
+    const maximize = store.has("main-maximized") ?? false;
     if (maximize) w.window.maximize();
 
     // Whatever URL the user clicks will open the default browser for viewing
@@ -102,11 +100,11 @@ module.exports.createLoginWindow = function (parent, onclose) {
         onclose: onclose
     });
 
-    // Set window properties
-    if (!isDev) w.window.setResizable(false);
-
-    // Disable default menu
-    if (!isDev) w.window.setMenu(null);
+    // Set window properties and disable default menu
+    if (!isDev) {
+        w.window.setResizable(false);
+        w.window.setMenu(null);
+    }
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "login.html");
@@ -153,11 +151,11 @@ module.exports.createMessagebox = function (parent, args, onclose) {
         onclose: onclose
     });
 
-    // Set window properties
-    if (!isDev) w.window.setResizable(false);
-
-    // Disable default menu
-    if (!isDev) w.window.setMenu(null);
+    // Set window properties and disable default menu
+    if (!isDev) {
+        w.window.setResizable(false);
+        w.window.setMenu(null);
+    }
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "messagebox.html");
@@ -193,11 +191,11 @@ module.exports.createURLInputbox = function(parent, onclose) {
         onclose: onclose
     });
     
-    // Set window properties
-    if (!isDev) w.window.setResizable(false);
-
-    // Disable default menu
-    if (!isDev) w.window.setMenu(null);
+    // Set window properties and disable default menu
+    if (!isDev) {
+        w.window.setResizable(false);
+        w.window.setMenu(null);
+    }
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "url-input.html");
@@ -240,11 +238,11 @@ module.exports.createUpdateMessagebox = function (parent, args, onclose) {
         onclose: onclose
     });
 
-    // Set window properties
-    if (!isDev) w.window.setResizable(false);
-
-    // Disable default menu
-    if (!isDev) w.window.setMenu(null);
+    // Set window properties and disable default menu
+    if (!isDev) {
+        w.window.setResizable(false);
+        w.window.setMenu(null);
+    }
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "update-messagebox.html");
@@ -288,10 +286,10 @@ function createBaseWindow(options) {
         // Set "style" settings
         icon: APP_ICON,
         backgroundColor: BASE_COLOR, // Used to simulate loading and not make the user wait
-        frame: options.hasFrame !== undefined ? options.hasFrame : true,
+        frame: options.hasFrame ?? true,
 
         // Set window behaviour
-        parent: options.parent !== undefined ? options.parent : null,
+        parent: options.parent ?? null,
         modal: options.parent !== undefined,
 
         // Set security settings
@@ -328,13 +326,13 @@ function createBaseWindow(options) {
             // Destructure the size and check for min/max size
             let [width, height] = args;
             if (options.minSize) {
-                if (width < options.minSize.width) width = options.minSize.width;
-                if (height < options.minSize.height) height = options.minSize.height;
+                width = Math.max(width, options.maxSize.width);
+                height = Math.max(height, options.maxSize.height);
             }
 
             if (options.maxSize) {
-                if (width > options.maxSize.width) width = options.maxSize.width;
-                if (height > options.maxSize.height) height = options.maxSize.height;
+                width = Math.min(width, options.maxSize.width);
+                height = Math.min(height, options.maxSize.height);
             }
 
             // Set the size
@@ -366,22 +364,22 @@ function createClosePromise(window, onclose) {
         let _closeWithIPC = false;
 
         window.webContents.on("ipc-message", function ipcMessage(e, channel, args) {
-            if (channel !== "window-close") return;
-            
-            // Assign the function to be performed 
-            // when the window is closed (via IPC message)
-            if (onclose) {
-                if (args[0]) onclose(args[0]);
-                else onclose();
+            if (channel === "window-close") {
+                // Assign the function to be performed 
+                // when the window is closed (via IPC message)
+                if (onclose) {
+                    if (args[0]) onclose(args[0]);
+                    else onclose();
+                }
+
+                // Closes the window explicitly
+                _closeWithIPC = true;
+                window.close();
+
+                // Resolve the promise
+                const param = args[0] ?? null;
+                resolve(param);
             }
-
-            // Closes the window explicitly
-            _closeWithIPC = true;
-            window.close();
-
-            // Resolve the promise
-            const param = args[0] !== undefined ? args[0] : null;
-            resolve(param);
         });
 
         // Assign the function to perform when 

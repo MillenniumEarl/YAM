@@ -57,36 +57,28 @@ class GameInfoExtended extends GameInfo {
      * @returns {String} Launcher of the game or `null` if no file are found
      */
     getGameLauncher() {
-        // Get the extension matching the current OS
-        let extensions = "";
-        
-        switch (process.platform) {
-        case "win32":
-            extensions = ["exe", "html"];
-            break;
-        case "darwin":
-            extensions = ["sh", "html"];
-            break;
-        case "linux":
-            extensions = ["sh", "x86_64", "html"];
-            break;
-        default:
-            // Unsupported platform
-            return null;
-        }
+        // Local variables
+        let executablePath = null;
 
+        // Get the extension matching the current OS
+        const extensions = this._getExtensionsForPlatform();
+        
         // Find the launcher
-        for(const ext of extensions) {
-            let files = glob.sync(`*.${ext}`, {
+        let index = 0;
+        do {
+            // Obtains the files with the specific extension
+            const files = glob.sync(`*.${extensions[index]}`, {
                 cwd: this.gameDirectory
             });
+
             if (files.length !== 0) {
-                // Return executable
-                const path = join(this.gameDirectory, files[0]);
-                return path;
+                executablePath = join(this.gameDirectory, files[0]);
             }
+
+            index += 1;
         }
-        return null;
+        while (index < extensions.length && !executablePath);
+        return executablePath;
     }
 
     /**
@@ -100,6 +92,27 @@ class GameInfoExtended extends GameInfo {
     //#endregion Public methods
 
     //#region Private methods
+    /**
+     * @private
+     * Obtains the valid file extensions for game for the 
+     * current OS or a empty array if it's not supported.
+     * @return {String[]}
+     */
+    _getExtensionsForPlatform() {
+        // Local variables
+        let returnValue = [];
+        const extensions = {
+            win32: ["exe", "html"],
+            darwin: ["sh", "html"],
+            linux: ["sh", "x86_64", "html"],
+        };
+
+        // Check if this is a valid OS
+        const valid = Object.keys(extensions).includes(process.platform);
+        if(valid) returnValue = extensions[process.platform];
+        return returnValue;
+    }
+
     /**
      * @private
      * Converts the object to a dictionary used for JSON serialization.

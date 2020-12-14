@@ -110,13 +110,16 @@ class CardPaginator extends HTMLElement {
      */
     _nextPage(e) {
         // Ignore event if the button is disabled
-        if (e.target.parentNode.classList.contains("disabled")) return;
+        const disabled = e.target.parentNode.classList.contains("disabled");
 
         // Obtain the ID of the currently selected page selector
         const index = this._getCurrentIndex();
-        if (index === -1) return;
-        this._switchContext(index + 1);
-        window.API.log.info(`Switched context to ${index + 1} after user click (nextPage)`);
+
+        // Switch page
+        if (index !== -1 && !disabled) {
+            this._switchContext(index + 1);
+            window.API.log.info(`Switched context to ${index + 1} after user click (nextPage)`);
+        }
     }
 
     /**
@@ -126,13 +129,16 @@ class CardPaginator extends HTMLElement {
      */
     _prevPage(e) {
         // Ignore event if the button is disabled
-        if(e.target.parentNode.classList.contains("disabled")) return;
+        const disabled = e.target.parentNode.classList.contains("disabled");
 
         // Obtain the ID of the currently selected page selector
         const index = this._getCurrentIndex();
-        if (index === -1) return;
-        this._switchContext(index - 1);
-        window.API.log.info(`Switched context to ${index - 1} after user click (prevPage)`);
+
+        // Switch page
+        if (index !== -1 && !disabled) {
+            this._switchContext(index - 1);
+            window.API.log.info(`Switched context to ${index - 1} after user click (prevPage)`);
+        }
     }
 
     /**
@@ -144,7 +150,7 @@ class CardPaginator extends HTMLElement {
         const selectorID = e.target.parentNode.id;
         const index = parseInt(selectorID.replace("selector_", ""));
         const shouldSwitch = await this._shouldISwitch(index)
-            .catch(e => window.API.log.error(`Error on _shoudISwitch (page: ${index}) in _selectPage: ${e}`));
+            .catch(e => window.API.reportError(e, "20101", "this._shoudISwitch", "_selectPage", `Index: ${index}`));
         if (shouldSwitch) {
             this._switchContext(index);
             window.API.log.info(`Switched context to ${index} after user click`);
@@ -156,36 +162,32 @@ class CardPaginator extends HTMLElement {
      * @param {KeyboardEvent} e
      */
     _keyboardShortcut(e) {
-        // Check if the key pressed is valid
+        // Local variables
+        const keyPageMap = {
+            ArrowRight: "#next-page",
+            ArrowLeft: "#prev-page"
+        };
+
+        // Check if the key pressed is valid and 
+        // avoid new query if the component is already loading
         const validShortcut = ["ArrowRight", "ArrowLeft"].includes(e.key);
-        if(!validShortcut) return;
+        if (validShortcut && !this._isLoading) {
 
-        // Avoid new query if the component is already loading
-        if (this._isLoading) return;
+            // Obtain the ID of the currently selected page selector
+            const index = this._getCurrentIndex();
 
-        // Obtain the ID of the currently selected page selector
-        const index = this._getCurrentIndex();
-        if (index === -1) return;
-        
-        // Calculate the new index
-        let nextIndex = 0;
-        
-        if (e.key === "ArrowRight") {
-            // Check if we are on the last page
-            const disabled = this.querySelector("#next-page").classList.contains("disabled");
-            if (disabled) return;
-            nextIndex = index + 1;
+            // Check if we are on the first/last page
+            const disabled = this.querySelector(keyPageMap[e.key]).classList.contains("disabled");
+
+            if (index !== -1 || !disabled) {
+                // Calculate the new index
+                const nextIndex = e.key === "ArrowRight" ? index + 1: index -1;
+
+                // Switch page
+                this._switchContext(nextIndex);
+                window.API.log.info(`Switched context to ${nextIndex} after user shortcut`);
+            }
         }
-        else if (e.key === "ArrowLeft") {
-            // Check if we are on the first page
-            const disabled = this.querySelector("#prev-page").classList.contains("disabled");
-            if(disabled) return;
-            nextIndex = index - 1;
-        }
-
-        // Switch page
-        this._switchContext(nextIndex);
-        window.API.log.info(`Switched context to ${nextIndex} after user shortcut`);
     }
 
     //#endregion Events
@@ -198,13 +200,12 @@ class CardPaginator extends HTMLElement {
      * @param {number} [index] Index of the page to show. Default: 0
      */
     async load(index = 0) {
-        // Avoid new query if the component is already loading
-        if (this._isLoading) return;
-
         // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(index)
-            .catch(e => window.API.log.error(`Error on _shoudISwitch (page: ${index}) in load: ${e}`));
-        if (shouldSwitch) {
+            .catch(e => window.API.reportError(e, "20102", "this._shoudISwitch", "load", `Index: ${index}`));
+        
+        // Avoid new query if the component is already loading
+        if (shouldSwitch && !this._isLoading) {
             window.API.log.info(`Loading paginator at page ${index}`);
             this._switchContext(index);
         }
@@ -217,22 +218,15 @@ class CardPaginator extends HTMLElement {
      */
     async search(value) {
         const FIRST_PAGE = 0;
-
-        // Avoid new query if the component is already loading
-        if (this._isLoading) return;
-
+        
         // Build the query (regex with case insensitive)
-        if(value.trim() !== "") {
-            const re = new RegExp(value, "i");
-            this._searchQuery = {
-                name: re
-            };
-        } else this._searchQuery = {};
+        this._searchQuery = this._buildSearchQuery(value);
         
         // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(FIRST_PAGE)
-            .catch(e => window.API.log.error(`Error on _shoudISwitch (page: ${FIRST_PAGE}) in search: ${e}`));
-        if (shouldSwitch) {
+            .catch(e => window.API.reportError(e, "20103", "this._shoudISwitch", "search", `Index: ${FIRST_PAGE}`));
+        
+        if (shouldSwitch && !this._isLoading) {
             window.API.log.info(`Searching for ${value} in paginator`);
             
             // Load the first page
@@ -247,16 +241,15 @@ class CardPaginator extends HTMLElement {
      * @param {Boolean} [force] Force the reload
      */
     async reload(force) {
-        // Avoid new query if the component is already loading
-        if (this._isLoading) return;
-
+        // Get the current index
         const currentIndex = this._getCurrentIndex();
         const index = currentIndex !== -1 ? currentIndex : 0;
 
         // Check if the switch is necessary
         const shouldSwitch = await this._shouldISwitch(index)
-            .catch(e => window.API.log.error(`Error on _shoudISwitch (page: ${index}) in reload: ${e}`));
-        if (shouldSwitch || force) {
+            .catch(e => window.API.reportError(e, "20104", "this._shoudISwitch", "reload", `Index: ${index}`));
+        
+        if ((shouldSwitch || force) && !this._isLoading) {
             window.API.log.info(`Reloading page ${index}`);
             this._switchContext(index);
         }
@@ -355,12 +348,16 @@ class CardPaginator extends HTMLElement {
      * Gets the ID of the currently selected page selector.
      */
     _getCurrentIndex() {
-        // get the active page, if none is found return -1
-        const activePage = this.querySelector("li.active");
-        if(!activePage) return -1;
+        // Local variables
+        let index = -1;
 
-        // Parse and return the current index
-        return parseInt(activePage.id.replace("selector_", ""), 10);
+        // Get the active page, if none is found return -1
+        const activePage = this.querySelector("li.active");
+        if(activePage) {
+            // Parse and return the current index
+            index = parseInt(activePage.id.replace("selector_", ""), 10);
+        }
+        return index;
     }
 
     /**
@@ -385,7 +382,7 @@ class CardPaginator extends HTMLElement {
 
         // Manage the next button
         const recordsNumber = await window.GameDB.count(this._searchQuery)
-            .catch(e => window.API.log.error(`Error while counting games in _manageNextPrecButtons: ${e}`));
+            .catch(e => window.API.reportError(e, "20104", "window.GameDB.count", "_manageNextPrecButtons"));
         const nPages = Math.ceil(recordsNumber / this._cardsForPage);
         toAdd = index === nPages - 1 ? "disabled" : "enabled";
         toRemove = index === nPages - 1 ? "enabled" : "disabled";
@@ -402,7 +399,7 @@ class CardPaginator extends HTMLElement {
      */
     async _paginate(index, size) {
         return await window.GameDB.search(this._searchQuery, this._sortQuery, index, size, size)
-            .catch(e => window.API.log.error(`Error while fetching games in _paginate: ${e}`));
+            .catch(e => window.API.reportError(e, "20105", "window.GameDB.search", "_paginate"));
     }
 
     /**
@@ -413,7 +410,7 @@ class CardPaginator extends HTMLElement {
     async _switchPage(index) {
         // Get the properties of the selected records
         const records = await this._paginate(index, this._cardsForPage)
-            .catch(e => window.API.log.error(`Error while fetching games in _switchPage: ${e}`));
+            .catch(e => window.API.reportError(e, "20106", "this._paginate", "_switchPage"));
 
         // Remove all columns
         const elements = this.content.querySelectorAll("div.col");
@@ -435,7 +432,7 @@ class CardPaginator extends HTMLElement {
 
         // Wait for all the cards to be loaded
         await Promise.all(cardsPromiseLoad)
-            .catch(e => window.API.log.error(`Error while loading cards: ${e}`));
+            .catch(e => window.API.reportError(e, "20107", "Promise.all", "_switchPage"));
 
         for(const card of cards) {
             // Create responsive column
@@ -458,7 +455,7 @@ class CardPaginator extends HTMLElement {
     async _getStartEndPages(index) {
         // Local variables
         const recordsNumber = await window.GameDB.count(this._searchQuery)
-            .catch(e => window.API.log.error(`Error while counting games in _getStartEndPages: ${e}`));
+            .catch(e => window.API.reportError(e, "20108", "window.GameDB.count", "_getStartEndPages", `Query: ${this._searchQuery}`));
         const nPages = Math.ceil(recordsNumber / this._cardsForPage);
 
         // If there aren't enough pages...
@@ -502,45 +499,45 @@ class CardPaginator extends HTMLElement {
         // Define function
         const animationOnSwitchContext = (async () => {
             // Check if the page is altready loading
-            if (this._isLoading) return;
+            if (!this._isLoading) {
+                // Set global variable
+                this._isLoading = true;
 
-            // Set global variable
-            this._isLoading = true;
+                // Show a circle preload and hide the content
+                this.preload.style.display = "flex";
+                this.content.style.display = "none";
 
-            // Show a circle preload and hide the content
-            this.preload.style.display = "flex";
-            this.content.style.display = "none";
+                // Load the first page
+                await this._switchPage(index)
+                    .catch(e => window.API.reportError(e, "20109", "this._switchPage", "animationOnSwitchContext", `Index: ${index}`));
 
-            // Load the first page
-            await this._switchPage(index)
-                .catch(e => window.API.log.error(`Error while switching page in animationOnSwitchContext: ${e}`));
+                // Prepare the page selectors
+                const limitPages = await this._getStartEndPages(index)
+                    .catch(e => window.API.reportError(e, "20110", "this._getStartEndPages", "animationOnSwitchContext", `Index: ${index}`));
 
-            // Prepare the page selectors
-            const limitPages = await this._getStartEndPages(index)
-                .catch(e => window.API.log.error(`Error while getting start and end pages in animationOnSwitchContext: ${e}`));
+                // Remove all the page selectors
+                this.pageSelectorsParent.querySelectorAll("li").forEach(n => n.remove());
 
-            // Remove all the page selectors
-            this.pageSelectorsParent.querySelectorAll("li").forEach(n => n.remove());
+                // Avoid creating selectors if there are no pages
+                if (limitPages.end - limitPages.start > 0) {
+                    this._createPageSelectors(limitPages.start, limitPages.end + 1, index);
 
-            // Avoid creating selectors if there are no pages
-            if (limitPages.end - limitPages.start > 0) {
-                this._createPageSelectors(limitPages.start, limitPages.end + 1, index);
+                    // Set the current page as active
+                    const current = this.pageSelectorsParent.querySelector(`#selector_${index}`);
+                    current.classList.add("active");
 
-                // Set the current page as active
-                const current = this.pageSelectorsParent.querySelector(`#selector_${index}`);
-                current.classList.add("active");
+                    // Enable/disable the next/prev buttons
+                    await this._manageNextPrecButtons()
+                        .catch(e => window.API.reportError(e, "20111", "this._manageNextPrecButtons", "animationOnSwitchContext"));
+                }
 
-                // Enable/disable the next/prev buttons
-                await this._manageNextPrecButtons()
-                    .catch(e => window.API.log.error(`Error while managing next/prec page in animationOnSwitchContext: ${e}`));
+                // Hide the circle preload and show the content
+                this.preload.style.display = "none";
+                this.content.style.display = "block";
+
+                // Set global variable
+                this._isLoading = false;
             }
-
-            // Hide the circle preload and show the content
-            this.preload.style.display = "none";
-            this.content.style.display = "block";
-
-            // Set global variable
-            this._isLoading = false;
         });
 
         // Execute switch
@@ -576,6 +573,24 @@ class CardPaginator extends HTMLElement {
         const checker = (arr, target) => target.every(v => arr.includes(v));
 
         return !checker(toPaginateIDs, paginatedIDs);
+    }
+
+    /**
+     * @private
+     * Build the search querywith the given parameters
+     * @param {String} name Name of the game
+     */
+    _buildSearchQuery(name) {
+        // Local variables
+        let query = {};
+
+        if (name.trim() !== "") {
+            const re = new RegExp(name, "i");
+            query = {
+                name: re
+            };
+        }
+        return query;
     }
     //#endregion Utility
 

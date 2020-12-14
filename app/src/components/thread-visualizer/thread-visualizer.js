@@ -48,11 +48,8 @@ class ThreadVisualizer extends HTMLElement {
         if (!value) throw new Error("Invalid value");
         this._info = value;
 
-        // DOM not ready, cannot update information
-        if (!this._loadedDOM) return;
-
-        // Refresh data
-        window.requestAnimationFrame(() => this._refreshUI());
+        // DOM ready, update information
+        if (this._loadedDOM) window.requestAnimationFrame(() => this._refreshUI());
     }
 
     /**
@@ -138,14 +135,13 @@ class ThreadVisualizer extends HTMLElement {
      */
     async _translateElementsInDOM() {
         // Get only the localizable elements
-        const elements = this.querySelectorAll(".localizable");
+        const elements = document.querySelectorAll(".localizable");
 
         // Translate elements
-        for (let e of elements) {
-            // Change text if no child elements are presents...
-            if (e.childNodes.length === 0) e.textContent = await window.API.translate(e.id);
-            // ... or change only the last child (the text)
-            else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
+        for (const e of elements) {
+            // Select the element to translate (the last child or the element itself)
+            const toTranslate = e.lastChild ?? e;
+            toTranslate.textContent = await window.API.translate(e.id);
         }
     }
 
@@ -157,7 +153,7 @@ class ThreadVisualizer extends HTMLElement {
         // Update the value
         this.info.markedAsRead = true;
         await window.ThreadDB.write(this.info)
-            .catch(e => window.API.log.error(`Error on window.ThreadDB.write with ID ${this.info.id} in _markAsRead: ${e}`));
+            .catch(e => window.API.reportError(e, "22300", "window.ThreadDB.write", "_markAsRead", `Info: ${this.info}`));
 
         // Hide the element
         this.style.display = "none";

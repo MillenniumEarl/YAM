@@ -98,6 +98,15 @@ contextBridge.exposeInMainWorld("API", {
      * Provide access to logger methods.
      */
     log: logger.functions,
+    /**
+     * Log an error
+     * @param {Error} error Throwed error
+     * @param {String} code Unique error code
+     * @param {String} name Name of the function that throw the error
+     * @param {String} parentName Name of the function containing the error throwing function
+     * @param {String} message Custom message to add
+     */
+    reportError: (error, code, name, parentName, message) => errManager.reportError(error, code, name, parentName, message),
 });
 
 // Expose methods for error logging

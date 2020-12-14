@@ -54,8 +54,7 @@ class RecommendedCard extends HTMLElement {
         this._loadedDOM = true;
 
         // Refresh data
-        window.requestAnimationFrame(() => this._refreshUI()
-            .catch(e => window.API.log.error(`Error on _refreshUI in connectCallback: ${e}`)));
+        window.requestAnimationFrame(() => this._refreshUI());
     }
 
     //#region Properties
@@ -66,12 +65,8 @@ class RecommendedCard extends HTMLElement {
         if (!value) throw new Error("Invalid value");
         this._info = value;
 
-        // DOM not ready, cannot update information
-        if(!this._loadedDOM) return;
-
-        // Refresh data
-        window.requestAnimationFrame(() => this._refreshUI()
-            .catch(e => window.API.log.error(`Error on _refreshUI in setter info: ${e}`)));
+        // DOM ready, update information
+        if(this._loadedDOM) window.requestAnimationFrame(() => this._refreshUI());
     }
 
     /**
@@ -129,15 +124,16 @@ class RecommendedCard extends HTMLElement {
 
         // Show/hide last update date
         const lastUpdateElement = this.querySelector("#rc-last-update");
+        let display = "none";
         if (this.info.lastUpdate) {
             // Date in format YYYY-mm-dd
             const datestring = this.info.lastUpdate.toISOString().split("T")[0];
             lastUpdateElement.innerText = datestring;
 
             // Show element
-            lastUpdateElement.style.display = "block";
+            display = "block";
         }
-        else lastUpdateElement.style.display = "none";
+        lastUpdateElement.style.display = display;
     }
 
     /**
@@ -146,14 +142,13 @@ class RecommendedCard extends HTMLElement {
      */
     async _translateElementsInDOM() {
         // Get only the localizable elements
-        const elements = this.querySelectorAll(".localizable");
+        const elements = document.querySelectorAll(".localizable");
 
         // Translate elements
         for (const e of elements) {
-            // Change text if no child elements are presents...
-            if (e.childNodes.length === 0) e.textContent = await window.API.translate(e.id);
-            // ... or change only the last child (the text)
-            else e.childNodes[e.childNodes.length - 1].textContent = await window.API.translate(e.id);
+            // Select the element to translate (the last child or the element itself)
+            const toTranslate = e.lastChild ?? e;
+            toTranslate.textContent = await window.API.translate(e.id);
         }
     }
     //#endregion Private methods

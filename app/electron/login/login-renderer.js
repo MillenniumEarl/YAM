@@ -104,14 +104,9 @@ async function translateElementsInDOM() {
 
     // Translate elements
     for (const e of elements) {
-    // Change text if no child elements are presents...
-        if (e.childNodes.length === 0)
-            e.textContent = await window.API.translate(e.id);
-        // ... or change only the last child (the text)
-        else
-            e.childNodes[
-                e.childNodes.length - 1
-            ].textContent = await window.API.translate(e.id);
+        // Select the element to translate (the last child or the element itself)
+        const toTranslate = e.lastChild ?? e;
+        toTranslate.textContent = await window.API.translate(e.id);
     }
 }
 
@@ -180,9 +175,9 @@ async function login(username, password) {
 
     // Try to log-in
     const result = await window.F95.login(username, password)
-        .catch(e => window.API.log.error(`Error on window.F95.login in login: ${e}`));
+        .catch(e => window.API.reportError(e, "11000", "window.F95.login", "login"));
     const validAuth = await manageLoginResult(result, username, password)
-        .catch(e => window.API.log.error(`Error on manageLoginResult in login: ${e}`));
+        .catch(e => window.API.reportError(e, "11001", "manageLoginResult", "login"));
 
     // Close the window
     if (validAuth) window.API.send("window-close", "AUTHENTICATED");

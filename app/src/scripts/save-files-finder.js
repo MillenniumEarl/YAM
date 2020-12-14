@@ -10,7 +10,9 @@ const {
 
 // Public modules from npm
 const stringSimilarity = require("string-similarity");
-const logger = require("electron-log");
+
+// Modules from file
+const reportError = require("./error-manger.js").reportError;
 
 //#region Promisify methods
 const areaddir = promisify(fs.readdir);
@@ -20,8 +22,8 @@ const areaddir = promisify(fs.readdir);
 const userDataDir =
     process.env.APPDATA ||
     (process.platform === "darwin" ?
-        process.env.HOME + "/Library/Preferences" :
-        process.env.HOME + "/.local/share");
+        path.join(process.env.HOME, "Library/Preferences") :
+        path.join(process.env.HOME, ".local/share"));
 //#endregion Global variables
 
 /**
@@ -31,28 +33,32 @@ const userDataDir =
  * @returns {Promise<String[]>} List of paths
  */
 module.exports.findSavesPath = async function findSavesPath(gameinfo) {
+    // Local variables
+    let returnValues = [];
+
     // Get savegame directory
     const dir = await _getSaveDir(gameinfo)
-        .catch(e => logger.error(`Error while getting save directory for game ${gameinfo.name} (${gameinfo.engine}|${gameinfo.gameDirectory}): ${e}`));
-    if (!dir) return [];
-
+        .catch(e => reportError(e, "31800", "_getSaveDir", "findSavesPath", 
+            `Game: ${gameinfo.name} (${gameinfo.engine}|${gameinfo.gameDirectory})`));
+    
     // Get savegame extension
     const extension = _getSaveExtension(gameinfo.engine);
-    if (!extension) return [];
+    
+    if (dir && extension) {
+        // Get path to saves
+        const saveNames = glob.sync(`*.${extension}`, {
+            cwd: dir,
+        });
 
-    // Get path to saves
-    const saveNames = glob.sync(`*.${extension}`, {
-        cwd: dir,
-    });
-
-    // Complete the paths
-    const savePaths = [];
-    saveNames.forEach((name) => {
-        const filename = path.join(dir, name);
-        savePaths.push(filename);
-    });
-
-    return savePaths;
+        // Complete the paths
+        const savePaths = [];
+        saveNames.forEach((name) => {
+            const filename = path.join(dir, name);
+            savePaths.push(filename);
+        });
+        returnValues = savePaths;
+    }
+    return returnValues;
 };
 
 //#region Private methods
@@ -63,26 +69,34 @@ module.exports.findSavesPath = async function findSavesPath(gameinfo) {
  * @returns {Promise<String>} Base directory where the saves are stored or `null` if no dir is available
  */
 async function _getSaveDir(gameinfo) {
-    switch (gameinfo.engine.toUpperCase()) {
-    case "REN'PY": {
-        const renpyDir = path.join(userDataDir, "RenPy");
-        const gameDirs = await areaddir(renpyDir);
-        const temp = gameDirs.map(dir => dir.replace(/[0-9]/g, "")); // Remove numbers from dirs
-        const match = stringSimilarity.findBestMatch(gameinfo.name.replace(/[0-9]/g, ""), temp);
+    // Local variables
+    let returnValue = null;
+    const functionMap = {
+        "REN'PY": async function() {
+            // Local variables
+            let returnValue = null;
+            const renpyDir = path.join(userDataDir, "RenPy");
+            const gameDirs = await areaddir(renpyDir);
+            const temp = gameDirs.map(dir => dir.replace(/[0-9]/g, "")); // Remove numbers from dirs
+            const match = stringSimilarity.findBestMatch(gameinfo.name.replace(/[0-9]/g, ""), temp);
 
-        // Must be quite confident in the result
-        if (match.bestMatch.rating <= 0.75) return null;
+            // Must be quite confident in the result
+            if (match.bestMatch.rating > 0.75) {
+                const bestMatchName = gameDirs[match.bestMatchIndex];
+                returnValue = path.join(renpyDir, bestMatchName);
+            }
+            return returnValue;
+        },
+        "RPGM": async () => gameinfo.gameDirectory,
+    };
 
-        const bestMatchName = gameDirs[match.bestMatchIndex];
-        return path.join(renpyDir, bestMatchName);
-    }
-    case "RPGM":
-        // Saves stored in the same folder
-        return gameinfo.gameDirectory;
-    default:
-        // Unsupported engine or "OTHERS"
-        return null;
-    }
+    // Get the uppercased game engine
+    const engine = gameinfo.engine.toUpperCase();
+
+    // Check if the engine is supported
+    const valid = Object.keys(functionMap).includes(engine);
+    if(valid) returnValue = await functionMap[engine]();
+    return returnValue;
 }
 
 /**
@@ -92,13 +106,17 @@ async function _getSaveDir(gameinfo) {
  * @returns {String} Extension of the saves
  */
 function _getSaveExtension(engine) {
-    switch (engine.toUpperCase()) {
-    case "REN'PY":
-        return "save";
-    case "RPGM":
-        return "rvdata2";
-    default:
-        return null;
-    }
+    // Local variables
+    let returnValue = null;
+    const engineMap = {
+        "REN'PY": "save",
+        "RPGM": "rvdata2",
+    };
+    const engineU = engine.toUpperCase();
+
+    // Check if the engine is supported
+    const valid = Object.keys(engineMap).includes(engineU);
+    if (valid) returnValue = engineMap[engineU];
+    return returnValue;
 }
 //#endregion Private methods
