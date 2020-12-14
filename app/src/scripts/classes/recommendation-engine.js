@@ -79,22 +79,28 @@ class RecommendationEngine {
     async _getWatchedThreadTags() {
         // Local variables
         const tags = {};
+
+        // Get all the tags of the threads of games watched by the user but non installed
         const threads = await this._threadStore.search({})
             .catch(e => reportError(e, "31601", "this._threadStore.search", "_getWatchedThreadTags"));
 
-        for(const t of threads) {
-            const count = await this._gameStore.count({
-                id: t.id
-            }).catch(e => reportError(e, "31602", "this._gameStore.count", "_getWatchedThreadTags"));
-            
-            if (count === 0) {
-                for (const tag of t.tags) {
-                    // Obtains the current value for the tag
-                    const currentTagCount = tags[tag] ?? 0;
-                    tags[tag] = currentTagCount + 1;
-                }
+        const ids = threads.map(t => t.id);
+        const installedIDs = await this._gameStore.search({id: {$in: ids}})
+            .catch(e => reportError(e, "31602", "this._gameStore.search", "_getWatchedThreadTags"));
+        const gameTags = threads.map(t => {
+            if(!installedIDs.includes(t.id)) {
+                return t.tags;
             }
+        });
+
+        // Count the tags
+        const validTags = [].concat(...gameTags);
+        for (const tag of validTags) {
+            // Obtains the current value for the tag
+            const currentTagCount = tags[tag] ?? 0;
+            tags[tag] = currentTagCount + 1;
         }
+
         return tags;
     }
 
