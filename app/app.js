@@ -260,7 +260,7 @@ ipcMain.handle("database-paths", function ipcMainOnHandleDatabasePaths() {
 // Called when the main window require a new messagebox
 ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
     logger.silly("Required messagebox");
-    return windowCreator.createMessagebox(mainWindow, args, messageBoxCloseCallback).onclose;
+    return windowCreator.createMessagebox(mainWindow, args[0], messageBoxCloseCallback).onclose;
 });
 
 ipcMain.handle("message-dialog", function ipcMainHandleMessageDialog(e, options) {
