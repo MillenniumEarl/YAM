@@ -1069,29 +1069,23 @@ async function recommendGamesWrapper(limit) {
     // Local variables
     const recommendContent = document.getElementById("main-recommendations-content");
 
-    // Load credentials
-    const credentials = await getCredentials()
-        .catch(e => window.API.reportError(e, "11226", "getCredentials", "recommendGamesWrapper"));
+    // Fetch recommended games
+    const games = await window.F95.recommendGames(limit)
+        .catch(e => window.API.reportError(e, "11227", "window.F95.recommendGames", "recommendGamesWrapper"));
 
-    if (credentials) {
-        // Fetch recommended games
-        const games = await window.F95.recommendGames(limit, credentials)
-            .catch(e => window.API.reportError(e, "11227", "window.F95.recommendGames", "recommendGamesWrapper"));
-        
-        if (games) {
-            // Remove childs
-            while (recommendContent.lastElementChild) {
-                recommendContent.removeChild(recommendContent.lastElementChild);
-            }
+    if (games) {
+        // Remove childs
+        while (recommendContent.lastElementChild) {
+            recommendContent.removeChild(recommendContent.lastElementChild);
+        }
 
-            // Add cards
-            for(const game of games) {
-                const card = document.createElement("recommended-card");
-                card.info = game;
-                const column = createGridColumn();
-                column.appendChild(card);
-                recommendContent.appendChild(column);
-            }
+        // Add cards
+        for (const game of games) {
+            const card = document.createElement("recommended-card");
+            card.info = game;
+            const column = createGridColumn();
+            column.appendChild(card);
+            recommendContent.appendChild(column);
         }
     }
 }

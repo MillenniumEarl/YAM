@@ -4,22 +4,20 @@
 const F95API = require("f95api");
 
 // Modules from file
-const GameDataStore = require("../../../db/stores/game-data-store.js");
-const ThreadDataStore = require("../../../db/stores/thread-data-store.js");
 const GameInfoExtended = require("./game-info-extended.js");
 const reportError = require("../error-manger.js").reportError;
 
 class RecommendationEngine {
     /**
      * @param {Object} credentials Credentials of the F95Zone platform
-     * @param {String} credentials.username
-     * @param {String} credentials.password
-     * @param {String} gameDbPath Path to games database
-     * @param {String} threadDbPath Path to threads database
+     * @param {String} credentials.username Username of the F95Zone platform
+     * @param {String} credentials.password Password of the F95Zone platform
+     * @param {GameDataStore} gameStore Store of the games information
+     * @param {ThreadDataStore} threadStore Store of the threads information
      */
-    constructor(credentials, gameDbPath, threadDbPath) {
-        this._gameStore = new GameDataStore(gameDbPath);
-        this._threadStore = new ThreadDataStore(threadDbPath);
+    constructor(credentials, gameStore, threadStore) {
+        this._gameStore = gameStore;
+        this._threadStore = threadStore;
         this._credentials = credentials;
     }
 

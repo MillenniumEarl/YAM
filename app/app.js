@@ -11,8 +11,9 @@ const logger = require("electron-log");
 const Store = require("electron-store");
 
 // Modules from file
-const { run, openLink } = require("./src/scripts/io-operations.js");
+const { run, openLink, readFileSync} = require("./src/scripts/io-operations.js");
 const shared = require("./src/scripts/classes/shared.js");
+const RecommendationEngine = require("./src/scripts/classes/recommendation-engine.js");
 const localization = require("./src/scripts/localization.js");
 const windowCreator = require("./src/scripts/window-creator.js");
 const GameDataStore = require("./db/stores/game-data-store.js");
@@ -38,6 +39,11 @@ const store = new Store();
 const gameStore = new GameDataStore(shared.gameDbPath);
 const threadStore = new ThreadDataStore(shared.threadDbPath);
 const updateStore = new GameDataStore(shared.updateDbPath);
+
+// Global reference to the engine, it needs F95Zone credentials 
+// so it will be initialized after the user login and at the first
+// call
+let recEngine = null;
 
 //#endregion Global variables
 
@@ -103,6 +109,41 @@ ipcMain.handle("app-version", function ipcMainHandleVersionRequest() {
 ipcMain.handle("user-data", function ipcOnUserData() {
     return app.getPath("userData");
 });
+
+//#region Recommendation engine
+/**
+ * @private
+ * Load the credentials from disk.
+ * @return {Promise<Object.<string, string>>}
+ */
+function getCredentials() {
+    // Parse credentials
+    const json = readFileSync(shared.credentialsPath);
+    return json ? JSON.parse(json) : null;
+}
+
+/**
+ * @private
+ * Initialize the recommendation engine.
+ */
+function initializeRecommendationEngine() {
+    // Load credentials
+    const credentials = getCredentials();
+
+    // Initialize engine
+    if(credentials) recEngine = new RecommendationEngine(credentials, gameStore, threadStore);
+    return credentials !== null;
+}
+
+// Return a list of recommended games
+ipcMain.handle("recommend-games", async function ipcOnRecommendGames(e, limit) {
+    if (!recEngine) {
+        const initialized = initializeRecommendationEngine();
+        if (!initialized) return [];
+    }
+    return await recEngine.recommend(limit);
+});
+//#endregion Recommendation engine
 
 //#region Language
 // Return the value localized of the specified key
@@ -267,7 +308,8 @@ ipcMain.handle("database-paths", function ipcMainOnHandleDatabasePaths() {
 //#region IPC dialog for main window
 ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
     logger.silly("Required messagebox");
-    return windowCreator.createMessagebox(mainWindow, args[0], messageBoxCloseCallback).onclose;
+    const destArgs = [...args][0];
+    return windowCreator.createMessagebox(mainWindow, destArgs, messageBoxCloseCallback).onclose;
 });
 
 ipcMain.handle("message-dialog", function ipcMainHandleMessageDialog(e, options) {

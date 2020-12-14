@@ -30,7 +30,6 @@ const ioOps = require("../../src/scripts/io-operations.js");
 const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.js");
 const ThreadInfo = require("../../src/scripts/classes/thread-info.js");
 const networkHelper = require("../../src/scripts/network-helper.js");
-const RecomendationEngine = require("../../src/scripts/classes/recommendation-engine.js");
 const errManager = require("../../src/scripts/error-manger.js");
 
 // Set F95API logger level
@@ -329,10 +328,8 @@ contextBridge.exposeInMainWorld("F95", {
         // This method require GameInfo but GameInfoExtended is extended from GameInfo
         return F95API.checkIfGameHasUpdate(gameinfo);
     },
-    recommendGames: async function (limit, credentials) {
-        const dbs = await ipcRenderer.invoke("database-paths");
-        const engine = new RecomendationEngine(credentials, dbs.games, dbs.threads);
-        return engine.recommend(limit);
+    recommendGames: async function (limit) {
+        return await ipcRenderer.invoke("recommend-games", limit);
     }
 });
 
