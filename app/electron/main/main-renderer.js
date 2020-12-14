@@ -812,7 +812,6 @@ async function selectSingleGame(name, version, mod) {
     // Search and add the game
     const gamelist = await window.F95.getGameData(name, mod)
         .catch(e => window.API.reportError(e, "11220", "window.F95.getGameData", "selectSingleGame", `Name: ${name}, Is mod: ${mod}`));
-    selectedGame = gamelist[0];
 
     if (gamelist.length === 0) {
         const translation = await window.API.translate("MR no game found", {
@@ -825,7 +824,7 @@ async function selectSingleGame(name, version, mod) {
         const message = mod ? `${name} (${version})` : `${name} (${version}) [MOD]`;
         selectedGame = await requireUserToSelectGameWithSameName(message, gamelist)
             .catch(e => window.API.reportError(e, "11221", "requireUserToSelectGameWithSameName", "selectSingleGame"));
-    } else selectedGame = gamelist.pop();
+    } else selectedGame = gamelist[0];
     
     return selectedGame;
 }
@@ -846,31 +845,32 @@ async function getGameFromPath(path) {
 
     // Select the game
     const selectedGame = await selectSingleGame(dirInfo.name, dirInfo.version, dirInfo.mod);
+    if(selectedGame) {
+        // Verify that the game is not in the database
+        const entry = await window.GameDB.count({
+            id: selectedGame.id
+        }).catch(e => window.API.reportError(e, "11222", "window.GameDB.count", "getGameFromPath"));
 
-    // Verify that the game is not in the database
-    const entry = await window.GameDB.count({
-        id: selectedGame.id
-    }).catch(e => window.API.reportError(e, "11222", "window.GameDB.count", "getGameFromPath"));
+        if (entry === 0) {
+            // Add data to the parsed game info
+            const converted = window.GIE.convert(selectedGame);
+            converted.version = dirInfo.version;
+            converted.gameDirectory = dirInfo.path;
 
-    if (entry === 0) {
-        // Add data to the parsed game info
-        const converted = window.GIE.convert(selectedGame);
-        converted.version = dirInfo.version;
-        converted.gameDirectory = dirInfo.path;
+            // Save data to database
+            await window.GameDB.insert(converted)
+                .catch(e => window.API.reportError(e, "11223", "window.GameDB.insert", "getGameFromPath"));
 
-        // Save data to database
-        await window.GameDB.insert(converted)
-            .catch(e => window.API.reportError(e, "11223", "window.GameDB.insert", "getGameFromPath"));
+            messageType = "info";
+            translationKey = "MR game successfully added";
+        }
 
-        messageType = "info";
-        translationKey = "MR game successfully added";
+        // Notificate the user
+        const translation = await window.API.translate(translationKey, {
+            "gamename": selectedGame.name
+        });
+        sendToastToUser(messageType, translation);
     }
-
-    // Notificate the user
-    const translation = await window.API.translate(translationKey, {
-        "gamename": selectedGame.name
-    });
-    sendToastToUser(messageType, translation);
 }
 
 /**
