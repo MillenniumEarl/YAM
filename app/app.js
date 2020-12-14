@@ -94,6 +94,17 @@ ipcMain.handle("cwd", function ipcMainOnCWD() {
     return app.getAppPath();
 });
 
+// Return the app version
+ipcMain.handle("app-version", function ipcMainHandleVersionRequest() {
+    return app.getVersion();
+});
+
+// Return the OS-based application data directory
+ipcMain.handle("user-data", function ipcOnUserData() {
+    return app.getPath("userData");
+});
+
+//#region Language
 // Return the value localized of the specified key
 ipcMain.handle("translate", function ipcMainHandleTranslate(e, key, interpolation) {
     return localization.getTranslation(key, interpolation);
@@ -110,40 +121,7 @@ ipcMain.handle("change-language", function ipcMainHandleChangeLanguage(e, iso) {
 ipcMain.handle("current-language", function ipcMainHandleCurrentLanguage() {
     return localization.getCurrentLanguage();
 });
-
-// Return the app version
-ipcMain.handle("app-version", function ipcMainHandleVersionRequest() {
-    return app.getVersion();
-});
-
-// Return the OS-based application data directory
-ipcMain.handle("user-data", function ipcOnUserData() {
-    return app.getPath("userData");
-});
-
-function selectDatabase(name) {
-    // Local variables
-    const dbs = {
-        game: gameStore,
-        thread: threadStore,
-        update: updateStore,
-    };
-    const validName = Object.keys(dbs).includes(name);
-
-    // Check the name and return the store
-    if (!validName) throw Error(`Database not recognized: ${name}`);
-    return dbs[name];
-}
-
-// Manage DB operations
-ipcMain.handle("database-operation", async function ipcMainOnDBOp(e, db, op, args) {
-    // Select the database
-    const selectedDB = selectDatabase(db);
-
-    // Esecute the operation
-    return executeDbQuery(selectedDB, op, args)
-        .catch(e => reportError(e, "30001", "executeDbQuery", "ipcMainOnDBOp", `DB: ${db}, Operation: ${op}, Args: ${args}`));
-});
+//#endregion Language
 
 //#region Database Operations
 /**
@@ -204,6 +182,36 @@ async function executeDbQuery(db, operation, args) {
     // Execute the operation on the database
     return await operations[operation](args);
 }
+
+/**
+ * @private
+ * Select a database given its name.
+ * @param {String} name `game`, `thread`, `update`
+ * @returns {GameDataStore|ThreadDataStore} Selected database
+ */
+function selectDatabase(name) {
+    // Local variables
+    const dbs = {
+        game: gameStore,
+        thread: threadStore,
+        update: updateStore,
+    };
+    const validName = Object.keys(dbs).includes(name);
+
+    // Check the name and return the store
+    if (!validName) throw Error(`Database not recognized: ${name}`);
+    return dbs[name];
+}
+
+// Manage DB operations
+ipcMain.handle("database-operation", async function ipcMainOnDBOp(e, db, op, args) {
+    // Select the database
+    const selectedDB = selectDatabase(db);
+
+    // Esecute the operation
+    return executeDbQuery(selectedDB, op, args)
+        .catch(e => reportError(e, "30001", "executeDbQuery", "ipcMainOnDBOp", `DB: ${db}, Operation: ${op}, Args: ${args}`));
+});
 //#endregion Database Operations
 
 //#region shared app variables
@@ -257,7 +265,6 @@ ipcMain.handle("database-paths", function ipcMainOnHandleDatabasePaths() {
 //#endregion shared app variables
 
 //#region IPC dialog for main window
-// Called when the main window require a new messagebox
 ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
     logger.silly("Required messagebox");
     return windowCreator.createMessagebox(mainWindow, args[0], messageBoxCloseCallback).onclose;
