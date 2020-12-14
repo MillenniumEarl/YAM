@@ -375,9 +375,9 @@ class GameCard extends HTMLElement {
 
     /**
      * @private
-     * Prepare the preview of the game, download and compressing it.
+     * Download and compress the game preview.
      */
-    async _preparePreview() {
+    async _savePreviewToDisk() {
         // Local variables
         let returnValue = false;
 
@@ -386,30 +386,60 @@ class GameCard extends HTMLElement {
         const imageName = this._parseImageName(this.info.name, this.info.previewSrc);
         const downloadDest = window.API.join(previewDir, imageName);
 
-        // Check if the image already exists
-        if (this.info.localPreviewPath) {
-            const localPath = window.API.join(previewDir, this.info.localPreviewPath);
-            const exists = await window.IO.pathExists(localPath);
-            if (!exists) {
-                // Download the image
-                const downloadResult = await this._downloadGamePreview(this.info.previewSrc, downloadDest)
-                    .catch(e => window.API.reportError(e, "20306", "this._downloadGamePreview", "_preparePreview"));
-                if (downloadResult) {
-                    // Compress the image
-                    const compressDest = await this._compressGamePreview(downloadDest, previewDir)
-                        .catch(e => window.API.reportError(e, "20307", "this._compressGamePreview", "_preparePreview"));
-                    if (compressDest) {
-                        const compressedImageName = this._parseImageName(this.info.name, compressDest);
+        // Download the image
+        const downloadResult = await this._downloadGamePreview(this.info.previewSrc, downloadDest)
+            .catch(e => window.API.reportError(e, "20306", "this._downloadGamePreview", "_preparePreview"));
+        
+        if (downloadResult) {
+            // Compress the image
+            const compressDest = await this._compressGamePreview(downloadDest, previewDir)
+                .catch(e => window.API.reportError(e, "20307", "this._compressGamePreview", "_preparePreview"));
+            
+            if (compressDest) {
+                const compressedImageName = this._parseImageName(this.info.name, compressDest);
 
-                        // All right, set the new preview path and save data
-                        if (compressedImageName) this.info.localPreviewPath = compressedImageName;
-                        await this.saveData()
-                            .catch(e => window.API.reportError(e, "20308", "this.saveData", "_preparePreview"));
-                        returnValue = true;
-                    }
-                }
+                // All right, set the new preview path and save data
+                this.info.localPreviewPath = compressedImageName;
+                await this.saveData()
+                    .catch(e => window.API.reportError(e, "20308", "this.saveData", "_preparePreview"));
+                returnValue = true;
             }
         }
+        return returnValue;
+    }
+
+    /**
+     * @private
+     * Check if the preview is to be downloaded to disk.
+     */
+    async _previewNeedToBeDownloaded() {
+        // Local variables
+        const previewDir = await window.API.invoke("preview-dir");
+        let returnValue = false;
+
+        if (!this.info.localPreviewPath) returnValue = true;
+        else {
+            const localPath = window.API.join(previewDir, this.info.localPreviewPath);
+            const exists = await window.IO.pathExists(localPath);
+            returnValue = !exists;
+        }
+        return returnValue;
+    }
+
+    /**
+     * @private
+     * Prepare the preview of the game, download and compressing it.
+     */
+    async _preparePreview() {
+        // Local variables
+        let returnValue = false;
+
+        // Check if the image already exists
+        const needToBeDownloaded = await this._previewNeedToBeDownloaded();
+
+        // Download and compress the preview
+        if (needToBeDownloaded) returnValue = await this._savePreviewToDisk();
+
         return returnValue;
     }
 
