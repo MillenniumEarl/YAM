@@ -326,8 +326,8 @@ function createBaseWindow(options) {
             // Destructure the size and check for min/max size
             let [width, height] = args;
             if (options.minSize) {
-                width = Math.max(width, options.maxSize.width);
-                height = Math.max(height, options.maxSize.height);
+                width = Math.max(width, options.minSize.width);
+                height = Math.max(height, options.minSize.height);
             }
 
             if (options.maxSize) {
