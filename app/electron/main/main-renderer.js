@@ -686,7 +686,8 @@ async function gameCardUpdate(e) {
  * @private
  * Ask the user to confirm the game deletion.
  * @param {Boolean} savesExists True if savefiles exist for the to-be-deleted game
- * @returns {Promise<Object.<string, object>>} Button pressed and checkboxes selected
+ * @returns {Promise<Object.<string, object>|null>} 
+ * Button pressed and checkboxes selected or `null` if the user select "cancel"
  */
 async function askUserForGameDeletion(savesExists) {
     // Prepare the options for the confirmation dialog
@@ -706,7 +707,7 @@ async function askUserForGameDeletion(savesExists) {
 
     // Prompt user
     let data = await window.API.invoke("require-messagebox", dialogOptions);
-    if (data ?.button === "cancel") data = null;
+    if (data?.button === "cancel") data = null;
     return data;
 }
 
@@ -743,30 +744,31 @@ async function gameCardDelete(e) {
 
     // Ask the user for confirm
     const data = await askUserForGameDeletion(savesExists);
+    if(data) {
+        // Copy saves
+        if (savesExists && data.checkboxes.includes("preserve-savegame")) {
+            await copySaveFiles(e.detail.savePaths, e.detail.name);
+        }
 
-    // Copy saves
-    if (savesExists && data.checkboxes.includes("preserve-savegame")) {
-        await copySaveFiles(e.detail.savePaths, e.detail.name);
+        // Delete also game files
+        if (data.button === "delete") {
+            const gameDirectory = e.detail.gameDirectory;
+            await window.IO.deleteFolder(gameDirectory);
+        }
+
+        // Remove the game data
+        await e.target.deleteData()
+            .catch(e => window.API.reportError(e, "11218", "e.target.deleteData", "gameCardDelete"));
+
+        // Reload data in the paginator
+        document.querySelector("card-paginator").reload();
+
+        // Notificate the user
+        const translation = await window.API.translate("MR game removed", {
+            gamename: e.detail.name
+        });
+        sendToastToUser("info", translation);
     }
-
-    // Delete also game files
-    if (data.button === "delete") {
-        const gameDirectory = e.detail.gameDirectory;
-        await window.IO.deleteFolder(gameDirectory);
-    }
-
-    // Remove the game data
-    await e.target.deleteData()
-        .catch(e => window.API.reportError(e, "11218", "e.target.deleteData", "gameCardDelete"));
-
-    // Reload data in the paginator
-    document.querySelector("card-paginator").reload();
-
-    // Notificate the user
-    const translation = await window.API.translate("MR game removed", {
-        gamename: e.detail.name
-    });
-    sendToastToUser("info", translation);
 }
 
 /**
@@ -810,6 +812,7 @@ async function selectSingleGame(name, version, mod) {
     // Search and add the game
     const gamelist = await window.F95.getGameData(name, mod)
         .catch(e => window.API.reportError(e, "11220", "window.F95.getGameData", "selectSingleGame", `Name: ${name}, Is mod: ${mod}`));
+    selectedGame = gamelist[0];
 
     if (gamelist.length === 0) {
         const translation = await window.API.translate("MR no game found", {
@@ -822,7 +825,8 @@ async function selectSingleGame(name, version, mod) {
         const message = mod ? `${name} (${version})` : `${name} (${version}) [MOD]`;
         selectedGame = await requireUserToSelectGameWithSameName(message, gamelist)
             .catch(e => window.API.reportError(e, "11221", "requireUserToSelectGameWithSameName", "selectSingleGame"));
-    }
+    } else selectedGame = gamelist.pop();
+    
     return selectedGame;
 }
 
