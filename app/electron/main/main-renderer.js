@@ -1052,7 +1052,7 @@ async function getUserDataFromF95() {
     document.getElementById("user-info").userdata = userdata;
     
     // Update threads
-    updatedThreads(userdata.watchedGameThreads);
+    await updatedThreads(userdata.watchedGameThreads);
 }
 
 /**
@@ -1133,12 +1133,14 @@ async function insertThreadFromURL(url) {
     const gameInfo = await window.F95.getGameDataFromURL(url)
         .catch(e => window.API.reportError(e, "11230", "window.F95.getGameDataFromURL", "insertThreadFromURL", `URL: ${url}`));
     
-    // Convert object
-    const threadInfo = window.TI.convert(gameInfo);
+    if(gameInfo) {
+        // Convert object
+        const threadInfo = window.TI.convert(gameInfo);
     
-    // Insert in the database
-    await window.ThreadDB.insert(threadInfo)
-        .catch(e => window.API.reportError(e, "11231", "window.ThreadDB.insert", "insertThreadFromURL"));
+        // Insert in the database
+        await window.ThreadDB.insert(threadInfo)
+            .catch(e => window.API.reportError(e, "11231", "window.ThreadDB.insert", "insertThreadFromURL"));
+    }
 }
 
 /**
@@ -1174,7 +1176,7 @@ async function removeUnsubscribedThreadsFromDB(recentIDs) {
         .catch(e => window.API.reportError(e, "11234", "window.ThreadDB.search", "removeUnsubscribedThreadsFromDB"));
     
     // Filter the trhread and obtains the threads to remove
-    const toRemove = threads.filter(id => !recentIDs.includes(id));
+    const toRemove = threads.filter(t => !recentIDs.includes(t.id));
 
     // Remove the threads from the db
     for (const t of toRemove) {
