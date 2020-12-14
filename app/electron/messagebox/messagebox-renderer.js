@@ -53,7 +53,7 @@ async function prepare(args) {
     buttonsContainer.append(...buttons);
 
     // Create the checkboxes
-    if (args.checkboxes) {createCheckboxes
+    if (args.checkboxes) {
         const checkContainer = document.querySelector(".checkboxes-container");
         const checkboxes = await createCheckboxes(args.checkboxes)
             .catch(e => window.API.reportError(e, "11402", "createCheckboxes", "prepare", `Checkboxes: ${args.checkboxes}`));
