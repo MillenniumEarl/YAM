@@ -147,6 +147,11 @@ async function selectSingleGameFolder() {
  * Adds an undetectable game on the PC via the game URL.
  */
 async function onAddRemoteGame() {
+    // Local variables
+    let toastGamename = null;
+    let toastType = null;
+    let toastKey = null;
+
     // The user select a single folder and a URL
     const gamePath = await selectSingleGameFolder();
     const url = await window.API.invoke("url-input");
@@ -174,21 +179,22 @@ async function onAddRemoteGame() {
         await window.GameDB.insert(converted)
             .catch(e => window.API.reportError(e, "11207", "window.GameDB.insert", "onAddRemoteGame"));
 
-        // Game added correctly
-        const translationSuccess = await window.API.translate("MR game successfully added", {
-            "gamename": converted.name
-        });
-        sendToastToUser("info", translationSuccess);
+        toastGamename = converted.name;
+        toastKey = "MR game successfully added";
+        toastType = "info";
 
         // Reload data in the paginator
         document.querySelector("card-paginator").reload();
     }
 
-    // This game is already present: ...
-    const translationAlreadyPresent = await window.API.translate("MR game already listed", {
-        "gamename": gameinfo.name
+    toastGamename = toastGamename ?? gameinfo.name;
+    toastKey = toastKey ?? "MR game already listed";
+    toastType = toastType ?? "warning";
+    
+    const translation = await window.API.translate(toastKey, {
+        "gamename": toastGamename
     });
-    sendToastToUser("warning", translationAlreadyPresent);
+    sendToastToUser(toastType, translation);
 }
 
 /**
