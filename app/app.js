@@ -351,7 +351,7 @@ function checkUpdates() {
             logger.info(`Update ${info.releaseName} downloaded and ready for installation`);
             const message = process.platform !== "linux" ?
                 localization.getTranslation("update-message-windarwin", {
-                    notes: info.releaseNotes
+                    notes: decodeURIComponent(info.releaseNotes)
                 }) :
                 localization.getTranslation("update-message-linux");
             const args = {
