@@ -376,8 +376,8 @@ contextBridge.exposeInMainWorld("GameDB", {
     insert: (gameinfo) => ipcRenderer.invoke("database-operation", "game", "insert", {
         data: gameinfo
     }),
-    delete: (id) => ipcRenderer.invoke("database-operation", "game", "delete", {
-        id: id
+    delete: (deleteQuery) => ipcRenderer.invoke("database-operation", "game", "delete", {
+        query: deleteQuery
     }),
     read: (id) => ipcRenderer.invoke("database-operation", "game", "read", {
         id: id
@@ -404,8 +404,8 @@ contextBridge.exposeInMainWorld("ThreadDB", {
     insert: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "insert", {
         data: threadinfo
     }),
-    delete: (id) => ipcRenderer.invoke("database-operation", "thread", "delete", {
-        id: id
+    delete: (deleteQuery) => ipcRenderer.invoke("database-operation", "thread", "delete", {
+        query: deleteQuery
     }),
     write: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "write", {
         data: threadinfo
@@ -426,8 +426,8 @@ contextBridge.exposeInMainWorld("UpdateDB", {
     insert: (gameinfo) => ipcRenderer.invoke("database-operation", "update", "insert", {
         data: gameinfo
     }),
-    delete: (id) => ipcRenderer.invoke("database-operation", "update", "delete", {
-        id: id
+    delete: (deleteQuery) => ipcRenderer.invoke("database-operation", "update", "delete", {
+        query: deleteQuery
     }),
     search: (searchQuery, sortQuery, index, size, limit) => ipcRenderer.invoke("database-operation", "update", "search", {
         query: searchQuery,

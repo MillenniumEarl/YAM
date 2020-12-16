@@ -92,10 +92,10 @@ class ThreadDataStore {
     /**
      * @public
      * Remove a record from the database.
-     * @param {number} id The ID of the record to be deleted
+     * @param {Object} query Query to execute
      */
-    async delete(id) {
-        return await this._db.remove({_id:id});
+    async delete(query) {
+        return await this._db.remove(query, {multi: true});
     }
 
     /**
@@ -111,6 +111,7 @@ class ThreadDataStore {
     /**
      * @public
      * Count the number of records in the database that match the query.
+     * @param {Object} query Query to execute
      */
     async count(query) {
         return await this._db.count(query);

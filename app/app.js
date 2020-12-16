@@ -178,9 +178,9 @@ ipcMain.handle("current-language", function ipcMainHandleCurrentLanguage() {
  * @param {GameInfo|ThreadInfo} [args.data]
  * Data to be saved in the database. Used with `insert` and `write`
  * @param {Number} [args.id] 
- * ID of a record in the database. Used with `read` and `delete`
+ * ID of a record in the database. Used with `read`
  * @param {Object} [args.query] 
- * Query to use in the database. Used with `search` and `count`
+ * Query to use in the database. Used with `search`, `count` and `delete`
  * @param {Object} [args.sortQuery] 
  * Query used to sort the results. Used with `search`
  * @param {Object} [args.pagination]
@@ -199,7 +199,7 @@ async function executeDbQuery(db, operation, args) {
     // Prepare a dictionary of functions
     const operations = {
         insert: (args) => db.insert(args.data),
-        delete: (args) => db.delete(args.id),
+        delete: (args) => db.delete(args.query),
         read: (args) => db.read(args.id),
         write: (args) => db.write(args.data),
         count: (args) => db.count(args.query),
