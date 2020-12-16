@@ -94,6 +94,10 @@
     "update-title": "有可用更新（{{version}}）",
     "default-button-update": "刷新",
     "default-button-quit": "最终申请",
-    "default-button-report-issue": "错误通知"
+    "default-button-report-issue": "错误通知",
+    "main-application-divider": "应用",
+    "settings-reset-update-cache-description": "删除更新缓存（将在需要时重新创建）",
+    "settings-reset-update-cache-btn": "删除缓存",
+    "MR update cache deleted": "更新缓存已清除"
   }
 }

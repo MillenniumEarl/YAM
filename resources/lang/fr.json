@@ -94,6 +94,10 @@
     "update-title": "Mise à jour disponible ({{version}})",
     "default-button-update": "Rafraîchir",
     "default-button-quit": "Terminer l'application",
-    "default-button-report-issue": "Notification d'erreur"
+    "default-button-report-issue": "Notification d'erreur",
+    "main-application-divider": "Application",
+    "settings-reset-update-cache-description": "Supprimez le cache de mise à jour (il sera recréé si nécessaire)",
+    "settings-reset-update-cache-btn": "Supprimer le cache",
+    "MR update cache deleted": "Le cache de mise à jour a été effacé"
   }
 }
