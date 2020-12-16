@@ -4,6 +4,7 @@
 const logger = require("electron-log");
 const newGithubIssueUrl = require("new-github-issue-url");
 
+//#region Public methods
 /**
  * @public
  * Write the error in the log file and show message to user.
@@ -35,38 +36,12 @@ module.exports.manageError = async function (scriptname, data, ipc) {
     });
 
     if (result.button === "report-issue") {
-        const body = `
-**Describe the bug**
-${data.message} at line ${data.line}:${data.column} in ${scriptname}.\n${data.error.stack}
+        // Obtains the info to attach
+        const description = `${data.message} at line ${data.line}:${data.column} in ${scriptname}.\n${data.error.stack}`;
+        const appversion = await ipc.invoke("app-version");
 
-**To Reproduce**
-Steps to reproduce the behavior:
-
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Desktop:**
-- OS: ${process.platform}
-- Version: ${process.getSystemVersion()}
-- App version: ${await ipc.invoke("app-version")}
-
-**Additional context**
-Add any other context about the problem here.`;
         // Open a new GitHub issue
-        const url = newGithubIssueUrl({
-            repoUrl: "https://github.com/MillenniumEarl/YAM",
-            template: "bug_report.md",
-            title: "Unmanaged error",
-            body: body
-        });
+        const url = _createGithubIssueURL("Unmanaged error", description, appversion);
         ipc.send("open-link", [url]);
 
     } else if (result.button === "quit") {
@@ -101,38 +76,12 @@ module.exports.manageUnhandledError = async function (scriptname, reason, ipc) {
     });
 
     if (result.button === "report-issue") {
-        const body = `
-**Describe the bug**
-Unhandled promise rejection in ${scriptname}: ${reason}
+        // // Obtains the info to attach
+        const description = `Unhandled promise rejection in ${scriptname}: ${reason}`;
+        const appversion = await ipc.invoke("app-version");
 
-**To Reproduce**
-Steps to reproduce the behavior:
-
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Desktop:**
-- OS: ${process.platform}
-- Version: ${process.getSystemVersion()}
-- App version: ${await ipc.invoke("app-version")}
-
-**Additional context**
-Add any other context about the problem here.`;
         // Open a new GitHub issue
-        const url = newGithubIssueUrl({
-            repoUrl: "https://github.com/MillenniumEarl/YAM",
-            template: "bug_report.md",
-            title: "Unhandled promise error",
-            body: body
-        });
+        const url = _createGithubIssueURL("Unhandled promise error", description, appversion);
         ipc.send("open-link", [url]);
     } else if (result.button === "quit") {
         // Quit the application
@@ -158,3 +107,61 @@ module.exports.reportError = function (error, code, name, parentName, message) {
     // Write the error
     logger.error(log);
 };
+//#endregion Public methods
+
+//#region Private methods
+/**
+ * @private
+ * Create the URL of a new GitHub issue.
+ * @param {String} title Title of the issue
+ * @param {String} description Description of the issue
+ * @param {String} appversion Current version of the app
+ */
+function _createGithubIssueURL(title, description, appversion) {
+    // Create the issue body
+    const body = _createGitHubIssueBody(description, appversion);
+
+    return newGithubIssueUrl({
+        repoUrl: "https://github.com/MillenniumEarl/YAM",
+        template: "bug_report.md",
+        title: title,
+        body: body
+    });
+}
+
+/**
+ * @private
+ * Create the body of a GitHub issue with the given information.
+ * @param {String} description Description of the issue
+ * @param {String} appversion Current version of the app
+ */
+function _createGitHubIssueBody(description, appversion) {
+    return `
+**Describe the bug**
+:information_source: *This report was generated automatically*
+${description}
+
+**To Reproduce**
+Steps to reproduce the behavior:
+
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
+
+**Expected behavior**
+A clear and concise description of what you expected to happen.
+
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
+
+**Desktop:**
+- OS: ${process.platform}
+- Version: ${process.getSystemVersion()}
+- App version: ${appversion}
+
+**Additional context**
+Add any other context about the problem here.
+:information_source: *This report was generated automatically*`;
+}
+//#endregion
