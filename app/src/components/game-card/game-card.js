@@ -518,7 +518,7 @@ class GameCard extends HTMLElement {
 
         // Cache too old, delete from db
         if (diff > MAX_CACHE_DAYS) {
-            await window.UpdateDB.delete(record._id)
+            await window.UpdateDB.delete({id: record.id})
                 .catch(e => window.API.reportError(e, "20309", 
                     "window.UpdateDB.delete", "_validateCache", `DBID: ${record._id}`));
             returnValue = true;
@@ -615,7 +615,7 @@ class GameCard extends HTMLElement {
      */
     async deleteData() {
         // Delete the record in the database
-        await window.GameDB.delete(this.info._id)
+        await window.GameDB.delete({id: this.info.id})
             .catch(e => window.API.reportError(e, "20318", "window.GameDB.delete", "deleteData", `DBID: ${this.info._id}`));
 
         // Check the cached preview
@@ -699,7 +699,7 @@ class GameCard extends HTMLElement {
         // Delete entry from cahced update DB
         const entry = await window.UpdateDB.search({id: this.info.id})
             .catch(e => window.API.reportError(e, "20325", "window.UpdateDB.search", "update", `ID: ${this.info.id}`));
-        if (entry.length === 1) await window.UpdateDB.delete(entry[0]._id)
+        if (entry.length === 1) await window.UpdateDB.delete({id: entry[0].id})
             .catch(e => window.API.reportError(e, "20326", "window.UpdateDB.delete", "update", `DBID: ${entry[0]._id}`));
 
         // Hide the update button

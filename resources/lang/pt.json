@@ -94,6 +94,10 @@
     "update-title": "Atualização disponível ({{version}})",
     "default-button-update": "Atualizar",
     "default-button-quit": "Finalizar aplicação",
-    "default-button-report-issue": "Notificação de erro"
+    "default-button-report-issue": "Notificação de erro",
+    "main-application-divider": "Inscrição",
+    "settings-reset-update-cache-description": "Exclua o cache de atualização (ele será recriado quando necessário)",
+    "settings-reset-update-cache-btn": "Excluir cache",
+    "MR update cache deleted": "O cache de atualização foi limpo"
   }
 }

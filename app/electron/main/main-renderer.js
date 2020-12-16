@@ -40,6 +40,8 @@ document.querySelector("#add-local-game-btn").addEventListener("click", onAddLoc
 
 document.querySelector("#settings-password-toggle").addEventListener("click", onPasswordToggle);
 
+document.querySelector("#settings-reset-update-cache-btn").addEventListener("click", onDeleteUpdateCache);
+
 document.querySelector("#settings-save-credentials-btn").addEventListener("click", onSaveCredentialsFromSettings);
 
 document.querySelector("#main-language-select").addEventListener("change", updateLanguage);
@@ -234,6 +236,24 @@ function onPasswordToggle() {
         icon.classList.remove("md-visibility_off");
         icon.classList.add("md-visibility");
     }
+}
+
+/**
+ * Delete the update cache.
+ */
+async function onDeleteUpdateCache() {
+    // Obtains all the games in the DB
+    const updates = await window.UpdateDB.search({});
+
+    // Fetch the list of IDs
+    const ids = updates.map(u => u.id);
+
+    // Delete the records
+    await window.UpdateDB.delete({id: {$in: ids}})
+        .catch(e => window.API.reportError(e, "11240", "window.UpdateDB.delete", "onDeleteUpdateCache"));
+
+    const translation = await window.API.translate("MR update cache deleted");
+    sendToastToUser("info", translation);
 }
 
 /**
@@ -1180,13 +1200,11 @@ async function removeUnsubscribedThreadsFromDB(recentIDs) {
         .catch(e => window.API.reportError(e, "11234", "window.ThreadDB.search", "removeUnsubscribedThreadsFromDB"));
     
     // Filter the trhread and obtains the threads to remove
-    const toRemove = threads.filter(t => !recentIDs.includes(t.id));
+    const toRemove = threads.filter(t => !recentIDs.includes(t.id)).map(t => t.id);
 
     // Remove the threads from the db
-    for (const t of toRemove) {
-        await window.ThreadDB.delete(t._id)
-            .catch(e => window.API.reportError(e, "11235", "window.ThreadDB.delete", "removeUnsubscribedThreadsFromDB"));
-    }
+    await window.ThreadDB.delete({id: {$in: toRemove}})
+        .catch(e => window.API.reportError(e, "11235", "window.ThreadDB.delete", "removeUnsubscribedThreadsFromDB"));
 }
 
 /**

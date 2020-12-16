@@ -94,6 +94,10 @@
     "update-title": "Доступно обновление ({{version}})",
     "default-button-update": "Обновить",
     "default-button-quit": "Завершить приложение",
-    "default-button-report-issue": "Уведомление об ошибке"
+    "default-button-report-issue": "Уведомление об ошибке",
+    "main-application-divider": "заявка",
+    "settings-reset-update-cache-description": "Удалите кеш обновлений (он будет воссоздан при необходимости)",
+    "settings-reset-update-cache-btn": "Удалить кеш",
+    "MR update cache deleted": "Кэш обновлений очищен"
   }
 }

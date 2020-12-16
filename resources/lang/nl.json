@@ -94,6 +94,10 @@
     "update-title": "Update beschikbaar: ({{version}})",
     "default-button-update": "Bijwerken",
     "default-button-quit": "Applicatie afsluiten",
-    "default-button-report-issue": "Deze fout rapporteren"
+    "default-button-report-issue": "Deze fout rapporteren",
+    "main-application-divider": "Toepassing",
+    "settings-reset-update-cache-description": "Verwijder de updatecache (deze wordt indien nodig opnieuw aangemaakt)",
+    "settings-reset-update-cache-btn": "Cache verwijderen",
+    "MR update cache deleted": "De updatecache is gewist"
   }
 }
