@@ -143,6 +143,29 @@ class CardPaginator extends HTMLElement {
 
     /**
      * @private
+     * Select the first page.
+     */
+    _firstPage() {
+        // Switch page
+        this._switchContext(0);
+        window.API.log.info("Switched context to 0 after user click (firstPage)");
+    }
+
+    /**
+     * @private
+     * Select the last page.
+     */
+    async _lastPage() {
+        // Get the number of pages
+        const nPages = await this._countPages();
+        
+        // Switch page
+        this._switchContext(nPages - 1);
+        window.API.log.info(`Switched context to ${nPages - 1} after user click (lastPage)`);
+    }
+
+    /**
+     * @private
      * Generated when clicking on a selector, changes the displayed page.
      * @param {MouseEvent} e
      */
@@ -320,6 +343,7 @@ class CardPaginator extends HTMLElement {
         this.preload = document.querySelector(".pagination-preload");
 
         /* Bind function to use this */
+        this._countPages = this._countPages.bind(this);
         this._getCurrentIndex = this._getCurrentIndex.bind(this);
         this._manageNextPrecButtons = this._manageNextPrecButtons.bind(this);
         this._createSelectorButton = this._createSelectorButton.bind(this);
@@ -328,6 +352,8 @@ class CardPaginator extends HTMLElement {
         this._keyboardShortcut = this._keyboardShortcut.bind(this);
         this._prevPage = this._prevPage.bind(this);
         this._nextPage = this._nextPage.bind(this);
+        this._firstPage = this._firstPage.bind(this);
+        this._lastPage = this._lastPage.bind(this);
         this._switchPage = this._switchPage.bind(this);
         this._selectPage = this._selectPage.bind(this);
         this._getStartEndPages = this._getStartEndPages.bind(this);
@@ -342,7 +368,16 @@ class CardPaginator extends HTMLElement {
     }
 
     //#region Utility
-    
+    /**
+     * @private
+     * Count the number of pages that will be fetched with the current settings.
+     */
+    async _countPages() {
+        const recordsNumber = await window.GameDB.count(this._searchQuery)
+            .catch(e => window.API.reportError(e, "20108", "window.GameDB.count", "_countPages", `Query: ${this._searchQuery}`));
+        return Math.ceil(recordsNumber / this._cardsForPage);
+    }
+
     /**
      * @private
      * Gets the ID of the currently selected page selector.
@@ -381,9 +416,7 @@ class CardPaginator extends HTMLElement {
         prevPageSelector.classList.add(toAdd);
 
         // Manage the next button
-        const recordsNumber = await window.GameDB.count(this._searchQuery)
-            .catch(e => window.API.reportError(e, "20104", "window.GameDB.count", "_manageNextPrecButtons"));
-        const nPages = Math.ceil(recordsNumber / this._cardsForPage);
+        const nPages = await this._countPages();
         toAdd = index === nPages - 1 ? "disabled" : "enabled";
         toRemove = index === nPages - 1 ? "enabled" : "disabled";
         nextPageSelector.classList.remove(toRemove);
@@ -454,9 +487,7 @@ class CardPaginator extends HTMLElement {
      */
     async _getStartEndPages(index) {
         // Local variables
-        const recordsNumber = await window.GameDB.count(this._searchQuery)
-            .catch(e => window.API.reportError(e, "20108", "window.GameDB.count", "_getStartEndPages", `Query: ${this._searchQuery}`));
-        const nPages = Math.ceil(recordsNumber / this._cardsForPage);
+        const nPages = await this._countPages();
 
         // If there aren't enough pages...
         if (nPages <= this.MAX_VISIBLE_PAGES) {
@@ -520,7 +551,7 @@ class CardPaginator extends HTMLElement {
 
                 // Avoid creating selectors if there are no pages
                 if (limitPages.end - limitPages.start > 0) {
-                    this._createPageSelectors(limitPages.start, limitPages.end + 1, index);
+                    await this._createPageSelectors(limitPages.start, limitPages.end + 1, index);
 
                     // Set the current page as active
                     const current = this.pageSelectorsParent.querySelector(`#selector_${index}`);
@@ -633,6 +664,42 @@ class CardPaginator extends HTMLElement {
 
     /**
      * @private
+     * Create the button to select the first page.
+     */
+    _createFirstPageButton() {
+        const selector = document.createElement("li");
+        selector.classList.add("waves-effect");
+        selector.id = "first-page";
+        selector.onclick = this._firstPage;
+
+        // Create and add the icon
+        const icon = document.createElement("a");
+        icon.classList.add("material-icons", "md-first_page");
+        selector.appendChild(icon);
+
+        return selector;
+    }
+
+    /**
+     * @private
+     * Create the button to select the last page.
+     */
+    _createLastPageButton() {
+        const selector = document.createElement("li");
+        selector.classList.add("waves-effect");
+        selector.id = "last-page";
+        selector.onclick = this._lastPage;
+
+        // Create and add the icon
+        const icon = document.createElement("a");
+        icon.classList.add("material-icons", "md-last_page");
+        selector.appendChild(icon);
+
+        return selector;
+    }
+
+    /**
+     * @private
      * Create a generic page selector.
      * @param {number} index Index of the page associated with the selector
      */
@@ -676,16 +743,29 @@ class CardPaginator extends HTMLElement {
      * @param {number} end Create pages up to this index (excluded)
      * @param {number} selected Selector index to be selected from those created
      */
-    _createPageSelectors(start, end, selected) {
-        // Validate selected index
+    async _createPageSelectors(start, end, selected) {
+        // Validate parameters
         if(selected < start || selected > end) 
             throw new Error(`selected (${selected}) must be between start (${start}) and end (${end})`);
         
+        if(start > end) {
+            throw new Error("Start greater than end");
+        }
+
         // Create and adds the page selectors
         for (let i = start; i < end; i++) {
             const li = this._createSelectorButton(i);
             this.pageSelectorsParent.appendChild(li);
         }
+
+        // Create the first/last page selector
+        const first = this._createFirstPageButton();
+        const last = this._createLastPageButton();
+
+        // Add the first page selector as first child
+        // then the last page selector
+        if (start > 0) this.pageSelectorsParent.insertBefore(first, this.pageSelectorsParent.firstChild);
+        if (end < (await this._countPages()) - 1) this.pageSelectorsParent.appendChild(last);
 
         // Create the previous/next page selector
         const prev = this._createPrevButton();
