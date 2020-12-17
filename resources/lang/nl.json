@@ -98,6 +98,11 @@
     "main-application-divider": "Toepassing",
     "settings-reset-update-cache-description": "Verwijder de updatecache (deze wordt indien nodig opnieuw aangemaakt)",
     "settings-reset-update-cache-btn": "Cache verwijderen",
-    "MR update cache deleted": "De updatecache is gewist"
+    "MR update cache deleted": "De updatecache is gewist",
+    "settings-show-devtools-description": "Toon Chrome-ontwikkelaarstools",
+    "settings-show-devtools-btn": "Tentoonstellen",
+    "settings-enable-menubar-description": "Schakel het ontwikkelaarsmenu in",
+    "settings-menubar-switch-off": "Uitschakelen",
+    "settings-menubar-switch-on": "Inschakelen"
   }
 }

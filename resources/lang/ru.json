@@ -98,6 +98,11 @@
     "main-application-divider": "заявка",
     "settings-reset-update-cache-description": "Удалите кеш обновлений (он будет воссоздан при необходимости)",
     "settings-reset-update-cache-btn": "Удалить кеш",
-    "MR update cache deleted": "Кэш обновлений очищен"
+    "MR update cache deleted": "Кэш обновлений очищен",
+    "settings-show-devtools-description": "Показать инструменты разработчика Chrome",
+    "settings-show-devtools-btn": "Посмотреть",
+    "settings-enable-menubar-description": "Включить меню разработчика",
+    "settings-menubar-switch-off": "Отключить",
+    "settings-menubar-switch-on": "включить"
   }
 }

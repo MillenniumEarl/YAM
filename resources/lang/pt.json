@@ -98,6 +98,11 @@
     "main-application-divider": "Inscrição",
     "settings-reset-update-cache-description": "Exclua o cache de atualização (ele será recriado quando necessário)",
     "settings-reset-update-cache-btn": "Excluir cache",
-    "MR update cache deleted": "O cache de atualização foi limpo"
+    "MR update cache deleted": "O cache de atualização foi limpo",
+    "settings-show-devtools-description": "Mostrar ferramentas para desenvolvedores do Chrome",
+    "settings-show-devtools-btn": "Visão",
+    "settings-enable-menubar-description": "Ative o menu do desenvolvedor",
+    "settings-menubar-switch-off": "Desabilitar",
+    "settings-menubar-switch-on": "Habilitar"
   }
 }

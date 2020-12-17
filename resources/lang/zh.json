@@ -98,6 +98,11 @@
     "main-application-divider": "应用",
     "settings-reset-update-cache-description": "删除更新缓存（将在需要时重新创建）",
     "settings-reset-update-cache-btn": "删除缓存",
-    "MR update cache deleted": "更新缓存已清除"
+    "MR update cache deleted": "更新缓存已清除",
+    "settings-show-devtools-description": "显示Chrome开发者工具",
+    "settings-show-devtools-btn": "视图",
+    "settings-enable-menubar-description": "启用开发者菜单",
+    "settings-menubar-switch-off": "禁用",
+    "settings-menubar-switch-on": "启用"
   }
 }

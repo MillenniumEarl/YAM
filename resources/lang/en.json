@@ -98,6 +98,11 @@
     "main-application-divider": "Application",
     "settings-reset-update-cache-description": "Delete the update cache (it will be recreated when needed)",
     "settings-reset-update-cache-btn": "Delete cache",
-    "MR update cache deleted": "The update cache has been cleared"
+    "MR update cache deleted": "The update cache has been cleared",
+    "settings-show-devtools-description": "Show the Chrome DevTools",
+    "settings-show-devtools-btn": "Open",
+    "settings-enable-menubar-description": "Enable the developer menu",
+    "settings-menubar-switch-off": "Disable",
+    "settings-menubar-switch-on": "Enable"
   }
 }

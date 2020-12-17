@@ -98,6 +98,11 @@
     "main-application-divider": "Solicitud",
     "settings-reset-update-cache-description": "Elimine la caché de actualización (se volverá a crear cuando sea necesario)",
     "settings-reset-update-cache-btn": "Eliminar caché",
-    "MR update cache deleted": "Se borró la caché de actualización"
+    "MR update cache deleted": "Se borró la caché de actualización",
+    "settings-show-devtools-description": "Mostrar herramientas para desarrolladores de Chrome",
+    "settings-show-devtools-btn": "Abre",
+    "settings-enable-menubar-description": "Habilita el menú de desarrollador",
+    "settings-menubar-switch-off": "Inhabilitar",
+    "settings-menubar-switch-on": "Habilitar"
   }
 }
