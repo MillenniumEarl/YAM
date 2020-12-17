@@ -56,6 +56,8 @@ const validSendChannels = [
     "app-version",
     "user-data",
     "window-size",
+    "show-devtools",
+    "allow-menubar"
 ];
 
 //#region Error management

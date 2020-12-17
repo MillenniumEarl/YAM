@@ -113,6 +113,23 @@ ipcMain.handle("user-data", function ipcOnUserData() {
     return app.getPath("userData");
 });
 
+// Show the devtools
+ipcMain.on("show-devtools", function ipcOnShowDevTools() {
+    logger.info("Opening devtools");
+    mainWindow.webContents.openDevTools();
+});
+
+// Enable or disable the menubar
+ipcMain.on("allow-menubar", function ipcOnAllowMenuBar(e, args) {
+    logger.info(`Allow menubar: ${args[0]}`);
+
+    // Save the preference
+    store.set("menubar", args[0]);
+
+    // Show/hide the devtools for the main window
+    mainWindow.setMenuBarVisibility(args[0]);
+});
+
 //#region Recommendation engine
 /**
  * @private

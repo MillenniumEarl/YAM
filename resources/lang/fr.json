@@ -98,6 +98,11 @@
     "main-application-divider": "Application",
     "settings-reset-update-cache-description": "Supprimez le cache de mise à jour (il sera recréé si nécessaire)",
     "settings-reset-update-cache-btn": "Supprimer le cache",
-    "MR update cache deleted": "Le cache de mise à jour a été effacé"
+    "MR update cache deleted": "Le cache de mise à jour a été effacé",
+    "settings-show-devtools-description": "Afficher les outils de développement Chrome",
+    "settings-show-devtools-btn": "Montrer",
+    "settings-enable-menubar-description": "Activer le menu développeur",
+    "settings-menubar-switch-off": "Désactiver",
+    "settings-menubar-switch-on": "Activer"
   }
 }

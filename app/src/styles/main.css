@@ -92,6 +92,15 @@ li[id^="select-options"] {
   gap: 5px;
 }
 
+/* Set colors for the "on" switch */
+.switch label input[type=checkbox]:checked+.lever {
+  background-color: var(--switch-selected-secondary) !important;
+}
+
+.switch label input[type=checkbox]:checked+.lever:after {
+  background-color: var(--switch-selected-main) !important;
+}
+
 /*### Input selectors ###*/
 #search-game-name,
 #settings-username-txt,

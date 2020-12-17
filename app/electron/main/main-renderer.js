@@ -42,6 +42,10 @@ document.querySelector("#settings-password-toggle").addEventListener("click", on
 
 document.querySelector("#settings-reset-update-cache-btn").addEventListener("click", onDeleteUpdateCache);
 
+document.querySelector("#settings-show-devtools-btn").addEventListener("click", onShowDevTools);
+
+document.querySelector("#settings-menubar-checkbox").addEventListener("change", onEnableMenuBar);
+
 document.querySelector("#settings-save-credentials-btn").addEventListener("click", onSaveCredentialsFromSettings);
 
 document.querySelector("#main-language-select").addEventListener("change", updateLanguage);
@@ -254,6 +258,21 @@ async function onDeleteUpdateCache() {
 
     const translation = await window.API.translate("MR update cache deleted");
     sendToastToUser("info", translation);
+}
+
+/**
+ * Used when the user click on the button to show the devtools.
+ */
+function onShowDevTools() {
+    window.API.send("show-devtools");
+}
+
+/**
+ * Enable or disable the menubar in production mode.
+ * @param {*} e 
+ */
+function onEnableMenuBar(e) {
+    window.API.send("allow-menubar", e.target.checked);
 }
 
 /**

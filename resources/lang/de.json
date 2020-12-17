@@ -98,6 +98,11 @@
     "main-application-divider": "Anwendung",
     "settings-reset-update-cache-description": "Löschen Sie den Update-Cache (er wird bei Bedarf neu erstellt)",
     "settings-reset-update-cache-btn": "Cache löschen",
-    "MR update cache deleted": "Der Update-Cache wurde gelöscht"
+    "MR update cache deleted": "Der Update-Cache wurde gelöscht",
+    "settings-show-devtools-description": "Chrome Developer Tools anzeigen",
+    "settings-show-devtools-btn": "Öffnen",
+    "settings-enable-menubar-description": "Aktivieren Sie das Entwicklermenü",
+    "settings-menubar-switch-off": "Deaktivieren",
+    "settings-menubar-switch-on": "Aktivieren"
   }
 }
