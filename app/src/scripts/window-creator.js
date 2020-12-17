@@ -63,13 +63,10 @@ module.exports.createMainWindow = function (onclose) {
         shell.openExternal(url);
     });
 
-    // Disable default menu
-    if (!isDev) w.window.setMenu(null);
-
     // Load the index.html of the app.
     const htmlPath = path.join(HTML_DIR, "index.html");
     w.window.loadFile(htmlPath);
-
+    
     return w;
 };
 
@@ -100,11 +97,8 @@ module.exports.createLoginWindow = function (parent, onclose) {
         onclose: onclose
     });
 
-    // Set window properties and disable default menu
-    if (!isDev) {
-        w.window.setResizable(false);
-        w.window.setMenu(null);
-    }
+    // Set window properties
+    if (!isDev) w.window.setResizable(false);
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "login.html");
@@ -151,11 +145,8 @@ module.exports.createMessagebox = function (parent, args, onclose) {
         onclose: onclose
     });
 
-    // Set window properties and disable default menu
-    if (!isDev) {
-        w.window.setResizable(false);
-        w.window.setMenu(null);
-    }
+    // Set window properties
+    if (!isDev) w.window.setResizable(false);
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "messagebox.html");
@@ -191,11 +182,8 @@ module.exports.createURLInputbox = function(parent, onclose) {
         onclose: onclose
     });
     
-    // Set window properties and disable default menu
-    if (!isDev) {
-        w.window.setResizable(false);
-        w.window.setMenu(null);
-    }
+    // Set window properties
+    if (!isDev) w.window.setResizable(false);
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "url-input.html");
@@ -238,11 +226,8 @@ module.exports.createUpdateMessagebox = function (parent, args, onclose) {
         onclose: onclose
     });
 
-    // Set window properties and disable default menu
-    if (!isDev) {
-        w.window.setResizable(false);
-        w.window.setMenu(null);
-    }
+    // Set window properties
+    if (!isDev) w.window.setResizable(false);
 
     // Load the html file
     const htmlPath = path.join(HTML_DIR, "update-messagebox.html");
@@ -303,6 +288,10 @@ function createBaseWindow(options) {
             preload: options.preloadPath,
         },
     });
+
+    // Disable default menu
+    const enableMenuBar = store.has("menubar") ?? false;
+    w.setMenuBarVisibility(isDev || enableMenuBar);
 
     // Show the window when is fully loaded (set the listener)
     w.webContents.on("did-finish-load", () => w.show());
