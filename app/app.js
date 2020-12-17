@@ -1,5 +1,8 @@
 "use strict";
 
+// Use code cache
+require("v8-compile-cache");
+
 // Core modules
 const path = require("path");
 const fs = require("fs");
