@@ -250,7 +250,7 @@ class CardPaginator extends HTMLElement {
             .catch(e => window.API.reportError(e, "20103", "this._shoudISwitch", "search", `Index: ${FIRST_PAGE}`));
         
         if (shouldSwitch && !this._isLoading) {
-            window.API.log.info(`Searching for ${value} in paginator`);
+            window.API.log.info(`Searching for '${value}' in paginator`);
             
             // Load the first page
             this._switchContext(FIRST_PAGE);
