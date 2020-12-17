@@ -56,7 +56,7 @@ module.exports.deleteFolderRecursive = async function deleteFolderRecursive(dirp
         // Foreach element in dir, delete (file) or recurse (folder)
         const nodes = await areaddir(dirpath);
 
-        nodes.forEach(async (file) => {
+        for(const file of nodes) {
             const p = path.join(dirpath, file);
 
             // Remove subdir
@@ -66,7 +66,7 @@ module.exports.deleteFolderRecursive = async function deleteFolderRecursive(dirp
             // ...or remove single file
             else await aunlink(p)
                 .catch(e => reportError(e, "30701", "aunlink", "exports.deleteFolderRecursive", `Path: ${p}`));
-        });
+        }
 
         // Remove main dir
         await armdir(dirpath);
