@@ -625,8 +625,7 @@ class GameCard extends HTMLElement {
         const previewPath = await this._parsePreviewPath()
             .catch(e => window.API.reportError(e, "20319", "this._parsePreviewPath", "deleteData"));
         const exists = await window.IO.pathExists(previewPath);
-        if (exists) await window.IO.deleteFile(previewPath)
-            .catch(e => window.API.reportError(e, "20320", "await window.IO.deleteFile", "deleteData", `Path: ${previewPath}`));
+        if (exists) window.IO.deleteFile(previewPath);
     }
 
     /**
