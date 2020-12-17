@@ -44,6 +44,9 @@
     --button-negative-color-focus: #C93131;
     --button-neutral-color: #0A66BB; /* Denim */
     --button-neutral-color-focus: #2979C3;
+
+    --switch-selected-main: #990000;
+    --switch-selected-secondary: #a52020;
 }
 
 /* Used to not highligh the non-input elements */
