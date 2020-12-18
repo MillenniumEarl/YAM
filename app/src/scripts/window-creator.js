@@ -50,7 +50,10 @@ module.exports.createMainWindow = function (onclose) {
         size: size,
         minSize: minSize,
         preloadPath: preload,
-        onclose: onclose
+        onclose: onclose,
+        args: {
+            "menubar": store.has("menubar") ?? false
+        }
     });
 
     // Detect if the user maximized the window in a previous session

@@ -1307,6 +1307,11 @@ function prepareThreadUpdatesTab(threads) {
 //#endregion Private methods
 
 //#region IPC listeners
+window.API.once("window-arguments", function (args) {
+    // Set the checkbox for the menubar
+    document.getElementById("settings-menubar-checkbox").checked = args["menubar"];
+});
+
 /**
  * Updates the number of cards shown in the pager after the user resizes the window.
  */

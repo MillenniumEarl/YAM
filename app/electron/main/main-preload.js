@@ -36,7 +36,7 @@ const errManager = require("../../src/scripts/error-manger.js");
 F95API.loggerLevel = "warn";
 
 // Array of valid main-to-render channels
-const validReceiveChannels = ["window-resized", "window-size"];
+const validReceiveChannels = ["window-resized", "window-size", "window-arguments"];
 
 // Array of valid render-to-main channels
 const validSendChannels = [
@@ -130,6 +130,13 @@ contextBridge.exposeInMainWorld("API", {
         if (validReceiveChannels.includes(channel)) {
             // Deliberately strip event as it includes `sender`
             ipcRenderer.on(channel, (event, ...args) => func(...args));
+        }
+    },
+    once: (channel, func) => {
+        // Receive a custom message
+        if (validReceiveChannels.includes(channel)) {
+            // Deliberately strip event as it includes `sender`
+            ipcRenderer.once(channel, (event, ...args) => func(...args));
         }
     },
     /**
