@@ -502,7 +502,8 @@ function getCardsNumberForPage(size) {
     const cardHeight = 400;
 
     // Get the number of rows and columns that can be visible if appended
-    const columns = Math.floor(width / cardWidth);
+    const MAX_COLUMNS = 4;
+    const columns = Math.min(Math.floor(width / cardWidth), MAX_COLUMNS);
     const rows = Math.floor(height / cardHeight);
 
     // Set at least 1 cards
