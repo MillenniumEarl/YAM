@@ -48,7 +48,7 @@
         "nedb-promises": "^4.1.0",
         "new-github-issue-url": "^0.2.1",
         "simple-image-downloader": "^4.0.2",
-        "string-similarity": "^4.0.3",
+        "string-similarity": "^4.0.4",
         "v8-compile-cache": "^2.2.0"
     },
     "devDependencies": {
