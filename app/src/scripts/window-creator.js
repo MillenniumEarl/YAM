@@ -35,8 +35,8 @@ module.exports.createMainWindow = function (onclose) {
     const preload = path.join(PRELOAD_DIR, "main", "main-preload.js");
 
     // Set size
-    const width = store.has("main-width") ?? 1024;
-    const height = store.has("main-height") ?? 620;
+    const width = store.has("main-width") ? store.get("main-width") : 1024;
+    const height = store.has("main-height") ? store.get("main-height") : 620;
     const size = {
         width: width,
         height: height,
@@ -53,13 +53,15 @@ module.exports.createMainWindow = function (onclose) {
         preloadPath: preload,
         onclose: onclose,
         args: {
-            "menubar": store.has("menubar") ?? false,
-            "open-copy-links": store.has("open-links-in-default-browser") ?? true
+            "menubar": store.has("menubar") ? store.get("menubar") : false,
+            "open-copy-links": store.has("open-links-in-default-browser") ? 
+                store.get("open-links-in-default-browser") : 
+                true
         }
     });
 
     // Detect if the user maximized the window in a previous session
-    const maximize = store.has("main-maximized") ?? false;
+    const maximize = store.has("main-maximized") ? store.get("main-maximized") : false;
     if (maximize) w.window.maximize();
 
     // Whatever URL the user clicks will open the default browser for viewing
@@ -68,8 +70,10 @@ module.exports.createMainWindow = function (onclose) {
         e.preventDefault();
 
         // Detect the choice of the user
-        const openLink = store.has("open-links-in-default-browser") ?? true;
-
+        const openLink = store.has("open-links-in-default-browser") ? 
+            store.get("open-links-in-default-browser") : 
+            true;
+        
         // Open URL in default browser
         if (openLink) shell.openExternal(url);
 
