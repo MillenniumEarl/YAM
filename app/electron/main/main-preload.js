@@ -57,7 +57,8 @@ const validSendChannels = [
     "user-data",
     "window-size",
     "show-devtools",
-    "allow-menubar"
+    "allow-menubar",
+    "open-copy-links"
 ];
 
 //#region Error management

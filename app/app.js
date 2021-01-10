@@ -130,6 +130,15 @@ ipcMain.on("allow-menubar", function ipcOnAllowMenuBar(e, args) {
     mainWindow.setMenuBarVisibility(args[0]);
 });
 
+// Switch between opening a URL in the default browser or
+// copying it 
+ipcMain.on("open-copy-links", function ipcOnCopyOpenLinks(e, args) {
+    logger.info(`Open links in the default browser: ${args[0]}`);
+
+    // Save the preference
+    store.set("open-links-in-default-browser", args[0]);
+});
+
 //#region Recommendation engine
 /**
  * @private

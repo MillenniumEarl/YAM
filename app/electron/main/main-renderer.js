@@ -46,6 +46,8 @@ document.querySelector("#settings-show-devtools-btn").addEventListener("click", 
 
 document.querySelector("#settings-menubar-checkbox").addEventListener("change", onEnableMenuBar);
 
+document.querySelector("#settings-open-links-checkbox").addEventListener("change", onOpenLinksInExternalBrowser);
+
 document.querySelector("#settings-save-credentials-btn").addEventListener("click", onSaveCredentialsFromSettings);
 
 document.querySelector("#main-language-select").addEventListener("change", updateLanguage);
@@ -273,6 +275,15 @@ function onShowDevTools() {
  */
 function onEnableMenuBar(e) {
     window.API.send("allow-menubar", e.target.checked);
+}
+
+/**
+ * Switch between open the links in-app in the 
+ * default browser or to only copy the link.
+ * @param {*} e 
+ */
+function onOpenLinksInExternalBrowser(e) {
+    window.API.send("open-copy-links", e.target.checked);
 }
 
 /**
