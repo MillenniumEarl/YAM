@@ -202,7 +202,7 @@ class CardPaginator extends HTMLElement {
             // Check if we are on the first/last page
             const disabled = this.querySelector(keyPageMap[e.key]).classList.contains("disabled");
 
-            if (index !== -1 || !disabled) {
+            if (index !== -1 && !disabled) {
                 // Calculate the new index
                 const nextIndex = e.key === "ArrowRight" ? index + 1: index -1;
 
