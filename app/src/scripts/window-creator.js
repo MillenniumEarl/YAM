@@ -8,6 +8,7 @@ const {
     app,
     BrowserWindow,
     shell,
+    clipboard
 } = require("electron");
 const isDev = require("electron-is-dev");
 const Store = require("electron-store");
@@ -52,7 +53,8 @@ module.exports.createMainWindow = function (onclose) {
         preloadPath: preload,
         onclose: onclose,
         args: {
-            "menubar": store.has("menubar") ?? false
+            "menubar": store.has("menubar") ?? false,
+            "open-copy-links": store.has("open-links-in-default-browser") ?? true
         }
     });
 
@@ -61,9 +63,18 @@ module.exports.createMainWindow = function (onclose) {
     if (maximize) w.window.maximize();
 
     // Whatever URL the user clicks will open the default browser for viewing
+    // or copy the URL to clipboard
     w.window.webContents.on("new-window", function mainWindowOnNewWindow(e, url) {
         e.preventDefault();
-        shell.openExternal(url);
+
+        // Detect the choice of the user
+        const openLink = store.has("open-links-in-default-browser") ?? true;
+
+        // Open URL in default browser
+        if (openLink) shell.openExternal(url);
+
+        // Copy URL to clipboard
+        else clipboard.writeText(url, "selection");
     });
 
     // Load the index.html of the app.

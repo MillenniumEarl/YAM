@@ -1322,6 +1322,9 @@ function prepareThreadUpdatesTab(threads) {
 window.API.once("window-arguments", function (args) {
     // Set the checkbox for the menubar
     document.getElementById("settings-menubar-checkbox").checked = args["menubar"];
+
+    // Set the checkbox for the open/copy link
+    document.getElementById("settings-open-links-checkbox").checked = args["open-copy-links"];
 });
 
 /**
