@@ -103,6 +103,9 @@
     "settings-show-devtools-btn": "Abre",
     "settings-enable-menubar-description": "Habilita el menú de desarrollador",
     "settings-menubar-switch-off": "Inhabilitar",
-    "settings-menubar-switch-on": "Habilitar"
+    "settings-menubar-switch-on": "Habilitar",
+    "settings-open-links-description": "Copie o abra enlaces en su navegador predeterminado",
+    "settings-open-links-switch-off": "Copiar solo",
+    "settings-open-links-switch-on": "Abierta en el navegador"
   }
 }

@@ -103,6 +103,9 @@
     "settings-show-devtools-btn": "Open",
     "settings-enable-menubar-description": "Enable the developer menu",
     "settings-menubar-switch-off": "Disable",
-    "settings-menubar-switch-on": "Enable"
+    "settings-menubar-switch-on": "Enable",
+    "settings-open-links-description": "Copy or open links in your default browser",
+    "settings-open-links-switch-off": "Copy only",
+    "settings-open-links-switch-on": "Open in browser"
   }
 }

@@ -103,6 +103,9 @@
     "settings-show-devtools-btn": "Посмотреть",
     "settings-enable-menubar-description": "Включить меню разработчика",
     "settings-menubar-switch-off": "Отключить",
-    "settings-menubar-switch-on": "включить"
+    "settings-menubar-switch-on": "включить",
+    "settings-open-links-description": "Скопируйте или откройте ссылки в браузере по умолчанию",
+    "settings-open-links-switch-off": "Только копия",
+    "settings-open-links-switch-on": "Открыть в браузере"
   }
 }

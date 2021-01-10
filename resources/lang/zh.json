@@ -103,6 +103,9 @@
     "settings-show-devtools-btn": "视图",
     "settings-enable-menubar-description": "启用开发者菜单",
     "settings-menubar-switch-off": "禁用",
-    "settings-menubar-switch-on": "启用"
+    "settings-menubar-switch-on": "启用",
+    "settings-open-links-description": "在您的默认浏览器中复制或打开链接",
+    "settings-open-links-switch-off": "仅复制",
+    "settings-open-links-switch-on": "在浏览器中打开"
   }
 }

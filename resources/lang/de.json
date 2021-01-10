@@ -103,6 +103,9 @@
     "settings-show-devtools-btn": "Öffnen",
     "settings-enable-menubar-description": "Aktivieren Sie das Entwicklermenü",
     "settings-menubar-switch-off": "Deaktivieren",
-    "settings-menubar-switch-on": "Aktivieren"
+    "settings-menubar-switch-on": "Aktivieren",
+    "settings-open-links-description": "Kopieren oder öffnen Sie Links in Ihrem Standardbrowser",
+    "settings-open-links-switch-off": "Nur kopieren",
+    "settings-open-links-switch-on": "Im Browser öffnen"
   }
 }

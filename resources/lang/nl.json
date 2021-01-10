@@ -103,6 +103,9 @@
     "settings-show-devtools-btn": "Openen",
     "settings-enable-menubar-description": "Schakel het ontwikkelaarsmenu in",
     "settings-menubar-switch-off": "Uitschakelen",
-    "settings-menubar-switch-on": "Inschakelen"
+    "settings-menubar-switch-on": "Inschakelen",
+    "settings-open-links-description": "Kopieer of open links in uw standaardbrowser",
+    "settings-open-links-switch-off": "Alleen kopiëren",
+    "settings-open-links-switch-on": "Open in de browser"
   }
 }
