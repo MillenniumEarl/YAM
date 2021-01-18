@@ -448,6 +448,7 @@ class GameCard extends HTMLElement {
      * Rename a file.
      * @param {String} newpath 
      * @param {String} oldpath 
+     * @return {Promise<Boolean>}
      */
     async _rename(newpath, oldpath) {
         // Rename the old path
@@ -683,6 +684,7 @@ class GameCard extends HTMLElement {
             this._updateInfo.version, 
             this._updateInfo.isMod)
             .catch(e => window.API.reportError(e, "20323", "this._updateName", "update"));
+        if (!newpath) return false;
 
         // Update info
         const dbid = this.info._id;
