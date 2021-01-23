@@ -65,7 +65,7 @@ When adding a game or starting the application, updates of installed games are c
 
 ## How to contribute
 
-- **Translations**: If you know a language that is not available, you can contribute on [Crowdin](https://crowdin.com/project/yam).
+- **Translations**: If you know a language that is not available, you can contribute on [Crowdin](https://crwd.in/yam).
 - **Translation correction**: Are any translations wrong? Create a new issue or correct the translation file and create a pull request.
 - **Code**: Feel free to browse the code and open issues or create pull requests with necessary corrections.
 - **Front-end**: Could HTML and CSS be handled better? Create a pull request!
