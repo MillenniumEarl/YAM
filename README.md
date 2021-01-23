@@ -3,6 +3,7 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMillenniumEarl%2FYAM.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FMillenniumEarl%2FYAM?ref=badge_shield)
 [![Known Vulnerabilities](https://snyk.io/test/github/MillenniumEarl/YAM/badge.svg)](https://snyk.io/test/github/MillenniumEarl/YAM)
 ![Build](https://github.com/MillenniumEarl/YAM/workflows/Build/badge.svg)
+[![Crowdin](https://badges.crowdin.net/yam/localized.svg)](https://crowdin.com/project/yam)
 
 # F95 Game Updater
 
