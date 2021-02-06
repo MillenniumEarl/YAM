@@ -41,7 +41,13 @@ module.exports.run = function run(filename) {
  * @param {String} path Directory path or URL
  */
 module.exports.openLink = async function openLink(path) {
-    const result =  await shell.openPath(path);
+    let result;
+    // if path starts with http or https then open in browser 
+    if (path.match(/^https?:\/\/.*$/)) {
+        result =  await shell.openExternal(path);
+    } else {
+        result =  await shell.openPath(path);
+    }
     if(result !== "") logger.error(`Error while opening ${path} in openLink: ${result}`);
 };
 
