@@ -52,7 +52,7 @@
     },
     "devDependencies": {
         "babel-eslint": "^10.1.0",
-        "electron": "^11.2.3",
+        "electron": "^11.3.0",
         "electron-builder": "^22.9.1",
         "eslint": "^7.19.0"
     },
