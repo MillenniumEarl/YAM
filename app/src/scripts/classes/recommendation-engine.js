@@ -204,6 +204,7 @@ class RecommendationEngine {
                     .catch(e => reportError(e, "31605", "F95API.getLatestUpdates", "recommend"));
 
                 // Add the games
+                if (!games) return [];
                 const validGames = await this._validateGame(games, recommendedGames);
                 validGames.map(game => {
                     if (recommendedGames.length < limit) 
