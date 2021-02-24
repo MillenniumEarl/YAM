@@ -75,6 +75,8 @@ async function _getTranslationResourcesFromDir(dirname) {
     for (const filename of await readdir(path.resolve(dir))) {
         // Read translation
         const translationPath = path.join(dir, filename);
+        if (fs.lstatSync(translationPath).isDirectory()) continue;
+        
         const json = await readfile(translationPath);
 
         // Parse translation
