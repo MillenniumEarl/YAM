@@ -59,7 +59,7 @@
     "build": {
         "appId": "com.electron.yam",
         "productName": "YAM",
-        "copyright": "Copyright © 2020 MillenniumEarl",
+        "copyright": "Copyright © 2021 MillenniumEarl",
         "asar": true,
         "publish": [
             "github"
