@@ -2,7 +2,7 @@
 
 // Public modules from npm
 const Datastore = require("nedb-promises");
-const Ajv = require("ajv");
+const Ajv = require("ajv").default;
 const gameDataSchema = require("../schemas/game-data");
 const logger = require("electron-log");
 
