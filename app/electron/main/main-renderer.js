@@ -799,6 +799,15 @@ async function gameCardDelete(e) {
     // Local variables
     const savesExists = e.detail.savePaths.length !== 0;
 
+    // First check if the path exists
+    const exists = await window.IO.pathExists(e.detail.gameDirectory);
+    if (!exists) {
+        // Notificate the user
+        const translation = await window.API.translate("MR cannot find game path");
+        sendToastToUser("error", translation);
+        return;
+    }
+
     // Ask the user for confirm
     const data = await askUserForGameDeletion(savesExists);
     if(data) {
