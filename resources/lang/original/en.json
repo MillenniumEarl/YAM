@@ -89,7 +89,7 @@
     "rc-tags-title": "Tags:",
     "gc-overview-title": "Overview",
     "main-navbar-recommendations": "Suggested",
-    "update-message-windarwin": "A new version of the app is available, pressing on \"update\" the application will be closed and updated:\\n{{notes}}",
+    "update-message-windarwin": "A new version of the app is available, pressing on \"update\" the application will be closed and updated:\n{{notes}}",
     "update-message-linux": "A new version of the application is available.\\nPressing on \"update\" you will be taken to the download page on GitHub.",
     "update-title": "Update available ({{version}})",
     "default-button-update": "Update",
