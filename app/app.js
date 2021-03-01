@@ -378,9 +378,10 @@ function checkUpdates() {
         },
         onUpdateDownloaded: async (info) => {
             logger.info(`Update ${info.releaseName} downloaded and ready for installation`);
+            const cleanNotes = info.releaseNotes.replace(/<\/?[^>]+(>|$)/g, "").replace(/\s\s+/g, " ").trim();
             const message = process.platform !== "linux" ?
                 localization.getTranslation("update-message-windarwin", {
-                    notes: decodeURIComponent(info.releaseNotes)
+                    notes: cleanNotes
                 }) :
                 localization.getTranslation("update-message-linux");
             const args = {
@@ -392,7 +393,7 @@ function checkUpdates() {
                 buttons: [{name: "update"}, {name: "close"}] 
             };
             const userSelection = await windowCreator.createMessagebox(mainWindow, args).onclose;
-
+            
             // Quit and update the app
             if (userSelection.button === "update") {
                 logger.info("Performing update...");
