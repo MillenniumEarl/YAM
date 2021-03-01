@@ -66,6 +66,7 @@
         ],
         "files": [
             "**/*",
+            "!dev-app-update.yml",
             "!.github${/*}",
             "!.vscode${/*}",
             "!docs${/*}",
