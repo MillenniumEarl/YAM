@@ -75,7 +75,7 @@
     "main-special-thanks": "Un grand merci à: KnuffelBeestje pour les traductions néerlandaises",
     "MR select game option": "Sélectionnez l'option {{number}}",
     "MR same name games title": "Jeux avec les mêmes homonymes",
-    "MR same name games message": "D'autres jeux avec un nom similaire à '{{desiredGame}}' ont été trouvés. Sélectionnez celui requis :\n{{gamelist}}",
+    "MR same name games message": "D'autres jeux avec un nom similaire à \"{{desiredGame}}\" ont été trouvés. Sélectionnez celui requis :\n{{gamelist}}",
     "main-navbar-updated-threads": "Topic mis à jour",
     "tv-visit": "Visiter le topic",
     "tv-mark-read": "Marquer comme lu",
