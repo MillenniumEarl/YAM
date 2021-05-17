@@ -39,7 +39,7 @@
         "electron-updater": "^4.3.9",
         "f95api": "^1.9.9",
         "glob": "^7.1.7",
-        "i18next": "^20.2.2",
+        "i18next": "^20.2.4",
         "i18next-electron-language-detector": "0.0.10",
         "imagemin": "^8.0.0",
         "imagemin-gifsicle": "^7.0.0",
