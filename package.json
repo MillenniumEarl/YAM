@@ -29,7 +29,7 @@
         "node": ">=10.0"
     },
     "dependencies": {
-        "@material-icons/font": "1.0.6",
+        "@material-icons/font": "1.0.10",
         "@materializecss/materialize": "^1.0.0",
         "ajv": "^8.5.0",
         "electron-is-dev": "^2.0.0",
