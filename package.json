@@ -26,7 +26,7 @@
         "dist:linux": "electron-builder --linux"
     },
     "engines": {
-        "node": ">=10.0"
+        "node": ">=14.0"
     },
     "dependencies": {
         "@material-icons/font": "1.0.6",
