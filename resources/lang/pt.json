@@ -89,7 +89,7 @@
     "rc-tags-title": "Tag:",
     "gc-overview-title": "Visão geral",
     "main-navbar-recommendations": "Sugerido",
-    "update-message-windarwin": "Uma nova versão do aplicativo está disponível, pressionando em \"atualizar\" o aplicativo será fechado e atualizado:\\n{{notes}}",
+    "update-message-windarwin": "Uma nova versão do aplicativo está disponível, pressionando em \"atualizar\" o aplicativo será fechado e atualizado:\n{{notes}}",
     "update-message-linux": "Uma nova versão do aplicativo está disponível.\\nPressionando em \"atualizar\" você será levado à página de download no GitHub.",
     "update-title": "Atualização disponível ({{version}})",
     "default-button-update": "Atualizar",
