@@ -77,8 +77,8 @@ async function _getSaveDir(gameinfo) {
             let returnValue = null;
             const renpyDir = path.join(userDataDir, "RenPy");
             const gameDirs = await areaddir(renpyDir);
-            const temp = gameDirs.map(dir => dir.replace(/[0-9]/g, "")); // Remove numbers from dirs
-            const match = stringSimilarity.findBestMatch(gameinfo.name.replace(/[0-9]/g, ""), temp);
+            const temp = gameDirs.map(dir => dir.replace(/[0-9]/gu, "")); // Remove numbers from dirs
+            const match = stringSimilarity.findBestMatch(gameinfo.name.replace(/[0-9]/gu, ""), temp);
 
             // Must be quite confident in the result
             if (match.bestMatch.rating > 0.75) {

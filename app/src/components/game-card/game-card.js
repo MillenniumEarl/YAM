@@ -289,7 +289,7 @@ class GameCard extends HTMLElement {
 
         // Parse the name
         const imageName = `${name.replaceAll(" ", "")}_preview.${extension}`;
-        const rx = /[/\\?%*:|"<>]/g; // Remove invalid chars
+        const rx = /[/\\?%*:|"<>]/gu; // Remove invalid chars
         return imageName.replace(rx, "");
     }
 
@@ -479,8 +479,8 @@ class GameCard extends HTMLElement {
         const modVariant = isMod ? "[MOD]" : "";
 
         // Clean the path
-        let dirname = `${name} [v.${version}] ${modVariant}`.replace(/[/\\?%*:|"<>]/g, "").trim();
-        dirname = dirname.replace(/[/\\?%*:|"<>]/g, "").trim(); // Remove invalid chars
+        let dirname = `${name} [v.${version}] ${modVariant}`.replace(/[/\\?%*:|"<>]/gu, "").trim();
+        dirname = dirname.replace(/[/\\?%*:|"<>]/gu, "").trim(); // Remove invalid chars
         const newpath = window.API.join(dirpath, dirname);
 
         // Rename the directory

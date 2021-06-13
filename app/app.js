@@ -378,7 +378,7 @@ function checkUpdates() {
         },
         onUpdateDownloaded: async (info) => {
             logger.info(`Update ${info.releaseName} downloaded and ready for installation`);
-            const cleanNotes = info.releaseNotes.replace(/<\/?[^>]+(>|$)/g, "").replace(/\s\s+/g, " ").trim();
+            const cleanNotes = info.releaseNotes.replace(/<\/?[^>]+(>|$)/gu, "").replace(/\s\s+/gu, " ").trim();
             const message = process.platform !== "linux" ?
                 localization.getTranslation("update-message-windarwin", {
                     notes: cleanNotes

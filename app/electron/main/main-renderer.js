@@ -421,8 +421,8 @@ async function listAvailableLanguages() {
  */
 function cleanGameName(name) {
     // Remove mod tag and version
-    const rxTags = /\[(.*?)\]/g;
-    const rxSpecials = /[/\\?%*:|"<>]/g;
+    const rxTags = /\[(.*?)\]/gu;
+    const rxSpecials = /[/\\?%*:|"<>]/gu;
     return name.replace(rxTags, "").replace(rxSpecials, "").trim();
 }
 
