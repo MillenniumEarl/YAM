@@ -41,7 +41,7 @@
         "glob": "^7.1.7",
         "i18next": "^20.2.2",
         "i18next-electron-language-detector": "0.0.10",
-        "imagemin": "^8.0.0",
+        "imagemin": "^7.0.1",
         "imagemin-gifsicle": "^7.0.0",
         "imagemin-webp": "^6.0.0",
         "nedb-promises": "^4.1.3",
