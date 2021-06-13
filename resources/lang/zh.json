@@ -89,7 +89,7 @@
     "rc-tags-title": "标签：",
     "gc-overview-title": "总览",
     "main-navbar-recommendations": "建议的",
-    "update-message-windarwin": "该应用有新版本可用，请点击“更新”，该应用将关闭并更新：\\n{{notes}}",
+    "update-message-windarwin": "该应用有新版本可用，请点击“更新”，该应用将关闭并更新：\n{{notes}}",
     "update-message-linux": "该应用程序有新版本。\\n 点击“更新”，您将转到GitHub上的下载页面。",
     "update-title": "有可用更新（{{version}}）",
     "default-button-update": "刷新",
