@@ -329,7 +329,7 @@ class GameCard extends HTMLElement {
             .catch(e => window.API.reportError(e, "20305", "window.API.compress", "_compressGamePreview", `Source: ${source}, Folder: ${folder}`));
 
         // Something wrong with compression
-        if (compressionResult.length !== 1) {
+        if (!compressionResult || compressionResult.length !== 1) {
             window.API.log.error(`Something went wrong when compressing ${source}`);
             return null;
         }
@@ -339,10 +339,13 @@ class GameCard extends HTMLElement {
             window.IO.deleteFile(source);
         }
 
-        // Return image name
+        // Parse image name
         const isGIF = source.endsWith(".gif");
         const ext = isGIF ? "gif" : "webp";
-        return window.API.join(folder, this._parseImageName(name, source, ext));
+        const imagename = window.API.basename(source);
+
+        // Return image name
+        return window.API.join(folder, this._parseImageName(imagename, source, ext));
     }
     
     /**
@@ -474,7 +477,7 @@ class GameCard extends HTMLElement {
         let returnValue = null;
 
         // Prepare the directory paths
-        const oldDirName = window.API.getDirName(this.info.gameDirectory);
+        const oldDirName = window.API.basename(this.info.gameDirectory);
         const dirpath = this.info.gameDirectory.replace(oldDirName, "");
         const modVariant = isMod ? "[MOD]" : "";
 
@@ -547,7 +550,7 @@ class GameCard extends HTMLElement {
 
         // Check for updates online...
         returnValue = await window.F95.checkGameUpdates(this.info)
-            .catch(e => window.API.reportError(e, "20311", "this._compressGamePreview", "_checkForCachedUpdateThenOnline", `URL: ${this.info.url}`));
+            .catch(e => window.API.reportError(e, "20311", "window.F95.checkGameUpdates", "_checkForCachedUpdateThenOnline", `URL: ${this.info.url}`));
         return returnValue;
     }
 
