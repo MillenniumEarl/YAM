@@ -19,7 +19,7 @@ const {
     ipcRenderer,
 } = require("electron");
 const F95API = require("f95api");
-const download = require("simple-image-downloader");
+const download = require("image-downloader");
 const logger = require("electron-log");
 const imagemin = require("imagemin");
 const imageminWebp = require("imagemin-webp");
