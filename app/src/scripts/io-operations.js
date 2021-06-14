@@ -64,12 +64,14 @@ module.exports.deleteFolderRecursive = async function deleteFolderRecursive(dirp
 
             // Remove subdir
             const isDir = (await alstat(p)).isDirectory();
-            isDir 
-                ? await exports.deleteFolderRecursive(p)
-                    .catch(e => reportError(e, "30700", "exports.deleteFolderRecursive", "exports.deleteFolderRecursive", `Path: ${p}`))
-                // ...or remove single file
-                : await aunlink(p)
-                    .catch(e => reportError(e, "30701", "aunlink", "exports.deleteFolderRecursive", `Path: ${p}`));
+            if(isDir) {
+                await exports.deleteFolderRecursive(p)
+                    .catch(e => reportError(e, "30700", "exports.deleteFolderRecursive", "exports.deleteFolderRecursive", `Path: ${p}`));
+            }
+            // ...or remove single file
+            else {await aunlink(p)
+                .catch(e => reportError(e, "30701", "aunlink", "exports.deleteFolderRecursive", `Path: ${p}`));
+            }
         }
 
         // Remove main dir
