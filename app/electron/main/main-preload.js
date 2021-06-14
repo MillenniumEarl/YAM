@@ -162,11 +162,11 @@ contextBridge.exposeInMainWorld("API", {
         });
     },
     /**
-     * Obtain the name of the parent directory of a specified path.
+     * Return the last portion of a path.
      * @param {String} path
      * @returns {String}
      */
-    getDirName: function apiGetDirName(path) {
+    basename: function apiGetDirName(path) {
         return basename(path);
     },
     /**

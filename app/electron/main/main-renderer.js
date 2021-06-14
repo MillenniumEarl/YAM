@@ -643,7 +643,7 @@ async function login() {
  */
 function getDirInfo(path) {
     // Get dir name
-    const unparsedName = window.API.getDirName(path);
+    const unparsedName = window.API.basename(path);
 
     // Get dir info
     const name = cleanGameName(unparsedName);
@@ -782,7 +782,7 @@ async function copySaveFiles(sources, gamename) {
 
     // Copy the saves
     for (const path of sources) {
-        const name = window.API.getDirName(path);
+        const name = window.API.basename(path);
         const newName = window.API.join(gameDirectory, name);
         await window.IO.copy(path, newName);
     }
@@ -990,7 +990,7 @@ function separateNewAndPresentGames(paths, installedGameNames) {
     const installedNames = [];
     for (const path of paths) {
         // Get the clean game name
-        const unparsedName = window.API.getDirName(path);
+        const unparsedName = window.API.basename(path);
         const gamename = cleanGameName(unparsedName);
 
         // Check if it's not already present and add it to the list
