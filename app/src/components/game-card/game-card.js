@@ -393,21 +393,31 @@ class GameCard extends HTMLElement {
         const downloadResult = await this._downloadGamePreview(this.info.previewSrc, downloadDest)
             .catch(e => window.API.reportError(e, "20306", "this._downloadGamePreview", "_preparePreview"));
         
-        if (downloadResult) {
-            // Compress the image
-            const compressDest = await this._compressGamePreview(downloadDest, previewDir)
-                .catch(e => window.API.reportError(e, "20307", "this._compressGamePreview", "_preparePreview"));
+        // Need to fix IMAGEMIN
+        // if (downloadResult) {
+        //     // Compress the image
+        //     const compressDest = await this._compressGamePreview(downloadDest, previewDir)
+        //         .catch(e => window.API.reportError(e, "20307", "this._compressGamePreview", "_preparePreview"));
             
-            if (compressDest) {
-                const compressedImageName = this._parseImageName(this.info.name, compressDest);
+        //     if (compressDest) {
+        //         const compressedImageName = this._parseImageName(this.info.name, compressDest);
 
-                // All right, set the new preview path and save data
-                this.info.localPreviewPath = compressedImageName;
-                await this.saveData()
-                    .catch(e => window.API.reportError(e, "20308", "this.saveData", "_preparePreview"));
-                returnValue = true;
-            }
+        //         // All right, set the new preview path and save data
+        //         this.info.localPreviewPath = compressedImageName;
+        //         await this.saveData()
+        //             .catch(e => window.API.reportError(e, "20308", "this.saveData", "_preparePreview"));
+        //         returnValue = true;
+        //     }
+        // }
+
+        if (downloadResult) {
+            // All right, set the new preview path and save data
+            this.info.localPreviewPath = this._parseImageName(this.info.name, downloadDest);
+            await this.saveData()
+                .catch(e => window.API.reportError(e, "20308", "this.saveData", "_preparePreview"));
+            returnValue = true;
         }
+
         return returnValue;
     }
 
