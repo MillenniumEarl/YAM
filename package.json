@@ -37,7 +37,7 @@
         "electron-online": "^1.0.0",
         "electron-store": "^8.0.0",
         "electron-updater": "^4.3.9",
-        "f95api": "^1.9.9",
+        "f95api": "^1.9.11",
         "glob": "^7.1.7",
         "i18next": "^20.3.2",
         "i18next-electron-language-detector": "0.0.10",
