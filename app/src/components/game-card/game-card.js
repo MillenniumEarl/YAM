@@ -315,38 +315,6 @@ class GameCard extends HTMLElement {
         }
         return returnValue;
     }
-
-    /**
-     * @private
-     * Convert an image to WEBP or compress it if it's a GIF.
-     * @param {String} source Path to the image to compress
-     * @param {String} folder Path to save folder
-     * @returns {Promise<String|null>} Path to the compressed file or `null` if something went wrong
-     */
-    async _compressGamePreview(source, folder) {
-        // Compress image (given path and destination folder)
-        const compressionResult = await window.API.compress(source, folder)
-            .catch(e => window.API.reportError(e, "20305", "window.API.compress", "_compressGamePreview", `Source: ${source}, Folder: ${folder}`));
-
-        // Something wrong with compression
-        if (!compressionResult || compressionResult.length !== 1) {
-            window.API.log.error(`Something went wrong when compressing ${source}`);
-            return null;
-        }
-
-        // Delete original image
-        if (compressionResult[0].sourcePath !== compressionResult[0].destinationPath) {
-            window.IO.deleteFile(source);
-        }
-
-        // Parse image name
-        const isGIF = source.endsWith(".gif");
-        const ext = isGIF ? "gif" : "webp";
-        const imagename = window.API.basename(source);
-
-        // Return image name
-        return window.API.join(folder, this._parseImageName(imagename, source, ext));
-    }
     
     /**
      * @private
@@ -392,23 +360,6 @@ class GameCard extends HTMLElement {
         // Download the image
         const downloadResult = await this._downloadGamePreview(this.info.previewSrc, downloadDest)
             .catch(e => window.API.reportError(e, "20306", "this._downloadGamePreview", "_preparePreview"));
-        
-        // Need to fix IMAGEMIN
-        // if (downloadResult) {
-        //     // Compress the image
-        //     const compressDest = await this._compressGamePreview(downloadDest, previewDir)
-        //         .catch(e => window.API.reportError(e, "20307", "this._compressGamePreview", "_preparePreview"));
-            
-        //     if (compressDest) {
-        //         const compressedImageName = this._parseImageName(this.info.name, compressDest);
-
-        //         // All right, set the new preview path and save data
-        //         this.info.localPreviewPath = compressedImageName;
-        //         await this.saveData()
-        //             .catch(e => window.API.reportError(e, "20308", "this.saveData", "_preparePreview"));
-        //         returnValue = true;
-        //     }
-        // }
 
         if (downloadResult) {
             // All right, set the new preview path and save data

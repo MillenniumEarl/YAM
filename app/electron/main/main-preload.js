@@ -21,9 +21,6 @@ const {
 const F95API = require("f95api");
 const download = require("image-downloader");
 const logger = require("electron-log");
-const imagemin = require("imagemin");
-const imageminWebp = require("imagemin-webp");
-const imageminGifsicle = require("imagemin-gifsicle");
 
 // Modules from file
 const ioOps = require("../../src/scripts/io-operations.js");
@@ -194,36 +191,6 @@ contextBridge.exposeInMainWorld("API", {
      */
     currentLanguage: async function apiCurrentLanguage() {
         return ipcRenderer.invoke("current-language");
-    },
-    /**
-     * Convert and compress an image to webp.
-     * @param {String} src Path to source
-     * @param {String} dest Path to destination folder
-     */
-    compress: async function compressImage(src, dest) {
-        const gifOptions = {
-            interlaced: true,
-            optimizationLevel: 3,
-        };
-        const webpOptions = {
-            preset: "picture",
-            quality: 70,
-            method: 5
-        };
-
-        // GIF images cannot be converted to WEBP
-        const isGIF = src.endsWith(".gif");
-        const plugins = isGIF ? [imageminGifsicle(gifOptions)] : [imageminWebp(webpOptions)];
-
-        const options = {
-            destination: dest,
-            // imagemin cannot handle Window slash but only 
-            // Unix backslash, see https://github.com/imagemin/imagemin/issues/352
-            glob: false,
-            plugins: plugins
-        };
-
-        return await imagemin([src], options);
     },
     /**
      * Log an error
