@@ -223,7 +223,7 @@ ipcMain.handle("current-language", function ipcMainHandleCurrentLanguage() {
  * @returns {Promise<Any>} Results of the query
  */
 async function executeDbQuery(db, operation, args) {
-    logger.silly(`Executing ${operation} on '${db}'`);
+    logger.silly(`Executing ${operation} on '${path.basename(db.DB_PATH)}'`);
     
     // Prepare a dictionary of functions
     const operations = {
