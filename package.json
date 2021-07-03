@@ -36,7 +36,7 @@
         "electron-log": "^4.3.5",
         "electron-online": "^1.0.0",
         "electron-store": "^8.0.0",
-        "electron-updater": "^4.3.9",
+        "electron-updater": "^4.3.10",
         "f95api": "^1.9.11",
         "glob": "^7.1.7",
         "i18next": "^20.3.2",
