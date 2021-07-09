@@ -127,14 +127,14 @@ contextBridge.exposeInMainWorld("API", {
         // Receive a custom message
         if (validReceiveChannels.includes(channel)) {
             // Deliberately strip event as it includes `sender`
-            ipcRenderer.on(channel, (event, ...args) => func(...args));
+            ipcRenderer.on(channel, (_, ...args) => func(...args));
         }
     },
     once: (channel, func) => {
         // Receive a custom message
         if (validReceiveChannels.includes(channel)) {
             // Deliberately strip event as it includes `sender`
-            ipcRenderer.once(channel, (event, ...args) => func(...args));
+            ipcRenderer.once(channel, (_, ...args) => func(...args));
         }
     },
     /**
