@@ -887,7 +887,7 @@ async function selectSingleGame(name, version, mod) {
         window.API.log.warn(`No results found for ${name}`);
     } else if (gamelist.length > 1) {
         // Force the user to select only a game
-        const message = mod ? `${name} (${version})` : `${name} (${version}) [MOD]`;
+        const message = mod ? `${name} (${version}) [MOD]` : `${name} (${version})`;
         selectedGame = await requireUserToSelectGameWithSameName(message, gamelist)
             .catch(e => window.API.reportError(e, "11221", "requireUserToSelectGameWithSameName", "selectSingleGame"));
     } else selectedGame = gamelist[0];
