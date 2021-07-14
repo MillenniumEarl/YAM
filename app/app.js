@@ -337,8 +337,7 @@ ipcMain.handle("database-paths", function ipcMainOnHandleDatabasePaths() {
 //#region IPC dialog for main window
 ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
     logger.silly("Required messagebox");
-    const destArgs = [...args][0];
-    return windowCreator.createMessagebox(mainWindow, destArgs, messageBoxCloseCallback).onclose;
+    return windowCreator.createMessagebox(mainWindow, args, messageBoxCloseCallback).onclose;
 });
 
 ipcMain.handle("message-dialog", function ipcMainHandleMessageDialog(e, options) {
