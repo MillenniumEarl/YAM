@@ -29,7 +29,7 @@
     "dependencies": {
         "@material-icons/font": "1.0.12",
         "@materializecss/materialize": "^1.0.0",
-        "ajv": "^8.6.1",
+        "ajv": "^8.6.2",
         "electron-is-dev": "^2.0.0",
         "electron-log": "^4.3.5",
         "electron-online": "^1.0.0",
