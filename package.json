@@ -31,7 +31,7 @@
         "@materializecss/materialize": "^1.0.0",
         "ajv": "^8.6.2",
         "electron-is-dev": "^2.0.0",
-        "electron-log": "^4.3.5",
+        "electron-log": "^4.4.0",
         "electron-online": "^1.0.0",
         "electron-store": "^8.0.0",
         "electron-updater": "^4.4.1",
