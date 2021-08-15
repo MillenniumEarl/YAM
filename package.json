@@ -27,7 +27,7 @@
         "node": ">=14.10"
     },
     "dependencies": {
-        "@material-icons/font": "1.0.12",
+        "@material-icons/font": "1.0.13",
         "@materializecss/materialize": "^1.0.0",
         "ajv": "^8.6.2",
         "electron-is-dev": "^2.0.0",
