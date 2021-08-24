@@ -19,7 +19,7 @@
       },
       {
           "name": "Electron: Renderer",
-          "type": "chrome",
+          "type": "pwa-chrome",
           "request": "attach",
           "port": 9333,
           "webRoot": "${workspaceFolder}",
