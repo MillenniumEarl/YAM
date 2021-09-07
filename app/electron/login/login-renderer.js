@@ -174,7 +174,7 @@ async function login(username, password) {
     progressbar.style.display = "block";
 
     // Try to log-in
-    const result = await window.F95.login(username, password)
+    const result = await window.F95.login(username, password, window.API.retrieveCaptchaToken)
         .catch(e => window.API.reportError(e, "11000", "window.F95.login", "login"));
     const validAuth = await manageLoginResult(result, username, password)
         .catch(e => window.API.reportError(e, "11001", "manageLoginResult", "login"));
