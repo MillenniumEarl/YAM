@@ -467,24 +467,6 @@ function sendToastToUser(type, message) {
 
 /**
  * @private
- * Create a responsive column that will hold a single gamecard.
- */
-function createGridColumn() {
-    // Create a simil-table layout with materialize-css
-    // "s10" means that the element occupies 10 of 12 columns with small screens
-    // "offset-s2" means that on small screens 2 of 12 columns are spaced (from left)
-    // "m5" means that the element occupies 5 of 12 columns with medium screens
-    // "offset-m1" means that on medium screens 1 of 12 columns are spaced (from left)
-    // "l4" means that the element occupies 4 of 12 columns with large screens
-    // "xl3" means that the element occupies 3 of 12 columns with very large screens
-    // The 12 columns are the base layout provided by materialize-css
-    const column = document.createElement("div");
-    column.classList.add("col", "s10", "offset-s2", "m5", "offset-m1", "l4", "xl3");
-    return column;
-}
-
-/**
- * @private
  * Load the credentials from disk.
  * @return {Promise<Object.<string, string>>}
  */
@@ -497,29 +479,6 @@ async function getCredentials() {
     // Parse credentials
     const json = await window.IO.read(credPath);
     return JSON.parse(json);
-}
-
-/**
- * @private
- * Get the maximum number of cards to display in the window based on its size.
- * @param {Number[]} size Size of the main window
- */
-function getCardsNumberForPage(size) {
-    // Destructure the array
-    const [width, height] = size;
-
-    // Card size
-    const cardWidth = 300;
-    const cardHeight = 400;
-
-    // Get the number of rows and columns that can be visible if appended
-    const MAX_COLUMNS = 4;
-    const columns = Math.min(Math.floor(width / cardWidth), MAX_COLUMNS);
-    const rows = Math.floor(height / cardHeight);
-
-    // Set at least 1 cards
-    const candidateCards = columns * rows;
-    return Math.max(1, candidateCards);
 }
 //#endregion Utility
 
@@ -610,7 +569,7 @@ async function login() {
         if(login) {
             // Login for this session
             const credentials = await getCredentials();
-            const res = await window.F95.login(credentials.username, credentials.password)
+            const res = await window.F95.login(credentials.username, credentials.password, window.API.retrieveCaptchaToken)
                 .catch(e => window.API.reportError(e, "11214", "window.F95.login", "login"));
             if (!res.success) return;
 
@@ -623,12 +582,6 @@ async function login() {
             // Load user data
             getUserDataFromF95()
                 .catch(e => window.API.reportError(e, "11215", "getUserDataFromF95", "login"));
-
-            // Recommend games
-            window.API.receive("window-size", (size) => {
-                const displayable = getCardsNumberForPage(size);
-                window.requestAnimationFrame(() => recommendGamesWrapper(displayable));
-            });
             window.API.send("window-size");
         }
     }
@@ -1125,36 +1078,6 @@ async function getUserDataFromF95() {
     await updatedThreads(userdata.watchedGameThreads);
 }
 
-/**
- * @private
- * Wrapper around the recommend games function. 
- * Fetch and add to DOM the games.
- * @param {Number} limit Maximum number of cards to display
- */
-async function recommendGamesWrapper(limit) {
-    // Local variables
-    const recommendContent = document.getElementById("main-recommendations-content");
-
-    // Fetch recommended games
-    const games = await window.F95.recommendGames(limit)
-        .catch(e => window.API.reportError(e, "11227", "window.F95.recommendGames", "recommendGamesWrapper"));
-
-    if (games) {
-        // Remove childs
-        while (recommendContent.lastElementChild) {
-            recommendContent.removeChild(recommendContent.lastElementChild);
-        }
-
-        // Add cards
-        for (const game of games) {
-            const card = document.createElement("recommended-card");
-            card.info = game;
-            const column = createGridColumn();
-            column.appendChild(card);
-            recommendContent.appendChild(column);
-        }
-    }
-}
 //#endregion User Data
 
 //#region Watched Threads
@@ -1342,9 +1265,5 @@ window.API.once("window-arguments", function (args) {
 window.API.receive("window-resized", function onWindowResized (size) {
     const paginator = document.querySelector("card-paginator");
     if (paginator) paginator.visibleCardsOnParentSize(size);
-
-    const displayable = getCardsNumberForPage(size);
-    window.requestAnimationFrame(() => recommendGamesWrapper(displayable)
-        .catch(e => window.API.reportError(e, "11239", "recommendGamesWrapper", "onWindowResized")));
 });
 //#endregion IPC listeners
