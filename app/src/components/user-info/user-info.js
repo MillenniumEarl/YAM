@@ -23,7 +23,8 @@ class UserInfo extends HTMLElement {
         super();
 
         /* Use the F95API classes (Need main-preload) */
-        this._userdata = window.F95.UserData;
+        this._userdata = null;
+        window.F95.getUserData().then((profile) => this._userdata = profile);
     }
 
     /**
