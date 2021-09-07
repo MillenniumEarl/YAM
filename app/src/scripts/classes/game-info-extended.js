@@ -9,7 +9,7 @@ const {
 } = require("path");
 
 // Public module from npm
-const { GameInfo } = require("f95api");
+const { Game } = require("@millenniumearl/f95api");
 
 // Modules from file
 const savesFinder = require("../save-files-finder.js");
@@ -19,7 +19,7 @@ const savesFinder = require("../save-files-finder.js");
  * platform games with information that can be 
  * used by the application.
  */
-class GameInfoExtended extends GameInfo {
+class GameInfoExtended extends Game {
     constructor() {
         super();
         
