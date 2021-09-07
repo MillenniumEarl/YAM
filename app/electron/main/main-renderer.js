@@ -56,8 +56,6 @@ document.querySelector("#main-navbar-games").addEventListener("click", openPage)
 
 document.querySelector("#main-navbar-updated-threads").addEventListener("click", openPage);
 
-document.querySelector("#main-navbar-recommendations").addEventListener("click", openPage);
-
 document.querySelector("#main-navbar-settings").addEventListener("click", openPage);
 
 //#region Events listeners
