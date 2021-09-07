@@ -18,7 +18,8 @@ const {
     contextBridge,
     ipcRenderer,
 } = require("electron");
-const F95API = require("f95api");
+const F95API = require("@millenniumearl/f95api");
+const { CaptchaHarvest } = require("@millenniumearl/recaptcha-harvester");
 const download = require("image-downloader");
 const logger = require("electron-log");
 
@@ -201,6 +202,26 @@ contextBridge.exposeInMainWorld("API", {
      * @param {String} message Custom message to add
      */
     reportError: (error, code, name, parentName, message) => errManager.reportError(error, code, name, parentName, message),
+    retrieveCaptchaToken: async () => {
+        // Local variables
+        const website = "https://f95zone.to";
+        const sitekey = "6LcwQ5kUAAAAAAI-_CXQtlnhdMjmFDt-MruZ2gov";
+
+        // Start the harvester
+        const harvester = new CaptchaHarvest();
+        await harvester.start();
+
+        // Fetch token
+        try {
+            const token = await harvester.getCaptchaToken(website, sitekey);
+            return token.token;
+        } catch (e) {
+            console.log(`Error while retrieving CAPTCHA token:\n${e}`);
+        } finally {
+            // Stop harvester
+            harvester.stop();
+        }
+    }
 });
 
 // Expose the I/O operations
@@ -291,23 +312,32 @@ contextBridge.exposeInMainWorld("IO", {
 });
 
 // Expose the F95API
+let userData = null;
 contextBridge.exposeInMainWorld("F95", {
-    UserData: new F95API.UserData(),
     logged: F95API.isLogged,
-    login: (username, password) => F95API.login(username, password),
-    getUserData: () => F95API.getUserData(),
-    getGameData: (name, searchMod) => F95API.getGameData(name, searchMod),
-    getGameDataFromURL: (url) => F95API.getGameDataFromURL(url),
+    login: (username, password, cbRecaptcha) => F95API.login(username, password, cbRecaptcha),
+    getUserData: async () => {
+        if(!userData) {
+            userData = new F95API.UserProfile();
+            await userData.fetch(true);
+        }
+        return userData;
+    },
+    getGameData: (name, searchMod) => {
+        const query = new F95API.HandiworkSearchQuery();
+        query.keywords = name;
+        query.category = searchMod ? "mods" : "games";
+        return F95API.searchHandiwork(query);
+    },
+    getGameDataFromURL: (url) => F95API.getHandiworkFromURL(url),
     checkGameUpdates: function checkGameUpdates(data) {
         // Create a new object from the data
         const gameinfo = Object.assign(new GameInfoExtended(), data);
 
         // This method require GameInfo but GameInfoExtended is extended from GameInfo
-        return F95API.checkIfGameHasUpdate(gameinfo);
+        const onlineData = F95API.getHandiworkFromURL(gameinfo.url);
+        return onlineData.version !== gameinfo.version;
     },
-    recommendGames: async function (limit) {
-        return await ipcRenderer.invoke("recommend-games", limit);
-    }
 });
 
 // Expose the GameInfoExtended custom class
