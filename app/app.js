@@ -192,15 +192,13 @@ async function executeDbQuery(db, operation, args) {
         write: (args) => db.write(args.data),
         count: (args) => db.count(args.query),
         search: (args) => {
-            let promise = db.search(args.query);
-            if (args.pagination) {
-                promise = db.search(args.query,
+            return args.pagination 
+                ? db.search(args.query,
                     args.pagination.index,
                     args.pagination.size,
                     args.pagination.limit,
-                    args.sortQuery ?? {});
-            } 
-            return promise;
+                    args.sortQuery ?? {})
+                : db.search(args.query);
         },
     };
 
