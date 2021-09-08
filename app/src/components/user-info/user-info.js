@@ -24,7 +24,6 @@ class UserInfo extends HTMLElement {
 
         /* Use the F95API classes (Need main-preload) */
         this._userdata = null;
-        window.F95.getUserData().then((profile) => this._userdata = profile);
     }
 
     /**
@@ -56,8 +55,8 @@ class UserInfo extends HTMLElement {
         this._userdata = val;
 
         // Update shadow DOM
-        if (val.avatarSrc) this.querySelector("#ui-avatar").setAttribute("src", val.avatarSrc);
-        this.querySelector("#ui-username").innerText = val.username;
+        if (val._avatar) this.querySelector("#ui-avatar").setAttribute("src", val._avatar);
+        this.querySelector("#ui-username").innerText = val._name;
         this.querySelector("div.col-username").style.display = "inline-block";
         this.querySelector("div.col-login").style.display = "none";
         this.querySelector("div.col-spinner").style.display = "none";
