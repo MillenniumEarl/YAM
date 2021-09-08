@@ -567,7 +567,7 @@ async function login() {
         if(login) {
             // Login for this session
             const credentials = await getCredentials();
-            const res = await window.F95.login(credentials.username, credentials.password, window.API.retrieveCaptchaToken)
+            const res = await window.F95.login(credentials.username, credentials.password)
                 .catch(e => window.API.reportError(e, "11214", "window.F95.login", "login"));
             if (!res.success) return;
 
