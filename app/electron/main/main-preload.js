@@ -202,26 +202,6 @@ contextBridge.exposeInMainWorld("API", {
      * @param {String} message Custom message to add
      */
     reportError: (error, code, name, parentName, message) => errManager.reportError(error, code, name, parentName, message),
-    retrieveCaptchaToken: async () => {
-        // Local variables
-        const website = "https://f95zone.to";
-        const sitekey = "6LcwQ5kUAAAAAAI-_CXQtlnhdMjmFDt-MruZ2gov";
-
-        // Start the harvester
-        const harvester = new CaptchaHarvest();
-        await harvester.start();
-
-        // Fetch token
-        try {
-            const token = await harvester.getCaptchaToken(website, sitekey);
-            return token.token;
-        } catch (e) {
-            console.log(`Error while retrieving CAPTCHA token:\n${e}`);
-        } finally {
-            // Stop harvester
-            harvester.stop();
-        }
-    }
 });
 
 // Expose the I/O operations
@@ -315,7 +295,7 @@ contextBridge.exposeInMainWorld("IO", {
 let userData = null;
 contextBridge.exposeInMainWorld("F95", {
     logged: F95API.isLogged,
-    login: (username, password, cbRecaptcha) => F95API.login(username, password, cbRecaptcha),
+    login: (username, password) => F95API.login(username, password, retrieveCaptchaToken),
     getUserData: async () => {
         if(!userData) {
             userData = new F95API.UserProfile();
@@ -339,6 +319,27 @@ contextBridge.exposeInMainWorld("F95", {
         return onlineData.version !== gameinfo.version;
     },
 });
+
+async function retrieveCaptchaToken() {
+    // Local variables
+    const website = "https://f95zone.to";
+    const sitekey = "6LcwQ5kUAAAAAAI-_CXQtlnhdMjmFDt-MruZ2gov";
+
+    // Start the harvester
+    const harvester = new CaptchaHarvest();
+    await harvester.start();
+
+    // Fetch token
+    try {
+        const token = await harvester.getCaptchaToken(website, sitekey);
+        return token.token;
+    } catch (e) {
+        console.log(`Error while retrieving CAPTCHA token:\n${e}`);
+    } finally {
+        // Stop harvester
+        harvester.stop();
+    }
+}
 
 // Expose the GameInfoExtended custom class
 contextBridge.exposeInMainWorld("GIE", {
