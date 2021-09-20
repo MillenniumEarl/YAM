@@ -37,7 +37,7 @@
         "electron-updater": "^4.5.1",
         "f95api": "^1.9.11",
         "glob": "^7.1.7",
-        "i18next": "^20.5.0",
+        "i18next": "^21.0.0",
         "i18next-electron-language-detector": "0.0.10",
         "image-downloader": "^4.0.3",
         "nedb-promises": "^5.0.0",
