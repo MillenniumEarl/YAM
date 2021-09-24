@@ -310,12 +310,12 @@ contextBridge.exposeInMainWorld("F95", {
         return F95API.searchHandiwork(query);
     },
     getGameDataFromURL: (url) => F95API.getHandiworkFromURL(url),
-    checkGameUpdates: function checkGameUpdates(data) {
+    checkGameUpdates: async function checkGameUpdates(data) {
         // Create a new object from the data
         const gameinfo = Object.assign(new GameInfoExtended(), data);
 
         // This method require GameInfo but GameInfoExtended is extended from GameInfo
-        const onlineData = F95API.getHandiworkFromURL(gameinfo.url);
+        const onlineData = await F95API.getHandiworkFromURL(gameinfo.url);
         return onlineData.version !== gameinfo.version;
     },
 });
