@@ -88,7 +88,7 @@ class GameCard extends HTMLElement {
         this._info = value;
 
         // Prepare the preview (download and compress)
-        if (this.info.previewSrc) this._preparePreview();
+        if (this.info.cover) this._preparePreview();
 
         // DOM not ready, cannot update information
         if(!this._loadedDOM) return;
@@ -335,7 +335,7 @@ class GameCard extends HTMLElement {
         // Then check the online preview
         try {
             // It's a URL
-            const url = new URL(this.info.previewSrc);
+            const url = new URL(this.info.cover);
             return url.toString();
         }
         catch {
@@ -354,11 +354,11 @@ class GameCard extends HTMLElement {
 
         // Create the download path for the preview
         const previewDir = await window.API.invoke("preview-dir");
-        const imageName = this._parseImageName(this.info.name, this.info.previewSrc);
+        const imageName = this._parseImageName(this.info.name, this.info.cover);
         const downloadDest = window.API.join(previewDir, imageName);
 
         // Download the image
-        const downloadResult = await this._downloadGamePreview(this.info.previewSrc, downloadDest)
+        const downloadResult = await this._downloadGamePreview(this.info.cover, downloadDest)
             .catch(e => window.API.reportError(e, "20306", "this._downloadGamePreview", "_preparePreview"));
 
         if (downloadResult) {
