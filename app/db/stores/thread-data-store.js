@@ -57,7 +57,8 @@ class ThreadDataStore {
      * @returns {Boolean} true if the dictionary is valid, false otherwise
      */
     _validate(data) {
-        return this._schemaValidator(data);
+        return true; // @todo HOTFIX FOR CAPTCHA, REMOVE IN NEXT VERSION
+        //return this._schemaValidator(data);
     }
 
     /**
