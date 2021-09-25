@@ -7,6 +7,7 @@
 
 // Public modules from npm
 const F95API = require("@millenniumearl/f95api");
+const logger = require("electron-log");
 const { CaptchaHarvest } = require("@millenniumearl/recaptcha-harvester");
 
 // Local modules
@@ -61,15 +62,18 @@ async function retrieveCaptchaToken() {
     const sitekey = "6LcwQ5kUAAAAAAI-_CXQtlnhdMjmFDt-MruZ2gov";
 
     // Start the harvester
+    logger.info("Starting CAPTCHA harvester...")
     const harvester = new CaptchaHarvest();
-    await harvester.start();
+    await harvester.start("reCAPTCHAv2");
+    logger.info("CAPTCHA harvester ready")
 
     // Fetch token
     try {
+        logger.info("Fetching CAPTCHA token...")
         const token = await harvester.getCaptchaToken(website, sitekey);
         return token.token;
     } catch (e) {
-        console.log(`Error while retrieving CAPTCHA token:\n${e}`);
+        logger.error(`Error while retrieving CAPTCHA token:\n${e}`);
     } finally {
         // Stop harvester
         harvester.stop();
