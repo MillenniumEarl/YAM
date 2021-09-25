@@ -88,8 +88,10 @@ async function onDOMContentLoaded() {
     const selects = document.querySelectorAll("select");
     // eslint-disable-next-line no-undef
     M.FormSelect.init(selects, {});
+    window.API.log.info("Elements initialized");
 
     // Set link to logs directory
+    window.API.log.info("Preparing internal data");
     const cacheDir = await window.API.invoke("user-data");
     const logsDir = window.API.join(cacheDir, "logs");
     document.getElementById("main-open-log-folder-btn").setAttribute("href", logsDir);
@@ -102,10 +104,12 @@ async function onDOMContentLoaded() {
     document.getElementById("main-version").textContent = translation;
 
     // Login to F95Zone
+    window.API.log.info("Logging into F95Zone");
     await login()
         .catch(e => window.API.reportError(e, "11202", "login", "onDOMContentLoaded"));
 
     // Load cards in the paginator
+    window.API.log.info("Loading paginator");
     const paginator = document.querySelector("card-paginator");
     paginator.playListener = gameCardPlay;
     paginator.updateListener = gameCardUpdate;
@@ -334,7 +338,7 @@ function openPage(e) {
 
     // Use requestAnimationFrame to reduce rendering time
     // see: https://stackoverflow.com/questions/37494330/display-none-in-a-for-loop-and-its-affect-on-reflow
-    window.requestAnimationFrame(function () {
+    window.requestAnimationFrame(async function () {
         // Hide the unused tabs
         for (const tab of tabcontent) tab.style.display = "none";
 
@@ -342,7 +346,7 @@ function openPage(e) {
         document.getElementById(id).style.display = "block";
 
         // Hide/show the add game button
-        const display = id === "main-games-tab" && window.F95.logged ? "block": "none";
+        const display = id === "main-games-tab" && await window.F95.logged() ? "block": "none";
         fab.style.display = display;
     });
 }
@@ -560,7 +564,8 @@ async function login() {
     document.getElementById("user-info").showSpinner();
 
     // Check network connection, then login
-    const online = await checkIfOnline();
+    const online = await checkIfOnline(); // BLOCK THE APP
+    window.API.log.info(`Online status: ${online}`);
     if(online) {
         const login = await requireLogin();
 
@@ -1073,7 +1078,7 @@ async function getUserDataFromF95() {
     document.getElementById("user-info").userdata = userdata;
     
     // Update threads
-    await updatedThreads(userdata.watchedGameThreads);
+    await updatedThreads(userdata._watched.map((wt) => wt.url));
 }
 
 //#endregion User Data
