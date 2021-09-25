@@ -21,7 +21,7 @@ class F95Wrapper {
 
     isLogged() {
         return F95API.isLogged();
-    };
+    }
 
     login(username, password) { 
         return F95API.login(username, password, retrieveCaptchaToken); 
@@ -62,14 +62,14 @@ async function retrieveCaptchaToken() {
     const sitekey = "6LcwQ5kUAAAAAAI-_CXQtlnhdMjmFDt-MruZ2gov";
 
     // Start the harvester
-    logger.info("Starting CAPTCHA harvester...")
+    logger.info("Starting CAPTCHA harvester...");
     const harvester = new CaptchaHarvest();
     await harvester.start("reCAPTCHAv2");
-    logger.info("CAPTCHA harvester ready")
+    logger.info("CAPTCHA harvester ready");
 
     // Fetch token
     try {
-        logger.info("Fetching CAPTCHA token...")
+        logger.info("Fetching CAPTCHA token...");
         const token = await harvester.getCaptchaToken(website, sitekey);
         return token.token;
     } catch (e) {
