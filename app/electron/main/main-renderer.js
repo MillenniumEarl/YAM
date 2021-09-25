@@ -1135,7 +1135,7 @@ async function updateThreads(watchedThreads) {
     }
 
     // Remove all the unwatched (unsubscribed) threads in the database
-    await removeUnsubscribedThreadsFromDB(recentIDs);
+    await removeUnsubscribedThreadsFromDB(ids);
 
     // Obtains the updated threads to display to the user
     const updatedThreads = await getUpdatedThreads()
