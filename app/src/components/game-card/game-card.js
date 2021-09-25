@@ -228,7 +228,7 @@ class GameCard extends HTMLElement {
         this.querySelector("#gc-name").innerText = this.info.isMod ?
             `[MOD] ${this.info.name}` :
             this.info.name;
-        this.querySelector("#gc-author").innerText = this.info.author.name;
+        this.querySelector("#gc-author").innerText = this.info.authors[0].name;
         this.querySelector("#gc-f95-url").setAttribute("href", this.info.url);
         this.querySelector("#gc-game-folder").setAttribute("href", `file:///${this.info.gameDirectory}`);
         this.querySelector("#gc-overview").innerText = this.info.overview;
