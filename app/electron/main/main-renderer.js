@@ -1078,21 +1078,64 @@ async function getUserDataFromF95() {
     document.getElementById("user-info").userdata = userdata;
     
     // Update threads
-    await updatedThreads(userdata._watched.map((wt) => wt.url));
+    await updateThreads(userdata._watched
+        .filter((wt) => wt.forum === "Games")
+        .map((wt) => wt.url));
 }
 
 //#endregion User Data
 
 //#region Watched Threads
+function sliceIntoChunks(arr, chunkSize) {
+    const res = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        const chunk = arr.slice(i, i + chunkSize);
+        res.push(chunk);
+    }
+    return res;
+}
+
 /**
  * @private
  * Process and show games not installed but in user watchlist that have undergone updates.
  * @param {String[]} watchedThreads List of URLs of watched game threads
  */
-async function updatedThreads(watchedThreads) {
-    // Store the new threads and obtains info on the updates
-    await syncDatabaseWatchedThreads(watchedThreads)
-        .catch(e => window.API.reportError(e, "11228", "syncDatabaseWatchedThreads", "updatedThreads"));
+async function updateThreads(watchedThreads) {
+    // Split the array into chunks of 15 elements max
+    const chunks = sliceIntoChunks(watchedThreads, 15);
+
+    // Get all the watched threads and save them into the database
+    const ids = [];
+    for(const chunk of chunks) {
+        // Store the new threads and obtains info on the updates
+        const promises = chunk.map(async (url) => {
+            const id = getIDFromURL(url);
+            if (!id) return null;
+
+            // Check if the thread exists in the database
+            const thread = await window.ThreadDB.search({
+                    id: id
+                })
+                .catch(e => window.API.reportError(e, "11236", "window.ThreadDB.search", "updateThreads"));
+
+            // Fetch the game data from the platform
+            const gameInfo = await window.F95.getGameDataFromURL(url)
+                .catch(e => window.API.reportError(e, "11230", "window.F95.getGameDataFromURL", "updateThreads", `URL: ${url}`));
+            if (!gameInfo) return null;
+
+            if (thread.length === 0) await insertThreadInDB(gameInfo);
+            else if (thread[0].version !== gameInfo.version) await updateThreadInDB(gameInfo, thread[0]._id);
+
+            return id;
+        });
+
+        // Wait to fetch all the data
+        const recentIDs = (await Promise.all(promises)).filter((id) => id !== null);
+        ids.push(...recentIDs);
+    }
+
+    // Remove all the unwatched (unsubscribed) threads in the database
+    await removeUnsubscribedThreadsFromDB(recentIDs);
 
     // Obtains the updated threads to display to the user
     const updatedThreads = await getUpdatedThreads()
@@ -1161,37 +1204,6 @@ async function removeUnsubscribedThreadsFromDB(recentIDs) {
     // Remove the threads from the db
     await window.ThreadDB.delete({id: {$in: toRemove}})
         .catch(e => window.API.reportError(e, "11235", "window.ThreadDB.delete", "removeUnsubscribedThreadsFromDB"));
-}
-
-/**
- * @private
- * Save the watched threads in the database and edit the updated threads.
- * @param {String[]} urlList List of URLs of watched game threads
- */
-async function syncDatabaseWatchedThreads(urlList) {
-    const recentIDs = [];
-    for (const url of urlList) {
-        const id = getIDFromURL(url);
-        if (!id) continue;
-
-        // Check if the thread exists in the database
-        const thread = await window.ThreadDB.search({
-                id: id
-            })
-            .catch(e => window.API.reportError(e, "11236", "window.ThreadDB.search", "syncDatabaseWatchedThreads"));
-
-        // Fetch the game data from the platform
-        const gameInfo = await window.F95.getGameDataFromURL(url)
-            .catch(e => window.API.reportError(e, "11230", "window.F95.getGameDataFromURL", "syncDatabaseWatchedThreads", `URL: ${url}`));
-
-        if (thread.length === 0) await insertThreadInDB(gameInfo);
-        else if (thread[0].version !== gameInfo.version) await updateThreadInDB(gameInfo, thread[0]._id);
-
-        recentIDs.push(id);
-    }
-
-    // Remove the unsubscribed threads
-    await removeUnsubscribedThreadsFromDB(recentIDs);
 }
 
 /**
