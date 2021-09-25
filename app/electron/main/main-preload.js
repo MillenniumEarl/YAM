@@ -18,8 +18,6 @@ const {
     contextBridge,
     ipcRenderer,
 } = require("electron");
-const F95API = require("@millenniumearl/f95api");
-const { CaptchaHarvest } = require("@millenniumearl/recaptcha-harvester");
 const download = require("image-downloader");
 const logger = require("electron-log");
 
@@ -29,9 +27,6 @@ const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.j
 const ThreadInfo = require("../../src/scripts/classes/thread-info.js");
 const networkHelper = require("../../src/scripts/network-helper.js");
 const errManager = require("../../src/scripts/error-manger.js");
-
-// Set F95API logger level
-F95API.loggerLevel = "warn";
 
 // Array of valid main-to-render channels
 const validReceiveChannels = ["window-resized", "window-size", "window-arguments"];
@@ -292,54 +287,24 @@ contextBridge.exposeInMainWorld("IO", {
 });
 
 // Expose the F95API
-let userData = null;
 contextBridge.exposeInMainWorld("F95", {
-    logged: F95API.isLogged,
-    login: (username, password) => F95API.login(username, password, retrieveCaptchaToken),
-    getUserData: async () => {
-        if(!userData) {
-            userData = new F95API.UserProfile();
-            await userData.fetch(true);
-        }
-        return userData;
-    },
-    getGameData: (name, searchMod) => {
-        const query = new F95API.HandiworkSearchQuery();
-        query.keywords = name;
-        query.category = searchMod ? "mods" : "games";
-        return F95API.searchHandiwork(query);
-    },
-    getGameDataFromURL: (url) => F95API.getHandiworkFromURL(url),
-    checkGameUpdates: async function checkGameUpdates(data) {
-        // Create a new object from the data
-        const gameinfo = Object.assign(new GameInfoExtended(), data);
-
-        // This method require GameInfo but GameInfoExtended is extended from GameInfo
-        const onlineData = await F95API.getHandiworkFromURL(gameinfo.url);
-        return onlineData.version !== gameinfo.version;
-    },
+    logged: () => ipcRenderer.invoke("f95api", "isLogged"),
+    login: (username, password) => ipcRenderer.invoke("f95api", "login", {
+        username: username,
+        password: password
+    }),
+    getUserData: () => ipcRenderer.invoke("f95api", "getUserData"),
+    getGameData: (name, searchMod) => ipcRenderer.invoke("f95api", "getGameData", {
+        name: name,
+        searchMod: searchMod
+    }),
+    getGameDataFromURL: (url) => ipcRenderer.invoke("f95api", "getGameDataFromURL", {
+        url: url
+    }),
+    checkGameUpdates: (data) => ipcRenderer.invoke("f95api", "checkGameUpdates", {
+        gameinfo: data
+    })
 });
-
-async function retrieveCaptchaToken() {
-    // Local variables
-    const website = "https://f95zone.to";
-    const sitekey = "6LcwQ5kUAAAAAAI-_CXQtlnhdMjmFDt-MruZ2gov";
-
-    // Start the harvester
-    const harvester = new CaptchaHarvest();
-    await harvester.start();
-
-    // Fetch token
-    try {
-        const token = await harvester.getCaptchaToken(website, sitekey);
-        return token.token;
-    } catch (e) {
-        console.log(`Error while retrieving CAPTCHA token:\n${e}`);
-    } finally {
-        // Stop harvester
-        harvester.stop();
-    }
-}
 
 // Expose the GameInfoExtended custom class
 contextBridge.exposeInMainWorld("GIE", {

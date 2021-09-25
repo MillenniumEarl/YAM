@@ -22,6 +22,7 @@ const GameDataStore = require("./db/stores/game-data-store.js");
 const ThreadDataStore = require("./db/stores/thread-data-store.js");
 const updater = require("./src/scripts/updater.js");
 const reportError = require("./src/scripts/error-manger.js").reportError;
+const F95Wrapper = require("./src/scripts/f95wrapper.js");
 
 // Manage unhandled errors
 process.on("uncaughtException", function (error) {
@@ -41,6 +42,9 @@ const store = new Store();
 const gameStore = new GameDataStore(shared.gameDbPath);
 const threadStore = new ThreadDataStore(shared.threadDbPath);
 const updateStore = new GameDataStore(shared.updateDbPath);
+
+// F95API Wrapper
+const f95 = new F95Wrapper();
 
 //#endregion Global variables
 
@@ -317,6 +321,29 @@ ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
     return windowCreator.createUpdateMessagebox(mainWindow, ...options, updateMessageBoxCloseCallback).onclose;
 });
 //#endregion IPC dialog for main window
+
+//#region F95API requests
+ipcMain.handle("f95api", function ipcMainOnF95(e, operation, args) {
+    logger.silly(`Executing ${operation} with F95API`);
+
+    // Prepare a dictionary of functions
+    const operations = {
+        isLogged: () => f95.isLogged(),
+        login: (args) => f95.login(args.username, args.password),
+        getUserData: () => f95.getUserData(),
+        getGameData: (args) => f95.getGameData(args.name, args.searchMod),
+        getGameDataFromURL: (args) => f95.getGameDataFromURL(args.url),
+        checkGameUpdates: (args) => f95.checkGameUpdates(args.gameinfo),
+    };
+
+    // Verify the operation
+    const validOperation = Object.keys(operations).includes(operation);
+    if (!validOperation) throw Error(`Operation not recognized: ${operation}`);
+
+    // Execute the operation
+    return operations[operation](args);
+});
+//#endregion F95API requests
 
 //#endregion IPC Communication
 

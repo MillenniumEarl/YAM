@@ -8,15 +8,10 @@ const fs = require("fs");
 
 // Public modules from npm
 const { contextBridge, ipcRenderer } = require("electron");
-const F95API = require("@millenniumearl/f95api");
-const { CaptchaHarvest } = require("@millenniumearl/recaptcha-harvester");
 const logger = require("electron-log");
 
 // Modules from file
 const errManager = require("../../src/scripts/error-manger.js");
-
-// Set F95API logger level
-F95API.loggerLevel = "warn";
 
 // Array of valid render-to-main channels
 const validSendChannels = [
@@ -147,29 +142,10 @@ contextBridge.exposeInMainWorld("F95", {
      * Login to the F95Zone platform.
      * @param {String} username
      * @param {String} password
-     * @param {() => Promise<string>} cbRecaptcha
      */
-    login: (username, password) => F95API.login(username, password, retrieveCaptchaToken),
+    login: (username, password) => ipcRenderer.invoke("f95api", "login", {
+            username: username,
+            password: password
+        })
 });
-
-async function retrieveCaptchaToken() {
-    // Local variables
-    const website = "https://f95zone.to";
-    const sitekey = "6LcwQ5kUAAAAAAI-_CXQtlnhdMjmFDt-MruZ2gov";
-
-    // Start the harvester
-    const harvester = new CaptchaHarvest();
-    await harvester.start();
-
-    // Fetch token
-    try {
-        const token = await harvester.getCaptchaToken(website, sitekey);
-        return token.token;
-    } catch (e) {
-        console.log(`Error while retrieving CAPTCHA token:\n${e}`);
-    } finally {
-        // Stop harvester
-        harvester.stop();
-    }
-}
 //#endregion Context Bridge
