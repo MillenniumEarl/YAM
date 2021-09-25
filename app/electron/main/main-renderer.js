@@ -1116,36 +1116,26 @@ function getIDFromURL(url) {
 /**
  * @private
  * Given a URL, insert into the thread database the data of the thread linked by the URL.
- * @param {String} url URL of the thread on the F95Zone platform
+ * @param {GameInfo} gameinfo Game to insert in the DB
  */
-async function insertThreadFromURL(url) {
-    // Fetch the game data from the platform
-    const gameInfo = await window.F95.getGameDataFromURL(url)
-        .catch(e => window.API.reportError(e, "11230", "window.F95.getGameDataFromURL", "insertThreadFromURL", `URL: ${url}`));
-    
-    if(gameInfo) {
-        // Convert object
-        const threadInfo = window.TI.convert(gameInfo);
-    
-        // Insert in the database
-        await window.ThreadDB.insert(threadInfo)
-            .catch(e => window.API.reportError(e, "11231", "window.ThreadDB.insert", "insertThreadFromURL"));
-    }
+async function insertThreadInDB(gameinfo) {
+    // Convert object
+    const threadInfo = window.TI.convert(gameinfo);
+
+    // Insert in the database
+    await window.ThreadDB.insert(threadInfo)
+        .catch(e => window.API.reportError(e, "11231", "window.ThreadDB.insert", "insertThreadInDB"));
 }
 
 /**
  * @private
  * Given a URL, update the thread database with data of the thread linked by the URL.
- * @param {String} url URL of the thread on the F95Zone platform
+ * @param {GameInfo} gameinfo Game to update in the DB
  * @param {Number} tid ID of the thread in the database
  */
-async function updateThreadInDB(url, tid) {
-    // Fetch the game data from the platform
-    const gameInfo = await window.F95.getGameDataFromURL(url)
-        .catch(e => window.API.reportError(e, "11232", "window.F95.getGameDataFromURL", "updateThreadInDB", `URL: ${url}`));
-        
+async function updateThreadInDB(gameinfo, tid) {
     // Convert and update the thread data
-    const threadInfo = window.TI.convert(gameInfo);
+    const threadInfo = window.TI.convert(gameinfo);
     threadInfo._id = tid; // Add the database ID
     threadInfo.updateAvailable = true;
     threadInfo.markedAsRead = false;
@@ -1181,18 +1171,23 @@ async function removeUnsubscribedThreadsFromDB(recentIDs) {
 async function syncDatabaseWatchedThreads(urlList) {
     const recentIDs = [];
     for (const url of urlList) {
-        // Extract the ID from the thread
         const id = getIDFromURL(url);
-        if(id) {
-            recentIDs.push(id);
+        if (!id) continue;
 
-            // Check if the thread exists in the database
-            const thread = await window.ThreadDB.search({id: id})
-                .catch(e => window.API.reportError(e, "11236", "window.ThreadDB.search", "syncDatabaseWatchedThreads"));
+        // Check if the thread exists in the database
+        const thread = await window.ThreadDB.search({
+                id: id
+            })
+            .catch(e => window.API.reportError(e, "11236", "window.ThreadDB.search", "syncDatabaseWatchedThreads"));
 
-            if (thread.length === 0) await insertThreadFromURL(url);
-            else if (thread[0].url !== url) await updateThreadInDB(url, thread[0]._id);
-        }
+        // Fetch the game data from the platform
+        const gameInfo = await window.F95.getGameDataFromURL(url)
+            .catch(e => window.API.reportError(e, "11230", "window.F95.getGameDataFromURL", "syncDatabaseWatchedThreads", `URL: ${url}`));
+
+        if (thread.length === 0) await insertThreadInDB(gameInfo);
+        else if (thread[0].version !== gameInfo.version) await updateThreadInDB(gameInfo, thread[0]._id);
+
+        recentIDs.push(id);
     }
 
     // Remove the unsubscribed threads
