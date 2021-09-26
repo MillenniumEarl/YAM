@@ -238,9 +238,9 @@ class GameCard extends HTMLElement {
         // Show/hide last update date
         const lastUpdateElement = this.querySelector("#gc-last-update");
         let display = "none";
-        if (this.info.lastUpdate) {
+        if (this.info.lastRelease) {
             // Date in format YYYY-mm-dd
-            const datestring = this.info.lastUpdate.toISOString().split("T")[0];
+            const datestring = this.info.lastRelease.toISOString().split("T")[0];
             lastUpdateElement.innerText = datestring;
 
             // Show element
