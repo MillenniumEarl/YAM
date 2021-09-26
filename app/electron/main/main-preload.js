@@ -413,13 +413,13 @@ function threadSearchInDB(searchQuery, sortQuery, index, size, limit) {
             limit: limit
         },
         sortQuery: sortQuery ? sortQuery : {}
-    })
+    });
 }
 
 function threadDeleteFromDB(deleteQuery) {
     return ipcRenderer.invoke("database-operation", "thread", "delete", {
         query: deleteQuery
-    })
+    });
 }
 
 function threadInsertInDB(threadinfo) {
@@ -545,6 +545,6 @@ async function updateThreadInDB(gameinfo, tid) {
     threadInfo.markedAsRead = false;
 
     // Update the DB record
-    await threadWriteInDB(threadInfo)
+    await threadWriteInDB(threadInfo);
 }
 //#endregion Private methods
