@@ -330,12 +330,8 @@ contextBridge.exposeInMainWorld("GIE", {
 // Expose the ThreadInfo custom class
 contextBridge.exposeInMainWorld("TI", {
     threadinfo: new ThreadInfo(),
-    convert: function convert(gameinfo) {
-        const threadInfo = new ThreadInfo();
-        threadInfo.fromGameInfo(gameinfo);
-
-        return threadInfo;
-    },
+    convert: (gameinfo) => threadConvert(gameinfo),
+    syncThreadsDB: () => updateLocalThreads()
 });
 
 // Expose methods for error logging
@@ -374,24 +370,10 @@ contextBridge.exposeInMainWorld("GameDB", {
 
 // Wrapper around the Thread DB operations
 contextBridge.exposeInMainWorld("ThreadDB", {
-    insert: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "insert", {
-        data: threadinfo
-    }),
-    delete: (deleteQuery) => ipcRenderer.invoke("database-operation", "thread", "delete", {
-        query: deleteQuery
-    }),
-    write: (threadinfo) => ipcRenderer.invoke("database-operation", "thread", "write", {
-        data: threadinfo
-    }),
-    search: (searchQuery, sortQuery, index, size, limit) => ipcRenderer.invoke("database-operation", "thread", "search", {
-        query: searchQuery,
-        pagination: {
-            index: index,
-            size: size,
-            limit: limit
-        },
-        sortQuery: sortQuery ? sortQuery : {}
-    }),
+    insert: (threadinfo) => threadInsertInDB(threadinfo),
+    delete: (deleteQuery) => threadDeleteFromDB(deleteQuery),
+    write: (threadinfo) => threadWriteInDB(threadinfo),
+    search: (searchQuery, sortQuery, index, size, limit) => threadSearchInDB(searchQuery, sortQuery, index, size, limit),
 });
 
 // Wrapper around the Update DB operations
@@ -413,3 +395,156 @@ contextBridge.exposeInMainWorld("UpdateDB", {
     }),
 });
 //#endregion Context Bridge
+
+//#region Private methods
+function threadConvert(gameinfo) {
+    const threadInfo = new ThreadInfo();
+    threadInfo.fromGameInfo(gameinfo);
+
+    return threadInfo;
+}
+
+function threadSearchInDB(searchQuery, sortQuery, index, size, limit) {
+    return ipcRenderer.invoke("database-operation", "thread", "search", {
+        query: searchQuery,
+        pagination: {
+            index: index,
+            size: size,
+            limit: limit
+        },
+        sortQuery: sortQuery ? sortQuery : {}
+    })
+}
+
+function threadDeleteFromDB(deleteQuery) {
+    return ipcRenderer.invoke("database-operation", "thread", "delete", {
+        query: deleteQuery
+    })
+}
+
+function threadInsertInDB(threadinfo) {
+    return ipcRenderer.invoke("database-operation", "thread", "insert", {
+        data: threadinfo
+    });
+}
+
+function threadWriteInDB(threadinfo) {
+    return ipcRenderer.invoke("database-operation", "thread", "write", {
+        data: threadinfo
+    });
+}
+
+function sliceIntoChunks(arr, chunkSize) {
+    const res = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        const chunk = arr.slice(i, i + chunkSize);
+        res.push(chunk);
+    }
+    return res;
+}
+
+async function saveThreadInDatabase(url) {
+    // Get the thread ID
+    const id = getIDFromURL(url);
+    if (!id) return null;
+
+    // Fetch the game data from the platform
+    const gameInfo = await ipcRenderer.invoke("f95api", "getGameDataFromURL", {
+        url: url
+    });
+    if (!gameInfo) return null;
+
+    // Check if the thread exists in the database
+    const thread = await threadSearchInDB({
+        id: id
+    });
+
+    if (thread.length === 0) await insertThreadInDB(gameInfo);
+    else if (thread[0].version !== gameInfo.version) await updateThreadInDB(gameInfo, thread[0]._id);
+
+    return id;
+}
+
+async function updateLocalThreads() {
+    // Get the data of the current user
+    const userdata = await ipcRenderer.invoke("f95api", "getUserData");
+
+    // Get the watched game threads
+    const urls = userdata._watched.filter((wt) => wt.forum === "Games").map((wt) => wt.url);
+
+    // Divide the array in chunks
+    const chunks = sliceIntoChunks(urls, 30);
+
+    // Get all the watched threads and save them into the database
+    const ids = [];
+    for (const chunk of chunks) {
+        const promises = chunk.map((url) => saveThreadInDatabase(url));
+        const chunkIDs = (await Promise.all(promises)).filter((id) => id !== null);
+        ids.push(...chunkIDs);
+    }
+
+    // Remove all the unwatched (unsubscribed) threads in the database
+    await removeUnsubscribedThreadsFromDB(ids);
+}
+
+/**
+ * @private
+ * Remove from the thread database all the threads with ID not into the passed list.
+ * @param {Number[]} recentIDs 
+ */
+async function removeUnsubscribedThreadsFromDB(recentIDs) {
+    // Get all the threads from the database
+    const threads = await threadSearchInDB({});
+
+    // Filter the threads and obtains the threads to remove
+    const toRemove = threads.filter(t => !recentIDs.includes(t.id)).map(t => t.id);
+
+    // Remove the threads from the db
+    await threadDeleteFromDB({
+            id: {
+                $in: toRemove
+            }
+        });
+}
+
+/**
+ * @private
+ * Parse a F95Zone URL and return the ID.
+ * @param {String} url 
+ */
+function getIDFromURL(url) {
+    const match = url.match(/\.[0-9]+/);
+    if (!match) return null;
+    return parseInt(match[0].replace(".", ""));
+}
+
+/**
+ * @private
+ * Given a URL, insert into the thread database the data of the thread linked by the URL.
+ * @param {GameInfo} gameinfo Game to insert in the DB
+ */
+async function insertThreadInDB(gameinfo) {
+    // Convert object
+    const threadInfo = threadConvert(gameinfo);
+
+    // Insert in the database
+    await threadInsertInDB(threadInfo);
+}
+
+/**
+ * @private
+ * Given a URL, update the thread database with data of the thread linked by the URL.
+ * @param {GameInfo} gameinfo Game to update in the DB
+ * @param {Number} tid ID of the thread in the database
+ */
+async function updateThreadInDB(gameinfo, tid) {
+    // Convert and update the thread data
+    const threadInfo = threadConvert(gameinfo);
+    threadInfo._id = tid; // Add the database ID
+    threadInfo.updateAvailable = true;
+    threadInfo.markedAsRead = false;
+
+    // Update the DB record
+    await threadWriteInDB(threadInfo)
+}
+//#endregion Private methods

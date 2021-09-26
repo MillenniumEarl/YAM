@@ -1078,64 +1078,20 @@ async function getUserDataFromF95() {
     document.getElementById("user-info").userdata = userdata;
     
     // Update threads
-    await updateThreads(userdata._watched
-        .filter((wt) => wt.forum === "Games")
-        .map((wt) => wt.url));
+    await updateThreads();
 }
 
 //#endregion User Data
 
 //#region Watched Threads
-function sliceIntoChunks(arr, chunkSize) {
-    const res = [];
-    for (let i = 0; i < arr.length; i += chunkSize) {
-        const chunk = arr.slice(i, i + chunkSize);
-        res.push(chunk);
-    }
-    return res;
-}
-
 /**
  * @private
  * Process and show games not installed but in user watchlist that have undergone updates.
  * @param {String[]} watchedThreads List of URLs of watched game threads
  */
-async function updateThreads(watchedThreads) {
-    // Split the array into chunks of 15 elements max
-    const chunks = sliceIntoChunks(watchedThreads, 15);
-
-    // Get all the watched threads and save them into the database
-    const ids = [];
-    for(const chunk of chunks) {
-        // Store the new threads and obtains info on the updates
-        const promises = chunk.map(async (url) => {
-            const id = getIDFromURL(url);
-            if (!id) return null;
-
-            // Check if the thread exists in the database
-            const thread = await window.ThreadDB.search({
-                    id: id
-                })
-                .catch(e => window.API.reportError(e, "11236", "window.ThreadDB.search", "updateThreads"));
-
-            // Fetch the game data from the platform
-            const gameInfo = await window.F95.getGameDataFromURL(url)
-                .catch(e => window.API.reportError(e, "11230", "window.F95.getGameDataFromURL", "updateThreads", `URL: ${url}`));
-            if (!gameInfo) return null;
-
-            if (thread.length === 0) await insertThreadInDB(gameInfo);
-            else if (thread[0].version !== gameInfo.version) await updateThreadInDB(gameInfo, thread[0]._id);
-
-            return id;
-        });
-
-        // Wait to fetch all the data
-        const recentIDs = (await Promise.all(promises)).filter((id) => id !== null);
-        ids.push(...recentIDs);
-    }
-
-    // Remove all the unwatched (unsubscribed) threads in the database
-    await removeUnsubscribedThreadsFromDB(ids);
+async function updateThreads() {
+    // Sync the local database
+    await window.TI.syncThreadsDB();
 
     // Obtains the updated threads to display to the user
     const updatedThreads = await getUpdatedThreads()
@@ -1143,67 +1099,6 @@ async function updateThreads(watchedThreads) {
 
     // Prepare the threads tab
     window.requestAnimationFrame(() => prepareThreadUpdatesTab(updatedThreads));
-}
-
-/**
- * @private
- * Parse a F95Zone URL and return the ID.
- * @param {String} url 
- */
-function getIDFromURL(url) {
-    const match = url.match(/\.[0-9]+/);
-    if(!match) return null;
-    return parseInt(match[0].replace(".", ""));
-}
-
-/**
- * @private
- * Given a URL, insert into the thread database the data of the thread linked by the URL.
- * @param {GameInfo} gameinfo Game to insert in the DB
- */
-async function insertThreadInDB(gameinfo) {
-    // Convert object
-    const threadInfo = window.TI.convert(gameinfo);
-
-    // Insert in the database
-    await window.ThreadDB.insert(threadInfo)
-        .catch(e => window.API.reportError(e, "11231", "window.ThreadDB.insert", "insertThreadInDB"));
-}
-
-/**
- * @private
- * Given a URL, update the thread database with data of the thread linked by the URL.
- * @param {GameInfo} gameinfo Game to update in the DB
- * @param {Number} tid ID of the thread in the database
- */
-async function updateThreadInDB(gameinfo, tid) {
-    // Convert and update the thread data
-    const threadInfo = window.TI.convert(gameinfo);
-    threadInfo._id = tid; // Add the database ID
-    threadInfo.updateAvailable = true;
-    threadInfo.markedAsRead = false;
-    
-    // Update the DB record
-    await window.ThreadDB.write(threadInfo)
-        .catch(e => window.API.reportError(e, "11233", "window.ThreadDB.write", "updateThreadInDB"));
-}
-
-/**
- * @private
- * Remove from the thread database all the threads with ID not into the passed list.
- * @param {Number[]} recentIDs 
- */
-async function removeUnsubscribedThreadsFromDB(recentIDs) {
-    // Get all the threads from the database
-    const threads = await window.ThreadDB.search({})
-        .catch(e => window.API.reportError(e, "11234", "window.ThreadDB.search", "removeUnsubscribedThreadsFromDB"));
-    
-    // Filter the trhread and obtains the threads to remove
-    const toRemove = threads.filter(t => !recentIDs.includes(t.id)).map(t => t.id);
-
-    // Remove the threads from the db
-    await window.ThreadDB.delete({id: {$in: toRemove}})
-        .catch(e => window.API.reportError(e, "11235", "window.ThreadDB.delete", "removeUnsubscribedThreadsFromDB"));
 }
 
 /**
