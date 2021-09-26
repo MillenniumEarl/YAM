@@ -66,12 +66,12 @@ class ThreadInfo {
     fromGameInfo(gameinfo) {
         this.id = gameinfo.id;
         this.name = gameinfo.name;
-        this.author = gameinfo.author;
+        this.author = gameinfo.authors[0].name;
         this.url = gameinfo.url;
         this.tags = gameinfo.tags;
-        this.previewSrc = gameinfo.previewSrc;
+        this.previewSrc = gameinfo.cover;
         this.version = gameinfo.version;
-        this.lastUpdate = gameinfo.lastUpdate;
+        this.lastUpdate = gameinfo.lastRelease;
     }
     //#endregion Public methods
 

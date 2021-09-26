@@ -165,9 +165,9 @@ class ThreadVisualizer extends HTMLElement {
      */
     _refreshUI() {
         this.openThreadBtn.setAttribute("href", this.info.url);
-        const preview = this.info.previewSrc ? this.info.previewSrc : this.DEFAULT_IMAGE;
+        const preview = this.info.cover ? this.info.cover : this.DEFAULT_IMAGE;
         this.gamePreview.setAttribute("src", preview);
-        this.gameInfo.textContent = `${this.info.name} - ${this.info.author} (${this.info.version})`;
+        this.gameInfo.textContent = `${this.info.name} - ${this.info.author.name} (${this.info.version})`;
     }
 
     //#endregion Private methods

@@ -18,7 +18,6 @@ const {
     contextBridge,
     ipcRenderer,
 } = require("electron");
-const F95API = require("f95api");
 const download = require("image-downloader");
 const logger = require("electron-log");
 
@@ -28,9 +27,6 @@ const GameInfoExtended = require("../../src/scripts/classes/game-info-extended.j
 const ThreadInfo = require("../../src/scripts/classes/thread-info.js");
 const networkHelper = require("../../src/scripts/network-helper.js");
 const errManager = require("../../src/scripts/error-manger.js");
-
-// Set F95API logger level
-F95API.loggerLevel = "warn";
 
 // Array of valid main-to-render channels
 const validReceiveChannels = ["window-resized", "window-size", "window-arguments"];
@@ -292,22 +288,22 @@ contextBridge.exposeInMainWorld("IO", {
 
 // Expose the F95API
 contextBridge.exposeInMainWorld("F95", {
-    UserData: new F95API.UserData(),
-    logged: F95API.isLogged,
-    login: (username, password) => F95API.login(username, password),
-    getUserData: () => F95API.getUserData(),
-    getGameData: (name, searchMod) => F95API.getGameData(name, searchMod),
-    getGameDataFromURL: (url) => F95API.getGameDataFromURL(url),
-    checkGameUpdates: function checkGameUpdates(data) {
-        // Create a new object from the data
-        const gameinfo = Object.assign(new GameInfoExtended(), data);
-
-        // This method require GameInfo but GameInfoExtended is extended from GameInfo
-        return F95API.checkIfGameHasUpdate(gameinfo);
-    },
-    recommendGames: async function (limit) {
-        return await ipcRenderer.invoke("recommend-games", limit);
-    }
+    logged: () => ipcRenderer.invoke("f95api", "isLogged"),
+    login: (username, password) => ipcRenderer.invoke("f95api", "login", {
+        username: username,
+        password: password
+    }),
+    getUserData: () => ipcRenderer.invoke("f95api", "getUserData"),
+    getGameData: (name, searchMod) => ipcRenderer.invoke("f95api", "getGameData", {
+        name: name,
+        searchMod: searchMod
+    }),
+    getGameDataFromURL: (url) => ipcRenderer.invoke("f95api", "getGameDataFromURL", {
+        url: url
+    }),
+    checkGameUpdates: (data) => ipcRenderer.invoke("f95api", "checkGameUpdates", {
+        gameinfo: data
+    })
 });
 
 // Expose the GameInfoExtended custom class

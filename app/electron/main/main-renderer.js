@@ -56,8 +56,6 @@ document.querySelector("#main-navbar-games").addEventListener("click", openPage)
 
 document.querySelector("#main-navbar-updated-threads").addEventListener("click", openPage);
 
-document.querySelector("#main-navbar-recommendations").addEventListener("click", openPage);
-
 document.querySelector("#main-navbar-settings").addEventListener("click", openPage);
 
 //#region Events listeners
@@ -90,8 +88,10 @@ async function onDOMContentLoaded() {
     const selects = document.querySelectorAll("select");
     // eslint-disable-next-line no-undef
     M.FormSelect.init(selects, {});
+    window.API.log.info("Elements initialized");
 
     // Set link to logs directory
+    window.API.log.info("Preparing internal data");
     const cacheDir = await window.API.invoke("user-data");
     const logsDir = window.API.join(cacheDir, "logs");
     document.getElementById("main-open-log-folder-btn").setAttribute("href", logsDir);
@@ -104,10 +104,12 @@ async function onDOMContentLoaded() {
     document.getElementById("main-version").textContent = translation;
 
     // Login to F95Zone
+    window.API.log.info("Logging into F95Zone");
     await login()
         .catch(e => window.API.reportError(e, "11202", "login", "onDOMContentLoaded"));
 
     // Load cards in the paginator
+    window.API.log.info("Loading paginator");
     const paginator = document.querySelector("card-paginator");
     paginator.playListener = gameCardPlay;
     paginator.updateListener = gameCardUpdate;
@@ -336,7 +338,7 @@ function openPage(e) {
 
     // Use requestAnimationFrame to reduce rendering time
     // see: https://stackoverflow.com/questions/37494330/display-none-in-a-for-loop-and-its-affect-on-reflow
-    window.requestAnimationFrame(function () {
+    window.requestAnimationFrame(async function () {
         // Hide the unused tabs
         for (const tab of tabcontent) tab.style.display = "none";
 
@@ -344,7 +346,7 @@ function openPage(e) {
         document.getElementById(id).style.display = "block";
 
         // Hide/show the add game button
-        const display = id === "main-games-tab" && window.F95.logged ? "block": "none";
+        const display = id === "main-games-tab" && await window.F95.logged() ? "block": "none";
         fab.style.display = display;
     });
 }
@@ -467,24 +469,6 @@ function sendToastToUser(type, message) {
 
 /**
  * @private
- * Create a responsive column that will hold a single gamecard.
- */
-function createGridColumn() {
-    // Create a simil-table layout with materialize-css
-    // "s10" means that the element occupies 10 of 12 columns with small screens
-    // "offset-s2" means that on small screens 2 of 12 columns are spaced (from left)
-    // "m5" means that the element occupies 5 of 12 columns with medium screens
-    // "offset-m1" means that on medium screens 1 of 12 columns are spaced (from left)
-    // "l4" means that the element occupies 4 of 12 columns with large screens
-    // "xl3" means that the element occupies 3 of 12 columns with very large screens
-    // The 12 columns are the base layout provided by materialize-css
-    const column = document.createElement("div");
-    column.classList.add("col", "s10", "offset-s2", "m5", "offset-m1", "l4", "xl3");
-    return column;
-}
-
-/**
- * @private
  * Load the credentials from disk.
  * @return {Promise<Object.<string, string>>}
  */
@@ -497,29 +481,6 @@ async function getCredentials() {
     // Parse credentials
     const json = await window.IO.read(credPath);
     return JSON.parse(json);
-}
-
-/**
- * @private
- * Get the maximum number of cards to display in the window based on its size.
- * @param {Number[]} size Size of the main window
- */
-function getCardsNumberForPage(size) {
-    // Destructure the array
-    const [width, height] = size;
-
-    // Card size
-    const cardWidth = 300;
-    const cardHeight = 400;
-
-    // Get the number of rows and columns that can be visible if appended
-    const MAX_COLUMNS = 4;
-    const columns = Math.min(Math.floor(width / cardWidth), MAX_COLUMNS);
-    const rows = Math.floor(height / cardHeight);
-
-    // Set at least 1 cards
-    const candidateCards = columns * rows;
-    return Math.max(1, candidateCards);
 }
 //#endregion Utility
 
@@ -603,7 +564,8 @@ async function login() {
     document.getElementById("user-info").showSpinner();
 
     // Check network connection, then login
-    const online = await checkIfOnline();
+    const online = await checkIfOnline(); // BLOCK THE APP
+    window.API.log.info(`Online status: ${online}`);
     if(online) {
         const login = await requireLogin();
 
@@ -623,12 +585,6 @@ async function login() {
             // Load user data
             getUserDataFromF95()
                 .catch(e => window.API.reportError(e, "11215", "getUserDataFromF95", "login"));
-
-            // Recommend games
-            window.API.receive("window-size", (size) => {
-                const displayable = getCardsNumberForPage(size);
-                window.requestAnimationFrame(() => recommendGamesWrapper(displayable));
-            });
             window.API.send("window-size");
         }
     }
@@ -1122,51 +1078,64 @@ async function getUserDataFromF95() {
     document.getElementById("user-info").userdata = userdata;
     
     // Update threads
-    await updatedThreads(userdata.watchedGameThreads);
+    await updateThreads(userdata._watched
+        .filter((wt) => wt.forum === "Games")
+        .map((wt) => wt.url));
 }
 
-/**
- * @private
- * Wrapper around the recommend games function. 
- * Fetch and add to DOM the games.
- * @param {Number} limit Maximum number of cards to display
- */
-async function recommendGamesWrapper(limit) {
-    // Local variables
-    const recommendContent = document.getElementById("main-recommendations-content");
-
-    // Fetch recommended games
-    const games = await window.F95.recommendGames(limit)
-        .catch(e => window.API.reportError(e, "11227", "window.F95.recommendGames", "recommendGamesWrapper"));
-
-    if (games) {
-        // Remove childs
-        while (recommendContent.lastElementChild) {
-            recommendContent.removeChild(recommendContent.lastElementChild);
-        }
-
-        // Add cards
-        for (const game of games) {
-            const card = document.createElement("recommended-card");
-            card.info = game;
-            const column = createGridColumn();
-            column.appendChild(card);
-            recommendContent.appendChild(column);
-        }
-    }
-}
 //#endregion User Data
 
 //#region Watched Threads
+function sliceIntoChunks(arr, chunkSize) {
+    const res = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        const chunk = arr.slice(i, i + chunkSize);
+        res.push(chunk);
+    }
+    return res;
+}
+
 /**
  * @private
  * Process and show games not installed but in user watchlist that have undergone updates.
  * @param {String[]} watchedThreads List of URLs of watched game threads
  */
-async function updatedThreads(watchedThreads) {
-    // Store the new threads and obtains info on the updates
-    await syncDatabaseWatchedThreads(watchedThreads)
-        .catch(e => window.API.reportError(e, "11228", "syncDatabaseWatchedThreads", "updatedThreads"));
+async function updateThreads(watchedThreads) {
+    // Split the array into chunks of 15 elements max
+    const chunks = sliceIntoChunks(watchedThreads, 15);
+
+    // Get all the watched threads and save them into the database
+    const ids = [];
+    for(const chunk of chunks) {
+        // Store the new threads and obtains info on the updates
+        const promises = chunk.map(async (url) => {
+            const id = getIDFromURL(url);
+            if (!id) return null;
+
+            // Check if the thread exists in the database
+            const thread = await window.ThreadDB.search({
+                    id: id
+                })
+                .catch(e => window.API.reportError(e, "11236", "window.ThreadDB.search", "updateThreads"));
+
+            // Fetch the game data from the platform
+            const gameInfo = await window.F95.getGameDataFromURL(url)
+                .catch(e => window.API.reportError(e, "11230", "window.F95.getGameDataFromURL", "updateThreads", `URL: ${url}`));
+            if (!gameInfo) return null;
+
+            if (thread.length === 0) await insertThreadInDB(gameInfo);
+            else if (thread[0].version !== gameInfo.version) await updateThreadInDB(gameInfo, thread[0]._id);
+
+            return id;
+        });
+
+        // Wait to fetch all the data
+        const recentIDs = (await Promise.all(promises)).filter((id) => id !== null);
+        ids.push(...recentIDs);
+    }
+
+    // Remove all the unwatched (unsubscribed) threads in the database
+    await removeUnsubscribedThreadsFromDB(ids);
 
     // Obtains the updated threads to display to the user
     const updatedThreads = await getUpdatedThreads()
@@ -1190,36 +1159,26 @@ function getIDFromURL(url) {
 /**
  * @private
  * Given a URL, insert into the thread database the data of the thread linked by the URL.
- * @param {String} url URL of the thread on the F95Zone platform
+ * @param {GameInfo} gameinfo Game to insert in the DB
  */
-async function insertThreadFromURL(url) {
-    // Fetch the game data from the platform
-    const gameInfo = await window.F95.getGameDataFromURL(url)
-        .catch(e => window.API.reportError(e, "11230", "window.F95.getGameDataFromURL", "insertThreadFromURL", `URL: ${url}`));
-    
-    if(gameInfo) {
-        // Convert object
-        const threadInfo = window.TI.convert(gameInfo);
-    
-        // Insert in the database
-        await window.ThreadDB.insert(threadInfo)
-            .catch(e => window.API.reportError(e, "11231", "window.ThreadDB.insert", "insertThreadFromURL"));
-    }
+async function insertThreadInDB(gameinfo) {
+    // Convert object
+    const threadInfo = window.TI.convert(gameinfo);
+
+    // Insert in the database
+    await window.ThreadDB.insert(threadInfo)
+        .catch(e => window.API.reportError(e, "11231", "window.ThreadDB.insert", "insertThreadInDB"));
 }
 
 /**
  * @private
  * Given a URL, update the thread database with data of the thread linked by the URL.
- * @param {String} url URL of the thread on the F95Zone platform
+ * @param {GameInfo} gameinfo Game to update in the DB
  * @param {Number} tid ID of the thread in the database
  */
-async function updateThreadInDB(url, tid) {
-    // Fetch the game data from the platform
-    const gameInfo = await window.F95.getGameDataFromURL(url)
-        .catch(e => window.API.reportError(e, "11232", "window.F95.getGameDataFromURL", "updateThreadInDB", `URL: ${url}`));
-        
+async function updateThreadInDB(gameinfo, tid) {
     // Convert and update the thread data
-    const threadInfo = window.TI.convert(gameInfo);
+    const threadInfo = window.TI.convert(gameinfo);
     threadInfo._id = tid; // Add the database ID
     threadInfo.updateAvailable = true;
     threadInfo.markedAsRead = false;
@@ -1245,32 +1204,6 @@ async function removeUnsubscribedThreadsFromDB(recentIDs) {
     // Remove the threads from the db
     await window.ThreadDB.delete({id: {$in: toRemove}})
         .catch(e => window.API.reportError(e, "11235", "window.ThreadDB.delete", "removeUnsubscribedThreadsFromDB"));
-}
-
-/**
- * @private
- * Save the watched threads in the database and edit the updated threads.
- * @param {String[]} urlList List of URLs of watched game threads
- */
-async function syncDatabaseWatchedThreads(urlList) {
-    const recentIDs = [];
-    for (const url of urlList) {
-        // Extract the ID from the thread
-        const id = getIDFromURL(url);
-        if(id) {
-            recentIDs.push(id);
-
-            // Check if the thread exists in the database
-            const thread = await window.ThreadDB.search({id: id})
-                .catch(e => window.API.reportError(e, "11236", "window.ThreadDB.search", "syncDatabaseWatchedThreads"));
-
-            if (thread.length === 0) await insertThreadFromURL(url);
-            else if (thread[0].url !== url) await updateThreadInDB(url, thread[0]._id);
-        }
-    }
-
-    // Remove the unsubscribed threads
-    await removeUnsubscribedThreadsFromDB(recentIDs);
 }
 
 /**
@@ -1342,9 +1275,5 @@ window.API.once("window-arguments", function (args) {
 window.API.receive("window-resized", function onWindowResized (size) {
     const paginator = document.querySelector("card-paginator");
     if (paginator) paginator.visibleCardsOnParentSize(size);
-
-    const displayable = getCardsNumberForPage(size);
-    window.requestAnimationFrame(() => recommendGamesWrapper(displayable)
-        .catch(e => window.API.reportError(e, "11239", "recommendGamesWrapper", "onWindowResized")));
 });
 //#endregion IPC listeners

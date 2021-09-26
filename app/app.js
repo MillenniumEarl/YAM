@@ -14,15 +14,15 @@ const logger = require("electron-log");
 const Store = require("electron-store");
 
 // Modules from file
-const { run, openLink, readFileSync} = require("./src/scripts/io-operations.js");
+const { run, openLink} = require("./src/scripts/io-operations.js");
 const shared = require("./src/scripts/classes/shared.js");
-const RecommendationEngine = require("./src/scripts/classes/recommendation-engine.js");
 const localization = require("./src/scripts/localization.js");
 const windowCreator = require("./src/scripts/window-creator.js");
 const GameDataStore = require("./db/stores/game-data-store.js");
 const ThreadDataStore = require("./db/stores/thread-data-store.js");
 const updater = require("./src/scripts/updater.js");
 const reportError = require("./src/scripts/error-manger.js").reportError;
+const F95Wrapper = require("./src/scripts/f95wrapper.js");
 
 // Manage unhandled errors
 process.on("uncaughtException", function (error) {
@@ -43,10 +43,8 @@ const gameStore = new GameDataStore(shared.gameDbPath);
 const threadStore = new ThreadDataStore(shared.threadDbPath);
 const updateStore = new GameDataStore(shared.updateDbPath);
 
-// Global reference to the engine, it needs F95Zone credentials 
-// so it will be initialized after the user login and at the first
-// call
-let recEngine = null;
+// F95API Wrapper
+const f95 = new F95Wrapper();
 
 //#endregion Global variables
 
@@ -139,41 +137,6 @@ ipcMain.on("open-copy-links", function ipcOnCopyOpenLinks(e, args) {
     store.set("open-links-in-default-browser", args[0]);
 });
 
-//#region Recommendation engine
-/**
- * @private
- * Load the credentials from disk.
- * @return {Promise<Object.<string, string>>}
- */
-function getCredentials() {
-    // Parse credentials
-    const json = readFileSync(shared.credentialsPath);
-    return json ? JSON.parse(json) : null;
-}
-
-/**
- * @private
- * Initialize the recommendation engine.
- */
-function initializeRecommendationEngine() {
-    // Load credentials
-    const credentials = getCredentials();
-
-    // Initialize engine
-    if(credentials) recEngine = new RecommendationEngine(credentials, gameStore, threadStore);
-    return credentials !== null;
-}
-
-// Return a list of recommended games
-ipcMain.handle("recommend-games", async function ipcOnRecommendGames(e, limit) {
-    if (!recEngine) {
-        const initialized = initializeRecommendationEngine();
-        if (!initialized) return [];
-    }
-    return await recEngine.recommend(limit);
-});
-//#endregion Recommendation engine
-
 //#region Language
 // Return the value localized of the specified key
 ipcMain.handle("translate", function ipcMainHandleTranslate(e, key, interpolation) {
@@ -233,15 +196,13 @@ async function executeDbQuery(db, operation, args) {
         write: (args) => db.write(args.data),
         count: (args) => db.count(args.query),
         search: (args) => {
-            let promise = db.search(args.query);
-            if (args.pagination) {
-                promise = db.search(args.query,
+            return args.pagination 
+                ? db.search(args.query,
                     args.pagination.index,
                     args.pagination.size,
                     args.pagination.limit,
-                    args.sortQuery ?? {});
-            } 
-            return promise;
+                    args.sortQuery ?? {})
+                : db.search(args.query);
         },
     };
 
@@ -360,6 +321,29 @@ ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
     return windowCreator.createUpdateMessagebox(mainWindow, ...options, updateMessageBoxCloseCallback).onclose;
 });
 //#endregion IPC dialog for main window
+
+//#region F95API requests
+ipcMain.handle("f95api", function ipcMainOnF95(e, operation, args) {
+    logger.silly(`Executing ${operation} with F95API`);
+
+    // Prepare a dictionary of functions
+    const operations = {
+        isLogged: () => f95.isLogged(),
+        login: (args) => f95.login(args.username, args.password),
+        getUserData: () => f95.getUserData(),
+        getGameData: (args) => f95.getGameData(args.name, args.searchMod),
+        getGameDataFromURL: (args) => f95.getGameDataFromURL(args.url),
+        checkGameUpdates: (args) => f95.checkGameUpdates(args.gameinfo),
+    };
+
+    // Verify the operation
+    const validOperation = Object.keys(operations).includes(operation);
+    if (!validOperation) throw Error(`Operation not recognized: ${operation}`);
+
+    // Execute the operation
+    return operations[operation](args);
+});
+//#endregion F95API requests
 
 //#endregion IPC Communication
 

@@ -8,14 +8,10 @@ const fs = require("fs");
 
 // Public modules from npm
 const { contextBridge, ipcRenderer } = require("electron");
-const F95API = require("f95api");
 const logger = require("electron-log");
 
 // Modules from file
 const errManager = require("../../src/scripts/error-manger.js");
-
-// Set F95API logger level
-F95API.loggerLevel = "warn";
 
 // Array of valid render-to-main channels
 const validSendChannels = [
@@ -147,6 +143,9 @@ contextBridge.exposeInMainWorld("F95", {
      * @param {String} username
      * @param {String} password
      */
-    login: (username, password) => F95API.login(username, password),
+    login: (username, password) => ipcRenderer.invoke("f95api", "login", {
+            username: username,
+            password: password
+        })
 });
 //#endregion Context Bridge
