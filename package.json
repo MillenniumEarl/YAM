@@ -35,8 +35,8 @@
         "electron-is-dev": "^2.0.0",
         "electron-log": "^4.4.1",
         "electron-online": "^1.0.0",
-        "electron-updater": "^4.6.0",
         "electron-store": "^8.0.1",
+        "electron-updater": "^4.6.0",
         "glob": "^7.1.7",
         "i18next": "^21.0.1",
         "i18next-electron-language-detector": "0.0.10",
@@ -47,7 +47,9 @@
         "v8-compile-cache": "^2.3.0"
     },
     "devDependencies": {
+        "electron": "^13.2.2",
         "@babel/eslint-parser": "^7.15.7",
+        "electron-builder": "^22.11.7",
         "eslint": "^7.32.0"
     },
     "build": {
