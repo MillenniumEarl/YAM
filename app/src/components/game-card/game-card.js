@@ -109,10 +109,16 @@ class GameCard extends HTMLElement {
      * @return {String}
      */
     get changelog() {
-        const value = this._updateInfo ?
-            this._updateInfo.changelog :
-            this.info.changelog;
-        return value;
+        const updateInfoChangelog =
+            this._updateInfo.changelog.length !== 0 ?
+            this._updateInfo.changelog[0] :
+            null;
+
+        const infoChangelog =
+            this.info.changelog.length !== 0 ?
+            this.info.changelog[0]:
+            null;
+        return updateInfoChangelog || infoChangelog;
     }
     //#endregion Properties
 
@@ -142,12 +148,17 @@ class GameCard extends HTMLElement {
      * Triggered when user wants to update the game (and an update is available).
      */
     updateEvent() {
+         const updateInfoChangelog =
+             this._updateInfo.changelog.length !== 0 ?
+             this._updateInfo.changelog[0] :
+             null
+
         // Raise the event
         const updateClickEvent = new CustomEvent("update", {
             detail: {
                 name: this.info.name,
                 version: this._updateInfo.version,
-                changelog: this._updateInfo.changelog,
+                changelog: updateInfoChangelog,
                 url: this.info.url,
                 gameDirectory: this.info.gameDirectory,
             },
@@ -225,7 +236,7 @@ class GameCard extends HTMLElement {
         this.querySelector("#gc-card").style.display = "none";
 
         // Set HTML elements
-        this.querySelector("#gc-name").innerText = this.info.isMod ?
+        this.querySelector("#gc-name").innerText = this.info.category === "mods" ?
             `[MOD] ${this.info.name}` :
             this.info.name;
         this.querySelector("#gc-author").innerText = this.info.authors[0].name;
@@ -554,7 +565,7 @@ class GameCard extends HTMLElement {
         const newpath = await this._updateName(
             this.info.name,
             this.info.version,
-            this.info.isMod)
+            this.info.category === "mods")
             .catch(e => window.API.reportError(e, "20315", "this._updateName", "saveData"));
         if (newpath) this.info.gameDirectory = newpath;
 
@@ -646,7 +657,7 @@ class GameCard extends HTMLElement {
         const newpath = await this._updateName(
             this._updateInfo.name,
             this._updateInfo.version, 
-            this._updateInfo.isMod)
+            this._updateInfo.category === "mods")
             .catch(e => window.API.reportError(e, "20323", "this._updateName", "update"));
         if (!newpath) return false;
 
