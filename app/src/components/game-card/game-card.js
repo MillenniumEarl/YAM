@@ -151,7 +151,7 @@ class GameCard extends HTMLElement {
          const updateInfoChangelog =
              this._updateInfo.changelog.length !== 0 ?
              this._updateInfo.changelog[0] :
-             null
+             null;
 
         // Raise the event
         const updateClickEvent = new CustomEvent("update", {
