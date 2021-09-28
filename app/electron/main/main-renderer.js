@@ -870,6 +870,12 @@ async function getGameFromPath(path) {
         if (entry === 0) {
             // Add data to the parsed game info
             const converted = window.GIE.convert(selectedGame);
+
+            // Force update if any
+            if (converted.version !== dirInfo.version) {
+                converted.url = new URL(`https://f95zone.to/threads/${converted.id}`).toString();
+            }
+
             converted.version = dirInfo.version;
             converted.gameDirectory = dirInfo.path;
 
