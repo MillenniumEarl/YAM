@@ -787,29 +787,40 @@ async function gameCardDelete(e) {
     }
 }
 
+function sliceIntoChunks(arr, chunkSize) {
+    const res = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        const chunk = arr.slice(i, i + chunkSize);
+        res.push(chunk);
+    }
+    return res;
+}
+
 /**
  * @private
  * Given a directory listing, it gets information about the games contained in them.
  * @param {String[]} paths Path of the directories containg games
  */
 async function getGameFromPaths(paths) {
+    // Slice hte array into manageable chunks
+    const chunks = sliceIntoChunks(paths, 10);
+
     // Parse the game dir name(s)
-    for (const path of paths) {
-        try {
-            await getGameFromPath(path);
-        }
-        catch (error) {
-            // Send error message
-            window.API.invoke("require-messagebox", {
-                type: "error",
-                title: "Unexpected error",
-                message: `Cannot retrieve game data (${path}), unexpected error: ${error}`,
-                buttons: [{
-                    name: "close"
-                }]
-            });
-            window.API.reportError(error, "11219", "getGameFromPath", "getGameFromPaths", `Game data path: ${path}`);
-        }
+    for (const chunk of chunks) {
+        const promises = chunk.map((path) => getGameFromPath(path)
+            .catch((error) => {
+                // Send error message
+                window.API.invoke("require-messagebox", {
+                    type: "error",
+                    title: "Unexpected error",
+                    message: `Cannot retrieve game data (${path}), unexpected error: ${error}`,
+                    buttons: [{
+                        name: "close"
+                    }]
+                });
+                window.API.reportError(error, "11219", "getGameFromPath", "getGameFromPaths", `Game data path: ${path}`);
+            }));
+        await Promise.all(promises);
     }
 }
 
