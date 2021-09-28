@@ -38,7 +38,7 @@
         "electron-store": "^8.0.1",
         "electron-updater": "^4.6.0",
         "glob": "^7.1.7",
-        "i18next": "^21.0.1",
+        "i18next": "^21.1.1",
         "i18next-electron-language-detector": "0.0.10",
         "image-downloader": "^4.0.3",
         "nedb-promises": "^5.0.1",
