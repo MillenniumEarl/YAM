@@ -448,19 +448,33 @@ async function saveThreadInDatabase(url) {
     const id = getIDFromURL(url);
     if (!id) return null;
 
-    // Fetch the game data from the platform
-    const gameInfo = await ipcRenderer.invoke("f95api", "getGameDataFromURL", {
-        url: url
-    });
-    if (!gameInfo) return null;
-
     // Check if the thread exists in the database
     const thread = await threadSearchInDB({
         id: id
     });
 
-    if (thread.length === 0) await insertThreadInDB(gameInfo);
-    else if (thread[0].version !== gameInfo.version) await updateThreadInDB(gameInfo, thread[0]._id);
+    if (thread.length === 0) {
+        // Fetch the game data from the platform
+        const gameInfo = await ipcRenderer.invoke("f95api", "getGameDataFromURL", {
+            url: url
+        });
+        if (!gameInfo) return null;
+
+        await insertThreadInDB(gameInfo);
+    }
+    else {
+        const hasUpdate = await ipcRenderer.invoke("f95api", "checkGameUpdates", {
+            gameinfo: thread[0]
+        });
+        if (hasUpdate) {
+            // Fetch the game data from the platform
+            const gameInfo = await ipcRenderer.invoke("f95api", "getGameDataFromURL", {
+                url: url
+            });
+            if (!gameInfo) return null;
+            await updateThreadInDB(gameInfo, thread[0]._id);
+        }
+    }
 
     return id;
 }
