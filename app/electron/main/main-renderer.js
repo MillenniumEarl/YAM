@@ -564,29 +564,23 @@ async function login() {
     document.getElementById("user-info").showSpinner();
 
     // Check network connection, then login
-    const online = await checkIfOnline(); // BLOCK THE APP
+    const online = await checkIfOnline();
     window.API.log.info(`Online status: ${online}`);
     if(online) {
+        // Login for this session
         const login = await requireLogin();
+        if(!login) return;
 
-        if(login) {
-            // Login for this session
-            const credentials = await getCredentials();
-            const res = await window.F95.login(credentials.username, credentials.password)
-                .catch(e => window.API.reportError(e, "11214", "window.F95.login", "login"));
-            if (!res.success) return;
+        const translation = await window.API.translate("MR login successful");
+        sendToastToUser("info", translation);
 
-            const translation = await window.API.translate("MR login successful");
-            sendToastToUser("info", translation);
+        // Show "new game" button
+        document.querySelector("#fab-add-game-btn").style.display = "block";
 
-            // Show "new game" button
-            document.querySelector("#fab-add-game-btn").style.display = "block";
-
-            // Load user data
-            getUserDataFromF95()
-                .catch(e => window.API.reportError(e, "11215", "getUserDataFromF95", "login"));
-            window.API.send("window-size");
-        }
+        // Load user data
+        getUserDataFromF95()
+            .catch(e => window.API.reportError(e, "11215", "getUserDataFromF95", "login"));
+        window.API.send("window-size");
     }
 }
 //#endregion Authentication
