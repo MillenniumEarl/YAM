@@ -66,7 +66,7 @@ class ThreadInfo {
     fromGameInfo(gameinfo) {
         this.id = gameinfo.id;
         this.name = gameinfo.name;
-        this.author = gameinfo.authors.map((a) => a.name).join(",");
+        this.author = gameinfo.authors.map((a) => a.name).join(", ");
         this.url = gameinfo.url;
         this.tags = gameinfo.tags;
         this.previewSrc = gameinfo.cover;
