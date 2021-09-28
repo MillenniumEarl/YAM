@@ -1021,7 +1021,7 @@ async function requireUserToSelectGameWithSameName(desiredGameName, listOfGames)
     // Prepares the list of games to show to the user and buttons to show on the messagebox
     for(let i = 0; i < listOfGames.length; i++) {
         const game = listOfGames[i];
-        entryList = entryList.concat(`${i + 1} - ${game.name} [${game.author}] [${game.version}]\n`);
+        entryList = entryList.concat(`${i + 1} - ${game.name} [${game.authors.map((a) => a.name).join(", ")}] [${game.version}]\n`);
 
         const button = {
             name: game.id,
