@@ -111,12 +111,12 @@ class GameCard extends HTMLElement {
     get changelog() {
         const updateInfoChangelog =
             this._updateInfo.changelog.length !== 0 ?
-            this._updateInfo.changelog[0] :
+            this._updateInfo.changelog[0].information.join("\n") :
             null;
 
         const infoChangelog =
             this.info.changelog.length !== 0 ?
-            this.info.changelog[0]:
+            this.info.changelog[0].information.join("\n"):
             null;
         return updateInfoChangelog || infoChangelog;
     }
@@ -150,7 +150,7 @@ class GameCard extends HTMLElement {
     updateEvent() {
          const updateInfoChangelog =
              this._updateInfo.changelog.length !== 0 ?
-             this._updateInfo.changelog[0] :
+             this._updateInfo.changelog[0].information.join("\n"):
              null
 
         // Raise the event
