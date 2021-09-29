@@ -200,7 +200,8 @@ class CardPaginator extends HTMLElement {
             const index = this._getCurrentIndex();
 
             // Check if we are on the first/last page
-            const disabled = this.querySelector(keyPageMap[e.key]).classList.contains("disabled");
+            const selector = this.querySelector(keyPageMap[e.key]);
+            const disabled = selector ? selector.classList.contains("disabled") : true;
 
             if (index !== -1 && !disabled) {
                 // Calculate the new index

@@ -564,29 +564,23 @@ async function login() {
     document.getElementById("user-info").showSpinner();
 
     // Check network connection, then login
-    const online = await checkIfOnline(); // BLOCK THE APP
+    const online = await checkIfOnline();
     window.API.log.info(`Online status: ${online}`);
     if(online) {
+        // Login for this session
         const login = await requireLogin();
+        if(!login) return;
 
-        if(login) {
-            // Login for this session
-            const credentials = await getCredentials();
-            const res = await window.F95.login(credentials.username, credentials.password)
-                .catch(e => window.API.reportError(e, "11214", "window.F95.login", "login"));
-            if (!res.success) return;
+        const translation = await window.API.translate("MR login successful");
+        sendToastToUser("info", translation);
 
-            const translation = await window.API.translate("MR login successful");
-            sendToastToUser("info", translation);
+        // Show "new game" button
+        document.querySelector("#fab-add-game-btn").style.display = "block";
 
-            // Show "new game" button
-            document.querySelector("#fab-add-game-btn").style.display = "block";
-
-            // Load user data
-            getUserDataFromF95()
-                .catch(e => window.API.reportError(e, "11215", "getUserDataFromF95", "login"));
-            window.API.send("window-size");
-        }
+        // Load user data
+        getUserDataFromF95()
+            .catch(e => window.API.reportError(e, "11215", "getUserDataFromF95", "login"));
+        window.API.send("window-size");
     }
 }
 //#endregion Authentication
@@ -793,29 +787,40 @@ async function gameCardDelete(e) {
     }
 }
 
+function sliceIntoChunks(arr, chunkSize) {
+    const res = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        const chunk = arr.slice(i, i + chunkSize);
+        res.push(chunk);
+    }
+    return res;
+}
+
 /**
  * @private
  * Given a directory listing, it gets information about the games contained in them.
  * @param {String[]} paths Path of the directories containg games
  */
 async function getGameFromPaths(paths) {
+    // Slice hte array into manageable chunks
+    const chunks = sliceIntoChunks(paths, 10);
+
     // Parse the game dir name(s)
-    for (const path of paths) {
-        try {
-            await getGameFromPath(path);
-        }
-        catch (error) {
-            // Send error message
-            window.API.invoke("require-messagebox", {
-                type: "error",
-                title: "Unexpected error",
-                message: `Cannot retrieve game data (${path}), unexpected error: ${error}`,
-                buttons: [{
-                    name: "close"
-                }]
-            });
-            window.API.reportError(error, "11219", "getGameFromPath", "getGameFromPaths", `Game data path: ${path}`);
-        }
+    for (const chunk of chunks) {
+        const promises = chunk.map((path) => getGameFromPath(path)
+            .catch((error) => {
+                // Send error message
+                window.API.invoke("require-messagebox", {
+                    type: "error",
+                    title: "Unexpected error",
+                    message: `Cannot retrieve game data (${path}), unexpected error: ${error}`,
+                    buttons: [{
+                        name: "close"
+                    }]
+                });
+                window.API.reportError(error, "11219", "getGameFromPath", "getGameFromPaths", `Game data path: ${path}`);
+            }));
+        await Promise.all(promises);
     }
 }
 
@@ -876,6 +881,12 @@ async function getGameFromPath(path) {
         if (entry === 0) {
             // Add data to the parsed game info
             const converted = window.GIE.convert(selectedGame);
+
+            // Force update if any
+            if (converted.version !== dirInfo.version) {
+                converted.url = new URL(`https://f95zone.to/threads/${converted.id}`).toString();
+            }
+
             converted.version = dirInfo.version;
             converted.gameDirectory = dirInfo.path;
 
@@ -1021,7 +1032,7 @@ async function requireUserToSelectGameWithSameName(desiredGameName, listOfGames)
     // Prepares the list of games to show to the user and buttons to show on the messagebox
     for(let i = 0; i < listOfGames.length; i++) {
         const game = listOfGames[i];
-        entryList = entryList.concat(`${i + 1} - ${game.name} [${game.author}] [${game.version}]\n`);
+        entryList = entryList.concat(`${i + 1} - ${game.name} [${game.authors.map((a) => a.name).join(", ")}] [${game.version}]\n`);
 
         const button = {
             name: game.id,

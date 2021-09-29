@@ -48,11 +48,10 @@ class F95Wrapper {
 
     async checkGameUpdates(data) {
         // Create a new object from the data
-        const gameinfo = Object.assign(new GameInfoExtended(), data);
+        const game = Object.assign(new F95API.Game(), data);
 
-        // This method require GameInfo but GameInfoExtended is extended from GameInfo
-        const onlineData = await F95API.getHandiworkFromURL(gameinfo.url);
-        return onlineData.version !== gameinfo.version;
+        // Check for updates
+        return await F95API.checkIfHandiworkHasUpdate(game);
     }
 }
 

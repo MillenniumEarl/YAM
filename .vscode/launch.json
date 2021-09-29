@@ -22,7 +22,7 @@
           "type": "pwa-chrome",
           "request": "attach",
           "port": 9333,
-          "webRoot": "${workspaceFolder}",
+          "webRoot": "${workspaceFolder}/app",
           "timeout": 60000,
           "sourceMaps": false
       }
