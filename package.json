@@ -62,10 +62,14 @@
         ],
         "files": [
             "**/*",
-            "!dev-app-update.yml",
             "!.github${/*}",
             "!.vscode${/*}",
             "!docs${/*}",
+            "!eslintrc.json",
+            "!.gitattributes",
+            "!.gitignore",
+            "!crowdin.yml",
+            "!dev-app-update.yml",
             "!resources/images/github${/*}"
         ],
         "directories": {
