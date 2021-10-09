@@ -10,9 +10,6 @@ const F95API = require("@millenniumearl/f95api");
 const logger = require("electron-log");
 const { CaptchaHarvest } = require("@millenniumearl/recaptcha-harvester");
 
-// Local modules
-const GameInfoExtended = require("./classes/game-info-extended");
-
 // Set F95API logger level
 F95API.loggerLevel = "warn";
 
