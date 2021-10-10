@@ -461,7 +461,7 @@ async function saveThreadInDatabase(url) {
         if (!gameInfo) return null;
 
         await insertThreadInDB(gameInfo)
-        .catch((e) => errManager.reportError(e, "01103", "insertThreadInDB", "saveThreadInDatabase"));;
+        .catch((e) => errManager.reportError(e, "01103", "insertThreadInDB", "saveThreadInDatabase"));
     }
     else {
         const hasUpdate = await ipcRenderer.invoke("f95api", "checkGameUpdates", {
@@ -471,10 +471,10 @@ async function saveThreadInDatabase(url) {
             // Fetch the game data from the platform
             const gameInfo = await ipcRenderer.invoke("f95api", "getGameDataFromURL", {
                 url: url
-            }).catch((e) => errManager.reportError(e, "01105", "ipcRenderer.invoke", "saveThreadInDatabase"));;
+            }).catch((e) => errManager.reportError(e, "01105", "ipcRenderer.invoke", "saveThreadInDatabase"));
             if (!gameInfo) return null;
             await updateThreadInDB(gameInfo, thread[0]._id)
-            .catch((e) => errManager.reportError(e, "01106", "updateThreadInDB", "saveThreadInDatabase"));;
+            .catch((e) => errManager.reportError(e, "01106", "updateThreadInDB", "saveThreadInDatabase"));
         }
     }
 
