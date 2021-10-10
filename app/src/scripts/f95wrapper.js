@@ -36,11 +36,11 @@ class F95Wrapper {
         const query = new F95API.HandiworkSearchQuery();
         query.keywords = name;
         query.category = searchMod ? "mods" : "games";
-        return F95API.searchHandiwork(query);
+        return F95API.searchHandiwork(query, F95API.Game);
     }
 
     getGameDataFromURL(url) {
-        return F95API.getHandiworkFromURL(url);
+        return F95API.getHandiworkFromURL(url, F95API.Game);
     }
 
     async checkGameUpdates(data) {
