@@ -451,28 +451,30 @@ async function saveThreadInDatabase(url) {
     // Check if the thread exists in the database
     const thread = await threadSearchInDB({
         id: id
-    });
-
+    }).catch((e) => errManager.reportError(e, "01101", "threadSearchInDB", "saveThreadInDatabase"));
+    
     if (thread.length === 0) {
         // Fetch the game data from the platform
         const gameInfo = await ipcRenderer.invoke("f95api", "getGameDataFromURL", {
             url: url
-        });
+        }).catch((e) => errManager.reportError(e, "01102", "ipcRenderer.invoke", "saveThreadInDatabase", `URL: ${url}`));
         if (!gameInfo) return null;
 
-        await insertThreadInDB(gameInfo);
+        await insertThreadInDB(gameInfo)
+        .catch((e) => errManager.reportError(e, "01103", "insertThreadInDB", "saveThreadInDatabase"));;
     }
     else {
         const hasUpdate = await ipcRenderer.invoke("f95api", "checkGameUpdates", {
             gameinfo: thread[0]
-        });
+        }).catch((e) => errManager.reportError(e, "01104", "ipcRenderer.invoke", "saveThreadInDatabase"));
         if (hasUpdate) {
             // Fetch the game data from the platform
             const gameInfo = await ipcRenderer.invoke("f95api", "getGameDataFromURL", {
                 url: url
-            });
+            }).catch((e) => errManager.reportError(e, "01105", "ipcRenderer.invoke", "saveThreadInDatabase"));;
             if (!gameInfo) return null;
-            await updateThreadInDB(gameInfo, thread[0]._id);
+            await updateThreadInDB(gameInfo, thread[0]._id)
+            .catch((e) => errManager.reportError(e, "01106", "updateThreadInDB", "saveThreadInDatabase"));;
         }
     }
 
