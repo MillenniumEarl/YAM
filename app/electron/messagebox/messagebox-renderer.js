@@ -388,7 +388,7 @@ async function createCheckboxes(options) {
 //#region IPC
 
 window.API.once("window-arguments", function (args) {
-    window.requestAnimationFrame(() => prepare(args[0]));
+    window.requestAnimationFrame(() => prepare(args));
 });
 
 //#endregion IPC
