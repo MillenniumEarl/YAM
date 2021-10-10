@@ -3,7 +3,6 @@
 // Core modules
 const path = require("path");
 const fs = require("fs");
-const promisify = require("util").promisify;
 const {
     glob
 } = require("glob");
@@ -13,10 +12,6 @@ const stringSimilarity = require("string-similarity");
 
 // Modules from file
 const reportError = require("./error-manger.js").reportError;
-
-//#region Promisify methods
-const areaddir = promisify(fs.readdir);
-//#endregion Promisify methods
 
 //#region Global variables
 const userDataDir =
@@ -76,7 +71,7 @@ async function _getSaveDir(gameinfo) {
             // Local variables
             let returnValue = null;
             const renpyDir = path.join(userDataDir, "RenPy");
-            const gameDirs = await areaddir(renpyDir);
+            const gameDirs = fs.readdirSync(renpyDir);
             const temp = gameDirs.map(dir => dir.replace(/[0-9]/gu, "")); // Remove numbers from dirs
             const match = stringSimilarity.findBestMatch(gameinfo.name.replace(/[0-9]/gu, ""), temp);
 
