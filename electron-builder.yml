@@ -1,0 +1,66 @@
+# Information of the application
+productName: "YAM"
+appId: "com.electron.yam"
+copyright: "Copyright © 2021 MillenniumEarl"
+
+# Package electron code into a asar archive. Set to false to debug issues.
+asar: true
+
+# Files/directory to include/exclude in the build
+files:
+  - "**/*"
+  - "!src/*"
+  - "!.github${/*}"
+  - "!.gitattributes"
+  - "!.gitignore"
+
+directories:
+  buildResources: "./resources" # Other resources to include in the final build
+  output: "./deploy" # Where to put the build
+
+# Mac OS configuration
+mac:
+  category: "public.app-category.games"
+  target: "default"
+  type: "distribution"
+  icon: "src/app/assets/images/icon.icns"
+
+# Config for OSX dmg
+dmg:
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: "link"
+      path: "/Applications"
+
+# Windows configuration
+win:
+  icon: "src/app/assets/images/icon.ico"
+  publisherName: "MillenniumEarl"
+  verifyUpdateCodeSignature: false
+  target:
+    - target: "nsis"
+      arch:
+        - x64
+        - ia32
+
+# Config for the windows installer
+nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+
+# Linux configuration
+linux:
+  category: Utility
+  target:
+    - target: "AppImage"
+      arch:
+        - x64
+        - ia32
+
+# Publish information
+publish:
+  provider: "github"

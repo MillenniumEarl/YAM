@@ -20,9 +20,9 @@
     ],
     "scripts": {
         "build": "tsc",
-        "dist:win": "npm run build && electron-builder --win --x64 --ia32",
-        "dist:mac": "npm run build && electron-builder --mac",
-        "dist:linux": "npm run build && electron-builder --linux"
+        "dist:win": "npm run build && electron-builder --win --config",
+        "dist:mac": "npm run build && electron-builder --mac --config",
+        "dist:linux": "npm run build && electron-builder --linux --config"
     },
     "engines": {
         "node": ">=16.00"
@@ -48,45 +48,5 @@
         "electron-builder": "^22.14.4",
         "electron": "^13.5.1",
         "eslint": "^7.32.0"
-    },
-    "build": {
-        "appId": "com.electron.yam",
-        "productName": "YAM",
-        "copyright": "Copyright © 2021 MillenniumEarl",
-        "asar": true,
-        "publish": [
-            "github"
-        ],
-        "files": [
-            "**/*",
-            "!.github${/*}",
-            "!.vscode${/*}",
-            "!docs${/*}",
-            "!eslintrc.json",
-            "!.gitattributes",
-            "!.gitignore",
-            "!crowdin.yml",
-            "!dev-app-update.yml",
-            "!resources/images/github${/*}"
-        ],
-        "directories": {
-            "output": "./dist"
-        },
-        "win": {
-            "target": "nsis",
-            "icon": "./resources/images/icon.ico",
-            "publisherName": "MillenniumEarl",
-            "verifyUpdateCodeSignature": false
-        },
-        "mac": {
-            "category": "public.app-category.games",
-            "target": "default",
-            "icon": "./resources/images/icon.icns",
-            "type": "distribution"
-        },
-        "linux": {
-            "target": "AppImage",
-            "icon": "./resources/images/icon.icns"
-        }
     }
 }
