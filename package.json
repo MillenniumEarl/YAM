@@ -1,7 +1,7 @@
 {
-    "main": "./app/app.js",
+    "main": "./app/app.ts",
     "name": "yam",
-    "version": "2.6.2",
+    "version": "3.0.0",
     "author": {
         "name": "Millennium Earl"
     },
