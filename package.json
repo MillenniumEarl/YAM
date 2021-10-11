@@ -24,7 +24,7 @@
         "dist:linux": "electron-builder --linux"
     },
     "engines": {
-        "node": ">=14.10"
+        "node": ">=16.00"
     },
     "dependencies": {
         "@millenniumearl/f95api": "^2.0.0-beta.10.1",
