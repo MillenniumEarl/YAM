@@ -1,39 +1,42 @@
-"use strict";
-
-// Use code cache
-require("v8-compile-cache");
+// Copyright (c) 2021 MillenniumEarl
+// 
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
 
 // Core modules
-const path = require("path");
-const fs = require("fs");
+import path from "path";
 
 // Public modules from npm
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
-const { autoUpdater } = require("electron-updater");
-const logger = require("electron-log");
-const Store = require("electron-store");
+import { app, BrowserWindow} from "electron";
+import { autoUpdater } from "electron-updater";
+import Store from "electron-store";
 
-// Modules from file
-const { run, openLink} = require("./src/scripts/io-operations.js");
-const shared = require("./src/scripts/classes/shared.js");
-const localization = require("./src/scripts/localization.js");
-const windowCreator = require("./src/scripts/window-creator.js");
-const GameDataStore = require("./db/stores/game-data-store.js");
-const ThreadDataStore = require("./db/stores/thread-data-store.js");
-const updater = require("./src/scripts/updater.js");
-const reportError = require("./src/scripts/error-manger.js").reportError;
-const F95Wrapper = require("./src/scripts/f95wrapper.js");
+// Local modules
+import * as logging from "./modules/logging";
 
-// Manage unhandled errors
-process.on("uncaughtException", function (error) {
-    logger.error(`Uncaught error in the main process.\n${error}`);
+// Initialize the loggers
+logging.init();
+
+// Get the loggers
+const mainLogger = logging.get("app.main");
+
+// Manage errors, warning and unhandled promises at application level
+process.on("uncaughtException", (e) => {
+    // If we reach this callback, something critically
+    // wrong happended in the application and it is
+    // necessary to terminate the process
+    // See: https://nodejs.org/api/process.html#process_warning_using_uncaughtexception_correctly
+    mainLogger.fatal(`This is a CRITICAL message, an uncaught error was throw in the main process and no handler where defined:\n${e}\nThe application will now be closed`);
+    app.quit();
 });
+process.on("unhandledRejection", (reason, promise) => mainLogger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`));
+process.on("warning", (warning) => mainLogger.warn(`${warning.name}: ${warning.message}\n${warning.stack ?? "No stack to display"}`));
 
 //#region Global variables
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
+let mainWindow: BrowserWindow | undefined;
 
 // Global store, keep user-settings
 const store = new Store();
@@ -59,302 +62,13 @@ if (!instanceLock) app.quit();
 // Fix also strange graphical artifacts
 app.disableHardwareAcceleration();
 
-//#region IPC Communication
-// This will be called when the main window
-// require credentials, open the login windows
-ipcMain.handle("login-required", function ipcMainOnLoginRequired() {
-    logger.info("Login required from main window");
-    return windowCreator.createLoginWindow(mainWindow).onclose;
-});
-
-// Execute the file passed as parameter
-ipcMain.on("exec", function ipcMainOnExec(e, args) {
-    const filepath = [...args][0];
-    logger.info(`Executing ${filepath}`);
-    
-    // Create and run child
-    const child = run(filepath);
-
-    // Write log on child error
-    child.stderr.on("data", (data) => {
-        logger.error(`Error running ${filepath}: ${data}`);
-    });
-});
-
-// Open the directory path/URL in the default manner
-ipcMain.on("open-link", function ipcMainOnOpenLink(e, args) {
-    const link = [...args][0];
-    logger.info(`Opening ${link}`);
-
-    // Open link
-    openLink(link).catch(e => reportError(e, "30000", "openLink", "ipcMainOnOpenLink", `Link: ${link}`));
-});
-
-// Close the application
-ipcMain.on("app-quit", function ipcMainOnAppQuit() {
-    logger.info("Closing application on IPC request");
-    app.quit();
-});
-
-// Return the current root dir path (Current Working Directory)
-ipcMain.handle("cwd", function ipcMainOnCWD() {
-    return app.getAppPath();
-});
-
-// Return the app version
-ipcMain.handle("app-version", function ipcMainHandleVersionRequest() {
-    return app.getVersion();
-});
-
-// Return the OS-based application data directory
-ipcMain.handle("user-data", function ipcOnUserData() {
-    return app.getPath("userData");
-});
-
-// Show the devtools
-ipcMain.on("show-devtools", function ipcOnShowDevTools() {
-    logger.info("Opening devtools");
-    mainWindow.webContents.openDevTools();
-});
-
-// Enable or disable the menubar
-ipcMain.on("allow-menubar", function ipcOnAllowMenuBar(e, args) {
-    logger.info(`Allow menubar: ${args[0]}`);
-
-    // Save the preference
-    store.set("menubar", args[0]);
-
-    // Show/hide the devtools for the main window
-    mainWindow.setMenuBarVisibility(args[0]);
-});
-
-// Switch between opening a URL in the default browser or
-// copying it 
-ipcMain.on("open-copy-links", function ipcOnCopyOpenLinks(e, args) {
-    logger.info(`Open links in the default browser: ${args[0]}`);
-
-    // Save the preference
-    store.set("open-links-in-default-browser", args[0]);
-});
-
-//#region Language
-// Return the value localized of the specified key
-ipcMain.handle("translate", function ipcMainHandleTranslate(e, key, interpolation) {
-    return localization.getTranslation(key, interpolation);
-});
-
-// Change language and save user choice
-ipcMain.handle("change-language", function ipcMainHandleChangeLanguage(e, iso) {
-    store.set("language-iso", iso);
-    logger.log(`Language changed: ${iso}`);
-    return localization.changeLanguage(iso);
-});
-
-// Get the current language ISO
-ipcMain.handle("current-language", function ipcMainHandleCurrentLanguage() {
-    return localization.getCurrentLanguage();
-});
-//#endregion Language
-
-//#region Database Operations
-/**
- * @private
- * Performs an operation on the database and returns the results.
- * @param {GameDataStore|ThreadDataStore} db 
- * Database on which to perform operations.
- * @param {String} operation 
- * Operation to be performed among the following:
- * `insert`, `delete`, `read`, `write`, `search`, `count`
- * @param {Object} args 
- * Arguments to pass to the database
- * @param {GameInfo|ThreadInfo} [args.data]
- * Data to be saved in the database. Used with `insert` and `write`
- * @param {Number} [args.id] 
- * ID of a record in the database. Used with `read`
- * @param {Object} [args.query] 
- * Query to use in the database. Used with `search`, `count` and `delete`
- * @param {Object} [args.sortQuery] 
- * Query used to sort the results. Used with `search`
- * @param {Object} [args.pagination]
- * Object containing the data for paging the results. Used with `search`
- * @param {Number} [args.pagination.index]
- * Index of the page to prepare
- * @param {Number} [args.pagination.size]
- * Size of each page
- * @param {Number} [args.pagination.limit]
- * Max number of element in the results
- * @returns {Promise<Any>} Results of the query
- */
-async function executeDbQuery(db, operation, args) {
-    logger.silly(`Executing ${operation} on '${path.basename(db.DB_PATH)}'`);
-    
-    // Prepare a dictionary of functions
-    const operations = {
-        insert: (args) => db.insert(args.data),
-        delete: (args) => db.delete(args.query),
-        read: (args) => db.read(args.id),
-        write: (args) => db.write(args.data),
-        count: (args) => db.count(args.query),
-        search: (args) => {
-            return args.pagination 
-                ? db.search(args.query,
-                    args.pagination.index,
-                    args.pagination.size,
-                    args.pagination.limit,
-                    args.sortQuery ?? {})
-                : db.search(args.query);
-        },
-    };
-
-    // Verify the operation
-    const validOperation = Object.keys(operations).includes(operation);
-    if (!validOperation) throw Error(`Operation not recognized: ${operation}`);
-
-    // Execute the operation on the database
-    return await operations[operation](args);
-}
-
-/**
- * @private
- * Select a database given its name.
- * @param {String} name `game`, `thread`, `update`
- * @returns {GameDataStore|ThreadDataStore} Selected database
- */
-function selectDatabase(name) {
-    // Local variables
-    const dbs = {
-        game: gameStore,
-        thread: threadStore,
-        update: updateStore,
-    };
-    const validName = Object.keys(dbs).includes(name);
-
-    // Check the name and return the store
-    if (!validName) throw Error(`Database not recognized: ${name}`);
-    return dbs[name];
-}
-
-// Manage DB operations
-ipcMain.handle("database-operation", async function ipcMainOnDBOp(e, db, op, args) {
-    // Select the database
-    const selectedDB = selectDatabase(db);
-
-    // Esecute the operation
-    return executeDbQuery(selectedDB, op, args)
-        .catch(e => reportError(e, "30001", "executeDbQuery", "ipcMainOnDBOp", `DB: ${db}, Operation: ${op}, Args: ${args}`));
-});
-//#endregion Database Operations
-
-//#region shared app variables
-ipcMain.handle("cache-dir", function ipcMainHandleCacheDir() {
-    const dirname = path.resolve(".", shared.cacheDir);
-
-    // Create directory if not existent
-    if (!fs.existsSync(dirname))
-        fs.mkdirSync(dirname, {
-            recursive: true,
-        });
-
-    return dirname;
-});
-
-ipcMain.handle("preview-dir", function ipcMainHandlePreviewDir() {
-    const dirname = path.resolve(".", shared.previewDir);
-
-    // Create directory if not existent
-    if (!fs.existsSync(dirname))
-        fs.mkdirSync(dirname, {
-            recursive: true,
-        });
-
-    return dirname;
-});
-
-ipcMain.handle("savegames-data-dir", function ipcMainHandleSaveGamesDataDir() {
-    const dirname = path.resolve(".", shared.exportedGameSavesDirName);
-
-    // Create directory if not existent
-    if (!fs.existsSync(dirname))
-        fs.mkdirSync(dirname, {
-            recursive: true,
-        });
-
-    return dirname;
-});
-
-ipcMain.handle("credentials-path", function ipcMainHandleCredentialsPath() {
-    return shared.credentialsPath;
-});
-
-ipcMain.handle("database-paths", function ipcMainOnHandleDatabasePaths() {
-    return {
-        games: shared.gameDbPath,
-        threads: shared.threadDbPath,
-        updates: shared.updateDbPath,
-    };
-});
-//#endregion shared app variables
-
-//#region IPC dialog for main window
-ipcMain.handle("require-messagebox", function ipcMainOnRequireMessagebox(e, args) {
-    logger.silly("Required messagebox");
-    return windowCreator.createMessagebox(mainWindow, args[0], messageBoxCloseCallback).onclose;
-});
-
-ipcMain.handle("message-dialog", function ipcMainHandleMessageDialog(e, options) {
-    logger.silly("Required dialog");
-    return dialog.showMessageBox(mainWindow, options[0]);
-});
-
-ipcMain.handle("open-dialog", function ipcMainHandleOpenDialog(e, options) {
-    logger.silly("Required open-dialog");
-    return dialog.showOpenDialog(mainWindow, options[0]);
-});
-
-ipcMain.handle("url-input", function ipcMainHandleURLInput() {
-    logger.silly("Required url-input");
-    return windowCreator.createURLInputbox(mainWindow).onclose;
-});
-
-ipcMain.handle("update-messagebox", function ipcMainHandleURLInput(e, options) {
-    logger.silly("Required update-messagebox");
-    return windowCreator.createUpdateMessagebox(mainWindow, ...options, updateMessageBoxCloseCallback).onclose;
-});
-//#endregion IPC dialog for main window
-
-//#region F95API requests
-ipcMain.handle("f95api", function ipcMainOnF95(e, operation, args) {
-    logger.silly(`Executing ${operation} with F95API`);
-
-    // Prepare a dictionary of functions
-    const operations = {
-        isLogged: () => f95.isLogged(),
-        login: (args) => f95.login(args.username, args.password),
-        getUserData: () => f95.getUserData(),
-        getGameData: (args) => f95.getGameData(args.name, args.searchMod),
-        getGameDataFromURL: (args) => f95.getGameDataFromURL(args.url),
-        checkGameUpdates: (args) => f95.checkGameUpdates(args.gameinfo),
-    };
-
-    // Verify the operation
-    const validOperation = Object.keys(operations).includes(operation);
-    if (!validOperation) throw Error(`Operation not recognized: ${operation}`);
-
-    // Execute the operation
-    return operations[operation](args);
-});
-//#endregion F95API requests
-
-//#endregion IPC Communication
-
 //#region App-related events
 /**
- * @private
  * Check for app updates.
  */
 function checkUpdates() {
-    logger.info("Checking updates...");
-    
+    mainLogger.info("Checking updates...");
+
     updater.check({
         onError: function(err) {
             logger.error(`Error during update check: ${err.message}\n${err.stack}`);
@@ -390,7 +104,7 @@ function checkUpdates() {
  * Load the files containing the translations for the interface.
  */
 async function initializeLocalization() {
-    logger.info("Initializing languages...");
+    mainLogger.info("Initializing languages...");
 
     // Obtain the language to display
     const lang = store.has("language-iso") ?
@@ -401,27 +115,28 @@ async function initializeLocalization() {
     const langPath = path.join(app.getAppPath(), "resources", "lang");
     await localization.initLocalization(langPath, lang);
 
-    logger.info(`Languages initialized (selected ${lang})`);
+    mainLogger.info(`Languages initialized (selected ${lang})`);
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(async function appOnReady() {
-    logger.info(`Application ready (${app.getVersion()}) on ${process.platform} (${process.getSystemVersion()})`);
-    logger.info(`Using Chrome ${process.versions.chrome}`);
-    logger.info(`Using Electron ${process.versions.electron}`);
+app.whenReady().then(async () => {
+    mainLogger.info(`Application ready (${app.getVersion()}) on ${process.platform} (${process.getSystemVersion()})`);
+    mainLogger.info(`Using Chrome ${process.versions.chrome}`);
+    mainLogger.info(`Using Electron ${process.versions.electron}`);
 
     // Wait for language initialization
-    await initializeLocalization().catch(e => reportError(e, "30002", "initializeLocalization", "appOnReady"));
+    await initializeLocalization()
+    .catch(e => reportError(e, "30002", "initializeLocalization", "appOnReady"));
 
-    logger.silly("Creating main window");
+    mainLogger.info("Creating main window");
     mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;
 
     // Check updates
     checkUpdates();
 
-    app.on("activate", function appOnActivate() {
+    app.on("activate", () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) {
@@ -434,12 +149,12 @@ app.whenReady().then(async function appOnReady() {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", function appOnWindowAllClosed() {
-    logger.silly("Closing application");
+    mainLogger.info("Closing application");
     if (process.platform !== "darwin") app.quit();
 });
 
 app.on("second-instance", function appOnSecondInstance() {
-    logger.info("Trying to open a second instance");
+    mainLogger.info("Trying to open a second instance");
     // Someone tried to run a second instance, we should focus our window.
     if(!mainWindow) return; // No window to focus on
     
