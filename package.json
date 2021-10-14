@@ -25,7 +25,7 @@
         "dist:linux": "npm run build && electron-builder --linux --config"
     },
     "engines": {
-        "node": ">=16.00"
+        "node": ">=16.0"
     },
     "dependencies": {
         "@millenniumearl/f95api": "^2.0.0-beta.10.1",
@@ -38,15 +38,15 @@
         "i18next": "^21.2.4",
         "i18next-electron-language-detector": "0.0.10",
         "image-downloader": "^4.0.3",
-        "nedb-promises": "^5.0.1",
+        "lowdb": "^3.0.0",
         "new-github-issue-url": "^0.2.1",
         "string-similarity": "^4.0.4",
         "v8-compile-cache": "^2.3.0"
     },
     "devDependencies": {
         "@babel/eslint-parser": "^7.15.8",
-        "electron-builder": "^22.14.4",
         "electron": "^13.5.1",
+        "electron-builder": "^22.14.4",
         "eslint": "^7.32.0"
     }
 }
