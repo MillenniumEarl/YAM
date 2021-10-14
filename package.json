@@ -38,6 +38,7 @@
         "i18next": "^21.2.4",
         "i18next-electron-language-detector": "0.0.10",
         "image-downloader": "^4.0.3",
+        "log4js": "^6.3.0",
         "lowdb": "^3.0.0",
         "new-github-issue-url": "^0.2.1",
         "string-similarity": "^4.0.4",
