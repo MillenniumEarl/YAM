@@ -11,14 +11,9 @@
         "sourceMap": true,
         "alwaysStrict": true,
         "strict": true,
-        "declaration": true,
-        "paths": {
-            "*": [
-                "node_modules/*"
-            ]
-        }
+        "declaration": true
     },
     "include": [
-        "src/**/*"
+        "app/**/*"
     ]
 }
