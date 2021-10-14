@@ -5,6 +5,7 @@
         "outDir": "dist",
         "baseUrl": ".",
         "moduleResolution": "node",
+        "experimentalDecorators": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "incremental": true,
