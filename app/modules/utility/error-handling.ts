@@ -8,16 +8,14 @@ import ErrorStackParser from "error-stack-parser";
 
 // Local modules
 import { get } from "./logging";
-import { TLoggerCategory } from "./types";
-import Shared from "./shared";
+import { TLoggerCategory } from "../types";
+import Shared from "../shared";
 
 /**
  * Generic handler for errors in the application.
  * @param error Error thrown from decorated method
- * @param context `this` value from decorated method
- * @param args Spreaded arguments from decorated method
  */
-export default function handler(error: Error): void {
+export default function ehandler(error: Error): void {
   // Parse the error
   const stack = ErrorStackParser.parse(error);
 
@@ -45,6 +43,9 @@ export default function handler(error: Error): void {
   Shared.appevents.emit("error", {
     name: error.name,
     message: error.message,
+    function: fname,
+    line: fline,
+    column: fcolumn,
     stack: stack
   });
 }
