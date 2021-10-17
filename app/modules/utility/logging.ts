@@ -4,19 +4,12 @@
 // https://opensource.org/licenses/MIT
 
 // Public modules from npm
-import {
-  configure,
-  getLogger,
-  Configuration,
-  Appender,
-  Layout,
-  Logger
-} from "log4js";
+import { configure, getLogger, Configuration, Appender, Layout, Logger } from "log4js";
 import isDev from "electron-is-dev";
 
 // Local modules
-import { LogPath } from "./constants";
-import { TLoggerCategory } from "./types";
+import { LogPath } from "../constants";
+import { TLoggerCategory } from "../types";
 
 //#region Global variables
 let initialized: boolean = false;
@@ -73,11 +66,11 @@ export function init(): void {
     categories: {
       default: {
         appenders: ["default"],
-        level: level
+        level: "debug"
       },
       app: {
         appenders: ["main", "renderer"],
-        level: level
+        level: "info"
       },
       "app.main": {
         appenders: ["main"],
