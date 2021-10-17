@@ -14,7 +14,12 @@
         "sourceMap": true,
         "alwaysStrict": true,
         "strict": true,
-        "declaration": true
+        "declaration": true,
+        "plugins": [{
+                "name": "function-decorator-ts-plugin",
+                "transform": "function-decorator-ts-plugin/transformer",
+                "transformProgram": true
+            }]
     },
     "include": [
         "app/**/*"
