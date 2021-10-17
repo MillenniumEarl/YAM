@@ -43,3 +43,23 @@ export const LogPath = {
    */
   F95API: join(APP_LOGS_DIR, "f95api.log")
 };
+
+/**
+ * An object that contains all the colors used by the application.
+ */
+export const Colors = {
+  /**
+   * Application base color used when loading a window.
+   */
+  BASE: "#262626"
+};
+
+/**
+ * An object that contains the minimum size of the application `BrowserWindow`.
+ */
+export const WindowMinimumSize = {
+  /**
+   * Minimum size of the main window.
+   */
+  MAIN: { width: 1024, height: 620 }
+};
