@@ -1,5 +1,5 @@
 // Copyright (c) 2021 MillenniumEarl
-// 
+//
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
@@ -7,49 +7,51 @@
 import path from "path";
 
 // Public modules from npm
-import { app, BrowserWindow} from "electron";
-import { autoUpdater } from "electron-updater";
+import "source-map-support/register";
+import { app, BrowserWindow } from "electron";
+import { CancellationToken } from "electron-updater";
 import Store from "electron-store";
 
 // Local modules
-import * as logging from "./modules/logging";
+import * as logging from "./modules/utility/logging";
+import ehandler from "./modules/utility/error-handling";
+import * as localization from "./modules/utility/localization";
+import WindowManager from "./modules/classes/window-manager";
+import Updater from "./modules/classes/updater";
 
 // Initialize the loggers
 logging.init();
 
-// Get the loggers
+// Get the main logger
 const mainLogger = logging.get("app.main");
+mainLogger.level = "info";
 
+//#region Process error's handlers
 // Manage errors, warning and unhandled promises at application level
 process.on("uncaughtException", (e) => {
-    // If we reach this callback, something critically
-    // wrong happended in the application and it is
-    // necessary to terminate the process
-    // See: https://nodejs.org/api/process.html#process_warning_using_uncaughtexception_correctly
-    mainLogger.fatal(`This is a CRITICAL message, an uncaught error was throw in the main process and no handler where defined:\n${e}\nThe application will now be closed`);
-    app.quit();
+  // If we reach this callback, something critically
+  // wrong happended in the application and it is
+  // necessary to terminate the process
+  // See: https://nodejs.org/api/process.html#process_warning_using_uncaughtexception_correctly
+  mainLogger.fatal(
+    `This is a CRITICAL message, an uncaught error was throw in the main process and no handler where defined:\n${e}\nThe application will now be closed`
+  );
+  app.quit();
 });
-process.on("unhandledRejection", (reason, promise) => mainLogger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`));
-process.on("warning", (warning) => mainLogger.warn(`${warning.name}: ${warning.message}\n${warning.stack ?? "No stack to display"}`));
-
-//#region Global variables
+process.on("unhandledRejection", (reason, promise) =>
+  mainLogger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`)
+);
+process.on("warning", (warning) =>
+  mainLogger.warn(`${warning.name}: ${warning.message}\n${warning.stack ?? "No stack to display"}`)
+);
+//#endregion Process error's handlers
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow: BrowserWindow | undefined;
+const wmanager = new WindowManager();
 
 // Global store, keep user-settings
 const store = new Store();
-
-// Databases used by the app
-const gameStore = new GameDataStore(shared.gameDbPath);
-const threadStore = new ThreadDataStore(shared.threadDbPath);
-const updateStore = new GameDataStore(shared.updateDbPath);
-
-// F95API Wrapper
-const f95 = new F95Wrapper();
-
-//#endregion Global variables
 
 // Get a lock instance to prevent multiple instance from running
 const instanceLock = app.requestSingleInstanceLock();
@@ -58,146 +60,108 @@ const instanceLock = app.requestSingleInstanceLock();
 if (!instanceLock) app.quit();
 
 // Disable hardware acceleration for better performance
-// as we don't use animations. 
+// as we don't use animations.
 // Fix also strange graphical artifacts
 app.disableHardwareAcceleration();
 
 //#region App-related events
 /**
- * Check for app updates.
+ * Check for app updates and, if present, ask the user to install it.
  */
-function checkUpdates() {
-    mainLogger.info("Checking updates...");
+async function checkUpdates() {
+  // Create the updater and check for updates
+  const u = new Updater();
+  const hasUpdate = await u.check();
 
-    updater.check({
-        onError: function(err) {
-            logger.error(`Error during update check: ${err.message}\n${err.stack}`);
-        },
-        onUpdateDownloaded: async (info) => {
-            logger.info(`Update ${info.releaseName} downloaded and ready for installation`);
-            const cleanNotes = info.releaseNotes.replace(/<\/?[^>]+(>|$)/gu, "").replace(/\s\s+/gu, " ").trim();
-            const message = process.platform !== "linux" ?
-                localization.getTranslation("update-message-windarwin", {
-                    notes: cleanNotes
-                }) :
-                localization.getTranslation("update-message-linux");
-            const args = {
-                type: "info",
-                title: localization.getTranslation("update-title", {
-                    version: info.releaseName,
-                }),
-                message: message,
-                buttons: [{name: "update"}, {name: "close"}] 
-            };
-            const userSelection = await windowCreator.createMessagebox(mainWindow, args).onclose;
-            
-            // Quit and update the app
-            if (userSelection.button === "update") {
-                logger.info("Performing update...");
-                autoUpdater.quitAndInstall();
-            }
-        }
-    });
+  // Check for update
+  if (hasUpdate) {
+    // Prepare a cancellation token
+    const token = new CancellationToken();
+
+    // Get the info and download the update
+    //const info = await u.info();
+    const downloadPromise = u.download(token);
+
+    // Ask the user if he/she want to update
+    // @todo SEND NOTIFICATION AND OPEN UPDATE TAB
+    // const action = askUserWhatHeWantToDo(info);
+    const action = "update";
+    mainLogger.info(`User decided to: ${action.toUpperCase()}`);
+
+    // Update or cancel the download
+    if (action === "update") downloadPromise.then(() => u.install());
+    else token.cancel();
+  }
 }
 
 /**
  * Load the files containing the translations for the interface.
  */
 async function initializeLocalization() {
-    mainLogger.info("Initializing languages...");
+  mainLogger.info("Initializing languages...");
 
-    // Obtain the language to display
-    const lang = store.has("language-iso") ?
-        store.get("language-iso") :
-        "DEFAULT";
+  // Obtain the language to display
+  const lang = store.get("language-iso", null) as string;
 
-    // Get the data file
-    const langPath = path.join(app.getAppPath(), "resources", "lang");
-    await localization.initLocalization(langPath, lang);
+  // Get the data file
+  const langPath = path.join(app.getAppPath(), "resources", "lang");
+  await localization.initLocalization(langPath, lang);
 
-    mainLogger.info(`Languages initialized (selected ${lang})`);
+  mainLogger.info(`Languages initialized (selected: ${lang ?? "SYSTEM"})`);
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
-    mainLogger.info(`Application ready (${app.getVersion()}) on ${process.platform} (${process.getSystemVersion()})`);
-    mainLogger.info(`Using Chrome ${process.versions.chrome}`);
-    mainLogger.info(`Using Electron ${process.versions.electron}`);
+  mainLogger.info(
+    `Application ready (${app.getVersion()}) on ${process.platform} (${process.getSystemVersion()})`
+  );
+  mainLogger.info(`Using Chrome ${process.versions.chrome}`);
+  mainLogger.info(`Using Electron ${process.versions.electron}`);
 
-    // Wait for language initialization
-    await initializeLocalization()
-    .catch(e => reportError(e, "30002", "initializeLocalization", "appOnReady"));
+  // Wait for language initialization
+  await initializeLocalization().catch((e) => ehandler(e));
 
-    mainLogger.info("Creating main window");
-    mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;
+  // ****************************************
+  //@todo
+  const mainWindowCloseCallback = () => null;
+  // ****************************************
 
-    // Check updates
-    checkUpdates();
+  mainLogger.info("Creating main window");
+  wmanager.createMainWindow(mainWindowCloseCallback);
 
-    app.on("activate", () => {
+  // Check updates
+  await checkUpdates();
+
+  app.on("activate", () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0) {
-            mainWindow = windowCreator.createMainWindow(mainWindowCloseCallback).window;
-        }
-    });
+    if (BrowserWindow.getAllWindows().length === 0) {
+      wmanager.createMainWindow(mainWindowCloseCallback);
+    }
+  });
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", function appOnWindowAllClosed() {
-    mainLogger.info("Closing application");
-    if (process.platform !== "darwin") app.quit();
+  mainLogger.info("Closing application");
+  if (process.platform !== "darwin") app.quit();
 });
 
 app.on("second-instance", function appOnSecondInstance() {
-    mainLogger.info("Trying to open a second instance");
-    // Someone tried to run a second instance, we should focus our window.
-    if(!mainWindow) return; // No window to focus on
-    
-    // Show and focus on the main window
-    if (mainWindow.isMinimized()) mainWindow.restore();
-    mainWindow.focus();
+  mainLogger.info("Trying to open a second instance");
+
+  // Try to get the main window
+  const w = wmanager.get("main");
+
+  // Someone tried to run a second instance, we should focus our window.
+  if (!w) return; // No window to focus on
+
+  // Show and focus on the main window
+  if (w.isMinimized()) w.restore();
+  w.focus();
 });
 //#endregion App-related events
-
-//#region Window close callbacks
-/**
- * Callback used to log the closure of the main window e to store the size.
- */
-function mainWindowCloseCallback() {
-    logger.silly("Closing main window");
-
-    // Save the sizes of the window
-    const size = mainWindow.getSize();
-    store.set("main-width", size[0]);
-    store.set("main-height", size[1]);
-
-    // Check is the window is maximized
-    store.set("main-maximized", mainWindow.isMaximized());
-    mainWindow = null;
-}
-
-/**
- * Callback used to log the closure of a messagebox.
- */
-function messageBoxCloseCallback() {
-    logger.silly("Closing messagebox");
-}
-
-/**
- * Callback used to log the result of the update of a game.
- * @param {Boolean} finalized 
- */
-function updateMessageBoxCloseCallback(finalized) {
-    if (finalized) {
-        logger.silly("Update finalized by the user");
-    }
-    else {
-        logger.silly("Closing update window without finalizing the update");
-    }
-}
-//#endregion Window close callbacks
