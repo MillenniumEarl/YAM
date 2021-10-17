@@ -20,6 +20,7 @@
     ],
     "scripts": {
         "build": "tsc",
+        "example": "npm run build && electron dist/app.js",
         "dist:win": "npm run build && electron-builder --win --config",
         "dist:mac": "npm run build && electron-builder --mac --config",
         "dist:linux": "npm run build && electron-builder --linux --config"
@@ -37,7 +38,7 @@
         "electron-updater": "^4.6.0",
         "error-stack-parser": "^2.0.6",
         "glob": "^7.2.0",
-        "i18next": "^21.2.4",
+        "i18next": "^21.3.2",
         "i18next-electron-language-detector": "0.0.10",
         "image-downloader": "^4.0.3",
         "log4js": "^6.3.0",
@@ -49,9 +50,9 @@
         "@babel/eslint-parser": "^7.15.8",
         "@typescript-eslint/eslint-plugin": "^5.0.0",
         "@typescript-eslint/parser": "^5.0.0",
-        "electron": "^13.5.1",
+        "electron": "^15.2.0",
         "electron-builder": "^22.14.4",
-        "eslint": "^7.32.0",
+        "eslint": "^8.0.1",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",
         "prettier": "^2.4.1"
