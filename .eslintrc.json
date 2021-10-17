@@ -1,32 +1,30 @@
 {
+    "root": true,
     "env": {
         "browser": true,
-        "commonjs": true,
         "es2021": true,
         "node": true
     },
-    "extends": "eslint:recommended",
-    "parser": "babel-eslint",
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "ecmaVersion": 12
+        "ecmaVersion": "latest"
     },
+    "plugins": [
+        "@typescript-eslint",
+        "prettier"
+    ],
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+    ],
     "rules": {
-        "indent": [
-            "error",
-            4
-        ],
-        "linebreak-style": [
-            "error",
-            "windows"
-        ],
-        "quotes": [
-            "error",
-            "double"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
+        "no-console": "warn",
+        "prettier/prettier": "error",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/ban-ts-comment": "warn",
+        "no-prototype-builtins": "warn",
         "no-unused-vars": [
             "error",
             {
