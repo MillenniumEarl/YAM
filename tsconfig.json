@@ -5,6 +5,8 @@
         "outDir": "dist",
         "baseUrl": ".",
         "moduleResolution": "node",
+        "target": "ESNext",
+        "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
