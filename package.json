@@ -21,7 +21,6 @@
     "scripts": {
         "prettify": "prettier --config .prettierrc {app,test}/**/*.ts --write",
         "build": "tsc",
-        "prepare": "ts-patch install -s",
         "example": "npm run build && electron dist/app.js",
         "dist:win": "npm run build && electron-builder --win --config",
         "dist:mac": "npm run build && electron-builder --mac --config",
@@ -58,8 +57,6 @@
         "eslint": "^8.0.1",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",
-        "function-decorator-ts-plugin": "^0.1.2",
-        "prettier": "^2.4.1",
-        "ts-patch": "^1.4.4"
+        "prettier": "^2.4.1"
     }
 }
