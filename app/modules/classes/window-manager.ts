@@ -43,9 +43,46 @@ export default class WindowManager {
    *
    * If it doesn't exists, return `null`
    */
+  // eslint-disable-next-line no-unused-vars
+  public get(name: string): BrowserWindow | null;
+  /**
+   * Get the window with the given ID.
+   *
+   * If it doesn't exists, return `null`
+   */
+  // eslint-disable-next-line no-unused-vars
+  public get(id: number): BrowserWindow | null;
   @DefaultCatch(ehandler)
-  public get(name: string): BrowserWindow | null {
-    return this.#WindowsList[name].window ?? null;
+  public get(arg: string | number): BrowserWindow | null {
+    // Found window
+    let window = null;
+
+    if (typeof arg === "string") {
+      // Get window by name
+      window = this.#WindowsList[arg].window ?? null;
+    } else if (typeof arg === "number") {
+      // Get all the windows
+      const windows = Object.values(this.#WindowsList).map((wd) => wd.window);
+
+      // Search for the specified ID
+      window = windows.find((w) => w.id === arg) ?? null;
+    }
+
+    return window;
+  }
+
+  /**
+   * Get the name of a given window (if it was created with this manager).
+   */
+  public getName(w: BrowserWindow): string | null {
+    const name = Object.entries(this.#WindowsList)
+      .map(([name, wd]) => {
+        if (wd.window.id === w.id) return name;
+      })
+      .filter((e) => !!e)
+      .shift();
+
+    return name ?? null;
   }
 
   /**
@@ -156,7 +193,7 @@ export default class WindowManager {
     const w = this.#WindowsList[options.name].window;
 
     // Disable default menu
-    const enableMenuBar = this.#store.has("menubar") ?? false;
+    const enableMenuBar = this.#store.has(`menubar-${options.name}`) ?? false;
     w.setMenuBarVisibility(isDev || enableMenuBar);
 
     //#region Window WebContent messages
