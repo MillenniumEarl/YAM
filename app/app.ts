@@ -9,7 +9,7 @@ import { app } from "electron";
 
 // Local modules
 import * as logging from "./modules/utility/logging";
-import AppConfigurator from "./modules/classes/main";
+import AppConfigurator from "./modules/classes/app-configurator";
 
 // Initialize the loggers
 logging.init();

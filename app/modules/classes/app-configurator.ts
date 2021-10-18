@@ -16,8 +16,9 @@ import Store from "electron-store";
 import { get } from "../utility/logging";
 import ehandler from "../utility/error-handling";
 import * as localization from "../utility/localization";
-import Updater from "../classes/updater";
+import Updater from "./updater";
 import shared from "../shared";
+import IPCHandler from "./ipc";
 
 /**
  * Configure the application by setting its callbacks.
@@ -26,12 +27,17 @@ export default class AppConfigurator {
   /**
    * Store used to keep user settings.
    */
-  #store = new Store();
+  readonly #store = new Store();
 
   /**
    * Main logger for the application.
    */
-  #logger = get("app.main");
+  readonly #logger = get("app.main");
+
+  /**
+   * Handle the messages received on ipcMain.
+   */
+  readonly #ipc = new IPCHandler(this.#logger);
 
   /**
    * Initialize the class and the application.
