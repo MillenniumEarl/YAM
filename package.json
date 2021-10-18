@@ -20,11 +20,12 @@
     ],
     "scripts": {
         "prettify": "prettier --config .prettierrc {app,test}/**/*.ts --write",
-        "build": "tsc",
+        "build": "tsc && npm run copy:assets",
         "example": "npm run build && electron dist/example.js",
         "dist:win": "npm run build && electron-builder --win --config",
         "dist:mac": "npm run build && electron-builder --mac --config",
-        "dist:linux": "npm run build && electron-builder --linux --config"
+        "dist:linux": "npm run build && electron-builder --linux --config",
+        "copy:assets": "copyfiles -u 1 app/assets/**/* dist"
     },
     "engines": {
         "node": ">=16.0"
