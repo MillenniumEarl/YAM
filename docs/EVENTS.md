@@ -5,4 +5,10 @@
  https://opensource.org/licenses/MIT
 -->
 |Event|Arguments|When|
-|`error`|`Object`|When an error is thrown and handled with the custom error-handler|
+|:---:|:---:|:---|
+|`error`|`name: string,
+    message: string,
+    function: string,
+    line: number,
+    column: number,
+    stack: StackFrame[]`|When an error is thrown and handled with the custom error-handler|
