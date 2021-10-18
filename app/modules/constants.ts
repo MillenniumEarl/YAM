@@ -23,9 +23,14 @@ const APP_DATA = app.getPath("appData");
 const APP_LOGS_DIR = app.getPath("logs");
 
 /**
- * Get the current working directory.
+ * Get the current working directory (the directory that contains app.ts).
  */
-export const APP_PATH = app.getAppPath();
+const APP_PATH = app.getAppPath();
+
+/**
+ * Path to the directory that contains all the windows usedin the application.
+ */
+export const WINDOWS_PATH = join(APP_PATH, "renderer", "windows");
 
 /**
  * Path to this application's icon (`ico` file).
