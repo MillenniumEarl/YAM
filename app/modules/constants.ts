@@ -15,7 +15,7 @@ import { app } from "electron";
  * - `$XDG_CONFIG_HOME` or `~/.config` on Linux
  * - `~/Library/Application Support` on macOS
  */
-//const APPDATA = app.getPath("appData");
+const APPDATA = app.getPath("appData");
 
 /**
  * Path to the directory that contains the log files.
@@ -42,6 +42,24 @@ export const LogPath = {
    * Path to the log file that records all information of the F95API library.
    */
   F95API: join(APP_LOGS_DIR, "f95api.log")
+};
+
+/**
+ * Object that collects all database's paths.
+ */
+export const DatabasePath = {
+  /**
+   * Path to the database that contains the data of the installed games.
+   */
+  GAMES: join(APPDATA, "db", "games.json"),
+  /**
+   * Path to the database that contains the data of the watched threads.
+   */
+  THREADS: join(APPDATA, "db", "threads.json"),
+  /**
+   * Path to the database that contains the data of the installed mods and the overwrite data.
+   */
+  MODS: join(APPDATA, "db", "mods.json")
 };
 
 /**
