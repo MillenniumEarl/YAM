@@ -11,16 +11,26 @@ import { app } from "electron";
 
 /**
  * Per-user application data directory, which by default points to:
- * - `%APPDATA%` on Windows
+ * - `%APP_DATA%` on Windows
  * - `$XDG_CONFIG_HOME` or `~/.config` on Linux
  * - `~/Library/Application Support` on macOS
  */
-const APPDATA = app.getPath("appData");
+const APP_DATA = app.getPath("appData");
 
 /**
  * Path to the directory that contains the log files.
  */
 const APP_LOGS_DIR = app.getPath("logs");
+
+/**
+ * Get the current working directory.
+ */
+export const APP_PATH = app.getAppPath();
+
+/**
+ * Path to this application's icon (`ico` file).
+ */
+export const APP_ICON = join(APP_PATH, "resources", "images", "icon.ico");
 
 /**
  * Object that collects all log file paths.
@@ -51,15 +61,15 @@ export const DatabasePath = {
   /**
    * Path to the database that contains the data of the installed games.
    */
-  GAMES: join(APPDATA, "db", "games.json"),
+  GAMES: join(APP_DATA, "db", "games.json"),
   /**
    * Path to the database that contains the data of the watched threads.
    */
-  THREADS: join(APPDATA, "db", "threads.json"),
+  THREADS: join(APP_DATA, "db", "threads.json"),
   /**
    * Path to the database that contains the data of the installed mods and the overwrite data.
    */
-  MODS: join(APPDATA, "db", "mods.json")
+  MODS: join(APP_DATA, "db", "mods.json")
 };
 
 /**
