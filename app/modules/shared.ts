@@ -6,6 +6,9 @@
 // Core modules
 import { EventEmitter } from "events";
 
+// Local modules
+import WindowManager from "./classes/window-manager";
+
 class AppEmitter extends EventEmitter {}
 
 export default class Shared {
@@ -14,4 +17,9 @@ export default class Shared {
    * used to exchange information following an event.
    */
   public static appevents = new AppEmitter();
+
+  /**
+   * Window manager for the current application.
+   */
+  public static wmanager = new WindowManager();
 }
