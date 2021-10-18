@@ -15,7 +15,11 @@
               "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
           },
           "cwd":"${workspaceFolder}",
-          "sourceMaps": true
+          "sourceMaps": true,
+          "skipFiles": [
+            "<node_internals>/**",
+            "node_modules/**"
+        ]
       },
       {
           "name": "Electron: Renderer",
@@ -24,7 +28,11 @@
           "port": 9333,
           "webRoot": "${workspaceFolder}/dist",
           "timeout": 60000,
-          "sourceMaps": true
+          "sourceMaps": true,
+          "skipFiles": [
+            "<node_internals>/**",
+            "node_modules/**"
+        ]
       }
   ],
   "compounds": [
