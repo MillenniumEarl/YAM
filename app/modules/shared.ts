@@ -6,6 +6,9 @@
 // Core modules
 import { EventEmitter } from "events";
 
+// Public modules from npm
+import Store from "electron-store";
+
 // Local modules
 import WindowManager from "./classes/window-manager";
 
@@ -22,4 +25,9 @@ export default class Shared {
    * Window manager for the current application.
    */
   public static wmanager = new WindowManager();
+
+  /**
+   * Store used to keep user settings.
+   */
+  public static store = new Store();
 }

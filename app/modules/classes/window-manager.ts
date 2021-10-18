@@ -9,7 +9,6 @@ import path from "path";
 // Public modules from npm
 import { app, BrowserWindow, shell, clipboard } from "electron";
 import isDev from "electron-is-dev";
-import Store from "electron-store";
 
 // Modules from files
 import { Colors, WindowMinimumSize } from "../constants";
@@ -17,6 +16,7 @@ import { IWindowData, IWindowOptions } from "../interfaces";
 import { DefaultCatch } from "catch-decorator-ts";
 import ehandler from "../utility/error-handling";
 import { TCloseWindowCallbackRest, TCloseWindowCallbackNull } from "../types";
+import shared from "../shared";
 
 // Global variables
 const APP_PATH = app.getAppPath();
@@ -30,11 +30,6 @@ export default class WindowManager {
    * List of windows open in the application.
    */
   #WindowsList: Record<string, IWindowData> = {};
-
-  /**
-   * Global store to the application, contains the user's settings.
-   */
-  #store = new Store();
   //#endregion Properties
 
   //#region Public methods
@@ -96,8 +91,8 @@ export default class WindowManager {
     const preload = path.join(PRELOAD_DIR, "main", "main-preload.js");
 
     // Set size
-    const width = this.#store.get("main-width", WindowMinimumSize.MAIN.width);
-    const height = this.#store.get("main-height", WindowMinimumSize.MAIN.height);
+    const width = shared.store.get("main-width", WindowMinimumSize.MAIN.width);
+    const height = shared.store.get("main-height", WindowMinimumSize.MAIN.height);
     const size = {
       width: width as number,
       height: height as number
@@ -111,21 +106,21 @@ export default class WindowManager {
       preloadPath: preload,
       onclose: onclose,
       args: {
-        menubar: this.#store.get("menubar", false),
-        "open-copy-links": this.#store.get("open-links-in-default-browser", true)
+        menubar: shared.store.get("menubar", false),
+        "open-copy-links": shared.store.get("open-links-in-default-browser", true)
       }
     });
     const w = this.get("main") as BrowserWindow;
 
     // Detect if the user maximized the window in a previous session
-    const maximize = this.#store.get("main-maximized", false);
+    const maximize = shared.store.get("main-maximized", false);
     if (maximize) w.maximize();
 
     // Whatever URL the user clicks will open the default browser for viewing
     // or copy the URL to clipboard
     w.webContents.setWindowOpenHandler((details) => {
       // Detect the choice of the user
-      const openLink = this.#store.get("open-links-in-default-browser", true);
+      const openLink = shared.store.get("open-links-in-default-browser", true);
 
       // Open URL in default browser
       if (openLink) shell.openExternal(details.url);
@@ -193,7 +188,7 @@ export default class WindowManager {
     const w = this.#WindowsList[options.name].window;
 
     // Disable default menu
-    const enableMenuBar = this.#store.has(`menubar-${options.name}`) ?? false;
+    const enableMenuBar = shared.store.has(`menubar-${options.name}`) ?? false;
     w.setMenuBarVisibility(isDev || enableMenuBar);
 
     //#region Window WebContent messages

@@ -10,7 +10,6 @@ import path from "path";
 import "source-map-support/register";
 import { app, BrowserWindow } from "electron";
 import { CancellationToken } from "electron-updater";
-import Store from "electron-store";
 
 // Local modules
 import { get } from "../utility/logging";
@@ -24,11 +23,6 @@ import IPCHandler from "./ipc";
  * Configure the application by setting its callbacks.
  */
 export default class AppConfigurator {
-  /**
-   * Store used to keep user settings.
-   */
-  readonly #store = new Store();
-
   /**
    * Main logger for the application.
    */
@@ -169,7 +163,7 @@ export default class AppConfigurator {
     this.#logger.info("Initializing languages...");
 
     // Obtain the language to display
-    const lang = this.#store.get("language-iso", null) as string;
+    const lang = shared.store.get("language-iso", null) as string;
 
     // Get the data file
     const langPath = path.join(app.getAppPath(), "resources", "lang");
