@@ -1,5 +1,5 @@
 {
-    "main": "./app/app.ts",
+    "main": "./dist/app.js",
     "name": "yam",
     "version": "3.0.0",
     "author": {
@@ -21,7 +21,7 @@
     "scripts": {
         "prettify": "prettier --config .prettierrc {app,test}/**/*.ts --write",
         "build": "tsc",
-        "example": "npm run build && electron dist/app.js",
+        "example": "npm run build && electron dist/example.js",
         "dist:win": "npm run build && electron-builder --win --config",
         "dist:mac": "npm run build && electron-builder --mac --config",
         "dist:linux": "npm run build && electron-builder --linux --config"
