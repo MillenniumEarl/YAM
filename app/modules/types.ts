@@ -3,7 +3,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-export type TLoggerCategory = "app.main" | "app.renderer" | "modules.f95";
+export type TLoggerCategory = "main" | "renderer" | "f95";
 
 // eslint-disable-next-line no-unused-vars
 export type TCloseWindowCallbackRest = (...args: any[]) => void;

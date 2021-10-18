@@ -68,5 +68,5 @@ function getLoggerCategory(
   const isRenderer = RENDERER_SCRIPTS.some((scriptName) => filename.includes(scriptName));
   const isF95 = filename.includes("F95API") && filename.includes("node_modules");
 
-  return isF95 ? "modules.f95" : isRenderer ? "app.renderer" : "app.main";
+  return isF95 ? "f95" : isRenderer ? "renderer" : "main";
 }

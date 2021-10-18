@@ -19,7 +19,7 @@ let initialized: boolean = false;
  */
 const LAYOUT: Layout = {
   type: "pattern",
-  pattern: "[%d{yyyy/MM/dd-hh.mm.ss}] (%p - %c) %m%n"
+  pattern: "[%d{yyyy/MM/dd-hh.mm.ss}] (%p - %c) %m"
 };
 //#endregion Global variables
 
@@ -68,23 +68,15 @@ export function init(): void {
         appenders: ["default"],
         level: "debug"
       },
-      app: {
-        appenders: ["main", "renderer"],
-        level: "info"
-      },
-      "app.main": {
+      main: {
         appenders: ["main"],
         level: level
       },
-      "app.renderer": {
+      renderer: {
         appenders: ["renderer"],
         level: level
       },
-      modules: {
-        appenders: ["f95"],
-        level: level
-      },
-      "modules.f95": {
+      f95: {
         appenders: ["f95"],
         level: level
       }

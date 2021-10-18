@@ -15,7 +15,7 @@ export default class Updater {
   /**
    * Logger used to notify errors or other information.
    */
-  #logger = get("app.main");
+  #logger = get("main");
 
   /**
    * Local cache containing the latest version data available online.
