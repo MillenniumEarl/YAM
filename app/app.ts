@@ -18,7 +18,6 @@ logging.init();
 const mainLogger = logging.get("app.main");
 mainLogger.level = "info";
 
-//#region Process error's handlers
 // Manage errors, warning and unhandled promises at application level
 process.on("uncaughtException", (e) => {
   // If we reach this callback, something critically
@@ -30,13 +29,14 @@ process.on("uncaughtException", (e) => {
   );
   app.quit();
 });
+
 process.on("unhandledRejection", (reason, promise) =>
   mainLogger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`)
 );
+
 process.on("warning", (warning) =>
   mainLogger.warn(`${warning.name}: ${warning.message}\n${warning.stack ?? "No stack to display"}`)
 );
-//#endregion Process error's handlers
 
 // Start the app
 new AppConfigurator().init();
