@@ -18,10 +18,7 @@ import isDev from "electron-is-dev";
  * @param resourcesPath Path to the directory containing the translation files
  * @param language ISO code of the language
  */
-export async function initLocalization(
-  resourcesPath: string,
-  language?: string
-): Promise<void> {
+export async function initLocalization(resourcesPath: string, language?: string): Promise<void> {
   // Obtain the translation files
   const res = await getTranslationResourcesFromDir(resourcesPath);
 

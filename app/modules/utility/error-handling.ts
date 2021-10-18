@@ -35,9 +35,7 @@ export default function ehandler(error: Error): void {
     .join("\n");
 
   // Write message
-  logger.error(
-    `${error.name}: ${error.message} in ${fname} (${fline}:${fcolumn}):\n${info}`
-  );
+  logger.error(`${error.name}: ${error.message} in ${fname} (${fline}:${fcolumn}):\n${info}`);
 
   // Notify error with emitter
   Shared.appevents.emit("error", {
@@ -67,11 +65,8 @@ function getLoggerCategory(
   // const isMain = MAIN_SCRIPTS.some((scriptName) =>
   //   filename.includes(scriptName)
   // );
-  const isRenderer = RENDERER_SCRIPTS.some((scriptName) =>
-    filename.includes(scriptName)
-  );
-  const isF95 =
-    filename.includes("F95API") && filename.includes("node_modules");
+  const isRenderer = RENDERER_SCRIPTS.some((scriptName) => filename.includes(scriptName));
+  const isF95 = filename.includes("F95API") && filename.includes("node_modules");
 
   return isF95 ? "modules.f95" : isRenderer ? "app.renderer" : "app.main";
 }
