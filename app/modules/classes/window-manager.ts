@@ -7,22 +7,16 @@
 import path from "path";
 
 // Public modules from npm
-import { app, BrowserWindow, shell, clipboard } from "electron";
+import { BrowserWindow, shell, clipboard } from "electron";
 import isDev from "electron-is-dev";
 
 // Modules from files
-import { Colors, WindowMinimumSize } from "../constants";
+import { APP_ICON, Colors, WindowMinimumSize, WINDOWS_PATH } from "../constants";
+import { TCloseWindowCallbackRest, TCloseWindowCallbackNull } from "../types";
 import { IWindowData, IWindowOptions } from "../interfaces";
 import { DefaultCatch } from "catch-decorator-ts";
 import ehandler from "../utility/error-handling";
-import { TCloseWindowCallbackRest, TCloseWindowCallbackNull } from "../types";
 import shared from "../shared";
-
-// Global variables
-const APP_PATH = app.getAppPath();
-const PRELOAD_DIR = path.join(APP_PATH, "app", "electron");
-const HTML_DIR = path.join(APP_PATH, "app", "src");
-const APP_ICON = path.join(APP_PATH, "resources", "images", "icon.ico");
 
 export default class WindowManager {
   //#region Properties
@@ -88,7 +82,7 @@ export default class WindowManager {
   @DefaultCatch(ehandler)
   public createMainWindow(onclose: TCloseWindowCallbackRest | TCloseWindowCallbackNull) {
     // Local variables
-    const preload = path.join(PRELOAD_DIR, "main", "main-preload.js");
+    const preload = path.join(WINDOWS_PATH, "main", "preload.js");
 
     // Set size
     const width = shared.store.get("main-width", WindowMinimumSize.MAIN.width);
@@ -132,7 +126,7 @@ export default class WindowManager {
     });
 
     // Load the index.html of the app.
-    const htmlPath = path.join(HTML_DIR, "index.html");
+    const htmlPath = path.join(WINDOWS_PATH, "main", "main.html");
     w.loadFile(htmlPath);
 
     return onClosePromise;
