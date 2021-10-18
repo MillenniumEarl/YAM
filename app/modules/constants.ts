@@ -30,7 +30,7 @@ const APP_PATH = app.getAppPath();
 /**
  * Path to the directory that contains all the windows usedin the application.
  */
-export const WINDOWS_PATH = join(APP_PATH, "renderer", "windows");
+export const WINDOWS_PATH = join(APP_PATH, "app", "renderer", "windows");
 
 /**
  * Path to this application's icon (`ico` file).
