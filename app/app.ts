@@ -27,7 +27,7 @@ process.on("uncaughtException", (e) => {
   mainLogger.fatal(
     `This is a CRITICAL message, an uncaught error was throw in the main process and no handler where defined:\n${e}\nThe application will now be closed`
   );
-  app.quit();
+  app.exit();
 });
 
 process.on("unhandledRejection", (reason, promise) =>
