@@ -4,7 +4,7 @@
 // https://opensource.org/licenses/MIT
 
 // Public modules from npm
-import { DefaultCatch } from "catch-decorator-ts";
+import { CatchAll } from "@magna_shogun/catch-decorator";
 import { autoUpdater, CancellationToken, UpdateInfo } from "electron-updater";
 
 // Local modules
@@ -42,7 +42,7 @@ export default class Updater {
   /**
    * Check if a new version of the app is available
    */
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   public async check() {
     // Check for update (does not download)
     const result = await autoUpdater.checkForUpdates();
@@ -61,7 +61,7 @@ export default class Updater {
   /**
    * Gets information about the latest version available online.
    */
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   public async info() {
     // Got online version data
     if (!this.#onlineData) await this.check();
@@ -74,7 +74,7 @@ export default class Updater {
    * Download the update.
    * @param token Token used for canceling the download.
    */
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   public async download(token?: CancellationToken) {
     await autoUpdater.downloadUpdate(token);
     this.#updateDownloaded = true;
@@ -83,7 +83,7 @@ export default class Updater {
   /**
    * Quit the application and install the update.
    */
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   public install() {
     if (!this.#updateDownloaded) throw new Error("Update not downloaded, cannot install");
     autoUpdater.quitAndInstall();

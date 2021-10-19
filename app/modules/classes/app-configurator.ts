@@ -13,11 +13,12 @@ import { CancellationToken } from "electron-updater";
 
 // Local modules
 import { get } from "../utility/logging";
-import ehandler from "../utility/error-handling";
 import * as localization from "../utility/localization";
 import Updater from "./updater";
 import shared from "../shared";
 import IPCHandler from "./ipc";
+import ehandler from "../utility/error-handling";
+import { CatchAll } from "@magna_shogun/catch-decorator";
 
 /**
  * Configure the application by setting its callbacks.
@@ -26,7 +27,7 @@ export default class AppConfigurator {
   /**
    * Main logger for the application.
    */
-  readonly #logger = get("app.main");
+  readonly #logger = get("main");
 
   /**
    * Handle the messages received on ipcMain.
@@ -36,6 +37,7 @@ export default class AppConfigurator {
   /**
    * Initialize the class and the application.
    */
+  @CatchAll(ehandler)
   public init() {
     // Get a lock instance to prevent multiple instance from running
     const instanceLock = app.requestSingleInstanceLock();
@@ -49,10 +51,10 @@ export default class AppConfigurator {
     app.disableHardwareAcceleration();
 
     // Set the callbacks for the app's events
-    app.on("ready", this.onReady);
-    app.on("window-all-closed", this.onWindowAllClosed);
-    app.on("activate", this.onActivate);
-    app.on("second-instance", this.onSecondInstance);
+    app.on("ready", this.onReady.bind(this));
+    app.on("window-all-closed", this.onWindowAllClosed.bind(this));
+    app.on("activate", this.onActivate.bind(this));
+    app.on("second-instance", this.onSecondInstance.bind(this));
   }
 
   //#region App callbacks
@@ -61,6 +63,7 @@ export default class AppConfigurator {
    * for applications and their menu bar to stay active until the user quits
    * explicitly with Cmd + Q.
    */
+  @CatchAll(ehandler)
   private onWindowAllClosed() {
     this.#logger.info("Closing application");
     if (process.platform !== "darwin") app.quit();
@@ -70,6 +73,7 @@ export default class AppConfigurator {
    * On macOS it's common to re-create a window in the app when the
    * dock icon is clicked and there are no other windows open.
    */
+  @CatchAll(ehandler)
   private onActivate() {
     if (BrowserWindow.getAllWindows().length === 0) this.createMainWindow();
   }
@@ -79,6 +83,7 @@ export default class AppConfigurator {
    * initialization and is ready to create browser windows.
    * Some APIs can only be used after this event occurs.
    */
+  @CatchAll(ehandler)
   private async onReady() {
     this.#logger.info(
       `Application ready (${app.getVersion()}) on ${
@@ -89,7 +94,7 @@ export default class AppConfigurator {
     this.#logger.info(`Using Electron ${process.versions.electron}`);
 
     // Wait for language initialization
-    await this.initializeLocalization().catch((e) => ehandler(e));
+    //await this.initializeLocalization();
 
     // Create main window
     this.#logger.info("Creating main window");
@@ -99,6 +104,7 @@ export default class AppConfigurator {
     await this.checkUpdates();
   }
 
+  @CatchAll(ehandler)
   private onSecondInstance() {
     this.#logger.info("Trying to open a second instance");
 
@@ -130,6 +136,7 @@ export default class AppConfigurator {
   /**
    * Check for app updates and, if present, ask the user to install it.
    */
+  @CatchAll(ehandler)
   private async checkUpdates() {
     // Create the updater and check for updates
     const u = new Updater();
@@ -159,6 +166,7 @@ export default class AppConfigurator {
   /**
    * Load the files containing the translations for the interface.
    */
+  @CatchAll(ehandler)
   private async initializeLocalization() {
     this.#logger.info("Initializing languages...");
 

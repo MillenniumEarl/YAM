@@ -31,9 +31,9 @@
         "node": ">=16.0"
     },
     "dependencies": {
+        "@magna_shogun/catch-decorator": "^1.0.1",
         "@millenniumearl/f95api": "^2.0.0-beta.10.1",
         "@millenniumearl/recaptcha-harvester": "^1.2.1",
-        "catch-decorator-ts": "^0.0.2",
         "electron-is-dev": "^2.0.0",
         "electron-log": "^4.4.1",
         "electron-store": "^8.0.1",

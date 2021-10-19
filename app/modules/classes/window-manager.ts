@@ -8,13 +8,13 @@ import path from "path";
 
 // Public modules from npm
 import { BrowserWindow, shell, clipboard } from "electron";
+import { CatchAll } from "@magna_shogun/catch-decorator";
 import isDev from "electron-is-dev";
 
 // Modules from files
-import { APP_ICON, Colors, WindowMinimumSize, WINDOWS_PATH } from "../constants";
+import { Paths, Colors, WindowMinimumSize } from "../constants";
 import { TCloseWindowCallbackRest, TCloseWindowCallbackNull } from "../types";
 import { IWindowData, IWindowOptions } from "../interfaces";
-import { DefaultCatch } from "catch-decorator-ts";
 import ehandler from "../utility/error-handling";
 import shared from "../shared";
 
@@ -41,7 +41,7 @@ export default class WindowManager {
    */
   // eslint-disable-next-line no-unused-vars
   public get(id: number): BrowserWindow | null;
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   public get(arg: string | number): BrowserWindow | null {
     // Found window
     let window = null;
@@ -79,10 +79,10 @@ export default class WindowManager {
    * @param onclose Callback executed when the window is closed
    * @returns Window created and promise fulfilled when the window is closed
    */
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   public createMainWindow(onclose: TCloseWindowCallbackRest | TCloseWindowCallbackNull) {
     // Local variables
-    const preload = path.join(WINDOWS_PATH, "main", "preload.js");
+    const preload = path.join(Paths.WINDOWS_SCRIPTS_PATH, "main", "preload.js");
 
     // Set size
     const width = shared.store.get("main-width", WindowMinimumSize.MAIN.width);
@@ -126,7 +126,7 @@ export default class WindowManager {
     });
 
     // Load the index.html of the app.
-    const htmlPath = path.join(WINDOWS_PATH, "main", "main.html");
+    const htmlPath = path.join(Paths.WINDOWS_HTML_PATH, "main.html");
     w.loadFile(htmlPath);
 
     return onClosePromise;
@@ -138,7 +138,7 @@ export default class WindowManager {
    * Create a simple window
    * @returns The created window and a promise fulfilled when the window is closed
    */
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   private createBaseWindow(options: IWindowOptions) {
     // Create the browser window.
     const bw = new BrowserWindow({
@@ -156,7 +156,7 @@ export default class WindowManager {
       useContentSize: true,
 
       // Set "style" settings
-      icon: APP_ICON,
+      icon: Paths.APP_ICON,
       backgroundColor: Colors.BASE, // Used to simulate loading and not make the user wait
       frame: options.hasFrame ?? true,
 
@@ -216,7 +216,7 @@ export default class WindowManager {
    * @param window Window to associate the closing promise
    * @param onclose Callback to be executed on closing
    */
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   private createClosePromise(
     window: BrowserWindow,
     onclose: TCloseWindowCallbackRest | TCloseWindowCallbackNull
@@ -260,7 +260,7 @@ export default class WindowManager {
   /**
    * Handles IPC messages arriving from the window (excluding the closing ones).
    */
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   private windowIPCHandler(w: IWindowData, channel: string, args: any[]) {
     const resize = () => {
       // Destructure the size and check for min/max size

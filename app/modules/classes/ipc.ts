@@ -4,17 +4,17 @@
 // https://opensource.org/licenses/MIT
 
 // Core modules
-import { DefaultCatch } from "catch-decorator-ts";
 import { spawn } from "child_process";
 
 // Public modules from npm
 import { ipcMain as ipc, shell } from "electron";
 import { Logger } from "log4js";
-import shared from "../shared";
-import ehandler from "../utility/error-handling";
+import { CatchAll } from "@magna_shogun/catch-decorator";
 
 // Local modules
 import * as localization from "../utility/localization";
+import shared from "../shared";
+import ehandler from "../utility/error-handling";
 
 export default class IPCHandler {
   /**
@@ -37,7 +37,7 @@ export default class IPCHandler {
   }
 
   //#region Callbacks
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   private execute(args: any[]) {
     // Check parameters
     this.validateArgumentLenght(args, 1);
@@ -59,7 +59,7 @@ export default class IPCHandler {
     child.unref();
   }
 
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   private openURL(args: any[]) {
     // Check parameters
     this.validateArgumentLenght(args, 1);
@@ -75,7 +75,7 @@ export default class IPCHandler {
     else throw new Error(`Invalid URL: ${url}`);
   }
 
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   private allowMenubar(args: any[]) {
     // Check parameters
     this.validateArgumentLenght(args, 1, 2);
@@ -97,7 +97,7 @@ export default class IPCHandler {
     w.setMenuBarVisibility(allow);
   }
 
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   private translate(args: any[]) {
     // Check parameters
     this.validateArgumentLenght(args, 1, 2);
@@ -107,7 +107,7 @@ export default class IPCHandler {
     return localization.getTranslation(key, interpolation);
   }
 
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   private changeLanguage(args: any[]) {
     // Check parameters
     this.validateArgumentLenght(args, 1);
@@ -121,7 +121,7 @@ export default class IPCHandler {
     return localization.changeLanguage(iso);
   }
 
-  @DefaultCatch(ehandler)
+  @CatchAll(ehandler)
   private getCurrentLanguage() {
     return localization.getCurrentLanguage();
   }
