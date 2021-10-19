@@ -6,10 +6,15 @@
 // Public modules from npm
 import "source-map-support/register";
 import { app } from "electron";
+import electronIsDev from "electron-is-dev";
 
 // Local modules
 import * as logging from "./modules/utility/logging";
 import AppConfigurator from "./modules/classes/app-configurator";
+import shared from "./modules/shared";
+
+// Set the development environment
+shared.isDev = electronIsDev;
 
 // Initialize the loggers
 logging.init();

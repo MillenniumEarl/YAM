@@ -30,4 +30,9 @@ export default class Shared {
    * Store used to keep user settings.
    */
   public static store = new Store();
+
+  /**
+   * Define if the instance is running in development environment.
+   */
+  public static isDev = false;
 }

@@ -11,7 +11,9 @@ import path from "path";
 import i18next, { Resource, ResourceLanguage } from "i18next";
 //@ts-expect-error Missing types
 import LanguageDetector from "i18next-electron-language-detector";
-import isDev from "electron-is-dev";
+
+// Local modules
+import shared from "../shared";
 
 /**
  * Initialize the translation for the app.
@@ -25,7 +27,7 @@ export async function initLocalization(resourcesPath: string, language?: string)
   // Initialize class
   await i18next.use(LanguageDetector).init({
     resources: res,
-    fallbackLng: isDev ? "dev" : "en"
+    fallbackLng: shared.isDev ? "dev" : "en"
   });
 
   // If defined, change language

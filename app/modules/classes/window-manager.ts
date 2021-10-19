@@ -9,7 +9,6 @@ import path from "path";
 // Public modules from npm
 import { BrowserWindow, shell, clipboard } from "electron";
 import { CatchAll } from "@magna_shogun/catch-decorator";
-import isDev from "electron-is-dev";
 
 // Modules from files
 import { Paths, Colors, WindowMinimumSize } from "../constants";
@@ -183,7 +182,7 @@ export default class WindowManager {
 
     // Disable default menu
     const enableMenuBar = shared.store.has(`menubar-${options.name}`) ?? false;
-    w.setMenuBarVisibility(isDev || enableMenuBar);
+    w.setMenuBarVisibility(shared.isDev || enableMenuBar);
 
     //#region Window WebContent messages
     // Show the window when is fully loaded (set the listener)

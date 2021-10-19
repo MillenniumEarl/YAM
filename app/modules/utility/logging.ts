@@ -5,10 +5,10 @@
 
 // Public modules from npm
 import { configure, getLogger, Configuration, Appender, Layout, Logger } from "log4js";
-import isDev from "electron-is-dev";
 
 // Local modules
 import { LogPath } from "../constants";
+import shared from "../shared";
 import { TLoggerCategory } from "../types";
 
 //#region Global variables
@@ -53,7 +53,7 @@ export function init(): void {
   const F95_APPENDER: Appender = createCommonAppender(LogPath.F95API);
 
   // Set the level for the appenders
-  const level = isDev ? "debug" : "warn";
+  const level = shared.isDev ? "debug" : "warn";
 
   // Create the configuration object
   const configuration: Configuration = {
