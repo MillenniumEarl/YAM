@@ -46,8 +46,7 @@
         "log4js": "^6.3.0",
         "lowdb": "^3.0.0",
         "new-github-issue-url": "^1.0.0",
-        "source-map-support": "^0.5.20",
-        "string-similarity": "^4.0.4"
+        "source-map-support": "^0.5.20"
     },
     "devDependencies": {
         "@babel/eslint-parser": "^7.15.8",
