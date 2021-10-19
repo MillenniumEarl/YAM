@@ -158,7 +158,7 @@ export default class AppConfigurator {
       this.#logger.info(`User decided to: ${action.toUpperCase()}`);
 
       // Update or cancel the download
-      if (action === "update") downloadPromise.then(() => u.install());
+      if (action === "update") downloadPromise.then(() => u.install()).catch(ehandler);
       else token.cancel();
     }
   }
