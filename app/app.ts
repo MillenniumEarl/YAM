@@ -15,7 +15,7 @@ import AppConfigurator from "./modules/classes/app-configurator";
 logging.init();
 
 // Get the main logger
-const mainLogger = logging.get("app.main");
+const mainLogger = logging.get("main");
 mainLogger.level = "info";
 
 // Manage errors, warning and unhandled promises at application level
