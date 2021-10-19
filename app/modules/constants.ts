@@ -23,7 +23,7 @@ const APP_DATA = app.getPath("appData");
 const APP_LOGS_DIR = app.getPath("logs");
 
 /**
- * Get the current working directory (the directory that contains app.ts).
+ * Get the current working directory (the directory that contains package.json).
  */
 const APP_PATH = app.getAppPath();
 
