@@ -1,48 +1,46 @@
 {
   "version": "0.2.0",
   "configurations": [
-      {
-          "type": "node",
-          "request": "launch",
-          "name": "Electron: Main",
-          "protocol": "inspector",
-          "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
-          "runtimeArgs": [
-              "--remote-debugging-port=9333",
-              "."
-          ],
-          "windows": {
-              "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
-          },
-          "cwd":"${workspaceFolder}",
-          "sourceMaps": true,
-          "skipFiles": [
-            "<node_internals>/**",
-            "node_modules/**"
-        ]
-      },
-      {
-          "name": "Electron: Renderer",
-          "type": "pwa-chrome",
-          "request": "attach",
-          "port": 9333,
-          "webRoot": "${workspaceFolder}/dist",
-          "timeout": 60000,
-          "sourceMaps": true,
-          "skipFiles": [
-            "<node_internals>/**",
-            "node_modules/**"
-        ]
-      }
+    {
+      "name": "Electron: Main",
+      "type": "pwa-node", // Use the node debugger that comes with VS Code
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+      "runtimeArgs": [
+        "--remote-debugging-port=9223" // Open debugging port for renderer process
+      ],
+      "args": [
+        "."
+      ],
+      "outputCapture": "std",
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**", // Use source maps for files in workspace folder
+        "!**/node_modules/**" // But ignore everything in the node_modules folder
+      ],
+    },
+    {
+      "name": "Electron: Renderer",
+      "type": "pwa-chrome", // Use the Chrome debugger that comes with VS Code
+      "request": "attach",
+      "port": 9223, // Use debug port opened in Electron: Main configuration
+      "webRoot": "${workspaceFolder}",
+      "timeout": 30000,
+      "skipFiles": [
+        "<node_internals>/**",
+        "node_modules/**"
+      ]
+    }
   ],
   "compounds": [
-      {
-          "name": "Electron: All",
-          "configurations": [
-              "Electron: Main",
-              "Electron: Renderer"
-          ],
-          "preLaunchTask": "npm: build"
-      }
+    {
+      "name": "Electron: All",
+      "configurations": [
+        "Electron: Main",
+        "Electron: Renderer"
+      ],
+      "preLaunchTask": "npm: build"
+    }
   ]
 }
