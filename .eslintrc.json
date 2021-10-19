@@ -30,6 +30,15 @@
             {
                 "args": "after-used"
             }
+        ],
+        "@typescript-eslint/ban-types": [
+            "error",
+            {
+                "types": {
+                    "Function": false
+                },
+                "extendDefaults": true
+            }
         ]
     }
 }
