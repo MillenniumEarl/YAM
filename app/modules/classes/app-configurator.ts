@@ -18,7 +18,7 @@ import Updater from "./updater";
 import shared from "../shared";
 import IPCHandler from "./ipc";
 import ehandler from "../utility/error-handling";
-import { RendererLog } from "../interfaces";
+import { IRendererLog } from "../interfaces";
 
 /**
  * Configure the application by setting its callbacks.
@@ -56,7 +56,10 @@ export default class AppConfigurator {
     app.disableHardwareAcceleration();
 
     // Set the callbacks for the app's events
-    app.on("ready", this.onReady.bind(this));
+    app.on("ready", () => {
+      const handler = async () => await this.onReady.bind(this)();
+      void handler();
+    });
     app.on("window-all-closed", this.onWindowAllClosed.bind(this));
     app.on("activate", this.onActivate.bind(this));
     app.on("second-instance", this.onSecondInstance.bind(this));
@@ -138,7 +141,7 @@ export default class AppConfigurator {
     const mainWindowCloseCallback = () => null;
     // ****************************************
 
-    shared.wmanager.createMainWindow(mainWindowCloseCallback);
+    void shared.wmanager.createMainWindow(mainWindowCloseCallback);
   }
 
   /**
@@ -191,7 +194,7 @@ export default class AppConfigurator {
 
   //#region Private methods
   private manageGenericSharedEvents() {
-    shared.appevents.addListener("renderer-log", (data: RendererLog) => {
+    shared.appevents.addListener("renderer-log", (data: IRendererLog) => {
       const map = {
         info: (message: string) => this.#rlogger.info(message),
         warn: (message: string) => this.#rlogger.warn(message),
@@ -199,6 +202,7 @@ export default class AppConfigurator {
       };
 
       map[data.type](`[From ${data.wname}] ${data.message}`);
+      const x = 0;
     });
   }
   //#endregion
