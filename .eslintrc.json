@@ -7,6 +7,8 @@
     },
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
+        "tsconfigRootDir": ".",
+        "project": ["./tsconfig.json"],
         "ecmaVersion": "latest"
     },
     "plugins": [
@@ -16,16 +18,17 @@
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "prettier"
     ],
     "rules": {
         "no-console": "warn",
         "prettier/prettier": "error",
+        "no-prototype-builtins": "warn",
         "@typescript-eslint/no-inferrable-types": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/ban-ts-comment": "warn",
-        "no-prototype-builtins": "warn",
-        "no-unused-vars": [
+        "@typescript-eslint/no-unused-vars": [
             "error",
             {
                 "args": "after-used"
