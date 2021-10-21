@@ -19,6 +19,7 @@
         "f95"
     ],
     "scripts": {
+        "prepare": "husky install",
         "prettify": "prettier --config .prettierrc {app,test}/**/*.ts --write",
         "build": "tsc && npm run copy:assets",
         "example": "npm run build && electron dist/example.js",
@@ -57,6 +58,11 @@
         "eslint": "^8.0.1",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",
+        "husky": "^7.0.4",
+        "lint-staged": "^11.2.3",
         "prettier": "^2.4.1"
+    },
+    "lint-staged": {
+        "*.ts": ["eslint --cache --fix", "npm run prettify"]
     }
 }
