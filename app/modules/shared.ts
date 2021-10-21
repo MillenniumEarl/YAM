@@ -13,14 +13,12 @@ import Store from "electron-store";
 import WindowManager from "./classes/window-manager";
 import Paths from "./app-paths";
 
-class AppEmitter extends EventEmitter {}
-
 export default class Shared {
   /**
    * Event emitter common to all modules of the app and
    * used to exchange information following an event.
    */
-  public static appevents = new AppEmitter();
+  public static appevents = new EventEmitter();
 
   /**
    * Window manager for the current application.
