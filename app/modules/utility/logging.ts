@@ -7,7 +7,6 @@
 import { configure, getLogger, Configuration, Appender, Layout, Logger } from "log4js";
 
 // Local modules
-import { LogPath } from "../constants";
 import shared from "../shared";
 import { TLoggerCategory } from "../types";
 
@@ -47,10 +46,10 @@ function createCommonAppender(filename: string): Appender {
  */
 export function init(): void {
   // Create the appenders
-  const DEFAULT_APPENDER: Appender = createCommonAppender(LogPath.DEFAULT);
-  const MAIN_APPENDER: Appender = createCommonAppender(LogPath.MAIN);
-  const RENDERER_APPENDER: Appender = createCommonAppender(LogPath.RENDERER);
-  const F95_APPENDER: Appender = createCommonAppender(LogPath.F95API);
+  const DEFAULT_APPENDER: Appender = createCommonAppender(shared.paths.LogPath.DEFAULT());
+  const MAIN_APPENDER: Appender = createCommonAppender(shared.paths.LogPath.MAIN());
+  const RENDERER_APPENDER: Appender = createCommonAppender(shared.paths.LogPath.RENDERER());
+  const F95_APPENDER: Appender = createCommonAppender(shared.paths.LogPath.F95API());
 
   // Set the level for the appenders
   const level = shared.isDev ? "debug" : "warn";

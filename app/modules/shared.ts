@@ -11,6 +11,7 @@ import Store from "electron-store";
 
 // Local modules
 import WindowManager from "./classes/window-manager";
+import Paths from "./app-paths";
 
 class AppEmitter extends EventEmitter {}
 
@@ -35,4 +36,9 @@ export default class Shared {
    * Define if the instance is running in development environment.
    */
   public static isDev = false;
+
+  /**
+   * Class containing all the paths used in this application.
+   */
+  public static paths: Paths;
 }

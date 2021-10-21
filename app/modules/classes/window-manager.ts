@@ -11,7 +11,7 @@ import { BrowserWindow, shell, clipboard } from "electron";
 import { CatchAll } from "@magna_shogun/catch-decorator";
 
 // Modules from files
-import { Paths, Colors, WindowMinimumSize } from "../constants";
+import { Colors, WindowMinimumSize } from "../constants";
 import { TCloseWindowCallbackRest, TCloseWindowCallbackNull } from "../types";
 import { IWindowData, IWindowOptions } from "../interfaces";
 import ehandler from "../utility/error-handling";
@@ -81,7 +81,7 @@ export default class WindowManager {
   @CatchAll(ehandler)
   public createMainWindow(onclose: TCloseWindowCallbackRest | TCloseWindowCallbackNull) {
     // Local variables
-    const preload = path.join(Paths.WINDOWS_SCRIPTS_PATH, "main", "preload.js");
+    const preload = path.join(shared.paths.WINDOWS_SCRIPTS_PATH(), "main", "preload.js");
 
     // Set size
     const width = shared.store.get("main-width", WindowMinimumSize.MAIN.width);
@@ -125,7 +125,7 @@ export default class WindowManager {
     });
 
     // Load the index.html of the app.
-    const htmlPath = path.join(Paths.WINDOWS_HTML_PATH, "main.html");
+    const htmlPath = path.join(shared.paths.WINDOWS_HTML_PATH(), "main.html");
     w.loadFile(htmlPath);
 
     return onClosePromise;
@@ -155,7 +155,7 @@ export default class WindowManager {
       useContentSize: true,
 
       // Set "style" settings
-      icon: Paths.APP_ICON,
+      icon: shared.paths.APP_ICON(),
       backgroundColor: Colors.BASE, // Used to simulate loading and not make the user wait
       frame: options.hasFrame ?? true,
 

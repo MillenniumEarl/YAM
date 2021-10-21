@@ -12,9 +12,13 @@ import electronIsDev from "electron-is-dev";
 import * as logging from "./modules/utility/logging";
 import AppConfigurator from "./modules/classes/app-configurator";
 import shared from "./modules/shared";
+import Paths from "./modules/app-paths";
 
 // Set the development environment
 shared.isDev = electronIsDev;
+
+// Assign the paths
+shared.paths = new Paths(app.getAppPath(), app.getPath("logs"), app.getPath("appData"));
 
 // Initialize the loggers
 logging.init();
