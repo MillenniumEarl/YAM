@@ -61,3 +61,42 @@ export interface IWindowData {
    */
   options: IWindowOptions;
 }
+
+/**
+ * Indicates that the object is a log message sent by a renderer process.
+ */
+export interface IRendererLog {
+  /**
+   * Name of the window that sent the message.
+   */
+  wname: string;
+  /**
+   * Level of the message sent by the renderer.
+   */
+  type: "info" | "warn" | "error";
+  /**
+   * Message sent by the renderer process.
+   */
+  message: string;
+}
+
+/**
+ * Wrapper interface used to type an `IPCLogger` object
+ * in the renderer process via `ContextBridge`.
+ */
+export interface IRendererLogger {
+  info: (m: string, id?: number | undefined) => Promise<void>;
+  warn: (m: string, id?: number | undefined) => Promise<void>;
+  error: (m: string, id?: number | undefined) => Promise<void>;
+}
+
+/**
+ * Wrapper interface used to type an `RendererIPCHandler`
+ * object in the renderer process via `ContextBridge`.
+ */
+export interface IRendererIPCHandler {
+  configure: () => Promise<void>;
+  send: (channel: string, args: any[]) => void;
+  receive: (channel: string, f: Function) => void;
+  invoke: (channel: string, args: any[]) => void;
+}
