@@ -2,6 +2,7 @@
     "files.exclude": {
         "**/node_modules": true,
         "**/dist": true,
-        ".dccache": true
+        ".dccache": true,
+        ".eslintcache": true
     }
 }
