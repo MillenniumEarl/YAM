@@ -201,7 +201,7 @@ export default class AppConfigurator {
         error: (message: string) => this.#rlogger.error(message)
       };
 
-      map[data.type](`[From ${data.wname}] ${data.message}`);
+      map[data.type](`[From '${data.wname}' window] ${data.message}`);
     });
   }
   //#endregion
