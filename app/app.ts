@@ -12,7 +12,8 @@ import electronIsDev from "electron-is-dev";
 import * as logging from "./modules/utility/logging";
 import AppConfigurator from "./modules/classes/app-configurator";
 import shared from "./modules/shared";
-import Paths from "./modules/app-paths";
+import Paths from "./modules/classes/app-paths";
+import ehandler from "./modules/utility/error-handling";
 
 // Set the development environment
 shared.isDev = electronIsDev;
@@ -34,13 +35,17 @@ process.on("uncaughtException", (e) => {
   // necessary to terminate the process
   // See: https://nodejs.org/api/process.html#process_warning_using_uncaughtexception_correctly
   mainLogger.fatal(
-    `This is a CRITICAL message, an uncaught error was throw in the main process and no handler where defined:\n${e}\nThe application will now be closed`
+    "This is a CRITICAL message, an uncaught error was throw in the main process and no handler where defined:"
   );
+  ehandler(e); // Better error handling
+  mainLogger.fatal("The application will now be closed");
+
+  // Close application
   app.exit();
 });
 
-process.on("unhandledRejection", (reason, promise) =>
-  mainLogger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`)
+process.on("unhandledRejection", (reason) =>
+  mainLogger.error(`Unhandled Rejection, reason: ${(reason as string) ?? "Unknown"}`)
 );
 
 process.on("warning", (warning) =>

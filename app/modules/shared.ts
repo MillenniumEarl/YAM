@@ -11,7 +11,7 @@ import Store from "electron-store";
 
 // Local modules
 import WindowManager from "./classes/window-manager";
-import Paths from "./app-paths";
+import Paths from "./classes/app-paths";
 
 export default class Shared {
   /**
