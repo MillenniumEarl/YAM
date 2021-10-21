@@ -8,7 +8,7 @@ import fs from "fs/promises";
 import path from "path";
 
 // Public modules from npm
-import i18next, { Resource, ResourceLanguage } from "i18next";
+import i18next, { Resource, ResourceLanguage, TOptions } from "i18next";
 //@ts-expect-error Missing types
 import LanguageDetector from "i18next-electron-language-detector";
 
@@ -31,7 +31,7 @@ export async function initLocalization(resourcesPath: string, language?: string)
   });
 
   // If defined, change language
-  if (language) changeLanguage(language);
+  if (language) await changeLanguage(language);
 }
 
 /**
@@ -47,7 +47,7 @@ export function getCurrentLanguage(): string {
  * @param key Key to use in the translation
  * @param interpolation Dictionary containing the interpolation key and the value to interpolate
  */
-export function getTranslation(key: string, interpolation?: object): string {
+export function getTranslation(key: string, interpolation?: string | TOptions<object>): string {
   return interpolation ? i18next.t(key, interpolation) : i18next.t(key);
 }
 
@@ -83,7 +83,7 @@ async function getTranslationResourcesFromDir(dirname: string) {
   const promises = paths.map(async (p) => {
     // Read and parse file
     const json = await fs.readFile(p, { encoding: "utf-8" });
-    const data: ResourceLanguage = JSON.parse(json);
+    const data = JSON.parse(json) as ResourceLanguage;
     const languageISO = path.basename(p, ".json");
 
     return {
