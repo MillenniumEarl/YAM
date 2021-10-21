@@ -7,9 +7,9 @@
 import path from "path";
 
 // Public modules from npm
-import "source-map-support/register";
 import { app, BrowserWindow } from "electron";
 import { CancellationToken } from "electron-updater";
+import { CatchAll } from "@magna_shogun/catch-decorator";
 
 // Local modules
 import { get } from "../utility/logging";
@@ -18,7 +18,7 @@ import Updater from "./updater";
 import shared from "../shared";
 import IPCHandler from "./ipc";
 import ehandler from "../utility/error-handling";
-import { CatchAll } from "@magna_shogun/catch-decorator";
+import { RendererLog } from "../interfaces";
 
 /**
  * Configure the application by setting its callbacks.
@@ -27,12 +27,17 @@ export default class AppConfigurator {
   /**
    * Main logger for the application.
    */
-  readonly #logger = get("main");
+  readonly #mlogger = get("main");
+
+  /**
+   * Logger used by the renderer processes.
+   */
+  readonly #rlogger = get("renderer");
 
   /**
    * Handle the messages received on ipcMain.
    */
-  readonly #ipc = new IPCHandler(this.#logger);
+  readonly #ipc = new IPCHandler(this.#mlogger);
 
   /**
    * Initialize the class and the application.
@@ -55,6 +60,9 @@ export default class AppConfigurator {
     app.on("window-all-closed", this.onWindowAllClosed.bind(this));
     app.on("activate", this.onActivate.bind(this));
     app.on("second-instance", this.onSecondInstance.bind(this));
+
+    // Manage the events through `shared.appevents`
+    this.manageGenericSharedEvents();
   }
 
   //#region App callbacks
@@ -65,7 +73,7 @@ export default class AppConfigurator {
    */
   @CatchAll(ehandler)
   private onWindowAllClosed() {
-    this.#logger.info("Closing application");
+    this.#mlogger.info("Closing application");
     if (process.platform !== "darwin") app.quit();
   }
 
@@ -85,19 +93,19 @@ export default class AppConfigurator {
    */
   @CatchAll(ehandler)
   private async onReady() {
-    this.#logger.info(
+    this.#mlogger.info(
       `Application ready (${app.getVersion()}) on ${
         process.platform
       } (${process.getSystemVersion()})`
     );
-    this.#logger.info(`Using Chrome ${process.versions.chrome}`);
-    this.#logger.info(`Using Electron ${process.versions.electron}`);
+    this.#mlogger.info(`Using Chrome ${process.versions.chrome}`);
+    this.#mlogger.info(`Using Electron ${process.versions.electron}`);
 
     // Wait for language initialization
     //await this.initializeLocalization();
 
     // Create main window
-    this.#logger.info("Creating main window");
+    this.#mlogger.info("Creating main window");
     this.createMainWindow();
 
     // Check updates
@@ -106,7 +114,7 @@ export default class AppConfigurator {
 
   @CatchAll(ehandler)
   private onSecondInstance() {
-    this.#logger.info("Trying to open a second instance");
+    this.#mlogger.info("Trying to open a second instance");
 
     // Try to get the main window
     const w = shared.wmanager.get("main");
@@ -155,7 +163,7 @@ export default class AppConfigurator {
       // @todo SEND NOTIFICATION AND OPEN UPDATE TAB
       // const action = askUserWhatHeWantToDo(info);
       const action = "update";
-      this.#logger.info(`User decided to: ${action.toUpperCase()}`);
+      this.#mlogger.info(`User decided to: ${action.toUpperCase()}`);
 
       // Update or cancel the download
       if (action === "update") downloadPromise.then(() => u.install()).catch(ehandler);
@@ -168,7 +176,7 @@ export default class AppConfigurator {
    */
   @CatchAll(ehandler)
   private async initializeLocalization() {
-    this.#logger.info("Initializing languages...");
+    this.#mlogger.info("Initializing languages...");
 
     // Obtain the language to display
     const lang = shared.store.get("language-iso", null) as string;
@@ -177,7 +185,21 @@ export default class AppConfigurator {
     const langPath = path.join(app.getAppPath(), "resources", "lang");
     await localization.initLocalization(langPath, lang);
 
-    this.#logger.info(`Languages initialized (selected: ${lang ?? "SYSTEM"})`);
+    this.#mlogger.info(`Languages initialized (selected: ${lang ?? "SYSTEM"})`);
   }
   //#endregion Utility
+
+  //#region Private methods
+  private manageGenericSharedEvents() {
+    shared.appevents.addListener("renderer-log", (data: RendererLog) => {
+      const map = {
+        info: (message: string) => this.#rlogger.info(message),
+        warn: (message: string) => this.#rlogger.warn(message),
+        error: (message: string) => this.#rlogger.error(message)
+      };
+
+      map[data.type](`[From ${data.wname}] ${data.message}`);
+    });
+  }
+  //#endregion
 }
