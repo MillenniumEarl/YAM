@@ -55,6 +55,9 @@ export default class AppConfigurator {
     // Fix also strange graphical artifacts
     app.disableHardwareAcceleration();
 
+    // Manage the events through `shared.appevents`
+    this.manageGenericSharedEvents();
+
     // Set the callbacks for the app's events
     app.on("ready", () => {
       const handler = async () => await this.onReady.bind(this)();
@@ -63,9 +66,6 @@ export default class AppConfigurator {
     app.on("window-all-closed", this.onWindowAllClosed.bind(this));
     app.on("activate", this.onActivate.bind(this));
     app.on("second-instance", this.onSecondInstance.bind(this));
-
-    // Manage the events through `shared.appevents`
-    this.manageGenericSharedEvents();
   }
 
   //#region App callbacks
@@ -194,7 +194,7 @@ export default class AppConfigurator {
 
   //#region Private methods
   private manageGenericSharedEvents() {
-    shared.appevents.addListener("renderer-log", (data: IRendererLog) => {
+    shared.appevents.on("renderer-log", (data: IRendererLog) => {
       const map = {
         info: (message: string) => this.#rlogger.info(message),
         warn: (message: string) => this.#rlogger.warn(message),
@@ -202,7 +202,6 @@ export default class AppConfigurator {
       };
 
       map[data.type](`[From ${data.wname}] ${data.message}`);
-      const x = 0;
     });
   }
   //#endregion
