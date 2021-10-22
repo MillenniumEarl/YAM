@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 // Copyright (c) 2021 MillenniumEarl
@@ -12,13 +11,27 @@ import { ipcRenderer as ipc } from "electron";
 // Local modules
 import IPCLogger from "./ipc-logger";
 
+/**
+ * Securely manages IPC communication between the renderer process and the main process.
+ */
 export default class RendererIPCHandler {
-  #validSendChannels: string[] = ["get-window-id"];
+  /**
+   * List of valid channels for sending messages
+   * from the renderer process via `send` or` invoke`.
+   */
+  #validSendChannels: string[] = ["get-window-id", "received-paths", "open-dialog"];
 
+  /**
+   * List of valid channels for receiving messages
+   * from the main process via `receive` or` once`.
+   */
   #validReceiveChannels: string[] = [];
 
   #logger = new IPCLogger();
 
+  /**
+   * Logger of the renderer process.
+   */
   get logger() {
     return this.#logger;
   }
@@ -40,10 +53,11 @@ export default class RendererIPCHandler {
   public invoke(channel: string, ...data: any[]): Promise<any> | undefined {
     // Send a custom message
     if (this.#validSendChannels.includes(channel)) {
-      return ipc.invoke(channel, data);
+      return ipc.invoke(channel, ...data);
     } else {
+      const json = JSON.stringify(data, null, 4);
       void this.#logger.warn(
-        `Unauthorized IPC message from renderer process through ${channel}: ${data}`
+        `Unauthorized IPC message from renderer process through '${channel}': ${json}`
       );
     }
   }
@@ -56,10 +70,11 @@ export default class RendererIPCHandler {
   public send(channel: string, ...data: any[]) {
     // Send a custom message
     if (this.#validSendChannels.includes(channel)) {
-      ipc.send(channel, data);
+      ipc.send(channel, ...data);
     } else {
+      const json = JSON.stringify(data, null, 4);
       void this.#logger.warn(
-        `Unauthorized IPC message from renderer process through ${channel}: ${data}`
+        `Unauthorized IPC message from renderer process through '${channel}': ${json}`
       );
     }
   }
@@ -75,7 +90,7 @@ export default class RendererIPCHandler {
       // Deliberately strip event as it includes `sender`
       ipc.on(channel, (_, ...args) => func(...args));
     } else {
-      void this.#logger.warn(`Unauthorized IPC message from main process through ${channel}`);
+      void this.#logger.warn(`Unauthorized IPC message from main process through '${channel}'`);
     }
   }
 }
