@@ -24,8 +24,8 @@ function onDrop(e: DragEvent) {
   const entries = data?.items || data?.files;
 
   if (entries) {
-    // List of paths to send to the main process
-    const paths: string[] = [];
+    // List of paths with context to send to the main process
+    const paths = [];
 
     // Get all the paths of the dropped files
     for (let i = 0; i < entries.length; i++) {
@@ -34,8 +34,8 @@ function onDrop(e: DragEvent) {
       const isDataTransferItem = "kind" in entry && entry.kind === "file";
       const file = isDataTransferItem ? (entry.getAsFile() as File) : (entry as File);
 
-      // Save the path
-      paths.push(file.path);
+      // Save the path and the context
+      paths.push({ path: file.path, context: null });
     }
 
     // Send the paths via IPC
@@ -54,6 +54,9 @@ async function onAddBtnClick() {
     title: "Add games"
   });
 
+  // Parse the paths and add the context
+  const data = result.filePaths.map((p) => ({ path: p, context: null }));
+
   // Send the paths via IPC
-  window.API.Handler.send("received-paths", result.filePaths, false);
+  window.API.Handler.send("received-paths", data, false);
 }

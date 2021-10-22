@@ -135,3 +135,8 @@ export interface IRendererDialog {
   file: (o: IDialogOptions) => Promise<Electron.OpenDialogReturnValue>;
   folder: (o: IDialogOptions) => Promise<Electron.OpenDialogReturnValue>;
 }
+
+export interface IPathContext {
+  path: string;
+  context: number;
+}

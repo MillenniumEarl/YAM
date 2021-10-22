@@ -16,7 +16,7 @@ import { Logger } from "log4js";
 // Local modules
 import * as localization from "../utility/localization";
 import ehandler from "../utility/error-handling";
-import { IRendererLog } from "../interfaces";
+import { IPathContext, IRendererLog } from "../interfaces";
 import shared from "../shared";
 
 export default class IPCHandler {
@@ -150,13 +150,13 @@ export default class IPCHandler {
     this.validateArgumentLenght(args, 2);
 
     // Extract data
-    const paths = args[0] as string[];
+    const data = args[0] as IPathContext[];
     const allowFile = args[1] as boolean;
 
     // Parse files (remove files if not allowed)
-    const valids = paths.filter(async (path) => {
+    const valids = data.filter(async (o) => {
       // Get the data of the entry (file or folder)
-      const entry = await fs.lstat(path);
+      const entry = await fs.lstat(o.path);
 
       // Check if the entry is ok
       const validFile = entry.isFile() && allowFile;
