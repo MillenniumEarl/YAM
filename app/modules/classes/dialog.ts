@@ -4,8 +4,8 @@
 // https://opensource.org/licenses/MIT
 
 // Local modules
-import { IDialogOptions } from "../modules/interfaces";
-import RendererIPCHandler from "./renderer-ipc-handler";
+import { IDialogOptions } from "../interfaces";
+import RendererIPCHandler from "./renderer-ipc";
 
 /**
  * Manages the dialog boxes that a renderer

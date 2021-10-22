@@ -86,7 +86,7 @@ export default class IPCHandler {
   @CatchAll(ehandler)
   private allowMenubar(args: unknown[]) {
     // Check parameters
-    this.validateArgumentLenght(args, 1, 2);
+    this.validateArgumentLenght(args, 2);
 
     // Parse arguments
     const id = args[0] as number;
