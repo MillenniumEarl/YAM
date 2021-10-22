@@ -5,9 +5,10 @@
 
 // Core modules
 import { spawn } from "child_process";
+import fs from "fs/promises";
 
 // Public modules from npm
-import { BrowserWindow, ipcMain as ipc, shell } from "electron";
+import { BrowserWindow, ipcMain as ipc, shell, dialog } from "electron";
 import { CatchAll } from "@magna_shogun/catch-decorator";
 import { TOptions } from "i18next";
 import { Logger } from "log4js";
@@ -29,16 +30,18 @@ export default class IPCHandler {
     this.#logger = logger;
 
     // Define callbacks for IPC
-    ipc.on("execute", (_e, ...args) => this.execute(args));
-    ipc.on("open-external-url", (_e, ...args) => this.openURL(args));
+    ipc.on("execute", (_e, ...args: unknown[]) => this.execute(args));
+    ipc.on("open-external-url", (_e, ...args: unknown[]) => this.openURL(args));
     ipc.on("show-devtools", (e) => e.sender.openDevTools());
-    ipc.on("allow-menubar", (_e, ...args) => this.allowMenubar(args));
+    ipc.on("allow-menubar", (_e, ...args: unknown[]) => this.allowMenubar(args));
     ipc.on("renderer-log", (_e, args: IRendererLog) => shared.appevents.emit("renderer-log", args));
-    ipc.handle("translate", (_e, ...args) => this.translate(args));
-    ipc.handle("change-language", (_e, ...args) => this.changeLanguage(args));
+    ipc.on("received-paths", (_e, ...args: unknown[]) => this.receivedDirectoryPaths(args));
+    ipc.handle("translate", (_e, ...args: unknown[]) => this.translate(args));
+    ipc.handle("change-language", (_e, ...args: unknown[]) => this.changeLanguage(args));
     ipc.handle("current-language", () => this.getCurrentLanguage());
-    ipc.handle("get-window-name", (_e, ...args) => this.getWindowName(args));
+    ipc.handle("get-window-name", (_e, ...args: unknown[]) => this.getWindowName(args));
     ipc.handle("get-window-id", (e) => e.sender.id);
+    ipc.handle("open-dialog", (e, ...args: unknown[]) => this.openDialog(e, args));
   }
 
   //#region Callbacks
@@ -139,6 +142,52 @@ export default class IPCHandler {
     const wid: number = args[0] as number;
     const w = shared.wmanager.get(wid) as BrowserWindow;
     return shared.wmanager.getName(w);
+  }
+
+  @CatchAll(ehandler)
+  private receivedDirectoryPaths(args: unknown[]) {
+    // Check parameters
+    this.validateArgumentLenght(args, 2);
+
+    // Extract data
+    const paths = args[0] as string[];
+    const allowFile = args[1] as boolean;
+
+    // Parse files (remove files if not allowed)
+    const valids = paths.filter(async (path) => {
+      // Get the data of the entry (file or folder)
+      const entry = await fs.lstat(path);
+
+      // Check if the entry is ok
+      const validFile = entry.isFile() && allowFile;
+      // @todo: Add file's extension check?
+
+      // Return validation
+      return entry.isDirectory() || validFile;
+    });
+
+    // Emit event with valid data
+    if (valids.length > 0) shared.appevents.emit("received-paths", valids);
+  }
+
+  @CatchAll(ehandler)
+  private openDialog(e: Electron.IpcMainInvokeEvent, args: unknown[]) {
+    // Check parameters
+    this.validateArgumentLenght(args, 2);
+
+    // Extract data
+    const options = args[0] as Electron.OpenDialogOptions;
+    const modal = args[1] as boolean;
+
+    let result = null;
+    if (modal) {
+      // Get the window
+      const w = shared.wmanager.get(e.sender.id) as BrowserWindow;
+      result = dialog.showOpenDialog(w, options);
+    }
+    result = dialog.showOpenDialog(options);
+
+    return result;
   }
   //#endregion Callbacks
 

@@ -3,11 +3,17 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+// Get all the elements used in this script
 const dragDiv = document.getElementById("drag-div");
+const addBtn = document.getElementById("add-game-btn");
+
+// Assign events to elements
 dragDiv?.addEventListener("drop", onDrop);
 dragDiv?.addEventListener("dragover", onDragOver);
-
-void window.API.Handler.configure().then(() => void window.API.Logger.info("Window loaded"));
+addBtn?.addEventListener("click", () => {
+  void (async () => await onAddBtnClick())();
+});
+void window.API.Handler.configure();
 
 function onDrop(e: DragEvent) {
   // Prevent default behavior (Prevent file from being opened)
@@ -18,20 +24,36 @@ function onDrop(e: DragEvent) {
   const entries = data?.items || data?.files;
 
   if (entries) {
-    // Use DataTransferItemList interface to access the file(s)
-    for (let i = 0; i < entries.length; i++) {
-      const entry = entries[i];
-      const file =
-        "kind" in entry && entry.kind === "file" ? (entry.getAsFile() as File) : (entry as File);
+    // List of paths to send to the main process
+    const paths: string[] = [];
 
-      const theDiv = document.getElementById("file-list") as HTMLElement;
-      const content = document.createTextNode(`... file[${i}].name = ${file.name}\n`);
-      theDiv.appendChild(content);
+    // Get all the paths of the dropped files
+    for (let i = 0; i < entries.length; i++) {
+      // Parse the element
+      const entry = entries[i];
+      const isDataTransferItem = "kind" in entry && entry.kind === "file";
+      const file = isDataTransferItem ? (entry.getAsFile() as File) : (entry as File);
+
+      // Save the path
+      paths.push(file.path);
     }
+
+    // Send the paths via IPC
+    window.API.Handler.send("received-paths", paths, false);
   }
 }
 
 function onDragOver(e: DragEvent) {
   // Prevent default behavior (Prevent file from being opened)
   e.preventDefault();
+}
+
+async function onAddBtnClick() {
+  // Get the paths with dialog
+  const result = await window.API.Dialog.folder({
+    title: "Add games"
+  });
+
+  // Send the paths via IPC
+  window.API.Handler.send("received-paths", result.filePaths, false);
 }

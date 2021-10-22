@@ -4,7 +4,7 @@
 // https://opensource.org/licenses/MIT
 
 // Public modules from npm
-import { BrowserWindow } from "electron";
+import { BrowserWindow, FileFilter } from "electron";
 
 // Local modules
 import { TCloseWindowCallbackNull, TCloseWindowCallbackRest } from "./types";
@@ -81,6 +81,36 @@ export interface IRendererLog {
 }
 
 /**
+ * Options for the dialog window.
+ */
+export interface IDialogOptions {
+  /**
+   * Title of the dialog window.
+   */
+  title: string;
+  /**
+   * Path where open the dialog.
+   */
+  defaultPath?: string;
+  /**
+   * Message to show in the dialog window.
+   */
+  message?: string;
+  /**
+   * Allow multiple paths to be selected.
+   */
+  multiple?: boolean;
+  /**
+   * Show the dialog as modal window.
+   */
+  modal?: boolean;
+  /**
+   * Array of file types that can be displayed or selected.
+   */
+  filters?: FileFilter[];
+}
+
+/**
  * Wrapper interface used to type an `IPCLogger` object
  * in the renderer process via `ContextBridge`.
  */
@@ -96,7 +126,12 @@ export interface IRendererLogger {
  */
 export interface IRendererIPCHandler {
   configure: () => Promise<void>;
-  send: (channel: string, args: any[]) => void;
+  send: (channel: string, ...args: any[]) => void;
   receive: (channel: string, f: Function) => void;
-  invoke: (channel: string, args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => void;
+}
+
+export interface IRendererDialog {
+  file: (o: IDialogOptions) => Promise<Electron.OpenDialogReturnValue>;
+  folder: (o: IDialogOptions) => Promise<Electron.OpenDialogReturnValue>;
 }
