@@ -39,9 +39,9 @@ const handlerWrapper: IRendererIPCHandler = {
 };
 
 const loggerWrapper: IRendererLogger = {
-  info: (m: string, id?: number) => handler.logger.info(m, id),
-  warn: (m: string, id?: number) => handler.logger.warn(m, id),
-  error: (m: string, id?: number) => handler.logger.error(m, id)
+  info: (m: string) => handler.logger.info(m),
+  warn: (m: string) => handler.logger.warn(m),
+  error: (m: string) => handler.logger.error(m)
 };
 
 // Expose the following objects to the render process

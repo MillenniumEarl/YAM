@@ -85,9 +85,9 @@ export interface IRendererLog {
  * in the renderer process via `ContextBridge`.
  */
 export interface IRendererLogger {
-  info: (m: string, id?: number | undefined) => Promise<void>;
-  warn: (m: string, id?: number | undefined) => Promise<void>;
-  error: (m: string, id?: number | undefined) => Promise<void>;
+  info: (m: string) => void;
+  warn: (m: string) => void;
+  error: (m: string) => void;
 }
 
 /**

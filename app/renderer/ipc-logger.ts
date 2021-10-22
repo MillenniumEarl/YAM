@@ -30,20 +30,15 @@ export default class IPCLogger {
 
   /**
    * Sets the name of the window this logger is using, thus allowing easier debugging.
-   *
    */
   public async setWindowName(id: number) {
     await this.getWindowName(id);
   }
 
   /**
-   * Send an "info" type log via event
-   * @param id ID of the window that is sending the message
+   * Send an `info` type log via event.
    */
-  public async info(message: string, id?: number) {
-    // Get the name of the window
-    if (!this.#wname && id) await this.getWindowName(id);
-
+  public info(message: string) {
     const data: IRendererLog = {
       wname: this.#wname,
       type: "info",
@@ -54,13 +49,9 @@ export default class IPCLogger {
   }
 
   /**
-   * Send an "warn" type log via event
-   * @param id ID of the window that is sending the message
+   * Send an `warn` type log via event.
    */
-  public async warn(message: string, id?: number) {
-    // Get the name of the window
-    if (!this.#wname && id) await this.getWindowName(id);
-
+  public warn(message: string) {
     const data: IRendererLog = {
       wname: this.#wname,
       type: "warn",
@@ -71,13 +62,9 @@ export default class IPCLogger {
   }
 
   /**
-   * Send an "error" type log via event
-   * @param id ID of the window that is sending the message
+   * Send an `error` type log via event.
    */
-  public async error(message: string, id?: number) {
-    // Get the name of the window
-    if (!this.#wname && id) await this.getWindowName(id);
-
+  public error(message: string) {
     const data: IRendererLog = {
       wname: this.#wname,
       type: "error",
