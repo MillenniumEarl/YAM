@@ -8,6 +8,9 @@ import { IPathContext, IRendererLog } from "../interfaces";
 import { get } from "../utility/logging";
 import shared from "../shared";
 
+/**
+ * Handler for all events using `shared.appevents`.
+ */
 export default class EventManager {
   /**
    * Logger used by the renderer processes.

@@ -16,9 +16,9 @@ import { get } from "../utility/logging";
 import * as localization from "../utility/localization";
 import Updater from "./updater";
 import shared from "../shared";
-import IPCHandler from "./ipc";
+import IPCHandler from "./main-ipc";
 import ehandler from "../utility/error-handling";
-import { IRendererLog } from "../interfaces";
+import EventManager from "./event-manager";
 
 /**
  * Configure the application by setting its callbacks.
@@ -30,14 +30,14 @@ export default class AppConfigurator {
   readonly #mlogger = get("main");
 
   /**
-   * Logger used by the renderer processes.
-   */
-  readonly #rlogger = get("renderer");
-
-  /**
    * Handle the messages received on ipcMain.
    */
   readonly #ipc = new IPCHandler(this.#mlogger);
+
+  /**
+   * Handler for all events using `shared.appevents`.
+   */
+  readonly #emanager = new EventManager();
 
   /**
    * Initialize the class and the application.
@@ -56,7 +56,7 @@ export default class AppConfigurator {
     app.disableHardwareAcceleration();
 
     // Manage the events through `shared.appevents`
-    this.manageGenericSharedEvents();
+    this.#emanager.initialize();
 
     // Set the callbacks for the app's events
     app.on("ready", () => {
@@ -191,18 +191,4 @@ export default class AppConfigurator {
     this.#mlogger.info(`Languages initialized (selected: ${lang ?? "SYSTEM"})`);
   }
   //#endregion Utility
-
-  //#region Private methods
-  private manageGenericSharedEvents() {
-    shared.appevents.on("renderer-log", (data: IRendererLog) => {
-      const map = {
-        info: (message: string) => this.#rlogger.info(message),
-        warn: (message: string) => this.#rlogger.warn(message),
-        error: (message: string) => this.#rlogger.error(message)
-      };
-
-      map[data.type](`[From '${data.wname}' window] ${data.message}`);
-    });
-  }
-  //#endregion
 }
