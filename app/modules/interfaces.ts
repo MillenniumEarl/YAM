@@ -8,6 +8,9 @@ import { BrowserWindow, FileFilter } from "electron";
 
 // Local modules
 import { TCloseWindowCallbackNull, TCloseWindowCallbackRest } from "./types";
+import GameSerie from "./classes/gameserie";
+import Game from "./classes/game";
+import Mod from "./classes/mod";
 
 /**
  * Options used for creating a new `BrowserWindow`.
@@ -131,6 +134,10 @@ export interface IRendererIPCHandler {
   invoke: (channel: string, ...args: any[]) => void;
 }
 
+/**
+ * Wrapper interface used to type an `DialogHandler`
+ * object in the renderer process via `ContextBridge`.
+ */
 export interface IRendererDialog {
   file: (o: IDialogOptions) => Promise<Electron.OpenDialogReturnValue>;
   folder: (o: IDialogOptions) => Promise<Electron.OpenDialogReturnValue>;
@@ -139,4 +146,13 @@ export interface IRendererDialog {
 export interface IPathContext {
   path: string;
   context: number;
+}
+
+/**
+ * Interface used to type the LowDB database.
+ */
+export interface IGameDatabase {
+  series: GameSerie[];
+  games: Game[];
+  mods: Mod[];
 }

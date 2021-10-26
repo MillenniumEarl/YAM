@@ -8,9 +8,11 @@ import { EventEmitter } from "events";
 
 // Public modules from npm
 import Store from "electron-store";
+import { Low } from "lowdb/lib";
 
 // Local modules
 import WindowManager from "./classes/window-manager";
+import { IGameDatabase } from "./interfaces";
 import Paths from "./classes/app-paths";
 
 export default class Shared {
@@ -39,4 +41,9 @@ export default class Shared {
    * Class containing all the paths used in this application.
    */
   public static paths: Paths;
+
+  /**
+   * Database containing all the data regarding the games.
+   */
+  public static gamedb: Low<IGameDatabase>;
 }

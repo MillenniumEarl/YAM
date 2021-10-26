@@ -16,8 +16,8 @@ export default class DatabaseFactory {
   /**
    * Create a database from the given JSON path.
    *
-   * If the path does not exists, a new JSON file will be created,
-   * otherwise it will be read.
+   * If the path does not exists, a new JSON file
+   * will be created, otherwise it will be read.
    *
    * The returned object is ready to use.
    */
@@ -25,6 +25,7 @@ export default class DatabaseFactory {
     // Check if the file is readable and exists
     await fs.access(path).catch(async (e) => {
       // Write empty JSON file
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (e.code === "ENOENT") await fs.writeFile(path, "");
       // Retrow unknown error
       else throw e;
