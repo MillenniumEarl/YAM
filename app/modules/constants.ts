@@ -22,3 +22,10 @@ export const WindowMinimumSize = {
    */
   MAIN: { width: 1024, height: 620 }
 };
+
+/**
+ * Similarity that the name of a directory must have with
+ * that of a game in order to be able to say with certainty
+ * that this folder contains the game saves.
+ */
+export const GAME_NAME_SIMILARITY_THRESHOLD = 0.85;

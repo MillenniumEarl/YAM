@@ -30,6 +30,16 @@ export default class Paths {
    */
   #ASSETS_PATH: string;
 
+  /**
+   * Per-user application data directory, which by default points to:
+   * - `%APP_DATA%` on Windows
+   * - `$XDG_CONFIG_HOME` or `~/.config` on Linux
+   * - `~/Library/Application Support` on macOS
+   */
+  public get APP_DATA() {
+    return this.#APP_DATA;
+  }
+
   constructor(app: string, logs: string, data: string) {
     this.#APP_PATH = app;
     this.#APP_LOGS_DIR = logs;
@@ -58,6 +68,7 @@ export default class Paths {
      */
     F95API: () => join(this.#APP_LOGS_DIR, "f95api.log")
   };
+
   /**
    * Object that collects all database's paths.
    */
@@ -75,6 +86,12 @@ export default class Paths {
      */
     MODS: () => join(this.#APP_DATA, "db", "mods.json")
   };
+
+  /**
+   * Default paths where the games are stored.
+   */
+  public GAME_FOLDER_PATH = () => join(this.#APP_DATA, "games");
+
   /**
    * Path to the directory that contains all the window's scripts used in the application.
    */
