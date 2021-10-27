@@ -7,7 +7,7 @@
 import { BrowserWindow, FileFilter } from "electron";
 
 // Local modules
-import { TCloseWindowCallbackNull, TCloseWindowCallbackRest } from "./types";
+import { TCloseWindowCallbackNull, TCloseWindowCallbackRest, TModOperationType } from "./types";
 import GameSerie from "./classes/gameserie";
 import Game from "./classes/game";
 import Mod from "./classes/mod";
@@ -155,4 +155,25 @@ export interface IGameDatabase {
   series: GameSerie[];
   games: Game[];
   mods: Mod[];
+}
+
+/**
+ * Record of the operation performed when installing
+ * a mod for each individual file belonging to it.
+ */
+export interface IModOperationRecord {
+  /**
+   * Type of operation.
+   *
+   * `Append` is available only for `Ren'Py` games.
+   */
+  type: TModOperationType;
+  /**
+   * Path of the mod file inside the game folder.
+   */
+  gamepath: string;
+  /**
+   * Path of the mod file inside the mod folder.
+   */
+  modpath: string;
 }

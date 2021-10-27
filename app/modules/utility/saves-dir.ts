@@ -129,8 +129,9 @@ async function getUnitySavePath(gamename: string): Promise<string | null> {
     // Ignore directories
     if (!entry.isFile()) continue;
 
-    // Get the directory path (@todo check if the path is absolute)
-    const dirpath = path.dirname(entry.path);
+    // Get the directory path
+    const dirname = path.dirname(entry.path);
+    const dirpath = path.join(unitydir, dirname);
 
     // Save the basepath
     if (!directories.includes(dirpath)) directories.push(dirpath);
