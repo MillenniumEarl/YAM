@@ -20,13 +20,14 @@
     ],
     "scripts": {
         "prepare": "husky install",
-        "prettify": "prettier --config .prettierrc {app,test}/**/*.ts --write",
-        "build": "tsc && npm run copy:assets",
+        "prettify": "prettier --config .prettierrc app/**/*.ts --write",
+        "build": "concurrently \"tsc\" \"npm:copy:assets\" \"npm:copy:html\"",
         "example": "npm run build && electron dist/example.js",
         "dist:win": "npm run build && electron-builder --win --config",
         "dist:mac": "npm run build && electron-builder --mac --config",
         "dist:linux": "npm run build && electron-builder --linux --config",
-        "copy:assets": "copyfiles -u 1 app/assets/**/* dist"
+        "copy:assets": "copyfiles -u 1 app/assets/**/* dist",
+        "copy:html": "copyfiles -u 1 **/*.html dist"
     },
     "engines": {
         "node": ">=16.0"
@@ -39,7 +40,7 @@
         "electron-store": "^8.0.1",
         "electron-updater": "^4.6.0",
         "error-stack-parser": "^2.0.6",
-        "i18next": "^21.3.3",
+        "i18next": "^21.5.2",
         "i18next-electron-language-detector": "0.0.10",
         "image-downloader": "^4.0.3",
         "log4js": "^6.3.0",
@@ -52,18 +53,18 @@
         "uniqid": "^5.4.0"
     },
     "devDependencies": {
-        "@babel/eslint-parser": "^7.15.8",
+        "@babel/eslint-parser": "^7.16.3",
         "@types/string-similarity": "^4.0.0",
         "@types/uniqid": "^5.3.1",
-        "@typescript-eslint/eslint-plugin": "^5.1.0",
-        "@typescript-eslint/parser": "^5.1.0",
-        "electron": "^15.3.0",
+        "@typescript-eslint/eslint-plugin": "^5.4.0",
+        "@typescript-eslint/parser": "^5.4.0",
+        "electron": "^16.0.0",
         "electron-builder": "^22.14.4",
-        "eslint": "^8.1.0",
+        "eslint": "^8.2.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",
         "husky": "^7.0.4",
-        "lint-staged": "^11.2.4",
+        "lint-staged": "^12.0.2",
         "prettier": "^2.4.1"
     },
     "lint-staged": {

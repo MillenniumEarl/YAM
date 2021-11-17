@@ -1,4 +1,4 @@
-// Copyright (c) 2021 MillenniumEarl
+// Copyright (c) 2022 MillenniumEarl
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -9,11 +9,11 @@ import { app } from "electron";
 import electronIsDev from "electron-is-dev";
 
 // Local modules
-import * as logging from "./modules/utility/logging";
-import AppConfigurator from "./modules/classes/app-configurator";
-import shared from "./modules/shared";
-import Paths from "./modules/classes/app-paths";
-import ehandler from "./modules/utility/error-handling";
+import * as logging from "./utility/logging";
+import AppConfigurator from "./classes/app-configurator";
+import shared from "./common/shared";
+import Paths from "./classes/app-paths";
+import ehandler from "./utility/error-handling";
 
 // Set the development environment
 shared.isDev = electronIsDev;

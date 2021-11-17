@@ -1,7 +1,7 @@
 # Information of the application
 productName: "YAM"
 appId: "com.electron.yam"
-copyright: "Copyright © 2021 MillenniumEarl"
+copyright: "Copyright © 2022 MillenniumEarl"
 
 # Package electron code into a asar archive. Set to false to debug issues.
 asar: true
@@ -23,7 +23,7 @@ mac:
   category: "public.app-category.games"
   target: "default"
   type: "distribution"
-  icon: "src/app/assets/images/icon.icns"
+  icon: "src/app/assets/images/icon/icon.icns"
 
 # Config for OSX dmg
 dmg:
@@ -37,7 +37,7 @@ dmg:
 
 # Windows configuration
 win:
-  icon: "src/app/assets/images/icon.ico"
+  icon: "src/app/assets/images/icon/icon.ico"
   publisherName: "MillenniumEarl"
   verifyUpdateCodeSignature: false
   target:

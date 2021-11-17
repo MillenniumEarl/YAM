@@ -3,6 +3,7 @@
         "**/node_modules": true,
         "**/dist": true,
         ".dccache": true,
-        ".eslintcache": true
+        ".eslintcache": true,
+        ".husky": true
     }
 }
