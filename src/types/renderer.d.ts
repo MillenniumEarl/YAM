@@ -5,7 +5,11 @@
 // https://opensource.org/licenses/MIT
 
 // Local modules
-import { IRendererDialog, IRendererIPCHandler, IRendererLogger } from "../../common/interfaces";
+import {
+  IRendererDialog,
+  IRendererIPCHandler,
+  IRendererLogger
+} from "../scripts/common/interfaces";
 
 export interface IElectronAPI {
   Handler: IRendererIPCHandler;

@@ -1,76 +1,77 @@
 {
-    "main": "./dist/app.js",
-    "name": "yam",
-    "version": "3.0.0",
-    "author": {
-        "name": "Millennium Earl"
-    },
-    "description": "Unoffical Game Updater for the F95Zone platform",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/MillenniumEarl/YAM.git"
-    },
-    "license": "MIT",
-    "keywords": [
-        "game",
-        "games",
-        "updater",
-        "f95zone",
-        "f95"
-    ],
-    "scripts": {
-        "prepare": "husky install",
-        "prettify": "prettier --config .prettierrc app/**/*.ts --write",
-        "build": "concurrently \"tsc\" \"npm:copy:assets\" \"npm:copy:html\"",
-        "example": "npm run build && electron dist/example.js",
-        "dist:win": "npm run build && electron-builder --win --config",
-        "dist:mac": "npm run build && electron-builder --mac --config",
-        "dist:linux": "npm run build && electron-builder --linux --config",
-        "copy:assets": "copyfiles -u 1 app/assets/**/* dist",
-        "copy:html": "copyfiles -u 1 **/*.html dist"
-    },
-    "engines": {
-        "node": ">=16.0"
-    },
-    "dependencies": {
-        "@magna_shogun/catch-decorator": "^1.0.1",
-        "@millenniumearl/f95api": "^2.0.0-beta.10.1",
-        "@millenniumearl/recaptcha-harvester": "^1.2.1",
-        "electron-is-dev": "^2.0.0",
-        "electron-store": "^8.0.1",
-        "electron-updater": "^4.6.0",
-        "error-stack-parser": "^2.0.6",
-        "i18next": "^21.5.2",
-        "i18next-electron-language-detector": "0.0.10",
-        "image-downloader": "^4.0.3",
-        "log4js": "^6.3.0",
-        "lowdb": "^3.0.0",
-        "new-github-issue-url": "^1.0.0",
-        "readdir-enhanced": "^6.0.4",
-        "sanitize-filename": "^1.6.3",
-        "source-map-support": "^0.5.20",
-        "string-similarity": "^4.0.4",
-        "uniqid": "^5.4.0"
-    },
-    "devDependencies": {
-        "@babel/eslint-parser": "^7.16.3",
-        "@types/string-similarity": "^4.0.0",
-        "@types/uniqid": "^5.3.1",
-        "@typescript-eslint/eslint-plugin": "^5.4.0",
-        "@typescript-eslint/parser": "^5.4.0",
-        "electron": "^16.0.0",
-        "electron-builder": "^22.14.4",
-        "eslint": "^8.2.0",
-        "eslint-config-prettier": "^8.3.0",
-        "eslint-plugin-prettier": "^4.0.0",
-        "husky": "^7.0.4",
-        "lint-staged": "^12.0.2",
-        "prettier": "^2.4.1"
-    },
-    "lint-staged": {
-        "*.ts": [
-            "eslint --cache --fix",
-            "npm run prettify"
-        ]
-    }
+  "name": "yam",
+  "version": "3.0.0",
+  "description": "Unoffical Game Updater for the F95Zone platform",
+  "author": {
+    "name": "Millennium Earl"
+  },
+  "scripts": {
+    "build": "concurrently \"tsc\" \"npm:copy:assets\" \"npm:copy:html\"",
+    "copy:assets": "copyfiles -u 1 src/assets/**/* dist",
+    "copy:html": "copyfiles -u 1 src/**/*.html dist",
+    "dist:linux": "npm run build && electron-builder --linux --config",
+    "dist:mac": "npm run build && electron-builder --mac --config",
+    "dist:win": "npm run build && electron-builder --win --config",
+    "example": "npm run build && electron dist/example.js",
+    "prepare": "husky install",
+    "prettify": "prettier --config .prettierrc src/**/*.ts --write"
+  },
+  "main": "./dist/app.js",
+  "dependencies": {
+    "@magna_shogun/catch-decorator": "^1.0.1",
+    "@millenniumearl/f95api": "^2.0.0-beta.10.1",
+    "@millenniumearl/recaptcha-harvester": "^1.2.1",
+    "electron-is-dev": "^2.0.0",
+    "electron-store": "^8.0.1",
+    "electron-updater": "^4.6.0",
+    "error-stack-parser": "^2.0.6",
+    "i18next": "^21.5.2",
+    "i18next-electron-language-detector": "0.0.10",
+    "image-downloader": "^4.0.3",
+    "log4js": "^6.3.0",
+    "lowdb": "^3.0.0",
+    "new-github-issue-url": "^1.0.0",
+    "readdir-enhanced": "^6.0.4",
+    "sanitize-filename": "^1.6.3",
+    "source-map-support": "^0.5.20",
+    "string-similarity": "^4.0.4",
+    "uniqid": "^5.4.0"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.16.3",
+    "@types/string-similarity": "^4.0.0",
+    "@types/uniqid": "^5.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "electron": "^16.0.0",
+    "electron-builder": "^22.14.4",
+    "eslint": "^8.2.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.0.2",
+    "prettier": "^2.4.1",
+    "typescript": "^4.5.2"
+  },
+  "engines": {
+    "node": ">=16.0"
+  },
+  "keywords": [
+    "game",
+    "games",
+    "updater",
+    "f95zone",
+    "f95"
+  ],
+  "license": "MIT",
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "npm run prettify"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MillenniumEarl/YAM.git"
+  }
 }

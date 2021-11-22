@@ -100,5 +100,5 @@ export default class Paths {
   /**
    * Path to this application's icon (`ico` file).
    */
-  public APP_ICON = () => join(this.#ASSETS_PATH, "images", "icon", "icon.ico");
+  public APP_ICON = () => join(this.#APP_PATH, "resources", "img", "icon", "icon.ico");
 }

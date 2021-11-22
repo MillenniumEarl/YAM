@@ -9,11 +9,11 @@ import { app } from "electron";
 import electronIsDev from "electron-is-dev";
 
 // Local modules
-import * as logging from "./utility/logging";
-import AppConfigurator from "./classes/app-configurator";
-import shared from "./common/shared";
-import Paths from "./classes/app-paths";
-import ehandler from "./utility/error-handling";
+import * as logging from "./scripts/utility/logging";
+import AppConfigurator from "./scripts/classes/app-configurator";
+import shared from "./scripts/common/shared";
+import Paths from "./scripts/classes/app-paths";
+import ehandler from "./scripts/utility/error-handling";
 
 // Set the development environment
 shared.isDev = electronIsDev;

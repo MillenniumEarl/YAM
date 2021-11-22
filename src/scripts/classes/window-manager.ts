@@ -31,14 +31,12 @@ export default class WindowManager {
    *
    * If it doesn't exists, return `null`
    */
-  // eslint-disable-next-line no-unused-vars
   public get(name: string): BrowserWindow | null;
   /**
    * Get the window with the given ID.
    *
    * If it doesn't exists, return `null`
    */
-  // eslint-disable-next-line no-unused-vars
   public get(id: number): BrowserWindow | null;
   @CatchAll(ehandler)
   public get(arg: string | number): BrowserWindow | null {
@@ -62,6 +60,7 @@ export default class WindowManager {
   /**
    * Get the name of a given window (if it was created with this manager).
    */
+  @CatchAll(ehandler)
   public getName(w: BrowserWindow): string | null {
     const name = Object.entries(this.#WindowsList)
       .map(([name, wd]) => {
@@ -79,7 +78,7 @@ export default class WindowManager {
    * @returns Window created and promise fulfilled when the window is closed
    */
   @CatchAll(ehandler)
-  public createMainWindow(onclose: TCloseWindowCallbackRest | TCloseWindowCallbackNull) {
+  public async createMainWindow(onclose: TCloseWindowCallbackRest | TCloseWindowCallbackNull) {
     // Local variables
     const preload = path.join(shared.paths.WINDOWS_DATA_PATH(), "main", "main.preload.js");
 
@@ -126,7 +125,7 @@ export default class WindowManager {
 
     // Load the index.html of the app.
     const htmlPath = path.join(shared.paths.WINDOWS_DATA_PATH(), "main", "main.html");
-    void w.loadFile(htmlPath);
+    await w.loadFile(htmlPath);
 
     return onClosePromise;
   }
@@ -166,10 +165,10 @@ export default class WindowManager {
       // Set security settings
       webPreferences: {
         allowRunningInsecureContent: false,
-        contextIsolation: true,
         webSecurity: true,
+        preload: options.preloadPath,
         nodeIntegration: false,
-        preload: options.preloadPath
+        contextIsolation: true
       }
     });
 

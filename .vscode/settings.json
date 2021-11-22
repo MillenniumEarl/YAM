@@ -2,8 +2,9 @@
     "files.exclude": {
         "**/node_modules": true,
         "**/dist": true,
+        "**/dist_electron": true,
         ".dccache": true,
-        ".eslintcache": true,
-        ".husky": true
+        ".husky": true,
+        ".eslintcache": true
     }
 }

@@ -9,10 +9,11 @@ asar: true
 # Files/directory to include/exclude in the build
 files:
   - "**/*"
-  - "!src/*"
   - "!.github${/*}"
   - "!.gitattributes"
   - "!.gitignore"
+  - "!.vscode"
+  - "!docs"
 
 directories:
   buildResources: "./resources" # Other resources to include in the final build
@@ -23,7 +24,7 @@ mac:
   category: "public.app-category.games"
   target: "default"
   type: "distribution"
-  icon: "src/app/assets/images/icon/icon.icns"
+  icon: "resources/img/icon/icon.icns"
 
 # Config for OSX dmg
 dmg:
@@ -37,7 +38,7 @@ dmg:
 
 # Windows configuration
 win:
-  icon: "src/app/assets/images/icon/icon.ico"
+  icon: "resources/img/icon/icon.ico"
   publisherName: "MillenniumEarl"
   verifyUpdateCodeSignature: false
   target:

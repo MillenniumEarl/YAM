@@ -15,9 +15,13 @@
 import { contextBridge } from "electron";
 
 // Local modules
-import { IDialogOptions, IRendererIPCHandler, IRendererLogger } from "../../common/interfaces";
-import RendererIPCHandler from "../../classes/renderer-ipc";
-import DialogHandler from "../../classes/dialog";
+import {
+  IDialogOptions,
+  IRendererIPCHandler,
+  IRendererLogger
+} from "../../scripts/common/interfaces";
+import RendererIPCHandler from "../../scripts/classes/renderer-ipc";
+import DialogHandler from "../../scripts/classes/dialog";
 
 // Create a handler that will manage the logic
 // of the methods passed via ContextBridge
