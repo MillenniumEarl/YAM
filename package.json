@@ -27,7 +27,7 @@
         "node": ">=14.10"
     },
     "dependencies": {
-        "@material-icons/font": "1.0.16",
+        "@material-icons/font": "1.0.19",
         "@materializecss/materialize": "^1.0.0",
         "@millenniumearl/f95api": "^2.0.0-beta.10.1",
         "@millenniumearl/recaptcha-harvester": "^1.2.1",
