@@ -1,10 +1,16 @@
 {
     "files.exclude": {
-        "**/node_modules": true,
-        "**/dist": true,
-        "**/dist_electron": true,
+        "node_modules/**": true,
+        "deploy": true,
+        "**/dist/**": true,
         ".dccache": true,
         ".husky": true,
-        ".eslintcache": true
-    }
+        ".gitignore": true,
+        ".gitattributes": true,
+        ".editor*": true,
+        ".env*": true,
+        "crowdin.yml": true,
+        "electron-vendors.config.json": true
+    },
+    "typescript.tsdk": "node_modules/typescript/lib"
 }

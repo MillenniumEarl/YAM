@@ -15,6 +15,7 @@
       ],
       "outputCapture": "std",
       "sourceMaps": true,
+      "preLaunchTask": "electron-debug",
       "resolveSourceMapLocations": [
         "${workspaceFolder}/**", // Use source maps for files in workspace folder
         "!**/node_modules/**" // But ignore everything in the node_modules folder
@@ -39,8 +40,7 @@
       "configurations": [
         "Electron: Main",
         "Electron: Renderer"
-      ],
-      "preLaunchTask": "npm: build"
+      ]
     }
   ]
 }

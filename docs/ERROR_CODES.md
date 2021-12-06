@@ -1,10 +1,13 @@
 # Error codes for errors and unhandled errors
+
 The error codes are structured as follows:
+
 + **First digit**: Type of script
 + **Second and third digit**: Script identifier
 + **Fourth and subsequent digits**: Unique identifier of the error
 
-## Types of scripts:
+## Types of scripts
+
 | Code |      Script      |                     Description                    |
 |:----:|:----------------:|:--------------------------------------------------:|
 |   0  |  Preload script  | Scripts used as preload by Electron                |
@@ -13,6 +16,7 @@ The error codes are structured as follows:
 |   3  |  Generic script  | Generic scripts                                    |
 
 ## Script identifier
+
 | Code |          Script          |
 |:----:|:------------------------:|
 |   0  |          app.js          |

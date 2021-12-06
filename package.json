@@ -1,31 +1,77 @@
 {
   "name": "yam",
   "version": "3.0.0",
-  "description": "Unoffical Game Updater for the F95Zone platform",
+  "description": "Unoffical game manager for the F95Zone platform",
   "author": {
     "name": "Millennium Earl"
   },
+  "main": "packages/main/dist/index.cjs",
+  "private": true,
   "scripts": {
-    "build": "concurrently \"tsc\" \"npm:copy:assets\" \"npm:copy:html\"",
-    "copy:assets": "copyfiles -u 1 src/assets/**/* dist",
-    "copy:html": "copyfiles -u 1 src/**/*.html dist",
-    "dist:linux": "npm run build && electron-builder --linux --config",
-    "dist:mac": "npm run build && electron-builder --mac --config",
-    "dist:win": "npm run build && electron-builder --win --config",
-    "example": "npm run build && electron dist/example.js",
-    "prepare": "husky install",
+    "build": "node scripts/build.js",
+    "precompile": "cross-env MODE=production npm run build",
+    "compile": "electron-builder build --config electron-builder.yml --dir --config.asar=false",
+    "pretest": "npm run build",
+    "test": "playwright test",
+    "watch": "node scripts/watch.js",
+    "lint": "eslint . --ext js,ts,vue --fix",
+    "typecheck-main": "tsc --noEmit -p packages/main/tsconfig.json",
+    "typecheck-preload": "tsc --noEmit -p packages/preload/tsconfig.json",
+    "typecheck-renderer": "vue-tsc --noEmit -p packages/renderer/tsconfig.json",
+    "typecheck": "npm run typecheck-main && npm run typecheck-preload && npm run typecheck-renderer",
+    "pretypecheck-renderer": "dts-cb -i packages/preload/src/**/*.ts -o packages/preload/exposedInMainWorld.d.ts",
     "prettify": "prettier --config .prettierrc src/**/*.ts --write"
   },
-  "main": "./dist/app.js",
+  "npm.scriptExplorerExclude": {
+    "type": "array",
+    "items": {
+      "type": "string"
+    },
+    "markdownDescription": "%config.npm.scriptExplorerExclude%",
+    "scope": "resource",
+    "default": []
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged",
+    "pre-push": "npm run typecheck"
+  },
+  "lint-staged": {
+    "*.{js,ts,vue}": "eslint --cache --fix",
+    "*.ts": "npm run prettify"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.17.1",
+    "@types/string-similarity": "^4.0.0",
+    "@types/uniqid": "^5.3.1",
+    "@typescript-eslint/eslint-plugin": "5.5.0",
+    "@vitejs/plugin-vue": "1.10.1",
+    "autoprefixer": "^10.4.0",
+    "cross-env": "7.0.3",
+    "dts-for-context-bridge": "0.6.2",
+    "electron": "16.0.4",
+    "electron-builder": "22.14.5",
+    "electron-devtools-installer": "3.2.0",
+    "eslint": "8.4.0",
+    "eslint-plugin-vue": "8.2.0",
+    "lint-staged": "12.1.2",
+    "playwright": "1.17.1",
+    "postcss": "^8.4.4",
+    "prettier": "^2.5.1",
+    "simple-git-hooks": "2.7.0",
+    "tailwindcss": "^2.2.19",
+    "typescript": "4.5.2",
+    "vite": "2.6.14",
+    "vue-tsc": "0.29.8"
+  },
   "dependencies": {
     "@magna_shogun/catch-decorator": "^1.0.1",
     "@millenniumearl/f95api": "^2.0.0-beta.10.1",
     "@millenniumearl/recaptcha-harvester": "^1.2.1",
     "electron-is-dev": "^2.0.0",
     "electron-store": "^8.0.1",
-    "electron-updater": "^4.6.0",
+    "electron-updater": "4.6.5",
     "error-stack-parser": "^2.0.6",
-    "i18next": "^21.5.2",
+    "i18next": "^21.5.4",
     "i18next-electron-language-detector": "0.0.10",
     "image-downloader": "^4.0.3",
     "log4js": "^6.3.0",
@@ -33,29 +79,19 @@
     "new-github-issue-url": "^1.0.0",
     "readdir-enhanced": "^6.0.4",
     "sanitize-filename": "^1.6.3",
-    "source-map-support": "^0.5.20",
+    "source-map-support": "^0.5.21",
     "string-similarity": "^4.0.4",
-    "uniqid": "^5.4.0"
-  },
-  "devDependencies": {
-    "@babel/eslint-parser": "^7.16.3",
-    "@types/string-similarity": "^4.0.0",
-    "@types/uniqid": "^5.3.1",
-    "@typescript-eslint/eslint-plugin": "^5.4.0",
-    "@typescript-eslint/parser": "^5.4.0",
-    "electron": "^16.0.0",
-    "electron-builder": "^22.14.4",
-    "eslint": "^8.2.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "husky": "^7.0.4",
-    "lint-staged": "^12.0.2",
-    "prettier": "^2.4.1",
-    "typescript": "^4.5.2"
+    "uniqid": "^5.4.0",
+    "vue": "3.2.23",
+    "vue-router": "4.0.12"
   },
   "engines": {
-    "node": ">=16.0"
+    "node": ">=v16.13",
+    "npm": ">=8.1"
   },
+  "browserslist": [
+    "Chrome 96"
+  ],
   "keywords": [
     "game",
     "games",
@@ -63,15 +99,5 @@
     "f95zone",
     "f95"
   ],
-  "license": "MIT",
-  "lint-staged": {
-    "*.ts": [
-      "eslint --fix",
-      "npm run prettify"
-    ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MillenniumEarl/YAM.git"
-  }
+  "license": "MIT"
 }
