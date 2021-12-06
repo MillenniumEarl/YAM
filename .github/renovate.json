@@ -54,5 +54,10 @@
       "separateMajorMinor": false
     }
   ],
-  "rangeStrategy": "pin"
+  "rangeStrategy": "pin",
+  "schedule": [
+    "after 10pm every weekday",
+    "before 5am every weekday",
+    "every weekend"
+  ]
 }
