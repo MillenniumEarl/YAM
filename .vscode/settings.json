@@ -1,10 +1,10 @@
 {
     "files.exclude": {
         "node_modules/**": true,
+        "deploy": true,
         "**/dist/**": true,
         ".dccache": true,
         ".husky": true,
-        ".deploy": true,
         ".gitignore": true,
         ".gitattributes": true,
         ".editor*": true,
