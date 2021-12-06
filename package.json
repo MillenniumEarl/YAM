@@ -10,9 +10,9 @@
   "scripts": {
     "build": "node scripts/build.js",
     "precompile": "cross-env MODE=production npm run build",
-    "compile": "electron-builder build --config electron-builder.config.js --dir --config.asar=false",
+    "compile": "electron-builder build --config electron-builder.yml --dir --config.asar=false",
     "pretest": "npm run build",
-    "test": "node tests/app.spec.js",
+    "test": "playwright test",
     "watch": "node scripts/watch.js",
     "lint": "eslint . --ext js,ts,vue --fix",
     "typecheck-main": "tsc --noEmit -p packages/main/tsconfig.json",
@@ -40,6 +40,7 @@
     "*.ts": "npm run prettify"
   },
   "devDependencies": {
+    "@playwright/test": "^1.17.1",
     "@types/string-similarity": "^4.0.0",
     "@types/uniqid": "^5.3.1",
     "@typescript-eslint/eslint-plugin": "5.5.0",

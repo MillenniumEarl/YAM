@@ -101,4 +101,11 @@ export default class Paths {
    * Path to this application's icon (`ico` file).
    */
   public APP_ICON = () => join(this.#APP_PATH, "resources", "img", "icon", "icon.ico");
+
+  /**
+   * Path to the main HTML page of the application (build path).
+   */
+  public INDEX_HTML = () => join(this.#APP_PATH, "packages", "renderer", "dist", "index.cjs");
+
+  public PRELOAD_FILE = () => join(this.#APP_PATH, "packages", "preload", "dist", "index.cjs");
 }

@@ -4,6 +4,9 @@ node_modules
 # All the 'dist' folders in the project
 **/dist/**
 
+# Build application
+deploy
+
 # Synk's DeepCode cache analysis
 .dccache
 

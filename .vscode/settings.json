@@ -4,6 +4,7 @@
         "**/dist/**": true,
         ".dccache": true,
         ".husky": true,
+        ".deploy": true,
         ".gitignore": true,
         ".gitattributes": true,
         ".editor*": true,

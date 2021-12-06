@@ -3,9 +3,6 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-// Core modules
-import path from "path";
-
 // Public modules from npm
 import { BrowserWindow, shell, clipboard } from "electron";
 import { CatchAll } from "@magna_shogun/catch-decorator";
@@ -163,7 +160,7 @@ export default class WindowManager {
         contextIsolation: true,
         allowRunningInsecureContent: false,
         webSecurity: true,
-        preload: path.join(__dirname, "../../../packages/preload/dist/index.cjs"),
+        preload: shared.paths.PRELOAD_FILE(),
       }
     });
 
@@ -300,7 +297,7 @@ export default class WindowManager {
       w.webContents.openDevTools();
     } else {
       // Load the HTML file when not in development
-      const page = new URL("../../../renderer/dist/index.html", `file://${__dirname}`).toString();
+      const page = new URL(`file://${shared.paths.INDEX_HTML()}`).toString();
       await w.loadURL(page);
     }
   }
