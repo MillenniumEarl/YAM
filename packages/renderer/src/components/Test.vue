@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from "vue";
+import { defineComponent } from "vue";
 import { addOnButtonClick, addOnDrop } from "../scripts/add-game";
 export default defineComponent({
   name: "AppTest",

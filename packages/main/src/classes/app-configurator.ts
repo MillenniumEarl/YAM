@@ -61,7 +61,7 @@ export default class AppConfigurator {
 
     // Scheme must be registered before the app is ready
     protocol.registerSchemesAsPrivileged([
-      { scheme: "app", privileges: { secure: true, standard: true } }
+      { scheme: "app", privileges: { secure: true, standard: true }}
     ]);
 
     // Set the callbacks for the app's events

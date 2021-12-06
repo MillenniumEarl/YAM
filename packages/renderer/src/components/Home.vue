@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from "vue";
+import { defineComponent, ref } from "vue";
 
 export default defineComponent({
   name: "HelloWorld",
@@ -64,7 +64,7 @@ export default defineComponent({
     const rawString = ref("Hello World");
     const hashedString = "Not computable"; //computed(() => window.nodeCrypto.sha256sum(rawString.value));
 
-    return {count, rawString, hashedString};
+    return { count, rawString, hashedString };
   },
 });
 </script>

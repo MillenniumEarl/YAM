@@ -1,6 +1,6 @@
-import {chrome} from "../../electron-vendors.config.json";
-import {join} from "path";
-import {builtinModules} from "module";
+import { chrome } from "../../electron-vendors.config.json";
+import { join } from "path";
+import { builtinModules } from "module";
 
 const PACKAGE_ROOT = __dirname;
 

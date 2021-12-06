@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-const {build} = require("vite");
-const {dirname} = require("path");
+const { build } = require("vite");
+const { dirname } = require("path");
 
 /** @type 'production' | 'development' */
 const mode = process.env.MODE = process.env.MODE || "production";
@@ -15,7 +15,7 @@ const packagesConfigs = [
 /**
  * Run `vite build` for config file
  */
-const buildByConfig = (configFile) => build({configFile, mode});
+const buildByConfig = (configFile) => build({ configFile, mode });
 (async () => {
   try {
     const totalTimeLabel = "Total bundling time";

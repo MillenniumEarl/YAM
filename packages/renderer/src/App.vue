@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from "vue";
+import { defineComponent } from "vue";
 import AppTest from "/@/components/Test.vue";
 export default defineComponent({
   name: "App",
