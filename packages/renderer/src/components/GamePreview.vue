@@ -25,7 +25,7 @@
           #GAME-TITLE
         </h1>
         <img
-          class="flex-initial w-24 h-16 object-scale-down"
+          class="flex-initial w-24 h-10 object-scale-down"
           src="../../assets/f95-logo-horizontal.png"
         >
       </div>
