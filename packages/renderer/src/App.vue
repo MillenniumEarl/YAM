@@ -1,19 +1,14 @@
 <template>
-  <img
-    alt="Vue logo"
-    src="../assets/logo.svg"
-    width="300"
-  >
-  <app-test />
+  <game-preview />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import AppTest from "/@/components/Test.vue";
+import GamePreview from "/@/components/GamePreview.vue";
 export default defineComponent({
   name: "App",
   components: {
-    AppTest,
+    GamePreview,
   },
 });
 </script>
@@ -23,8 +18,7 @@ export default defineComponent({
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  color: white;
   margin-top: 60px;
 }
 </style>

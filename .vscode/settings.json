@@ -12,5 +12,6 @@
         "crowdin.yml": true,
         "electron-vendors.config.json": true
     },
-    "typescript.tsdk": "node_modules/typescript/lib"
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "vue3snippets.enable-compile-vue-file-on-did-save-code": false
 }

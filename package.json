@@ -64,6 +64,7 @@
     "vue-tsc": "0.29.8"
   },
   "dependencies": {
+    "@heroicons/vue": "^1.0.5",
     "@magna_shogun/catch-decorator": "^1.0.1",
     "@millenniumearl/f95api": "^2.0.0-beta.10.1",
     "@millenniumearl/recaptcha-harvester": "^1.2.1",
@@ -81,6 +82,7 @@
     "sanitize-filename": "^1.6.3",
     "source-map-support": "^0.5.21",
     "string-similarity": "^4.0.4",
+    "tailwind-scrollbar": "^1.3.1",
     "uniqid": "^5.4.0",
     "vue": "3.2.23",
     "vue-router": "4.0.12"
