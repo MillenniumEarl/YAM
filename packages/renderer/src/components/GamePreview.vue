@@ -170,7 +170,3 @@ export default defineComponent({
   name: "GamePreview"
 });
 </script>
-
-<style scoped>
-
-</style>
