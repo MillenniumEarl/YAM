@@ -34,7 +34,7 @@
       <div class="grid grid-cols-1 xl:grid-cols-2 mt-1">
         <div class="flex flex-wrap">
           <div class="flex-none">
-            <UserIcon class="h-5 w-5 text-yellow-400" />
+            <i-ion-person class="h-5 w-5 text-yellow-400" />
           </div>
           <div
             id="author"
@@ -45,7 +45,7 @@
         </div>
         <div class="flex flex-wrap">
           <div class="flex-none">
-            <ChipIcon class="h-5 w-5 text-yellow-400" />
+            <i-ion-hardware-chip class="h-5 w-5 text-yellow-400" />
           </div>
           <div
             id="engine"
@@ -56,7 +56,7 @@
         </div>
         <div class="flex flex-wrap">
           <div class="flex-none">
-            <DesktopComputerIcon class="h-5 w-5 text-yellow-400" />
+            <i-ion-desktop-outline class="h-5 w-5 text-yellow-400" />
           </div>
           <div
             id="installed-version"
@@ -67,7 +67,7 @@
         </div>
         <div class="flex flex-wrap">
           <div class="flex-none">
-            <CloudIcon class="h-5 w-5 text-yellow-400" />
+            <i-ion-cloud class="h-5 w-5 text-yellow-400" />
           </div>
           <div
             id="available-version"
@@ -82,23 +82,23 @@
     <div class="grid grid-flow-row auto-rows-max gap-1 mt-4">
       <button
         id="update-btn"
-        class="btn-icon bg-blue-500 hover:bg-blue-600"
+        class="btn-icon bg-blue-500 hover:bg-blue-600 focus:ring-blue-500"
       >
-        <DownloadIcon class="w-5 h-5 mr-1" />
+        <i-ion-cloud-download class="w-5 h-5 mr-1" />
         <span>Update</span>
       </button>
       <button
         id="play-btn"
-        class="btn-icon bg-green-500 hover:bg-green-600"
+        class="btn-icon bg-green-500 hover:bg-green-600 focus:ring-green-500"
       >
-        <PlayIcon class="w-5 h-5 mr-1" />
+        <i-ion-play-circle class="w-5 h-5 mr-1" />
         <span>Play</span>
       </button>
       <button
         id="delete-btn"
-        class="btn-icon bg-red-500 hover:bg-red-600"
+        class="btn-icon bg-red-500 hover:bg-red-600 focus:ring-red-500"
       >
-        <TrashIcon class="w-5 h-5 mr-1" />
+        <i-ion-trash class="w-5 h-5 mr-1" />
         <span>Delete</span>
       </button>
     </div>
@@ -165,27 +165,9 @@
 </template>
 
 <script lang="ts">
-import {
-  UserIcon,
-  ChipIcon,
-  DesktopComputerIcon,
-  CloudIcon,
-  DownloadIcon,
-  PlayIcon,
-  TrashIcon
-} from "@heroicons/vue/solid";
 import { defineComponent } from "vue";
 export default defineComponent({
-  name: "GamePreview",
-  components: {
-    UserIcon,
-    ChipIcon,
-    DesktopComputerIcon,
-    CloudIcon,
-    DownloadIcon,
-    PlayIcon,
-    TrashIcon
-  },
+  name: "GamePreview"
 });
 </script>
 

@@ -40,6 +40,7 @@
     "*.ts": "npm run prettify"
   },
   "devDependencies": {
+    "@iconify-json/ion": "^1.0.3",
     "@playwright/test": "^1.17.1",
     "@types/string-similarity": "^4.0.0",
     "@types/uniqid": "^5.3.1",
@@ -60,11 +61,12 @@
     "simple-git-hooks": "2.7.0",
     "tailwindcss": "^2.2.19",
     "typescript": "4.5.2",
+    "unplugin-icons": "^0.12.22",
+    "unplugin-vue-components": "^0.17.6",
     "vite": "2.6.14",
     "vue-tsc": "0.29.8"
   },
   "dependencies": {
-    "@heroicons/vue": "^1.0.5",
     "@magna_shogun/catch-decorator": "^1.0.1",
     "@millenniumearl/f95api": "^2.0.0-beta.10.1",
     "@millenniumearl/recaptcha-harvester": "^1.2.1",
