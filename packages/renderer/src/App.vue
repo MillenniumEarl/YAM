@@ -1,14 +1,22 @@
 <template>
+  <app-navigator :avatar="avatar" />
   <game-preview />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import AppNavigator from "/@/components/Navigator.vue";
 import GamePreview from "/@/components/GamePreview.vue";
 export default defineComponent({
   name: "App",
   components: {
     GamePreview,
+    AppNavigator,
+  },
+  data() {
+    return {
+      avatar: "../../assets/avatar.jpg",
+    };
   },
 });
 </script>

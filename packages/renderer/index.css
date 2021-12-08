@@ -20,6 +20,10 @@
 }
 
 @layer components {
+  .btn-navbar {
+    @apply inline-flex items-center justify-center w-10 h-10 text-gray-400 bg-transparent transition-colors duration-150 rounded-full hover:text-white shadow-md focus:outline-none focus:ring-gray-600 focus:ring-2 focus:ring-opacity-75;
+  }
+
   .btn-icon {
     @apply inline-flex items-center justify-center h-7 px-4 py-2 font-medium rounded-lg transition-colors duration-150 text-white shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75;
   }
