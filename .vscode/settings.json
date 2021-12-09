@@ -13,5 +13,10 @@
         "electron-vendors.config.json": true
     },
     "typescript.tsdk": "node_modules/typescript/lib",
-    "vue3snippets.enable-compile-vue-file-on-did-save-code": false
+    "vue3snippets.enable-compile-vue-file-on-did-save-code": false,
+    "npm.scriptExplorerExclude": [
+      "build",
+      "^pre[\\w-]+",
+      "^typecheck[\\w-]+"
+    ],
 }

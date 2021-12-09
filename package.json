@@ -17,19 +17,10 @@
     "lint": "eslint . --ext js,ts,vue --fix",
     "typecheck-main": "tsc --noEmit -p packages/main/tsconfig.json",
     "typecheck-preload": "tsc --noEmit -p packages/preload/tsconfig.json",
-    "typecheck-renderer": "vue-tsc --noEmit -p packages/renderer/tsconfig.json",
-    "typecheck": "npm run typecheck-main && npm run typecheck-preload && npm run typecheck-renderer",
     "pretypecheck-renderer": "dts-cb -i packages/preload/src/**/*.ts -o packages/preload/exposedInMainWorld.d.ts",
+    "typecheck-renderer": "npm run pretypecheck-renderer && vue-tsc --noEmit -p packages/renderer/tsconfig.json",
+    "typecheck": "npm run typecheck-main && npm run typecheck-preload && npm run typecheck-renderer",
     "prettify": "prettier --config .prettierrc src/**/*.ts --write"
-  },
-  "npm.scriptExplorerExclude": {
-    "type": "array",
-    "items": {
-      "type": "string"
-    },
-    "markdownDescription": "%config.npm.scriptExplorerExclude%",
-    "scope": "resource",
-    "default": []
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged",
