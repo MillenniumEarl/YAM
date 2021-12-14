@@ -45,7 +45,7 @@ export default class GameSerie {
   }
 
   /**
-   * @param name Name to assing to this serie.
+   * @param name Name used to address to this serie.
    */
   constructor(name: string) {
     this.#name = sanitize(name);

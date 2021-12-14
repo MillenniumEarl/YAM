@@ -35,7 +35,7 @@ export default class Mod {
   #path: string | undefined;
 
   /**
-   * Folder containing the files to restore when the mod is uninstalled..
+   * Folder containing the files to restore when the mod is uninstalled.
    */
   #rollback: string | undefined;
 

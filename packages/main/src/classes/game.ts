@@ -11,13 +11,15 @@ import path from "path";
 
 // Public modules from npm
 import { Game as F95Game } from "@millenniumearl/f95api";
+import type { Options } from "image-downloader";
+import downloader from "image-downloader";
 import uniqid from "uniqid";
 import fs from "fs-extra";
 
 // Local modules
 import getSavesDirectory from "../utility/saves-dir";
-import type GameSerie from "./gameserie";
 import shared from "../../../common/shared";
+import type GameSerie from "./gameserie";
 
 /**
  * Single game indexed by the application, it contains the main methods for its management.
@@ -38,17 +40,27 @@ export default class Game extends F95Game {
   /**
    * Database ID of the associated serie.
    */
-  #serieID: string;
+  #serieid: string;
 
   /**
-   * Indicates whether the cover of this game has been downloaded to disk.
+   * Name of the preview image.
    */
-  #previewDownloaded = false;
+  #previewName: string | undefined;
 
   /**
    * Path to the folder containing the cache of data for this game.
    */
   #cache: string | undefined;
+
+  /**
+   * Installed version of the game.
+   */
+  #installedVersion: string | undefined;
+
+  /**
+   * Indicates whether the game has been marked as "completed" by the user.
+   */
+  #completedFlag = false;
 
   /**
    * ID of this game in the database.
@@ -61,7 +73,7 @@ export default class Game extends F95Game {
    * Database ID of the associated serie.
    */
   public get serieid() {
-    return this.#serieID;
+    return this.#serieid;
   }
 
   /**
@@ -75,7 +87,27 @@ export default class Game extends F95Game {
    * Path to the cached cover image.
    */
   public get preview() {
-    return this.#cache && this.#previewDownloaded ? path.join(this.#cache, "cover.webp") : null;
+    return this.#cache && this.#previewName ? path.join(this.#cache, this.#previewName) : null;
+  }
+
+  /**
+   * Installed version of the game.
+   */
+  public get installedVersion() {
+    return this.#installedVersion;
+  }
+
+  /**
+   * Indicates whether the game has been marked as "completed" by the user.
+   *
+   * This does not mean that the game has finished its development.
+   */
+  public get complete() {
+    return this.#completedFlag;
+  }
+
+  public set complete(value: boolean) {
+    this.#completedFlag = value;
   }
 
   /**
@@ -89,22 +121,26 @@ export default class Game extends F95Game {
     this.merge(data);
 
     // Associate serie
-    this.#serieID = serie.dbid;
+    this.#serieid = serie.dbid;
   }
 
   //#region Public methods
   /**
    * Install the game in the application.
    * @param src Directory containing the game to be installed
+   * @param version Version of the game (optional)
    */
-  public async install(src: string) {
+  public async install(src: string, version?: string) {
     // Check if src is a directory
     const stats = await fs.stat(src);
     if (!stats.isDirectory()) throw new Error("Expected 'src' to be a directory");
 
     // Load associated serie
-    const serie = shared.gamedb.data?.series.find((serie) => serie.dbid === this.#serieID);
+    const serie = shared.gamedb.data?.series.find((serie) => serie.dbid === this.#serieid);
     if (!serie) throw new Error("No series associated to this game was found");
+
+    // Set the installed version
+    this.#installedVersion = version ?? this.version; // If available use local version, otherwise set the online version
 
     // Prepare the target path
     const name = path.basename(src); // Reuse the src folder name
@@ -125,6 +161,9 @@ export default class Game extends F95Game {
     // Create the cache folder
     this.#cache = path.join(this.#path, ".cache");
     await fs.mkdir(this.#cache);
+
+    // Download preview
+    await this.downloadPreview(this.cover);
   }
 
   /**
@@ -149,8 +188,9 @@ export default class Game extends F95Game {
   /**
    * Update the game with a different version.
    * @param src Directory containing the update files.
+   * @param version New version of the game
    */
-  public async update(src: string) {
+  public async update(src: string, version: string) {
     // Check if src is a directory
     const stats = await fs.stat(src);
     if (!stats.isDirectory()) throw new Error("Expected 'src' to be a directory");
@@ -160,6 +200,9 @@ export default class Game extends F95Game {
 
     // Copy and overwrite existing files
     await fs.copy(src, this.#path);
+
+    // Update version
+    this.#installedVersion = version;
   }
 
   /**
@@ -224,6 +267,21 @@ export default class Game extends F95Game {
     await dir.close();
 
     return savefiles;
+  }
+
+  /**
+   * Download the image preview of the game.
+   */
+  private async downloadPreview(src: string) {
+    // Download the image
+    const options: Options = {
+      url: src,
+      dest: this.#cache as string
+    };
+    const result = await downloader.image(options);
+
+    // Save the filename
+    this.#previewName = result.filename;
   }
   //#endregion Private methods
 }
