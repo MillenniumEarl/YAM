@@ -20,6 +20,18 @@
 }
 
 @layer components {
+  .table-row {
+    @apply odd:bg-gray-800 even:bg-gray-600 text-center;
+  }
+
+  .table-row:focus-visible {
+    @apply outline-0;
+  }
+
+  tr.table-row.selected {
+    @apply bg-red-500;
+  }
+
   .btn-navbar {
     @apply inline-flex items-center justify-center w-10 h-10 text-gray-400 bg-transparent transition-colors duration-150 rounded-full hover:text-white shadow-md focus:outline-none focus:ring-gray-600 focus:ring-2 focus:ring-opacity-75;
   }
@@ -30,5 +42,9 @@
 
   .btn-tag {
     @apply flex-auto h-7 px-2 border-solid rounded-md border-2 font-medium transition-colors duration-150 text-white border-blue-500 hover:bg-blue-500 shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75;
+  }
+
+  .checkbox {
+    @apply rounded h-5 w-5 bg-red-400 text-green-500 border-transparent transition-colors duration-150 focus:ring-1 focus:ring-offset-1 focus:ring-opacity-50 focus:ring-gray-500;
   }
 }
