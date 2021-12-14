@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-full w-14 absolute inset-y-0 left-0 border-solid border-r-2 border-gray-500"
+    class="h-screen w-14 absolute inset-y-0 left-0 border-solid border-r-2 border-gray-500"
   >
     <div class="flex flex-col px-2 py-3 gap-4">
       <button class="btn-navbar">

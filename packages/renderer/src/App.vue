@@ -1,17 +1,17 @@
 <template>
   <app-navigator :avatar="avatar" />
-  <game-preview />
+  <game-view />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import AppNavigator from "/@/components/Navigator.vue";
-import GamePreview from "/@/components/GamePreview.vue";
+import GameView from "/@/components/GameView.vue";
 export default defineComponent({
   name: "App",
   components: {
-    GamePreview,
     AppNavigator,
+    GameView
   },
   data() {
     return {
@@ -27,6 +27,5 @@ export default defineComponent({
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: white;
-  margin-top: 60px;
 }
 </style>
