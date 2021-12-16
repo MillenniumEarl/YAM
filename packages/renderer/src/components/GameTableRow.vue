@@ -29,19 +29,25 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-//import type Game from "../../../main/src/classes/game";
+import type { Game } from "../../../common/types";
 export default defineComponent({
   name: "GameTableRow",
   props: {
     game: {
-      type: Object, // Game
+      type: Object as () => Game,
       required: true,
     }
   },
   methods: {
+    /**
+     * Check if a update is available comparing the version's values.
+     */
     isUpdateAvailable() {
       return this.game.version !== this.game.installedVersion;
     },
+    /**
+     * Return a string with the version(s) value.
+     */
     versionString() {
       return this.isUpdateAvailable() 
         ? `${this.game.installedVersion} (${this.game.version})`

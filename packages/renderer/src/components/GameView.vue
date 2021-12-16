@@ -2,7 +2,7 @@
   <div class="flex flex-nowrap">
     <game-table
       class="flex-auto"
-      :gamelist="[mockgame, mockgameB]"
+      :gamelist="gamelist"
       @game-selected="selectedGame = $event"
       @game-unselected="selectedGame = null"
     />
@@ -17,6 +17,7 @@
 import { defineComponent } from "vue";
 import GameTable from "./GameTable.vue";
 import GamePreview from "./GamePreview.vue";
+import type { Game } from "../../../common/types";
 
 let testgame = {
   id: 1,
@@ -76,8 +77,7 @@ export default defineComponent({
   },
   data() {
     return {
-      mockgame: testgame,
-      mockgameB: testgameB,
+      gamelist: [testgame, testgameB] as unknown as Game[],
       selectedGame: null,
     };
   }

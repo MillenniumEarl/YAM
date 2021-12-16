@@ -29,6 +29,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import GameTableRow from "./GameTableRow.vue";
+import type { Game } from "../../../common/types";
 
 export default defineComponent({
   name: "GameTable",
@@ -37,7 +38,7 @@ export default defineComponent({
   },
   props: {
     gamelist: {
-      type: Array, // Game
+      type: Array as () => Game[],
       required: true,
     },
     // query: {
@@ -61,7 +62,7 @@ export default defineComponent({
     },
   },
   methods: {
-      onGameRowSelected(game: Object, index: number) {
+      onGameRowSelected(game: Game, index: number) {
           if(index === this.selectedRowIndex) { 
             this.$emit("game-unselected");
             this.selectedRowIndex = -1;
@@ -70,15 +71,13 @@ export default defineComponent({
             this.$emit("game-selected", game);
           }
       },
-      onKeyDown(e) {
+      onKeyDown(e: KeyboardEvent) {
         const view = this.gameView;
-        const KEY_UP = 38;
-        const KEY_DOWN = 40;
 
         // Calculate new row index
         let localRowIndex = this.selectedRowIndex;
-        if (e.keyCode == KEY_UP) localRowIndex--;
-        else if (e.keyCode == KEY_DOWN) localRowIndex++;
+        if (e.key === "ArrowUp") localRowIndex--;
+        else if (e.key === "ArrowDown") localRowIndex++;
         else return;
 
         // Fix row if out of index

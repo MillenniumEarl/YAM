@@ -7,7 +7,7 @@
       class="relative overflow-hidden border-solid border-2 border-gray-500 rounded-lg"
     >
       <img
-        :src="game.preview"
+        :src="game.preview || '@todo'"
         class="object-scale-down"
       >
       <div
@@ -20,16 +20,18 @@
     </div>
     <!-- Game's info -->
     <div>
-      <!-- Name of the game and F95Zone's logo -->
+      <!-- Name of the game and link to platform (F95Zone's logo) -->
       <div class="flex flex-nowrap items-center">
         <h1 class="flex-auto text-2xl font-semibold truncate">
           {{ game.name }}
         </h1>
-        <img
-          class="flex-initial w-24 h-10 object-scale-down"
-          src="../../assets/f95-logo-horizontal.png"
-          :href="game.url"
-        >
+        <a :href="game.url">
+          <img
+            class="flex-initial w-24 h-10 object-scale-down"
+            src="../../assets/f95-logo-horizontal.png"
+            alt=""
+          >
+        </a>
       </div>
 
       <!-- Game's author, used engine and versions -->
@@ -138,13 +140,13 @@
 </template>
 
 <script lang="ts">
-//import type Game from "../../../main/src/classes/game";
+import type { Game } from "../../../common/types";
 import { defineComponent } from "vue";
 export default defineComponent({
   name: "GamePreview",
   props: {
     game: {
-      type: Object, // Game
+      type: Object as () => Game,
       required: true,
     },
   },
@@ -152,7 +154,7 @@ export default defineComponent({
   methods: {
     onChangeCompleteFlag(value: Event) {
       const clone = this.game;
-      clone.complete = value.target.checked;
+      clone.complete = (value?.target as unknown as { checked: boolean}).checked;
       this.$emit("update:game", clone);
     }
   }
