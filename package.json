@@ -69,7 +69,7 @@
     "i18next": "^21.6.0",
     "i18next-electron-language-detector": "0.0.10",
     "image-downloader": "^4.0.3",
-    "log4js": "^6.3.0",
+    "log4js": "^6.4.1",
     "lowdb": "^3.0.0",
     "new-github-issue-url": "^1.0.0",
     "readdir-enhanced": "^6.0.4",
