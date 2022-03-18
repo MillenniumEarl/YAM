@@ -40,7 +40,7 @@
         "glob": "^7.2.0",
         "i18next": "^21.2.4",
         "i18next-electron-language-detector": "0.0.10",
-        "image-downloader": "^4.0.3",
+        "image-downloader": "^4.1.0",
         "nedb-promises": "^5.0.1",
         "new-github-issue-url": "^0.2.1",
         "string-similarity": "^4.0.4",
