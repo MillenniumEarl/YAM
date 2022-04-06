@@ -1,6 +1,6 @@
 <template>
   <app-navigator :avatar="avatar" />
-  <game-view />
+  <game-view class="ml-14" />
 </template>
 
 <script lang="ts">

@@ -3,7 +3,7 @@
     class="flex flex-col text-sm"
     @keydown.stop.prevent="onKeyDown"
   >
-    <table class="table-auto w-auto ml-14 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 overflow-y-auto">
+    <table class="table-auto w-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 overflow-y-auto">
       <thead>
         <tr class="bg-gray-700 text-center">
           <th>Game Name</th>
@@ -64,14 +64,15 @@ export default defineComponent({
   methods: {
       onGameRowSelected(game: Game, index: number) {
           if(index === this.selectedRowIndex) { 
-            this.$emit("game-unselected");
             this.selectedRowIndex = -1;
+            this.$emit("game-unselected");
           } else {
             this.selectedRowIndex = index;
             this.$emit("game-selected", game);
           }
       },
       onKeyDown(e: KeyboardEvent) {
+        // Alias
         const view = this.gameView;
 
         // Calculate new row index
