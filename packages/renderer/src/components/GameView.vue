@@ -1,11 +1,14 @@
 <template>
   <div class="flex flex-nowrap">
-    <game-table
-      class="flex-auto"
-      :gamelist="gamelist"
-      @game-selected="selectedGame = $event"
-      @game-unselected="selectedGame = null"
-    />
+    <div class="flex flex-auto flex-col">
+      <game-table-query />
+      <game-table
+        class="flex-auto"
+        :gamelist="gamelist"
+        @game-selected="selectedGame = $event"
+        @game-unselected="selectedGame = null"
+      />
+    </div>
     <game-preview
       v-if="selectedGame"
       v-model:game="selectedGame"
@@ -17,6 +20,7 @@
 import { defineComponent } from "vue";
 import GameTable from "./GameTable.vue";
 import GamePreview from "./GamePreview.vue";
+import GameTableQuery from "./GameTableQuery.vue";
 import type { Game } from "../../../common/types";
 
 let testgame = {
@@ -74,6 +78,7 @@ export default defineComponent({
   components: {
     GameTable,
     GamePreview,
+    GameTableQuery,
   },
   data() {
     return {
