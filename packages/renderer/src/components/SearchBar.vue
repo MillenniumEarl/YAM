@@ -2,13 +2,15 @@
   <div class="wrapper">
     <i-ion-search-outline class="search-icon" />
     <input
-      ref="search"
+      v-model="searchstring"
       class="search"
       placeholder="Search"
       type="text"
-      @change="onInputChange"
+      @change="onInputValidated"
+      @input="onInputChange"
     >
     <i-ion-close-outline
+      v-show="searchstring.length > 0"
       class="clear-icon"
       @click="reset"
     />
@@ -19,13 +21,21 @@
 import { defineComponent } from "vue";
 export default defineComponent({
   name: "SearchBar",
-  emits: ["input-changed"],
+  emits: ["input-changed", "input-validated"],
+  data() {
+    return {
+      searchstring: ""
+    };
+  },
   methods: {
     onInputChange(e: Event) {
       this.$emit("input-changed", (e.target as HTMLInputElement).value);
     },
+    onInputValidated(e: Event) {
+      this.$emit("input-validated", (e.target as HTMLInputElement).value);
+    },
     reset() {
-      this.$refs["search"].value = "";
+      this.searchstring = "";
     }
   },
 });
@@ -60,7 +70,6 @@ export default defineComponent({
   right: 8px;
   width: 12px;
   cursor: pointer;
-  visibility: block;
   @apply text-white;
 }
 .search:hover {
