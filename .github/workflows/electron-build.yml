@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3.0.0
 
       - name: Cache npm dependencies
-        uses: actions/cache@v3.0.1
+        uses: actions/cache@v3.0.2
         with:
           path: '~/.npm'
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -23,7 +23,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v3.1.0
+        uses: actions/setup-node@v3.1.1
         with:
           node-version: 14
 
