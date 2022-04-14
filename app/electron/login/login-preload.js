@@ -110,7 +110,7 @@ contextBridge.exposeInMainWorld("IO", {
      * @returns {Promise<String>}
      */
     read: async function ioRead(path) {
-        return fs.readFileSync(path, "utf-8");
+        return fs.readFileSync(path, "utf8");
     },
     /**
      * Write data in a file asynchronously.

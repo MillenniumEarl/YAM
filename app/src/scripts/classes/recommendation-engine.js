@@ -206,11 +206,11 @@ class RecommendationEngine {
                 // Add the games
                 if (!games) return [];
                 const validGames = await this._validateGame(games, recommendedGames);
-                validGames.map(game => {
-                    if (recommendedGames.length < limit) 
-                        recommendedGames.push(game);
+                validGames.forEach(game => {
+                  if (recommendedGames.length < limit)
+                    recommendedGames.push(game);
                 });
-
+                
                 // Remove the last tag
                 // This is necessary for the possible next do-while loop
                 // that happens when there aren't enough recommended games
