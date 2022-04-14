@@ -88,7 +88,7 @@ module.exports.deleteFolderRecursive = async function deleteFolderRecursive(dirp
 module.exports.readFileSync = function readFileSync(filename) {
     let returnValue = null;
     if (fs.existsSync(filename)) {
-        returnValue = fs.readFileSync(filename, "utf-8");
+        returnValue = fs.readFileSync(filename, "utf8");
     }
     return returnValue;
 };
