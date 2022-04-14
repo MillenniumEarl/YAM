@@ -36,7 +36,7 @@
         "electron-log": "^4.4.1",
         "electron-online": "^1.0.0",
         "electron-store": "^8.0.1",
-        "electron-updater": "^4.6.1",
+        "electron-updater": "^5.0.0",
         "glob": "^8.0.0",
         "i18next": "^21.2.4",
         "i18next-electron-language-detector": "0.0.10",
