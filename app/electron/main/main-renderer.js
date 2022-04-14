@@ -387,7 +387,7 @@ async function listAvailableLanguages() {
     const currentLanguageISO = (await window.API.currentLanguage()).toUpperCase();
 
     for (const lang of langs) {
-        const iso = lang.replace(".json", "");
+        const iso = lang.replace(/(\.json)$/, "");
 
         // Create <option> for the combobox
         const option = document.createElement("option");

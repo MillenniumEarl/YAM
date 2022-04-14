@@ -531,7 +531,7 @@ async function removeUnsubscribedThreadsFromDB(recentIDs) {
 function getIDFromURL(url) {
     const match = url.match(/\.[0-9]+/);
     if (!match) return null;
-    return parseInt(match[0].replace(".", ""));
+    return parseInt(match[0].replace(/./g, ""));
 }
 
 /**
