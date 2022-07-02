@@ -50,7 +50,7 @@
         "@babel/eslint-parser": "7.18.2",
         "electron-builder": "23.1.0",
         "electron": "18.3.5",
-        "eslint": "8.18.0"
+        "eslint": "8.19.0"
     },
     "build": {
         "appId": "com.electron.yam",
