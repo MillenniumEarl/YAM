@@ -49,7 +49,7 @@
     "devDependencies": {
         "@babel/eslint-parser": "7.18.9",
         "electron-builder": "23.3.3",
-        "electron": "18.3.8",
+        "electron": "18.3.9",
         "eslint": "8.22.0"
     },
     "build": {
