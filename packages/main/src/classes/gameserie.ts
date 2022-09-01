@@ -4,7 +4,7 @@
 // https://opensource.org/licenses/MIT
 
 // Core modules
-import path from "path";
+import ospath from "path";
 
 // Public modules from npm
 import sanitize from "sanitize-filename";
@@ -13,6 +13,7 @@ import fs from "fs-extra";
 
 // Local modules
 import shared from "../../../common/shared";
+import type Game from "./game";
 
 export default class GameSerie {
   /**
@@ -49,7 +50,7 @@ export default class GameSerie {
    */
   constructor(name: string) {
     this.#name = sanitize(name);
-    this.#path = path.join(shared.paths.GAME_FOLDER_PATH(), this.#name);
+    this.#path = ospath.join(shared.paths.GAME_FOLDER_PATH(), this.#name);
   }
 
   /**
@@ -80,15 +81,15 @@ export default class GameSerie {
    */
   public async remove() {
     // Get this serie index in the database array
-    const index = shared.gamedb.data?.series.findIndex((serie) => serie.#dbid === this.#dbid);
+    const index = shared.gamedb.data?.series.findIndex((serie: GameSerie) => serie.#dbid === this.#dbid);
     if (!index) throw new Error("Cannot find this game in the database");
 
     // First remove all the games associated with this serie,
     // games that are stored inside this.#path
-    const games = shared.gamedb.data?.games.filter((game) => game.serieid === this.#dbid) ?? [];
+    const games = shared.gamedb.data?.games.filter((game: Game) => game.serieid === this.#dbid) ?? [];
 
     // Remove all games
-    const promises = games.map((game) => game.uninstall());
+    const promises = games.map((game: Game) => game.uninstall());
     await Promise.all(promises);
 
     // Remove the directory
