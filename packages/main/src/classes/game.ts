@@ -136,7 +136,7 @@ export default class Game extends F95Game {
     if (!stats.isDirectory()) throw new Error("Expected 'src' to be a directory");
 
     // Load associated serie
-    const serie = shared.gamedb.data?.series.find((serie) => serie.dbid === this.#serieid);
+    const serie = shared.gamedb.data?.series.find((serie: GameSerie) => serie.dbid === this.#serieid);
     if (!serie) throw new Error("No series associated to this game was found");
 
     // Set the installed version
@@ -177,7 +177,7 @@ export default class Game extends F95Game {
     await fs.remove(this.#path);
 
     // Find this game in database
-    const index = shared.gamedb.data?.games.findIndex((game) => game.#dbid === this.#dbid);
+    const index = shared.gamedb.data?.games.findIndex((game: Game) => game.#dbid === this.#dbid);
     if (!index) throw new Error("Cannot find this game in the database");
 
     // Remove from database
