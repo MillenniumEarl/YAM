@@ -11,6 +11,7 @@ import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import { CatchAll } from "@magna_shogun/catch-decorator";
 import { app, BrowserWindow, protocol, shell } from "electron";
 import { CancellationToken } from "electron-updater";
+import contextMenu from "electron-context-menu";
 
 // Local modules
 import * as localization from "../utility/localization";
@@ -110,6 +111,10 @@ export default class AppConfigurator {
           allowFileAccess: true
         }
       });
+
+      // Add Context Menu (right-click) in order to add
+      // the "Inspect" element for Chrome debugger
+      contextMenu();
     }
 
     this.#mlogger.info(
