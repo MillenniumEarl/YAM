@@ -24,7 +24,7 @@ export default defineComponent({
   emits: ["input-changed", "input-validated"],
   data() {
     return {
-      searchstring: ""
+      searchstring: "",
     };
   },
   methods: {
@@ -36,7 +36,7 @@ export default defineComponent({
     },
     reset() {
       this.searchstring = "";
-    }
+    },
   },
 });
 </script>
