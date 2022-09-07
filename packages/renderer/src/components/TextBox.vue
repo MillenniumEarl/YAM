@@ -1,10 +1,9 @@
 <template>
   <div class="wrapper">
     <input
-      id="textbox"
       v-model="textvalue"
       class="textbox"
-      placeholder="Textbox"
+      :placeholder="placeholder"
       type="text"
       @change="onInputValidated"
       @input="onInputChange"
@@ -25,6 +24,10 @@ export default defineComponent({
     value: {
       type: String,
       default: ""
+    },
+    placeholder: {
+      type: String,
+      default: "Textbox"
     }
   },
   emits: ["input-changed", "input-validated"],
