@@ -3,6 +3,7 @@
     class="dropdown-search"
   >
     <text-box
+      ref="textbox"
       :placeholder="placeholder"
       :value="textvalue"
       @focusin="showDropdown = true"
@@ -42,6 +43,10 @@ export default defineComponent({
     placeholder: {
       type: String,
       default: "DropDownTextBox"
+    },
+    cleanAfterSelection: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ["selection"],
@@ -77,6 +82,17 @@ export default defineComponent({
     onMouseDown(e: Event) {
       this.textvalue = (e.target as HTMLAnchorElement).text;
       this.$emit("selection", this.textvalue);
+
+      // Reset the filter
+      this.filter = [];
+      
+      if (this.cleanAfterSelection) {
+        // Reset the binding value
+        this.textvalue = "";
+
+        // Use the TextBox method `reset` to clean the field
+        this.$refs.textbox.reset();
+      }
     }
   }
 });
