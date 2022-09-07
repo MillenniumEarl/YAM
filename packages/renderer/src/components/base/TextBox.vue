@@ -33,6 +33,9 @@ export default defineComponent({
   emits: ["input-changed", "input-validated"],
   data() {
     return {
+      /**
+       * Variable used to save the value of the text put in the component.
+       */
       textvalue: this.value,
     };
   },
@@ -46,12 +49,21 @@ export default defineComponent({
     }
   },
   methods: {
+    /**
+     * Raised every time the value change.
+     */
     onInputChange() {
       this.$emit("input-changed", this.textvalue);
     },
+    /**
+     * Raised when the user press ENTER.
+     */
     onInputValidated() {
       this.$emit("input-validated", this.textvalue);
     },
+    /**
+     * Reset the text value of TextBox.
+     */
     reset() {
       this.textvalue = "";
     }
@@ -82,12 +94,5 @@ export default defineComponent({
   width: 12px;
   cursor: pointer;
   @apply text-white;
-}
-.search:hover {
-  border: 1px solid;
-  @apply bg-gray-700 border-gray-500;
-}
-.search:focus {
-  @apply border-red-400 ring-1  ring-opacity-50 ring-red-500;
 }
 </style>

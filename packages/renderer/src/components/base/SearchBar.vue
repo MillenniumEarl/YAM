@@ -24,16 +24,28 @@ export default defineComponent({
   emits: ["input-changed", "input-validated"],
   data() {
     return {
+      /**
+       * Variable used to save the value of the text put in the component.
+       */
       searchstring: "",
     };
   },
   methods: {
-    onInputChange(e: Event) {
-      this.$emit("input-changed", (e.target as HTMLInputElement).value);
+    /**
+     * Raised every time the value change.
+     */
+    onInputChange() {
+      this.$emit("input-changed", this.searchstring);
     },
-    onInputValidated(e: Event) {
-      this.$emit("input-validated", (e.target as HTMLInputElement).value);
+    /**
+     * Raised when the user press ENTER.
+     */
+    onInputValidated() {
+      this.$emit("input-validated", this.searchstring);
     },
+    /**
+     * Reset the text value of SearchBox.
+     */
     reset() {
       this.searchstring = "";
     },

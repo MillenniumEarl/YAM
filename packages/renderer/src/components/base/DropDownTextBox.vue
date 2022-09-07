@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="dropdown-search"
-  >
+  <div>
     <text-box
       ref="textbox"
       :placeholder="placeholder"
@@ -10,10 +8,12 @@
       @focusout.capture="showDropdown = false"
       @input-changed="query"
     />
+    <!-- Hidden dropdown menu -->
     <ul
       v-if="showDropdown"
       class="dropdown-menu"
     >
+      <!-- Auto-generated dropdown items -->
       <li>
         <a
           v-for="item in filter"
@@ -36,6 +36,9 @@ export default defineComponent({
   name: "DropDownTextBox",
   components: { TextBox },
   props: {
+    /**
+     * List of item to display in the dropdown.
+     */
     datalist: {
       type: Array as PropType<string[]>,
       required: true
@@ -44,6 +47,9 @@ export default defineComponent({
       type: String,
       default: "DropDownTextBox"
     },
+    /**
+     * After the user select an item from the list, clean the TextBox.
+     */
     cleanAfterSelection: {
       type: Boolean,
       default: false
@@ -53,11 +59,26 @@ export default defineComponent({
   data() {
     return {
       showDropdown: false,
+      /**
+       * Internal filter used to display only the items from
+       * `datalist` that respect the content of the TextBox.
+       */
       filter: [] as string[],
-      textvalue: ""
+      /**
+       * Value of the TextBox.
+       */
+      textvalue: "",
+      /**
+       * Max number of items to display in the dropdown.
+       */
+      limit: 5
     };
   },
   methods: {
+    /**
+     * Given a string, filter `datalist` and select only the first `limit` number
+     * of elements that include the search string, alphabetically ordered.
+     */
     query(value: string) {
       // Avoid processing the string more than one time
       const SEARCH_STRING = value.toUpperCase().trim();
@@ -69,7 +90,7 @@ export default defineComponent({
       set = set.sort();
 
       // Avoid displaying all the set if the textbox is empty
-      this.filter = value == "" ? [] : set.slice(0, 5);
+      this.filter = value == "" ? [] : set.slice(0, this.limit);
     },
     /**
      * Select the option and write the value in the textbox.

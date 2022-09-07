@@ -1,8 +1,10 @@
 <template>
   <div class="wrapper">
+    <!-- Disable keyboard input because it doesn't respect the valid date range (keyboard.prevent)-->
+    <!-- Limit date range from start of 2000 until current date -->
     <input
       type="date"
-      min="2000-01-02"
+      min="2000-01-01"
       :max="maxDate"
       @keydown.prevent
       @change="onDateTimePicked"
@@ -14,20 +16,19 @@
 import { defineComponent } from "vue";
 export default defineComponent({
   name: "DateTimePicker",
-  props: {
-    value: {
-      type: String,
-      default: ""
-    }
-  },
   emits: ["datetime-picked"],
   data() {
     return {
-      textvalue: this.value,
+      /**
+       * Upper valid date for the component (today)
+       */
       maxDate: new Date().toISOString().split("T")[0]
     };
   },
   methods: {
+    /**
+     * Raised when the user pick a date from the popup.
+     */
     onDateTimePicked(e: Event) {
       const STRING_DATE = (e.target as HTMLInputElement).value;
       const DATETIME = new Date(STRING_DATE);

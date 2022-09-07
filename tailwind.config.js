@@ -3,6 +3,7 @@ module.exports = {
     "./packages/renderer/index.html",
     "./packages/renderer/src/App.vue",
     "./packages/renderer/src/components/*.vue",
+    "./packages/renderer/src/components/base/*.vue",
     "./packages/renderer/dist/*.{vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {},
