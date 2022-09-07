@@ -19,5 +19,9 @@
       "^pre[\\w-]+",
       "^typecheck[\\w-]+"
     ],
-    "css.lint.unknownAtRules": "ignore"
+    "css.lint.unknownAtRules": "ignore",
+    "editor.formatOnSaveMode": "modifications",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": false
 }
