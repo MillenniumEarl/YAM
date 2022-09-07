@@ -56,6 +56,9 @@ export default defineComponent({
       // Filter the list of strings
       let set = this.datalist.filter((s) => s.toUpperCase().includes(SEARCH_STRING));
 
+      // Order the list of string alphabetically (a-z)
+      set = set.sort();
+
       // Avoid displaying all the set if the textbox is empty
       this.filter = value == "" ? [] : set.slice(0, 5);
     },
