@@ -3,7 +3,7 @@
     class="dropdown-search"
   >
     <text-box
-      id="textbox"
+      :placeholder="placeholder"
       :value="textvalue"
       @focusin="showDropdown = true"
       @focusout.capture="showDropdown = false"
@@ -38,6 +38,10 @@ export default defineComponent({
     datalist: {
       type: Array as PropType<string[]>,
       required: true
+    },
+    placeholder: {
+      type: String,
+      default: "DropDownTextBox"
     }
   },
   emits: ["selection"],
