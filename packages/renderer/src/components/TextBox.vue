@@ -1,7 +1,8 @@
 <template>
   <div class="wrapper">
     <input
-      v-model="value"
+      id="textbox"
+      v-model="textvalue"
       class="textbox"
       placeholder="Textbox"
       type="text"
@@ -9,7 +10,7 @@
       @input="onInputChange"
     >
     <i-ion-close-outline
-      v-show="value.length > 0"
+      v-show="textvalue.length > 0"
       class="clear-icon"
       @click="reset"
     />
@@ -20,21 +21,36 @@
 import { defineComponent } from "vue";
 export default defineComponent({
   name: "TextBox",
+  props: {
+    value: {
+      type: String,
+      default: ""
+    }
+  },
   emits: ["input-changed", "input-validated"],
   data() {
     return {
-      value: "",
+      textvalue: this.value,
     };
   },
+  watch: {
+    /**
+     * Update the local variable `textvalue` when the
+     * argument `value` is update from the parent element.
+     */
+    value() {
+      this.textvalue = this.value;
+    }
+  },
   methods: {
-    onInputChange(e: Event) {
-      this.$emit("input-changed", (e.target as HTMLInputElement).value);
+    onInputChange() {
+      this.$emit("input-changed", this.textvalue);
     },
-    onInputValidated(e: Event) {
-      this.$emit("input-validated", (e.target as HTMLInputElement).value);
+    onInputValidated() {
+      this.$emit("input-validated", this.textvalue);
     },
     reset() {
-      this.value = "";
+      this.textvalue = "";
     }
   },
 });
