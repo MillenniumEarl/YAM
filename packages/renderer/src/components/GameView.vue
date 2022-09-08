@@ -46,6 +46,7 @@ let testgame = {
     "Corruption",
     "Creampie",
   ],
+  lastRelease: new Date("2020-09-08"),
   complete: true,
   status: "Abandoned",
   preview: "https://attachments.f95zone.to/2021/08/1374333_patreon_header.jpg",
@@ -76,6 +77,7 @@ let testgameB = {
     "NTR"
   ],
   complete: false,
+  lastRelease: new Date("2021-09-08"),
   status: "Completed",
   preview: "https://attachments.f95zone.to/2020/07/733450_f95header-2020-07.png",
   url: "https://f95zone.to/threads/naruto-kunoichi-trainer-v0-17-1-dinaki.4489/",
@@ -110,6 +112,7 @@ let testgameC = {
     "Here",
   ],
   complete: false,
+  lastRelease: new Date("2022-09-08"),
   status: "Ongoing",
   preview: "https://attachments.f95zone.to/2020/07/733450_f95header-2020-07.png",
   url: "https://f95zone.to/threads/naruto-kunoichi-trainer-v0-17-1-dinaki.4489/",
@@ -138,7 +141,14 @@ export default defineComponent({
       /**
        * User-defined query used to filter the games in the table.
        */
-      query: {} as IQuery,
+      query: {
+        title: "",
+        author: "",
+        lastUpdate: new Date(0),
+        userCompleted: false,
+        status: [],
+        tags: [],
+      } as IQuery,
     };
   },
 });

@@ -145,7 +145,7 @@ export default defineComponent({
       query: {
         title: "",
         author: "",
-        lastUpdate: new Date(),
+        lastUpdate: new Date(0),
         userCompleted: false,
         status: [],
         tags: [],

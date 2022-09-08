@@ -46,7 +46,7 @@ export default defineComponent({
       query: {
         title: "",
         author: "",
-        lastUpdate: new Date(),
+        lastUpdate: new Date(0),
         userCompleted: false,
         status: [],
         tags: [],
@@ -58,8 +58,8 @@ export default defineComponent({
       handler() {
         this.$emit("query-update", this.query);
       },
-      deep: true
-    }
-  }
+      deep: true,
+    },
+  },
 });
 </script>
