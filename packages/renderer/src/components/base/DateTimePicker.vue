@@ -30,9 +30,9 @@ export default defineComponent({
      * Raised when the user pick a date from the popup.
      */
     onDateTimePicked(e: Event) {
-      const STRING_DATE = (e.target as HTMLInputElement).value;
-      const DATETIME = new Date(STRING_DATE);
-      this.$emit("datetime-picked", DATETIME);
+      const stringDate = (e.target as HTMLInputElement).value;
+      const datetime = new Date(stringDate);
+      this.$emit("datetime-picked", datetime);
     },
 },
 });

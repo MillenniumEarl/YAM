@@ -5,6 +5,7 @@
       class="textbox"
       :placeholder="placeholder"
       type="text"
+      :disabled="disabled"
       @change="onInputValidated"
       @input="onInputChange"
     >
@@ -28,6 +29,13 @@ export default defineComponent({
     placeholder: {
       type: String,
       default: "Textbox"
+    },
+    /**
+     * Disable input editing.
+     */
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ["input-changed", "input-validated"],
@@ -36,7 +44,7 @@ export default defineComponent({
       /**
        * Variable used to save the value of the text put in the component.
        */
-      textvalue: this.value,
+      textvalue: this.value
     };
   },
   watch: {
@@ -67,7 +75,7 @@ export default defineComponent({
     reset() {
       this.textvalue = "";
     }
-  },
+  }
 });
 </script>
 

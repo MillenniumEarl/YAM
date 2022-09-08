@@ -6,6 +6,7 @@
       class="search"
       placeholder="Search"
       type="text"
+      :disabled="disabled"
       @change="onInputValidated"
       @input="onInputChange"
     >
@@ -21,6 +22,15 @@
 import { defineComponent } from "vue";
 export default defineComponent({
   name: "SearchBar",
+  props: {
+    /**
+     * Disable input editing.
+     */
+    disabled: {
+      type: Boolean,
+      default: false,
+    }
+  },
   emits: ["input-changed", "input-validated"],
   data() {
     return {

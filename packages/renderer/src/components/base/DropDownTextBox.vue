@@ -81,10 +81,10 @@ export default defineComponent({
      */
     query(value: string) {
       // Avoid processing the string more than one time
-      const SEARCH_STRING = value.toUpperCase().trim();
+      const searchstring = value.toUpperCase().trim();
 
       // Filter the list of strings
-      let set = this.datalist.filter((s) => s.toUpperCase().includes(SEARCH_STRING));
+      let set = this.datalist.filter((s) => s.toUpperCase().includes(searchstring));
 
       // Order the list of string alphabetically (a-z)
       set = set.sort();
