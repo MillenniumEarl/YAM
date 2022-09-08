@@ -38,7 +38,19 @@ export default defineComponent({
        * Switch used to show/display the advance search panel.
        */
       showAdvancedSearch: false,
-      query: {} as IQuery
+      /**
+       * Query object used to store the user preference.
+       *
+       * Emitted to parent every time an option is updated.
+       */
+      query: {
+        title: "",
+        author: "",
+        lastUpdate: new Date(),
+        userCompleted: false,
+        status: [],
+        tags: [],
+      } as IQuery,
     };
   },
   watch: {

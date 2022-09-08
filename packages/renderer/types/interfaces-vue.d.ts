@@ -4,10 +4,10 @@
 // https://opensource.org/licenses/MIT
 
 export interface IQuery {
-  title?: string;
-  author?: string;
-  lastUpdate?: Date;
-  userCompleted?: boolean;
-  status?: string[];
-  tags?: string[];
+  title: string;
+  author: string;
+  lastUpdate: Date;
+  userCompleted: boolean;
+  status: string[];
+  tags: string[];
 }

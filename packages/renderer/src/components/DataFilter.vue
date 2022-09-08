@@ -142,7 +142,14 @@ export default defineComponent({
        *
        * Emitted to parent every time an option is updated.
        */
-      query: {} as IQuery,
+      query: {
+        title: "",
+        author: "",
+        lastUpdate: new Date(),
+        userCompleted: false,
+        status: [],
+        tags: [],
+      } as IQuery,
     };
   },
   watch: {
