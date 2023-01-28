@@ -3,7 +3,7 @@
     <div class="flex flex-auto flex-col">
       <game-table-query @query-update="query=$event" />
       <game-table
-        class="flex-auto"
+        class="flex-auto border-solid border-t-2 border-gray-500"
         :gamelist="gamelist"
         :query="query"
         @game-selected="selectedGame = $event"
