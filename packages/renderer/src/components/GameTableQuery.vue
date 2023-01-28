@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-nowrap items-center gap-x-2 m-2">
+  <div class="flex flex-nowrap items-center gap-x-2 m-1">
     <search-bar
       class="grow"
       :disabled="showAdvancedSearch"
@@ -17,7 +17,7 @@
   <!-- Let's put it under the flex DIV so that we can hide it -->
   <data-filter
     v-if="showAdvancedSearch"
-    class="m-2.5"
+    class="m-1"
     @query-update="query = $event"
   />
 </template>

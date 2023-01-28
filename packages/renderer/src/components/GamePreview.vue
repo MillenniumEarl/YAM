@@ -119,7 +119,7 @@
     <!-- Game's overview -->
     <p
       id="overview"
-      class="scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 text-justify mt-5 overflow-y-auto h-1/5 max-h-48 px-3 pr-4"
+      class="scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 text-justify mt-5 overflow-y-auto max-h-48 px-3 pr-4"
     >
       {{ game.overview }}
     </p>
