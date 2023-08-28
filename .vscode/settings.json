@@ -1,6 +1,30 @@
 {
     "files.exclude": {
-        "**/node_modules": true,
-        "**/dist": true,
+        "node_modules/**": true,
+        "deploy": true,
+        "**/dist/**": true,
+        ".dccache": true,
+        ".husky": true,
+        ".gitignore": true,
+        ".gitattributes": true,
+        ".editor*": true,
+        ".env*": true,
+        "crowdin.yml": true,
+        "electron-vendors.config.json": true
+    },
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "vue3snippets.enable-compile-vue-file-on-did-save-code": false,
+    "npm.scriptExplorerExclude": [
+      "build",
+      "^pre[\\w-]+",
+      "^typecheck[\\w-]+"
+    ],
+    "css.lint.unknownAtRules": "ignore",
+    "editor.formatOnSaveMode": "modifications",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": false,
+    "[html]": {
+      "editor.defaultFormatter": "vscode.html-language-features"
     }
 }

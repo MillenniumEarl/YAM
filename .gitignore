@@ -1,3 +1,22 @@
-node_modules/
-debug.log
-dist/
+# The installed packages
+node_modules
+
+# All the 'dist' folders in the project
+**/dist/**
+
+# Build application
+deploy
+
+# Synk's DeepCode cache analysis
+.dccache
+
+# Visual Studio Code settings for the project
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Local History for Visual Studio Code
+.history/
