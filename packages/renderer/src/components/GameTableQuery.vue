@@ -16,7 +16,7 @@
 
   <!-- Let's put it under the flex DIV so that we can hide it -->
   <data-filter
-    v-if="showAdvancedSearch"
+    v-show="showAdvancedSearch"
     class="m-1"
     @query-update="query = $event"
   />

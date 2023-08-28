@@ -152,9 +152,10 @@ export default defineComponent({
   },
   emits: ["update:game"],
   methods: {
-    onChangeCompleteFlag(value: Event) {
+    onChangeCompleteFlag(event: Event) {
+      const element = event.target as HTMLInputElement;
       const clone = this.game;
-      clone.complete = (value?.target as unknown as { checked: boolean}).checked;
+      clone.complete = element.checked;
       this.$emit("update:game", clone);
     }
   }
