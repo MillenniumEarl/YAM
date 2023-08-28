@@ -10,7 +10,9 @@
         ".editor*": true,
         ".env*": true,
         "crowdin.yml": true,
-        "electron-vendors.config.json": true
+        "electron-vendors.config.json": true,
+        ".eslint*": true,
+        ".prettierrc": true
     },
     "typescript.tsdk": "node_modules/typescript/lib",
     "vue3snippets.enable-compile-vue-file-on-did-save-code": false,
