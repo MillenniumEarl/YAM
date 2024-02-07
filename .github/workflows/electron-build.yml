@@ -23,7 +23,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: 14
 
